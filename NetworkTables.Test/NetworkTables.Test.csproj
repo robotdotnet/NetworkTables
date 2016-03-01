@@ -55,12 +55,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Leb128Test.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StorageBaseTest.cs" />
     <Compile Include="StorageEmptyTest.cs" />
     <Compile Include="StorageTestPersistent.cs" />
     <Compile Include="StorageTestPopulated.cs" />
     <Compile Include="StorageTestPopulateOne.cs" />
+    <Compile Include="ValueTest.cs" />
+    <Compile Include="WireDecoderTest.cs" />
+    <Compile Include="WireEncoderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NetworkTables\NetworkTables.csproj">
