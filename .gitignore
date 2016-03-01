@@ -15,12 +15,12 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
-x64/
-x86/
 build/
 bld/
 [Bb]in/
 [Oo]bj/
+[Oo]utput/
+sbpackages/
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -210,3 +210,4 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+Sandcastle/Help/
