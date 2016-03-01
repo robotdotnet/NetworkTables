@@ -1,0 +1,40 @@
+version: 2016.10.0.{build}
+skip_tags: true
+os: Visual Studio 2015
+
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+nuget:
+  disable_publish_on_pr: true
+before_build:
+- cmd: nuget restore
+build_script:
+- cmd: msbuild "NetworkTables.sln" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:Configuration=CI
+
+test_script:
+- .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:nunit3-console.exe -targetargs:".\NetworkTables.Test\Output\NetworkTables.Test.dll --framework=net-4.5 " -filter:"+[Network*]* -[NetworkTables.T*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -output:coverage.xml -mergeoutput -returntargetcode
+
+
+- "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
+- pip install codecov
+- codecov -f "coverage.xml"
+
+on_success:
+- ps: >-
+    
+    If (($env:APPVEYOR_REPO_BRANCH -eq "master") -and (!$env:APPVEYOR_PULL_REQUEST_NUMBER)) {
+
+    ./nuget install EWSoftware.SHFB -Version 2015.10.10.0 -o sbpackages
+
+    ./nuget install EWSoftware.SHFB.NETFramework -Version 4.6 -o sbpackages
+
+     & 'C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe' Sandcastle\SandcastleXmlOnly.shfbproj /property:Configuration=Release
+
+    ./nuget pack "$env:APPVEYOR_BUILD_FOLDER\NetworkTablesCore\NetworkTables.csproj" -Properties "Configuration=Release;Platform=AnyCPU" -Symbols
+
+    Get-ChildItem .\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+    }

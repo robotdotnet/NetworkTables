@@ -1,0 +1,20 @@
+language: csharp
+solution: NetworkTables.sln
+
+os:
+  - linux
+  - osx
+
+addons:
+  apt:
+    sources:
+      ubuntu-toolchain-r-test
+    packages:
+      libstdc++6-4.7-dbg
+
+install:
+  - nuget restore NetworkTables.sln
+  - nuget install NUnit.Console -Version 3.0.1 -OutputDirectory testrunner
+script:
+  - xbuild /p:Configuration=CI NetworkTables.sln
+  - mono ./testrunner/NUnit.Runners.3.0.1/tools/nunit3-console.exe ./NetworkTables.Test/Output/NetworkTables.Test.dll
