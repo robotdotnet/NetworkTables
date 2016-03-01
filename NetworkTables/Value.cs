@@ -1,41 +1,93 @@
 ﻿using System;
 using System.Collections.Generic;
 using NetworkTables.Exceptions;
+using NetworkTables.Support;
 
 namespace NetworkTables
 {
+    /// <summary>
+    /// This class represents all types allowed by NetworkTables
+    /// </summary>
     public class Value
     {
+        /// <summary>
+        /// Creates a value with an Unassigned default type
+        /// </summary>
         public Value()
         {
             Type = NtType.Unassigned;
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return Val.GetHashCode();
         }
 
+        /// <summary>
+        /// Gets the type of this Value
+        /// </summary>
         public NtType Type { get; }
 
         internal object Val { get; }
 
-        public ulong LastChange { get; }
+        /// <summary>
+        /// Gets the Timestamp when this value was last changed.
+        /// </summary>
+        public long LastChange { get; } = Timestamp.Now();
 
+        /// <summary>
+        /// Gets if the type is boolean
+        /// </summary>
+        /// <returns></returns>
         public bool IsBoolean() => Type == NtType.Boolean;
+        /// <summary>
+        /// Gets if the type is double
+        /// </summary>
+        /// <returns></returns>
         public bool IsDouble() => Type == NtType.Double;
+        /// <summary>
+        /// Gets if the type is string
+        /// </summary>
+        /// <returns></returns>
         public bool IsString() => Type == NtType.String;
 
+        /// <summary>
+        /// Gets if the type is raw
+        /// </summary>
+        /// <returns></returns>
         public bool IsRaw() => Type == NtType.Raw;
 
+        /// <summary>
+        /// Gets if the type is Rpc
+        /// </summary>
+        /// <returns></returns>
         public bool IsRpc() => Type == NtType.Rpc;
 
+        /// <summary>
+        /// Gets if the type is boolean array
+        /// </summary>
+        /// <returns></returns>
         public bool IsBooleanArray() => Type == NtType.BooleanArray;
 
+        /// <summary>
+        /// Gets if the type is double array
+        /// </summary>
+        /// <returns></returns>
         public bool IsDoubleArray() => Type == NtType.DoubleArray;
 
+        /// <summary>
+        /// Gets if the type is string array
+        /// </summary>
+        /// <returns></returns>
         public bool IsStringArray() => Type == NtType.StringArray;
 
+        /// <summary>
+        /// Gets the boolean value from the type
+        /// </summary>
+        /// <returns>boolean contained in type</returns>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if
+        /// type is not boolean.</exception>
         public bool GetBoolean()
         {
             if (Type != NtType.Boolean)
@@ -44,7 +96,12 @@ namespace NetworkTables
             }
             return (bool)Val;
         }
-
+        /// <summary>
+        /// Gets the double value from the type
+        /// </summary>
+        /// <returns>double contained in type</returns>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if
+        /// type is not double.</exception>
         public double GetDouble()
         {
             if (Type != NtType.Double)
@@ -54,6 +111,12 @@ namespace NetworkTables
             return (double)Val;
         }
 
+        /// <summary>
+        /// Gets the string value from the type
+        /// </summary>
+        /// <returns>string contained in type</returns>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if
+        /// type is not string.</exception>
         public string GetString()
         {
             if (Type != NtType.String)
@@ -65,6 +128,12 @@ namespace NetworkTables
 
         //For reference types (other then strings) return copies;
 
+        /// <summary>
+        /// Gets the raw value from the type
+        /// </summary>
+        /// <returns>raw byte array contained in type</returns>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if
+        /// type is not raw.</exception>
         public byte[] GetRaw()
         {
             if (Type != NtType.Raw)
@@ -78,6 +147,12 @@ namespace NetworkTables
             return tmp;
         }
 
+        /// <summary>
+        /// Gets the rpc value from the type
+        /// </summary>
+        /// <returns>rpc byte array contained in type</returns>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if
+        /// type is not rpc.</exception>
         public byte[] GetRpc()
         {
             if (Type != NtType.Rpc)
@@ -91,6 +166,12 @@ namespace NetworkTables
             return tmp;
         }
 
+        /// <summary>
+        /// Gets the boolean array value from the type
+        /// </summary>
+        /// <returns>boolean array contained in type</returns>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if
+        /// type is not boolean array.</exception>
         public bool[] GetBooleanArray()
         {
             if (Type != NtType.BooleanArray)
@@ -104,6 +185,12 @@ namespace NetworkTables
             return tmp;
         }
 
+        /// <summary>
+        /// Gets the double array value from the type
+        /// </summary>
+        /// <returns>double array contained in type</returns>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if
+        /// type is not double array.</exception>
         public double[] GetDoubleArray()
         {
             if (Type != NtType.DoubleArray)
@@ -117,6 +204,12 @@ namespace NetworkTables
             return tmp;
         }
 
+        /// <summary>
+        /// Gets the string array value from the type
+        /// </summary>
+        /// <returns>string array contained in type</returns>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if
+        /// type is not string arrya.</exception>
         public string[] GetStringArray()
         {
             if (Type != NtType.StringArray)
@@ -130,12 +223,17 @@ namespace NetworkTables
             return tmp;
         }
 
+        /// <summary>
+        /// Gets a string representation of the backing value
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             if (Val == null) return "Unassigned";
             return Val.ToString();
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             var v = obj as Value;

@@ -55,8 +55,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InfoStructuresTest.cs" />
     <Compile Include="Leb128Test.cs" />
+    <Compile Include="NtCoreTests\ListenerTest.cs" />
+    <Compile Include="NtCoreTests\NativeInterfaceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RpcTest.cs" />
     <Compile Include="StorageBaseTest.cs" />
     <Compile Include="StorageEmptyTest.cs" />
     <Compile Include="StorageTestPersistent.cs" />
