@@ -17,4 +17,4 @@ install:
   - nuget install NUnit.Console -Version 3.0.1 -OutputDirectory testrunner
 script:
   - xbuild /p:Configuration=CI NetworkTables.sln
-  - mono ./testrunner/NUnit.Runners.3.0.1/tools/nunit3-console.exe ./NetworkTables.Test/Output/NetworkTables.Test.dll
+  - mono ./testrunner/NUnit.Console.3.0.1/tools/nunit3-console.exe ./NetworkTables.Test/Output/NetworkTables.Test.dll
