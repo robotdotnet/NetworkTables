@@ -79,7 +79,22 @@ namespace NetworkTables.Streams
         public override int Read(byte[] buffer, int offset, int size)
         {
             if (!CanRead) return 0;
-            return base.Read(buffer, offset, size);
+            try
+            {
+                return base.Read(buffer, offset, size);
+            }
+            catch (IOException ex)
+            {
+                SocketException sx = ex.InnerException as SocketException;
+                if (sx == null)
+                {
+                    //Not socket exception is real error. Rethrow
+                    throw;
+                }
+                //Return 0 on socket exception
+                return 0;
+            }
+            
         }
 
         /*
