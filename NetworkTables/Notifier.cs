@@ -8,7 +8,7 @@ namespace NetworkTables
     internal class Notifier : IDisposable
     {
         private static Notifier s_instance;
-        private static bool s_destroyed;
+        private bool m_destroyed;
         private volatile bool m_localNotifiers;
 
         private Thread m_thread;
@@ -77,16 +77,16 @@ namespace NetworkTables
             }
         }
 
-        private Notifier()
+        internal Notifier()
         {
             m_active = false;
             m_localNotifiers = false;
-            s_destroyed = false;
+            m_destroyed = false;
         }
 
         public void Dispose()
         {
-            s_destroyed = true;
+            m_destroyed = true;
             Stop();
         }
 
@@ -217,9 +217,9 @@ namespace NetworkTables
             return m_localNotifiers;
         }
 
-        public static bool Destroyed()
+        public bool Destroyed()
         {
-            return s_destroyed;
+            return m_destroyed;
         }
 
         public int AddEntryListener(string prefix, EntryListenerCallback callback, NotifyFlags flags)

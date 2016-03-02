@@ -50,6 +50,12 @@ namespace NetworkTables.Wire
 
         public bool Read(out byte[] buf, int len)
         {
+            if (len == 0)
+            {
+                //Special case
+                buf = m_buffer;
+                return true;
+            }
             if (len > m_allocated) Realloc(len);
             buf = m_buffer;
             int rv = m_stream.Read(m_buffer, 0, len);

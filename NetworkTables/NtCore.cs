@@ -95,7 +95,7 @@ namespace NetworkTables
 
         public static bool NotifierDestroyed()
         {
-            return Notifier.Destroyed();
+            return Notifier.Instance.Destroyed();
         }
 
         public static void SetNetworkIdentity(string name)

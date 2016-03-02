@@ -146,7 +146,7 @@ namespace NetworkTables
             m_responseMap.Remove(pair);
         }
 
-        private RpcServer()
+        internal RpcServer()
         {
             m_active = false;
             m_terminating = false;

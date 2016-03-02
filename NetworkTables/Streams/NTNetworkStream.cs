@@ -46,6 +46,7 @@ namespace NetworkTables.Streams
                 try
                 {
                     Write(buffer, pos, len);
+                    break;
                 }
                 catch (IOException ex)
                 {
@@ -81,7 +82,16 @@ namespace NetworkTables.Streams
             if (!CanRead) return 0;
             try
             {
-                return base.Read(buffer, offset, size);
+                int pos = offset;
+
+                while (pos < size + offset)
+                {
+                    int count = base.Read(buffer, pos, size - pos);
+                    if (count == 0) return 0;
+                    pos += count;
+                }
+
+                return size;
             }
             catch (IOException ex)
             {

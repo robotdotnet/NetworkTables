@@ -56,6 +56,7 @@ namespace NetworkTables
 
         }
 
+
         public void Dispose()
         {
             Logger.Instance.SetDefaultLogger();
@@ -63,7 +64,7 @@ namespace NetworkTables
             m_rpcResultsCond.Set();
         }
 
-        private Storage(Notifier notifier, RpcServer rpcServer)
+        internal Storage(Notifier notifier, RpcServer rpcServer)
         {
             m_notifier = notifier;
             m_rpcServer = rpcServer;
