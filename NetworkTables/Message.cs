@@ -297,10 +297,7 @@ namespace NetworkTables
             return msg;
         }
 
-        public static Message KeepAlive()
-        {
-            return new Message(MsgType.KeepAlive);
-        }
+        public static Message KeepAlive() => new Message(MsgType.KeepAlive);
 
         public static Message ProtoUnsup() => new Message(MsgType.ProtoUnsup);
 

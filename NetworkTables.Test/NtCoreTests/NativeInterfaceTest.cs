@@ -210,7 +210,6 @@ namespace NetworkTables.Test.NtCoreTests
 
             Assert.That(NtCore.GetEntryInfo("", 0).Count, Is.EqualTo(0));
 
-            const string err = "error";
             Assert.That(NtCore.GetEntryValue(key1), Is.Null);
             Assert.That(NtCore.GetEntryValue(key2), Is.Null);
         }

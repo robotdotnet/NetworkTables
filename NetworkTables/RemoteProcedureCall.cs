@@ -84,8 +84,6 @@ namespace NetworkTables
             MemoryStream iStream = new MemoryStream(packed);
             WireDecoder dec = new WireDecoder(iStream, 0x0300);
             byte ref8 = 0;
-            ushort ref16 = 0;
-            ulong ref32 = 0;
             string str = "";
 
             if (!dec.Read8(ref ref8)) return false;

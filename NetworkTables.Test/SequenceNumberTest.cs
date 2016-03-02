@@ -121,8 +121,11 @@ namespace NetworkTables.Test
             SequenceNumber num2 = new SequenceNumber(58);
             SequenceNumber num3 = new SequenceNumber(59);
 
+            object oNum = num;
+
             Assert.That(num.Equals(num2));
             Assert.That(num.Equals(num));
+            Assert.That(oNum.Equals(oNum));
             Assert.That(num.Equals(null), Is.False);
             Assert.That(num.Equals(num3), Is.False);
             Assert.That(num.Equals(new object()), Is.False);

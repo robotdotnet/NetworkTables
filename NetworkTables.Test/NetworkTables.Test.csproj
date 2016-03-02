@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="InfoStructuresTest.cs" />
     <Compile Include="Leb128Test.cs" />
+    <Compile Include="MessageTest.cs" />
     <Compile Include="NtCoreTests\ListenerTest.cs" />
     <Compile Include="NtCoreTests\NativeInterfaceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
