@@ -241,7 +241,7 @@ namespace NetworkTables.Test
         }
 
         [Test]
-        public void TestClientHello3()
+        public void WriteClientHello3()
         {
             string name = "Testing";
             Message msg = Message.ClientHello(name);
@@ -261,7 +261,7 @@ namespace NetworkTables.Test
         }
 
         [Test]
-        public void TestClientHello2()
+        public void WriteClientHello2()
         {
             string name = "Testing";
             Message msg = Message.ClientHello(name);
@@ -277,6 +277,119 @@ namespace NetworkTables.Test
             Assert.That(dec.Read16(ref u16), Is.True);
             Assert.That(u16, Is.EqualTo((ushort)0x0200));
             Assert.That(dec.ReadString(ref str), Is.False);
+        }
+
+        [Test]
+        public void WriteProtoUnsup3()
+        {
+            Message msg = Message.ProtoUnsup();
+            WireEncoder enc = new WireEncoder(0x0300);
+            msg.Write(enc);
+            byte[] buf = enc.Buffer;
+            WireDecoder dec = new WireDecoder(new MemoryStream(buf), 0x0300);
+            byte u8 = 0;
+            ushort u16 = 0;
+            Assert.That(dec.Read8(ref u8), Is.True);
+            Assert.That(u8, Is.EqualTo((byte)ProtoUnsup));
+            Assert.That(dec.Read16(ref u16), Is.True);
+            Assert.That(u16, Is.EqualTo((ushort)0x0300));
+        }
+
+        [Test]
+        public void WriteProtUnsup2()
+        {
+            Message msg = Message.ProtoUnsup();
+            WireEncoder enc = new WireEncoder(0x0200);
+            msg.Write(enc);
+            byte[] buf = enc.Buffer;
+            WireDecoder dec = new WireDecoder(new MemoryStream(buf), 0x0200);
+            byte u8 = 0;
+            ushort u16 = 0;
+            Assert.That(dec.Read8(ref u8), Is.True);
+            Assert.That(u8, Is.EqualTo((byte)ProtoUnsup));
+            Assert.That(dec.Read16(ref u16), Is.True);
+            Assert.That(u16, Is.EqualTo((ushort)0x0200));
+        }
+
+        [Test]
+        public void WriteServerHelloDone3()
+        {
+            Message msg = Message.ServerHelloDone();
+            WireEncoder enc = new WireEncoder(0x0300);
+            msg.Write(enc);
+
+            byte[] buf = enc.Buffer;
+            Assert.That(buf, Has.Length.EqualTo(1));
+            Assert.That(buf[0], Is.EqualTo((byte)ServerHelloDone));
+        }
+
+        [Test]
+        public void WriteServerHelloDone2()
+        {
+            Message msg = Message.ServerHelloDone();
+            WireEncoder enc = new WireEncoder(0x0200);
+            msg.Write(enc);
+
+            byte[] buf = enc.Buffer;
+            Assert.That(buf, Has.Length.EqualTo(1));
+            Assert.That(buf[0], Is.EqualTo((byte)ServerHelloDone));
+        }
+
+        [Test]
+        public void WriteServerHello3()
+        {
+            uint flags = 1;
+            string name = "Testing";
+            Message msg = Message.ServerHello(flags, name);
+            WireEncoder enc = new WireEncoder(0x0300);
+            msg.Write(enc);
+            byte[] buf = enc.Buffer;
+            WireDecoder dec = new WireDecoder(new MemoryStream(buf), 0x0300);
+            byte u8 = 0;
+            string str = null;
+            Assert.That(dec.Read8(ref u8), Is.True);
+            Assert.That(u8, Is.EqualTo((byte)ServerHello));
+            Assert.That(dec.Read8(ref u8), Is.True);
+            Assert.That(u8, Is.EqualTo((byte)flags));
+            Assert.That(dec.ReadString(ref str), Is.True);
+            Assert.That(str, Is.EqualTo(name));
+        }
+
+        [Test]
+        public void WriteServerHello2()
+        {
+            //Server Hello does not do anything on 2
+            uint flags = 1;
+            string name = "Testing";
+            Message msg = Message.ServerHello(flags, name);
+            WireEncoder enc = new WireEncoder(0x0200);
+            msg.Write(enc);
+            byte[] buf = enc.Buffer;
+            Assert.That(buf, Has.Length.EqualTo(0));
+        }
+
+        [Test]
+        public void WriteClientHelloDone3()
+        {
+            Message msg = Message.ClientHelloDone();
+            WireEncoder enc = new WireEncoder(0x0300);
+            msg.Write(enc);
+            byte[] buf = enc.Buffer;
+            WireDecoder dec = new WireDecoder(new MemoryStream(buf), 0x0300);
+            byte u8 = 0;
+            Assert.That(dec.Read8(ref u8), Is.True);
+            Assert.That(u8, Is.EqualTo((byte)ClientHelloDone));
+        }
+
+        [Test]
+        public void WriteClientHelloDone2()
+        {
+            //Client Hello Done does not do anything on 2
+            Message msg = Message.ClientHelloDone();
+            WireEncoder enc = new WireEncoder(0x0200);
+            msg.Write(enc);
+            byte[] buf = enc.Buffer;
+            Assert.That(buf, Has.Length.EqualTo(0));
         }
     }
 }
