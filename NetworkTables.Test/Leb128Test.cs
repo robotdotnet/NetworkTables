@@ -91,5 +91,17 @@ namespace NetworkTables.Test
 
             Assert.That(Leb128.SizeUleb128(uint.MaxValue), Is.EqualTo(5));
         }
+
+        [Test]
+        public void ReadInvalidSize()
+        {
+            byte[] val = new byte[] {0, 1, 2};
+
+            ulong ov = 0;
+            int start = 10;
+            var ret = Leb128.ReadUleb128(val, ref start, out ov);
+            Assert.That(ret, Is.EqualTo(0));
+            Assert.That(ov, Is.EqualTo(0));
+        }
     }
 }
