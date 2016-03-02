@@ -57,7 +57,7 @@ namespace NetworkTables.Test
             else
             {
                 Assert.That(outgoing, Is.Empty);
-                Assert.That(GetEntry("foo2").SeqNum.Value(), Is.EqualTo(2));
+                Assert.That(GetEntry("foo2").SeqNum.Value, Is.EqualTo(2));
             }
 
         }
@@ -86,7 +86,7 @@ namespace NetworkTables.Test
             else
             {
                 Assert.That(outgoing, Is.Empty);
-                Assert.That(GetEntry("foo2").SeqNum.Value(), Is.EqualTo(2));
+                Assert.That(GetEntry("foo2").SeqNum.Value, Is.EqualTo(2));
             }
         }
 
@@ -303,7 +303,7 @@ namespace NetworkTables.Test
             else
             {
                 Assert.That(outgoing, Is.Empty);
-                Assert.That(GetEntry("foo2").SeqNum.Value(), Is.EqualTo(2));
+                Assert.That(GetEntry("foo2").SeqNum.Value, Is.EqualTo(2));
             }
         }
 
@@ -351,7 +351,7 @@ namespace NetworkTables.Test
             else
             {
                 Assert.That(outgoing, Is.Empty);
-                Assert.That(GetEntry("foo2").SeqNum.Value(), Is.EqualTo(2));
+                Assert.That(GetEntry("foo2").SeqNum.Value, Is.EqualTo(2));
             }
         }
     }

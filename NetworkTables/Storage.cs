@@ -15,7 +15,7 @@ namespace NetworkTables
 {
     internal partial class Storage : IDisposable
     {
-        internal class StoragePair : IComparable<StoragePair>
+        internal struct StoragePair : IComparable<StoragePair>
         {
             public string First { get; }
             public Value Second { get; }
@@ -150,7 +150,7 @@ namespace NetworkTables
             {
                 Monitor.Enter(m_mutex, ref lockEntered);
                 Message.MsgType type = msg.Type;
-                SequenceNumber seqNum = null;
+                SequenceNumber seqNum;
                 Entry entry = null;
                 uint id = 0;
                 switch (type)
@@ -191,7 +191,7 @@ namespace NetworkTables
                                     if (m_queueOutgoing != null)
                                     {
                                         var queueOutgoing = m_queueOutgoing;
-                                        var outMsg = Message.EntryAssign(name, id, entry.SeqNum.Value(), msg.Val, (EntryFlags)msg.Flags);
+                                        var outMsg = Message.EntryAssign(name, id, entry.SeqNum.Value, msg.Val, (EntryFlags)msg.Flags);
                                         Monitor.Exit(m_mutex);
                                         lockEntered = false;
                                         queueOutgoing(outMsg, null, null);
@@ -262,7 +262,7 @@ namespace NetworkTables
                                 if (mayNeedUpdate)
                                 {
                                     var queueOutgoing = m_queueOutgoing;
-                                    var outmsg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value(), entry.Value);
+                                    var outmsg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value, entry.Value);
                                     Monitor.Exit(m_mutex);
                                     lockEntered = false;
                                     queueOutgoing(outmsg, null, null);
@@ -480,7 +480,7 @@ namespace NetworkTables
                 foreach (var i in m_entries)
                 {
                     Entry entry = i.Value;
-                    msgs.Add(Message.EntryAssign(i.Key, entry.Id, entry.SeqNum.Value(), entry.Value, entry.Flags));
+                    msgs.Add(Message.EntryAssign(i.Key, entry.Id, entry.SeqNum.Value, entry.Value, entry.Flags));
                 }
             }
         }
@@ -547,7 +547,7 @@ namespace NetworkTables
                     {
                         if (!newServer && seqNum <= entry.SeqNum)
                         {
-                            updateMsgs.Add(Message.EntryUpdate(entry.Id, entry.SeqNum.Value(), entry.Value));
+                            updateMsgs.Add(Message.EntryUpdate(entry.Id, entry.SeqNum.Value, entry.Value));
                         }
                         else
                         {
@@ -574,7 +574,7 @@ namespace NetworkTables
                 {
                     Entry entry = i.Value;
                     if (entry.Id != 0xffff) continue;
-                    outMsgs.Add(Message.EntryAssign(entry.Name, entry.Id, entry.SeqNum.Value(), entry.Value, entry.Flags));
+                    outMsgs.Add(Message.EntryAssign(entry.Name, entry.Id, entry.SeqNum.Value, entry.Value, entry.Flags));
                 }
 
                 var queueOutgoing = m_queueOutgoing;
@@ -651,7 +651,7 @@ namespace NetworkTables
                 var queueOutgoing = m_queueOutgoing;
                 if (oldValue == null)
                 {
-                    var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value(), value, entry.Flags);
+                    var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value, value, entry.Flags);
                     Monitor.Exit(m_mutex);
                     lockEntered = false;
                     queueOutgoing(msg, null, null);
@@ -661,7 +661,7 @@ namespace NetworkTables
                     ++entry.SeqNum;
                     if (entry.Id != 0xffff)
                     {
-                        var msg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value(), value);
+                        var msg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value, value);
                         Monitor.Exit(m_mutex);
                         lockEntered = false;
                         queueOutgoing(msg, null, null);
@@ -719,7 +719,7 @@ namespace NetworkTables
                 if (oldValue == null || oldValue.Type != value.Type)
                 {
                     ++entry.SeqNum;
-                    var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value(), value, entry.Flags);
+                    var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value, value, entry.Flags);
                     Monitor.Exit(m_mutex);
                     lockEntered = false;
                     queueOutgoing(msg, null, null);
@@ -729,7 +729,7 @@ namespace NetworkTables
                     ++entry.SeqNum;
                     if (entry.Id != 0xffff)
                     {
-                        var msg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value(), value);
+                        var msg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value, value);
                         Monitor.Exit(m_mutex);
                         lockEntered = false;
                         queueOutgoing(msg, null, null);
@@ -933,7 +933,7 @@ namespace NetworkTables
                 if (oldValue == null || oldValue.Type != value.Type)
                 {
                     ++entry.SeqNum;
-                    var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value(), value, entry.Flags);
+                    var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value, value, entry.Flags);
                     Monitor.Exit(m_mutex);
                     lockEntered = false;
                     queueOutgoing(msg, null, null);
@@ -941,7 +941,7 @@ namespace NetworkTables
                 else
                 {
                     ++entry.SeqNum;
-                    var msg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value(), value);
+                    var msg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value, value);
                     Monitor.Exit(m_mutex);
                     lockEntered = false;
                     queueOutgoing(msg, null, null);
@@ -989,7 +989,7 @@ namespace NetworkTables
                 if (oldValue == null || oldValue.Type != value.Type)
                 {
                     ++entry.SeqNum;
-                    var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value(), value, entry.Flags);
+                    var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value, value, entry.Flags);
                     Monitor.Exit(m_mutex);
                     lockEntered = false;
                     queueOutgoing(msg, null, null);
@@ -997,7 +997,7 @@ namespace NetworkTables
                 else
                 {
                     ++entry.SeqNum;
-                    var msg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value(), value);
+                    var msg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value, value);
                     Monitor.Exit(m_mutex);
                     lockEntered = false;
                     queueOutgoing(msg, null, null);

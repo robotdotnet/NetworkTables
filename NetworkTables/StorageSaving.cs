@@ -613,13 +613,13 @@ namespace NetworkTables
 
                         if (oldValue == null || oldValue.Type != i.Second.Type)
                         {
-                            msgs.Add(Message.EntryAssign(i.First, entry.Id, entry.SeqNum.Value(), i.Second, entry.Flags));
+                            msgs.Add(Message.EntryAssign(i.First, entry.Id, entry.SeqNum.Value, i.Second, entry.Flags));
                         }
                         else if (entry.Id != 0xffff)
                         {
                             if (oldValue != i.Second)
                             {
-                                msgs.Add(Message.EntryUpdate(entry.Id, entry.SeqNum.Value(), i.Second));
+                                msgs.Add(Message.EntryUpdate(entry.Id, entry.SeqNum.Value, i.Second));
                             }
                             if (!wasPersist)
                                 msgs.Add(Message.FlagsUpdate(entry.Id, entry.Flags));
