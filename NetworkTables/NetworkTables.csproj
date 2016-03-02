@@ -63,10 +63,12 @@
     <Compile Include="Enumerations.cs" />
     <Compile Include="Exceptions\PersistentException.cs" />
     <Compile Include="Exceptions\TableKeyDifferentTypeException.cs" />
+    <Compile Include="Exceptions\TableKeyNotDefinedException.cs" />
     <Compile Include="Extensions\AutoResetEventExtensions.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="NetworkConnection.cs" />
+    <Compile Include="NetworkTable.cs" />
     <Compile Include="Notifier.cs" />
     <Compile Include="NtCore.cs" />
     <Compile Include="NtType.cs" />
@@ -79,6 +81,10 @@
     <Compile Include="StorageSaving.cs" />
     <Compile Include="Streams\NTNetworkStream.cs" />
     <Compile Include="Support\Timestamp.cs" />
+    <Compile Include="Tables\IRemote.cs" />
+    <Compile Include="Tables\IRemoteConnectionListener.cs" />
+    <Compile Include="Tables\ITable.cs" />
+    <Compile Include="Tables\ITableListener.cs" />
     <Compile Include="TcpSockets\INetworkAcceptor.cs" />
     <Compile Include="TcpSockets\TcpAcceptor.cs" />
     <Compile Include="TcpSockets\TcpConnector.cs" />

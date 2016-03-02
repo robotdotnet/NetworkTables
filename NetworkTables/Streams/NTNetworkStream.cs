@@ -35,7 +35,7 @@ namespace NetworkTables.Streams
 
         public int Send(byte[] buffer, int pos, int len)
         {
-            if (Socket == null)
+            if (Socket == null || !CanWrite)
             {
                 return 0;
             }
@@ -75,6 +75,13 @@ namespace NetworkTables.Streams
             }
             return len;
         }
+
+        public override int Read(byte[] buffer, int offset, int size)
+        {
+            if (!CanRead) return 0;
+            return base.Read(buffer, offset, size);
+        }
+
         /*
         public int Receive(byte[] buffer, int pos, int len, int timeout = 0)
         {

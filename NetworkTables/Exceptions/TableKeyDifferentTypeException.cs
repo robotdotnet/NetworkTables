@@ -1,4 +1,5 @@
 ﻿using System;
+using NetworkTables.Tables;
 
 namespace NetworkTables.Exceptions
 {

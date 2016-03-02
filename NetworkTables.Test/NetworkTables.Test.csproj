@@ -55,10 +55,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\PersistentExceptionTest.cs" />
+    <Compile Include="Exceptions\TableKeyDifferentTypeTest.cs" />
+    <Compile Include="Exceptions\TableKeyNotDefinedTest.cs" />
     <Compile Include="InfoStructuresTest.cs" />
     <Compile Include="Leb128Test.cs" />
     <Compile Include="MessageTest.cs" />
-    <Compile Include="NtCoreTests\ListenerTest.cs" />
+    <Compile Include="NetworkTablesApi\ErrorsTests.cs" />
+    <Compile Include="NetworkTablesApi\InstanceApiTest.cs" />
+    <Compile Include="NetworkTablesApi\ListenersTest.cs" />
+    <Compile Include="NetworkTablesApi\StaticApiTest.cs" />
+    <Compile Include="NtCoreTests\ListenersTest.cs" />
     <Compile Include="NtCoreTests\NativeInterfaceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RpcTest.cs" />

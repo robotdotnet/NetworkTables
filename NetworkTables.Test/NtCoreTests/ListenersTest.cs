@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace NetworkTables.Test.NtCoreTests
 {
     [TestFixture]
-    public class ListenerTest
+    public class ListenersTest
     {
         [SetUp]
         public void Setup()
@@ -52,7 +52,7 @@ namespace NetworkTables.Test.NtCoreTests
 
             Thread.Sleep(20);
 
-            Assert.That(count, Is.EqualTo(1));
+            Assert.That(count, Is.GreaterThanOrEqualTo(1));
             Assert.That(recievedKey, Is.EqualTo(key1));
             Assert.That(recievedValue, Is.Not.Null);
 

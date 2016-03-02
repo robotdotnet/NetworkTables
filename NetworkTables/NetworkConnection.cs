@@ -124,29 +124,14 @@ namespace NetworkTables
 
             m_active = false;
             //Closing stream to terminate read thread
-            m_stream?.Dispose();
+            m_stream?.Close();
             List<Message> temp = new List<Message>();
             //Send an empty message to terminate the write thread
             m_outgoing.Add(temp);
 
             //Wait for our threads to detach from each.
-            if (m_writeThread != null)
-            {
-                bool writeJoined = m_writeThread.Join(TimeSpan.FromMilliseconds(200));
-                if (!writeJoined)
-                {
-                    m_writeThread.Abort();
-                }
-            }
-
-            if (m_readThread != null)
-            {
-                bool readJoined = m_readThread.Join(TimeSpan.FromMilliseconds(200));
-                if (!readJoined)
-                {
-                    m_readThread.Abort();
-                }
-            }
+            m_writeThread?.Join();
+            m_readThread?.Join();
 
             // clear the queue
             while (m_outgoing.Count != 0) m_outgoing.Take();
