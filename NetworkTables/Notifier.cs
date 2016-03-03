@@ -9,7 +9,7 @@ namespace NetworkTables
     {
         private static Notifier s_instance;
         private bool m_destroyed;
-        private volatile bool m_localNotifiers;
+        private bool m_localNotifiers;
 
         private Thread m_thread;
 
@@ -104,6 +104,7 @@ namespace NetworkTables
                         if (!m_active) return;
                     }
 
+                    //Entry notifications
                     while (m_entryNotifications.Count != 0)
                     {
                         if (!m_active) return;
@@ -113,6 +114,7 @@ namespace NetworkTables
 
                         if (item.Only != null)
                         {
+                            // Don't hold mutex during callback execution
                             Monitor.Exit(m_mutex);
                             lockEntered = false;
                             item.Only(0, name, item.Value, item.Flags);
@@ -120,10 +122,14 @@ namespace NetworkTables
                             continue;
                         }
 
+                        // Use index because iterator might get invalidated
                         for (int i = 0; i < m_entryListeners.Count; ++i)
                         {
-                            if (m_entryListeners[i].Callback == null) continue;
+                            if (m_entryListeners[i].Callback == null) continue; //removed
 
+                            // Flags must be within requested set flag for this listener
+                            // Because assign messages can result in both a value and flags update,
+                            // we handle that case specifically
                             NotifyFlags listenFlags = m_entryListeners[i].Flags;
                             NotifyFlags flags = item.Flags;
                             const NotifyFlags assignBoth = (NotifyFlags.NotifyUpdate | NotifyFlags.NotifyFlagsChanged);
@@ -136,18 +142,21 @@ namespace NetworkTables
                             }
                             if ((flags & ~listenFlags) != 0) continue;
 
+                            //Must match prefix
                             if (!name.StartsWith(m_entryListeners[i].Prefix)) continue;
 
+                            // make a copy of the callback so wwe can release the mutex
                             var callback = m_entryListeners[i].Callback;
 
                             Monitor.Exit(m_mutex);
                             lockEntered = false;
-                            callback((i + 1), name, item.Value, item.Flags);
+                            callback(i + 1, name, item.Value, item.Flags);
                             Monitor.Enter(m_mutex, ref lockEntered);
                         }
 
                     }
 
+                    //Connection notifications
                     while (m_connNotifications.Count != 0)
                     {
                         if (!m_active) return;
@@ -162,6 +171,8 @@ namespace NetworkTables
                             continue;
                         }
 
+
+                        // Use index because iterator might get invalidated
                         for (int i = 0; i < m_connListeners.Count; ++i)
                         {
                             if (m_connListeners[i] == null) continue;
@@ -169,7 +180,7 @@ namespace NetworkTables
 
                             Monitor.Exit(m_mutex);
                             lockEntered = false;
-                            callback((i + 1), item.Connected, item.ConnInfo);
+                            callback(i + 1, item.Connected, item.ConnInfo);
                             Monitor.Enter(m_mutex, ref lockEntered);
                         }
                     }
@@ -181,7 +192,7 @@ namespace NetworkTables
             }
         }
 
-        private volatile bool m_active;
+        private bool m_active;
         private readonly object m_mutex = new object();
         private readonly AutoResetEvent m_cond = new AutoResetEvent(false);
 
@@ -203,13 +214,7 @@ namespace NetworkTables
             m_active = false;
             //Notify condition so thread terminates.
             m_cond.Set();
-            TimeSpan timeout = TimeSpan.FromSeconds(1);
-            if (m_thread == null) return;
-            bool joined = m_thread.Join(timeout);
-            if (!joined)
-            {
-                m_thread?.Abort();
-            }
+            m_thread?.Join();
         }
 
         public bool LocalNotifiers()
@@ -249,6 +254,8 @@ namespace NetworkTables
         public void NotifyEntry(string name, Value value, NotifyFlags flags, EntryListenerCallback only = null)
         {
             if (!m_active) return;
+            // optimization: don't generate needless local queue entries if we have
+            // no local listeners (as this is a common case on the server side)
             if ((flags & NotifyFlags.NotifyLocal) != 0 && !m_localNotifiers) return;
             lock (m_mutex)
             {

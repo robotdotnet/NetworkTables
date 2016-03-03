@@ -41,16 +41,13 @@ namespace NetworkTables
             }
         }
 
-        private bool m_active = false;
-
-        public bool Active => m_active;
+        public bool Active { get; private set; } = false;
 
         public void Dispose()
         {
             Logger.Instance.SetDefaultLogger();
             m_terminating = true;
             m_pollCond.Set();
-            Stop();
         }
 
         public delegate void SendMsgFunc(Message msg);
@@ -59,8 +56,8 @@ namespace NetworkTables
         {
             lock (m_mutex)
             {
-                if (m_active) return;
-                m_active = true;
+                if (Active) return;
+                Active = true;
             }
             m_thread = new Thread(ThreadMain);
             m_thread.Name = "Rpc Thread";
@@ -70,14 +67,12 @@ namespace NetworkTables
 
         public void Stop()
         {
-            m_active = false;
+            Active = false;
             if (m_thread != null)
             {
                 m_callCond.Set();
                 //Join our dispatch thread.
-                bool shutdown = m_thread.Join(TimeSpan.FromSeconds(1));
-                //If it fails to join, abort the thread
-                if (!shutdown) m_thread.Abort();
+                m_thread?.Join();
             }
         }
 
@@ -119,7 +114,7 @@ namespace NetworkTables
                 }
                 var item = m_pollQueue.Peek();
                 uint callUid = (item.ConnId << 16) | item.Msg.SeqNumUid;
-                callInfo.RpcId = (int)item.Msg.Id;
+                callInfo.RpcId = item.Msg.Id;
                 callInfo.CallUid = callUid;
                 callInfo.Name = item.Name;
                 callInfo.Params = item.Msg.Str;
@@ -148,7 +143,7 @@ namespace NetworkTables
 
         internal RpcServer()
         {
-            m_active = false;
+            Active = false;
             m_terminating = false;
         }
 
@@ -158,16 +153,16 @@ namespace NetworkTables
             try
             {
                 Monitor.Enter(m_mutex, ref lockEntered);
-                while (m_active)
+                while (Active)
                 {
                     while (m_callQueue.Count == 0)
                     {
                         m_callCond.Wait(m_mutex, ref lockEntered);
-                        if (!m_active) return;
+                        if (!Active) return;
                     }
                     while (m_callQueue.Count != 0)
                     {
-                        if (!m_active) return;
+                        if (!Active) return;
                         var item = m_callQueue.Dequeue();
                         Debug4($"rpc calling {item.Name}");
 

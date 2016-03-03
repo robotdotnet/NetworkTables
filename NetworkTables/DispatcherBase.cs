@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using System.Threading;
 using NetworkTables.TcpSockets;
 using static NetworkTables.Logging.Logger;
@@ -403,7 +402,7 @@ namespace NetworkTables
             }
         }
 
-        private bool ClientHandshake(NetworkConnection conn, Func<Message> getMsg, Action<Message[]> sendMsgs)
+        private bool ClientHandshake(NetworkConnection conn, Func<Message> getMsg, Action<List<Message>> sendMsgs)
         {
             string selfId;
             lock (m_userMutex)
@@ -412,7 +411,7 @@ namespace NetworkTables
             }
 
             Debug("client: sending hello");
-            sendMsgs(new[] { Message.ClientHello(selfId) });
+            sendMsgs(new List<Message> { Message.ClientHello(selfId) });
 
             var msg = getMsg();
             if (msg == null)
@@ -471,14 +470,14 @@ namespace NetworkTables
                 outgoing.Add(Message.ClientHelloDone());
             }
 
-            if (outgoing.Count != 0) sendMsgs(outgoing.ToArray());
+            if (outgoing.Count != 0) sendMsgs(outgoing);
 
             Info($"client: CONNECTED to server {conn.Stream().PeerIP} port {conn.Stream().PeerPort}");
 
             return true;
         }
 
-        private bool ServerHandshake(NetworkConnection conn, Func<Message> getMsg, Action<Message[]> sendMsgs)
+        private bool ServerHandshake(NetworkConnection conn, Func<Message> getMsg, Action<List<Message>> sendMsgs)
         {
             var msg = getMsg();
 
@@ -499,7 +498,7 @@ namespace NetworkTables
             if (protoRev > 0x0300)
             {
                 Debug("server: client requested proto > 0x0300");
-                sendMsgs(new[] { Message.ProtoUnsup() });
+                sendMsgs(new List<Message> { Message.ProtoUnsup() });
                 return false;
             }
 
@@ -523,7 +522,7 @@ namespace NetworkTables
             outgoing.Add(Message.ServerHelloDone());
 
             Debug("server: sending initial assignments");
-            sendMsgs(outgoing.ToArray());
+            sendMsgs(outgoing);
 
             if (protoRev >= 0x0300)
             {

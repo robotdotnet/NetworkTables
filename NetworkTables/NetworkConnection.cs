@@ -33,7 +33,7 @@ namespace NetworkTables
 
         public enum State { Created, Init, Handshake, Synchronized, Active, Dead };
 
-        public delegate bool HandshakeFunc(NetworkConnection conn, Func<Message> getMsg, Action<Message[]> sendMsgs);
+        public delegate bool HandshakeFunc(NetworkConnection conn, Func<Message> getMsg, Action<List<Message>> sendMsgs);
 
         public delegate void ProcessIncomingFunc(Message msg, NetworkConnection conn);
 
@@ -54,7 +54,6 @@ namespace NetworkTables
         private Thread m_readThread;
         private Thread m_writeThread;
 
-        private bool m_active;
         private State m_state;
 
         private string m_remoteId;
@@ -78,9 +77,10 @@ namespace NetworkTables
             m_handshake = handshake;
             m_getEntryType = getEntryType;
 
-            m_active = false;
+            Active = false;
             ProtoRev = 0x0300;
             m_state = State.Created;
+            LastUpdate = 0;
 
             // turns of Nagle, as we bundle packets ourselves
             m_stream.SetNoDelay();
@@ -101,12 +101,13 @@ namespace NetworkTables
 
         public void Start()
         {
-            if (m_active) return;
-            m_active = true;
+            if (Active) return;
+            Active = true;
             m_state = State.Init;
             // clear queue
             while (m_outgoing.Count != 0) m_outgoing.Take();
 
+            //Start Threads
             m_writeThread = new Thread(WriteThreadMain);
             m_writeThread.IsBackground = true;
             m_writeThread.Name = "Connection Write Thread";
@@ -120,14 +121,14 @@ namespace NetworkTables
 
         public void Stop()
         {
+            Debug2($"NetworkConnection stopping ({this})");
             m_state = State.Dead;
 
-            m_active = false;
+            Active = false;
             //Closing stream to terminate read thread
             m_stream?.Close();
-            List<Message> temp = new List<Message>();
             //Send an empty message to terminate the write thread
-            m_outgoing.Add(temp);
+            m_outgoing.Add(new List<Message>());
 
             //Wait for our threads to detach from each.
             m_writeThread?.Join();
@@ -139,17 +140,26 @@ namespace NetworkTables
 
         public ConnectionInfo GetConnectionInfo()
         {
-            return new ConnectionInfo(RemoteId, m_stream.PeerIP, m_stream.PeerPort, (long)LastUpdate, (int)ProtoRev);
+            return new ConnectionInfo(RemoteId, m_stream.PeerIP, m_stream.PeerPort, LastUpdate, (int)ProtoRev);
         }
 
-        public bool Active()
-        {
-            return m_active;
-        }
+        public bool Active { get; private set; }
 
         public NtNetworkStream Stream()
         {
             return m_stream;
+        }
+
+        private void ResizePendingUpdate(int newSize)
+        {
+            int currentSize = m_pendingUpdate.Count;
+
+            if (newSize > currentSize)
+            {
+                if (newSize > m_pendingUpdate.Capacity)
+                    m_pendingUpdate.Capacity = newSize;
+                m_pendingUpdate.AddRange(Enumerable.Repeat<Pair>(default(Pair), newSize - currentSize));
+            }
         }
 
         public void QueueOutgoing(Message msg)
@@ -164,27 +174,27 @@ namespace NetworkTables
                     case Message.MsgType.EntryUpdate:
                         {
                             // don't do this for unassigned id's
-                            uint id = msg.Id;
+                            int id = (int)msg.Id;
                             if (id == 0xffff)
                             {
                                 m_pendingOutgoing.Add(msg);
                                 break;
                             }
-                            if (id < m_pendingUpdate.Count && m_pendingUpdate[(int)id].First != 0)
+                            if (id < m_pendingUpdate.Count && m_pendingUpdate[id].First != 0)
                             {
-                                var oldmsg = m_pendingOutgoing[m_pendingUpdate[(int)id].First];
+                                var oldmsg = m_pendingOutgoing[m_pendingUpdate[id].First - 1];
                                 if (oldmsg != null && oldmsg.Is(Message.MsgType.EntryAssign) &&
                                     msg.Is(Message.MsgType.EntryUpdate))
                                 {
                                     // need to update assignement
-                                    m_pendingOutgoing[m_pendingUpdate[(int)id].First] = Message.EntryAssign(oldmsg.Str, id, msg.SeqNumUid, msg.Val,
+                                    m_pendingOutgoing[m_pendingUpdate[id].First] = Message.EntryAssign(oldmsg.Str, (uint)id, msg.SeqNumUid, msg.Val,
                                         (EntryFlags)oldmsg.Flags);
 
                                 }
                                 else
                                 {
                                     // new but remember it
-                                    m_pendingOutgoing[m_pendingUpdate[(int)id].First] = msg;
+                                    m_pendingOutgoing[m_pendingUpdate[id].First] = msg;
                                 }
                             }
                             else
@@ -192,14 +202,15 @@ namespace NetworkTables
                                 // new but don't remember it
                                 int pos = m_pendingOutgoing.Count;
                                 m_pendingOutgoing.Add(msg);
-                                if (id >= m_pendingUpdate.Count) m_pendingUpdate.Add(new Pair());
-                                m_pendingUpdate[(int)id].SetFirst(pos + 1);
+                                if (id >= m_pendingUpdate.Count) ResizePendingUpdate(id + 1);
+                                m_pendingUpdate[id].SetFirst(pos + 1);
                             }
                             break;
                         }
                     case Message.MsgType.EntryDelete:
                         {
-                            uint id = msg.Id;
+                            //Don't do this for unnasigned uid's
+                            int id = (int)msg.Id;
                             if (id == 0xffff)
                             {
                                 m_pendingOutgoing.Add(msg);
@@ -208,46 +219,49 @@ namespace NetworkTables
 
                             if (id < m_pendingUpdate.Count)
                             {
-                                if (m_pendingUpdate[(int)id].First != 0)
+                                if (m_pendingUpdate[id].First != 0)
                                 {
-                                    m_pendingOutgoing[m_pendingUpdate[(int)id].First - 1] = new Message();
-                                    m_pendingUpdate[(int)id].SetFirst(0);
+                                    m_pendingOutgoing[m_pendingUpdate[id].First - 1] = new Message();
+                                    m_pendingUpdate[id].SetFirst(0);
                                 }
-                                if (m_pendingUpdate[(int)id].Second != 0)
+                                if (m_pendingUpdate[id].Second != 0)
                                 {
-                                    m_pendingOutgoing[m_pendingUpdate[(int)id].Second - 1] = new Message();
-                                    m_pendingUpdate[(int)id].SetSecond(0);
+                                    m_pendingOutgoing[m_pendingUpdate[id].Second - 1] = new Message();
+                                    m_pendingUpdate[id].SetSecond(0);
                                 }
                             }
-
+                            //Add deletion
                             m_pendingOutgoing.Add(msg);
                             break;
                         }
                     case Message.MsgType.FlagsUpdate:
                         {
-                            uint id = msg.Id;
+                            //Don't do this for unassigned uids
+                            int id = (int)msg.Id;
                             if (id == 0xffff)
                             {
                                 m_pendingOutgoing.Add(msg);
                                 break;
                             }
 
-                            if (id < m_pendingUpdate.Count && m_pendingUpdate[(int)id].Second != 0)
+                            if (id < m_pendingUpdate.Count && m_pendingUpdate[id].Second != 0)
                             {
-                                m_pendingOutgoing[m_pendingUpdate[(int)id].Second - 1] = msg;
+                                //Overwrite the previous one for this uid
+                                m_pendingOutgoing[m_pendingUpdate[id].Second - 1] = msg;
                             }
                             else
                             {
                                 int pos = m_pendingOutgoing.Count;
                                 m_pendingOutgoing.Add(msg);
-                                if (id > m_pendingUpdate.Count) m_pendingUpdate.Add(new Pair());
-                                m_pendingUpdate[(int)id].SetSecond(pos + 1);
+                                if (id > m_pendingUpdate.Count) ResizePendingUpdate(id + 1);
+                                m_pendingUpdate[id].SetSecond(pos + 1);
 
                             }
                             break;
                         }
                     case Message.MsgType.ClearEntries:
                         {
+                            //Knock out all previous assignes/updates
                             for (int i = 0; i < m_pendingOutgoing.Count; i++)
                             {
                                 var message = m_pendingOutgoing[i];
@@ -290,7 +304,7 @@ namespace NetworkTables
                     m_pendingUpdate.Clear();
 
                 }
-                m_lastPost = DateTime.UtcNow;
+                m_lastPost = now;
             }
         }
 
@@ -344,17 +358,17 @@ namespace NetworkTables
                 return msg;
             }, messages =>
             {
-                m_outgoing.Add(messages.ToList());
+                m_outgoing.Add(messages);
             }))
             {
                 m_state = State.Dead;
-                m_active = false;
+                Active = false;
                 return;
             }
 
             m_state = State.Active;
             m_notifier.NotifyConnection(true, GetConnectionInfo());
-            while (m_active)
+            while (Active)
             {
                 if (m_stream == null) break;
                 decoder.ProtoRev = ProtoRev;
@@ -363,6 +377,7 @@ namespace NetworkTables
                 if (msg == null)
                 {
                     if (decoder.Error != null) Info($"read error: {decoder.Error}");
+                    //terminate connection on bad message
                     m_stream?.Close();
                     break;
                 }
@@ -374,7 +389,7 @@ namespace NetworkTables
             Debug2($"read thread died ({this})");
             if (m_state != State.Dead) m_notifier.NotifyConnection(false, GetConnectionInfo());
             m_state = State.Dead;
-            m_active = false;
+            Active = false;
             m_outgoing.Add(new List<Message>()); // Also kill write thread
         }
 
@@ -382,7 +397,7 @@ namespace NetworkTables
         {
             WireEncoder encoder = new WireEncoder(ProtoRev);
 
-            while (m_active)
+            while (Active)
             {
                 var msgs = m_outgoing.Take();
                 Debug4("write thread woke up");
@@ -406,9 +421,8 @@ namespace NetworkTables
             Debug2($"write thread died ({this})");
             if (m_state != State.Dead) m_notifier.NotifyConnection(false, GetConnectionInfo());
             m_state = State.Dead;
-            m_active = false;
-            m_stream?.Close();
+            Active = false;
+            m_stream?.Close(); // Also kill read thread
         }
-
     }
 }
