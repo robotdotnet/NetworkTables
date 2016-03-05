@@ -6,6 +6,7 @@ namespace NetworkTables.Support
     {
         public static long Now()
         {
+            // Gets a consistent timestamp that we can use for checking if data is new.
             return DateTime.UtcNow.ToFileTimeUtc();
         }
     }

@@ -17,6 +17,9 @@ namespace NetworkTables.Logging
         }
 
         private LogFunc m_func;
+
+        public LogLevel MinLevel { get; set; } = 0;
+
         public void SetLogger(LogFunc func)
         {
             m_func = func;
@@ -27,23 +30,11 @@ namespace NetworkTables.Logging
             m_func = DefLogFunc;
         }
 
-        public void SetMinLevel(LogLevel level)
-        {
-            m_minLevel = level;
-        }
-
-        public LogLevel MinLevel()
-        {
-            return m_minLevel;
-        }
-
         public void Log(LogLevel level, string file, int line, string msg)
         {
-            if (m_func == null || level < m_minLevel) return;
+            if (m_func == null || level < MinLevel) return;
             m_func(level, file, line, msg);
         }
-
-        private LogLevel m_minLevel = 0;
 
         public bool HasLogger()
         {
@@ -77,7 +68,7 @@ namespace NetworkTables.Logging
             do
             {
                 Logger logger = Logger.Instance;
-                if (logger.MinLevel() <= level && logger.HasLogger())
+                if (logger.MinLevel <= level && logger.HasLogger())
                 {
                     logger.Log(level, filePath, lineNumber, msg);
                 }

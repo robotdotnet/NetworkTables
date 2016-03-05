@@ -9,6 +9,17 @@ namespace NetworkTables.Streams
 {
     internal class NtNetworkStream : NetworkStream
     {
+        public string PeerIP { get; }
+
+        public int PeerPort { get; }
+
+        // Allow turning off Nagle algorithm
+        public bool NoDelay
+        {
+            get { return Socket.NoDelay; }
+            set { Socket.NoDelay = value; }
+        }
+
         public NtNetworkStream(Socket socket) : base(socket, true)
         {
             IPEndPoint ipEp = socket.RemoteEndPoint as IPEndPoint;
@@ -22,15 +33,6 @@ namespace NetworkTables.Streams
                 PeerIP = "";
                 PeerPort = 0;
             }
-        }
-
-        public string PeerIP { get; }
-
-        public int PeerPort { get; }
-
-        public void SetNoDelay()
-        {
-            Socket.NoDelay = true;
         }
 
         public int Send(byte[] buffer, int pos, int len)
@@ -106,60 +108,5 @@ namespace NetworkTables.Streams
             }
             
         }
-
-        /*
-        public int Receive(byte[] buffer, int pos, int len, int timeout = 0)
-        {
-            if (Socket == null)
-            {
-                return 0;
-            }
-
-            int rv;
-
-            if (timeout <= 0)
-            {
-                try
-                {
-                    rv = Read(buffer, pos, len);
-                }
-                catch (SocketException)
-                {
-                    rv = -1;
-                }
-            }
-            else if (WaitForReadEvent(timeout))
-            {
-                try
-                {
-                    rv = Read(buffer, pos, len);
-                }
-                catch (SocketException)
-                {
-                    rv = -1;
-                }
-            }
-            else
-            {
-                return 0;
-            }
-
-            if (rv < 0)
-            {
-                return 0;
-            }
-            return rv;
-        }
-
-        private bool WaitForReadEvent(int timeout)
-        {
-            ArrayList list = new ArrayList { Socket };
-            Socket.Select(list, null, null, timeout * 1000000);
-            if (list.Count == 0)
-            {
-                return false;
-            }
-            return true;
-        */
     }
 }

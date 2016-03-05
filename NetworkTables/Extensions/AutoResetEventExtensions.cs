@@ -5,6 +5,17 @@ namespace NetworkTables.Extensions
 {
     internal static class AutoResetEventExtensions
     {
+        /// <summary>
+        /// Extension for AutoReset that takes a mutex and a ref entered bool, 
+        /// and unlocks the mutex before waiting for the specified timeout. 
+        /// The predicate checks if something goes wrong.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="mutex"></param>
+        /// <param name="lockEntered"></param>
+        /// <param name="timeout"></param>
+        /// <param name="pred"></param>
+        /// <returns></returns>
         public static bool WaitTimeout(this AutoResetEvent e, object mutex, ref bool lockEntered,
             TimeSpan timeout, Func<bool> pred)
         {

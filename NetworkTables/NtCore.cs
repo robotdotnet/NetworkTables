@@ -162,7 +162,7 @@ namespace NetworkTables
         {
             Logger logger = Logger.Instance;
             logger.SetLogger(func);
-            logger.SetMinLevel(minLevel);
+            logger.MinLevel = minLevel;
         }
 
         public static string[] LoadPersistent(string filename)

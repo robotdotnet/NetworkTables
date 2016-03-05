@@ -83,7 +83,7 @@ namespace NetworkTables
             LastUpdate = 0;
 
             // turns of Nagle, as we bundle packets ourselves
-            m_stream.SetNoDelay();
+            m_stream.NoDelay = true;
         }
 
         public bool Disposed { get; private set; } = false;

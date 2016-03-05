@@ -15,7 +15,7 @@ namespace NetworkTables.Wire
             return BitConverter.Int64BitsToDouble(IPAddress.NetworkToHostOrder(BitConverter.ToInt64(buf, count * 8)));
         }
 
-        private Stream m_stream;
+        private readonly Stream m_stream;
         private byte[] m_buffer;
         private int m_allocated;
 
