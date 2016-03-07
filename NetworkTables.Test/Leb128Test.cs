@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NetworkTables.Wire;
 using NUnit.Framework;
+using System.IO;
 
 namespace NetworkTables.Test
 {
@@ -103,6 +104,48 @@ namespace NetworkTables.Test
             Assert.That(ret, Is.EqualTo(0));
             Assert.That(ov, Is.EqualTo(0));
         }
+
+        [Test]
+        public void ReadInvalidSizeStream()
+        {
+            byte[] val = new byte[] { 0, 1, 2 };
+
+            ulong ov = 0;
+            int start = 10;
+            var ret = Leb128.ReadUleb128(val, ref start, out ov);
+            Assert.That(ret, Is.EqualTo(0));
+            Assert.That(ov, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Leb128ReadStream()
+        {
+            ExpectReadLeb128EqStream(0, 0x00);
+            ExpectReadLeb128EqStream(1, 0x01);
+            ExpectReadLeb128EqStream(63, 0x3f);
+            ExpectReadLeb128EqStream(64, 0x40);
+            ExpectReadLeb128EqStream(0x7f, 0x7f);
+            ExpectReadLeb128EqStream(0x80, 0x80, 0x01);
+            ExpectReadLeb128EqStream(0x81, 0x81, 0x01);
+            ExpectReadLeb128EqStream(0x90, 0x90, 0x01);
+            ExpectReadLeb128EqStream(0xff, 0xff, 0x01);
+            ExpectReadLeb128EqStream(0x100, 0x80, 0x02);
+            ExpectReadLeb128EqStream(0x101, 0x81, 0x02);
+            ExpectReadLeb128EqStream(8320, 0x80, 0xc1, 0x80, 0x80, 0x10);
+        }
+
+        public void ExpectReadLeb128EqStream(ulong expected, params byte[] value)
+        {
+            MemoryStream stream = new MemoryStream(value);
+            do
+            {
+                ulong val = 0;
+                bool valid = Leb128.ReadUleb128(stream, out val);
+                Assert.That(valid, Is.True);
+                Assert.That(val, Is.EqualTo(expected));
+            } while (false);
+        }
+
 
         //TODO: Add tests for stream based reads
     }
