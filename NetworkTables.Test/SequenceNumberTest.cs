@@ -102,6 +102,8 @@ namespace NetworkTables.Test
             Assert.That(num < num2);
             num++;
             Assert.That(num < num2, Is.False);
+            num++;
+            Assert.That(num < num2, Is.False);
         }
 
         [Test]
@@ -110,6 +112,8 @@ namespace NetworkTables.Test
             SequenceNumber num = new SequenceNumber(58);
             SequenceNumber num2 = new SequenceNumber(59);
             Assert.That(num2 > num);
+            num++;
+            Assert.That(num2 > num, Is.False);
             num++;
             Assert.That(num2 > num, Is.False);
         }
