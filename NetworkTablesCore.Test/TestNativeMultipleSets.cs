@@ -1,5 +1,4 @@
-﻿using System;
-using NetworkTables.Native;
+﻿using NetworkTables.Native;
 using NUnit.Framework;
 
 namespace NetworkTablesCore.Test

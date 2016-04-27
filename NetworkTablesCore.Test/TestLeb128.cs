@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using NetworkTables.Native;
 using NetworkTables.Wire;
 using NUnit.Framework;
 

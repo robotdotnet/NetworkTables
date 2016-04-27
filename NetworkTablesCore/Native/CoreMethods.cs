@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
-using NetworkTables.Native.Exceptions;
-using NetworkTables;
+using NetworkTables.Exceptions;
 
 namespace NetworkTables.Native
 {

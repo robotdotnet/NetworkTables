@@ -1,7 +1,7 @@
 ﻿using System;
 using NetworkTables;
+using NetworkTables.Exceptions;
 using NetworkTables.Native;
-using NetworkTables.Native.Exceptions;
 using NUnit.Framework;
 
 namespace NetworkTablesCore.Test

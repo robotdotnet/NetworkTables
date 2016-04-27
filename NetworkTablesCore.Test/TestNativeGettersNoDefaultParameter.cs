@@ -1,5 +1,5 @@
-﻿using NetworkTables.Native;
-using NetworkTables.Native.Exceptions;
+﻿using NetworkTables.Exceptions;
+using NetworkTables.Native;
 using NUnit.Framework;
 
 namespace NetworkTablesCore.Test

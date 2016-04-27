@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using NetworkTables;
+using NetworkTables.Exceptions;
 using NetworkTables.Native;
-using NetworkTables.Native.Exceptions;
 using NetworkTables.Tables;
 using NUnit.Framework;
 
