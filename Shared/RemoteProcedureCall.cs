@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+#if CORE
 using NetworkTables.Native;
+#endif
 using WireDecoder = NetworkTables.Wire.WireDecoder;
 using WireEncoder = NetworkTables.Wire.WireEncoder;
 

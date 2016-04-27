@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using NetworkTables;
+using NetworkTables.Wire;
 using NUnit.Framework;
-using NetworkTables.Native;
 
 namespace NetworkTablesCore.Test
 {
     [TestFixture]
-    public class TestWireDecoder
+    class WireDecoderTest
     {
         readonly Value v_boolean = Value.MakeBoolean(true);
         readonly Value v_double = Value.MakeDouble(1.0);
@@ -33,7 +31,7 @@ namespace NetworkTablesCore.Test
 
         private readonly string s_big2;
 
-        public TestWireDecoder()
+        public WireDecoderTest()
         {
             List<string> sa = new List<string>();
             for (int i = 0; i < 255; i++)
@@ -71,28 +69,28 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestConstruct()
+        public void Construct()
         {
-            RawMemoryStream stream = new RawMemoryStream(new byte[0], 0);
+            MemoryStream stream = new MemoryStream(new byte[0]);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             Assert.That(d.Error, Is.Null);
             Assert.That(d.ProtoRev, Is.EqualTo(0x0300));
         }
 
         [Test]
-        public void TestSetProtoRev()
+        public void SetProtoRev()
         {
-            RawMemoryStream stream = new RawMemoryStream(new byte[0], 0);
+            MemoryStream stream = new MemoryStream(new byte[0]);
             WireDecoder d = new WireDecoder(stream, 0x0300);
-            d.SetProtoRev(0x0200);
+            d.ProtoRev = 0x0200;
             Assert.That(d.ProtoRev, Is.EqualTo(0x0200));
         }
 
         [Test]
-        public void TestRead8()
+        public void Read8()
         {
             byte[] rawData = { 0x05, 0x01, 0x00 };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             byte val = 0;
             Assert.That(d.Read8(ref val));
@@ -110,10 +108,10 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestRead16()
+        public void Read16()
         {
             byte[] rawData = { 0x00, 0x05, 0x00, 0x01, 0x45, 0x67, 0x00, 0x00 };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             ushort val = 0;
             Assert.That(d.Read16(ref val));
@@ -133,10 +131,10 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestRead32()
+        public void Read32()
         {
             byte[] rawData = { 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0xab, 0xcd, 0x12, 0x34, 0x56, 0x78, 0x00, 0x00, 0x00, 0x00 };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             uint val = 0;
             Assert.That(d.Read32(ref val));
@@ -160,7 +158,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadDouble()
+        public void ReadDouble()
         {
             byte[] rawData =
             {
@@ -170,7 +168,7 @@ namespace NetworkTablesCore.Test
                 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x7f, 0xef, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
             };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             double val = 0;
             Assert.That(d.ReadDouble(ref val));
@@ -194,10 +192,10 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadUleb128()
+        public void ReadUleb128()
         {
             byte[] rawData = { 0x00, 0x7f, 0x80, 0x01, 0x80 };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             ulong val = 0;
             Assert.That(d.ReadUleb128(out val));
@@ -215,10 +213,10 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadType()
+        public void ReadType()
         {
             byte[] rawData = { 0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x20 };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             NtType val = 0;
             Assert.That(d.ReadType(ref val));
@@ -251,10 +249,10 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadTypeError()
+        public void ReadTypeError()
         {
             byte[] rawData = { 0x30 };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0200);
             NtType val = 0;
 
@@ -264,10 +262,10 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReset()
+        public void Reset()
         {
             byte[] rawData = { 0x30 };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0200);
             NtType val = 0;
 
@@ -279,10 +277,10 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestBooleanValue2()
+        public void BooleanValue2()
         {
             byte[] rawData = new byte[] { 0x01, 0x00 };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0200);
             var val = d.ReadValue(NtType.Boolean);
             Assert.That(val.Type, Is.EqualTo(NtType.Boolean));
@@ -298,14 +296,14 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestDoubleValue2()
+        public void DoubleValue2()
         {
             byte[] rawData = new byte[]
             {
                 0x3f, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x3f, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
             };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0200);
             var val = d.ReadValue(NtType.Double);
             Assert.That(val.Type, Is.EqualTo(NtType.Double));
@@ -320,14 +318,14 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestStringValue2()
+        public void StringValue2()
         {
             byte[] rawData = new byte[]
             {
                 0x00, 0x05, (byte)'h', (byte)'e', (byte)'l', (byte)'l', (byte)'o',
                 0x00, 0x03, (byte)'b', (byte)'y', (byte)'e', 0x55,
             };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0200);
             var val = d.ReadValue(NtType.String);
             Assert.That(val.Type, Is.EqualTo(NtType.String));
@@ -347,10 +345,10 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadBooleanArray2()
+        public void ReadBooleanArray2()
         {
             byte[] b = { 0x03, 0x00, 0x01, 0x00, 0x02, 0x01, 0x00, 0xff };
-            RawMemoryStream stream = new RawMemoryStream(b, b.Length);
+            MemoryStream stream = new MemoryStream(b);
             WireDecoder d = new WireDecoder(stream, 0x0200);
 
             var val = d.ReadValue(NtType.BooleanArray);
@@ -375,7 +373,7 @@ namespace NetworkTablesCore.Test
             {
                 s.Add(0x00);
             }
-            RawMemoryStream stream = new RawMemoryStream(s.ToArray(), s.Count);
+            MemoryStream stream = new MemoryStream(s.ToArray());
             WireDecoder d = new WireDecoder(stream, 0x0200);
 
             var val = d.ReadValue(NtType.BooleanArray);
@@ -389,14 +387,14 @@ namespace NetworkTablesCore.Test
 
 
         [Test]
-        public void TestReadDoubleArray2()
+        public void ReadDoubleArray2()
         {
             byte[] b =
             {
                 0x02, 0x3f, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x3f, 0xd0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55
             };
-            RawMemoryStream stream = new RawMemoryStream(b, b.Length);
+            MemoryStream stream = new MemoryStream(b);
             WireDecoder d = new WireDecoder(stream, 0x0200);
 
             var val = d.ReadValue(NtType.DoubleArray);
@@ -420,7 +418,7 @@ namespace NetworkTablesCore.Test
             {
                 s.Add(0x00);
             }
-            RawMemoryStream stream = new RawMemoryStream(s.ToArray(), s.Count);
+            MemoryStream stream = new MemoryStream(s.ToArray());
             WireDecoder d = new WireDecoder(stream, 0x0200);
 
             var val = d.ReadValue(NtType.DoubleArray);
@@ -432,7 +430,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadStringArray2()
+        public void ReadStringArray2()
         {
             List<byte> b = new List<byte>()
             {
@@ -445,7 +443,7 @@ namespace NetworkTablesCore.Test
             b.Add(0x07);
             b.AddRange(Encoding.UTF8.GetBytes("goodbye"));
             b.Add(0x55);
-            RawMemoryStream stream = new RawMemoryStream(b.ToArray(), b.Count);
+            MemoryStream stream = new MemoryStream(b.ToArray());
             WireDecoder d = new WireDecoder(stream, 0x0200);
 
             var val = d.ReadValue(NtType.StringArray);
@@ -471,7 +469,7 @@ namespace NetworkTablesCore.Test
                 s.Add(0x01);
                 s.Add((byte)'h');
             }
-            RawMemoryStream stream = new RawMemoryStream(s.ToArray(), s.Count);
+            MemoryStream stream = new MemoryStream(s.ToArray());
             WireDecoder d = new WireDecoder(stream, 0x0200);
 
             var val = d.ReadValue(NtType.StringArray);
@@ -483,9 +481,9 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadValueError2()
+        public void ReadValueError2()
         {
-            RawMemoryStream stream = new RawMemoryStream(new byte[0], 0);
+            MemoryStream stream = new MemoryStream(new byte[0]);
             WireDecoder d = new WireDecoder(stream, 0x0200);
             Assert.That(d.ReadValue(NtType.Unassigned), Is.Null);
             Assert.That(d.Error, Is.Not.Null);
@@ -499,10 +497,10 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestBooleanValue3()
+        public void BooleanValue3()
         {
             byte[] rawData = new byte[] { 0x01, 0x00 };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             var val = d.ReadValue(NtType.Boolean);
             Assert.That(val.Type, Is.EqualTo(NtType.Boolean));
@@ -518,14 +516,14 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestDoubleValue3()
+        public void DoubleValue3()
         {
             byte[] rawData = new byte[]
             {
                 0x3f, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x3f, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
             };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             var val = d.ReadValue(NtType.Double);
             Assert.That(val.Type, Is.EqualTo(NtType.Double));
@@ -540,14 +538,14 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestStringValue3()
+        public void StringValue3()
         {
             byte[] rawData = new byte[]
             {
                 0x05, (byte)'h', (byte)'e', (byte)'l', (byte)'l', (byte)'o',
                 0x03, (byte)'b', (byte)'y', (byte)'e', 0x55,
             };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             var val = d.ReadValue(NtType.String);
             Assert.That(val.Type, Is.EqualTo(NtType.String));
@@ -567,14 +565,14 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestRawValue3()
+        public void RawValue3()
         {
             byte[] rawData = new byte[]
             {
                 0x05, (byte)'h', (byte)'e', (byte)'l', (byte)'l', (byte)'o',
                 0x03, (byte)'b', (byte)'y', (byte)'e', 0x55,
             };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             var val = d.ReadValue(NtType.Raw);
             Assert.That(val.Type, Is.EqualTo(NtType.Raw));
@@ -594,14 +592,14 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestRpcValue3()
+        public void RpcValue3()
         {
             byte[] rawData = new byte[]
             {
                 0x05, (byte)'h', (byte)'e', (byte)'l', (byte)'l', (byte)'o',
                 0x03, (byte)'b', (byte)'y', (byte)'e', 0x55,
             };
-            RawMemoryStream stream = new RawMemoryStream(rawData, rawData.Length);
+            MemoryStream stream = new MemoryStream(rawData);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             var val = d.ReadValue(NtType.Rpc);
             Assert.That(val.Type, Is.EqualTo(NtType.Rpc));
@@ -621,10 +619,10 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadBooleanArray3()
+        public void ReadBooleanArray3()
         {
             byte[] b = { 0x03, 0x00, 0x01, 0x00, 0x02, 0x01, 0x00, 0xff };
-            RawMemoryStream stream = new RawMemoryStream(b, b.Length);
+            MemoryStream stream = new MemoryStream(b);
             WireDecoder d = new WireDecoder(stream, 0x0300);
 
             var val = d.ReadValue(NtType.BooleanArray);
@@ -649,7 +647,7 @@ namespace NetworkTablesCore.Test
             {
                 s.Add(0x00);
             }
-            RawMemoryStream stream = new RawMemoryStream(s.ToArray(), s.Count);
+            MemoryStream stream = new MemoryStream(s.ToArray());
             WireDecoder d = new WireDecoder(stream, 0x0300);
 
             var val = d.ReadValue(NtType.BooleanArray);
@@ -663,14 +661,14 @@ namespace NetworkTablesCore.Test
 
 
         [Test]
-        public void TestReadDoubleArray3()
+        public void ReadDoubleArray3()
         {
             byte[] b =
             {
                 0x02, 0x3f, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x3f, 0xd0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55
             };
-            RawMemoryStream stream = new RawMemoryStream(b, b.Length);
+            MemoryStream stream = new MemoryStream(b);
             WireDecoder d = new WireDecoder(stream, 0x0300);
 
             var val = d.ReadValue(NtType.DoubleArray);
@@ -686,13 +684,13 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadDoubleArrayError3()
+        public void ReadDoubleArrayError3()
         {
             byte[] b =
             {
                 0x02,
             };
-            RawMemoryStream stream = new RawMemoryStream(b, b.Length);
+            MemoryStream stream = new MemoryStream(b);
             WireDecoder d = new WireDecoder(stream, 0x0300);
 
             var val = d.ReadValue(NtType.DoubleArray);
@@ -700,13 +698,13 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadStringArrayError3()
+        public void ReadStringArrayError3()
         {
             byte[] b =
             {
                 0x02,
             };
-            RawMemoryStream stream = new RawMemoryStream(b, b.Length);
+            MemoryStream stream = new MemoryStream(b);
             WireDecoder d = new WireDecoder(stream, 0x0300);
 
             var val = d.ReadValue(NtType.StringArray);
@@ -722,7 +720,7 @@ namespace NetworkTablesCore.Test
             {
                 s.Add(0x00);
             }
-            RawMemoryStream stream = new RawMemoryStream(s.ToArray(), s.Count);
+            MemoryStream stream = new MemoryStream(s.ToArray());
             WireDecoder d = new WireDecoder(stream, 0x0300);
 
             var val = d.ReadValue(NtType.DoubleArray);
@@ -734,7 +732,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadStringArray3()
+        public void ReadStringArray3()
         {
             List<byte> b = new List<byte>()
             {
@@ -745,7 +743,7 @@ namespace NetworkTablesCore.Test
             b.Add(0x07);
             b.AddRange(Encoding.UTF8.GetBytes("goodbye"));
             b.Add(0x55);
-            RawMemoryStream stream = new RawMemoryStream(b.ToArray(), b.Count);
+            MemoryStream stream = new MemoryStream(b.ToArray());
             WireDecoder d = new WireDecoder(stream, 0x0300);
 
             var val = d.ReadValue(NtType.StringArray);
@@ -770,7 +768,7 @@ namespace NetworkTablesCore.Test
                 s.Add(0x01);
                 s.Add((byte)'h');
             }
-            RawMemoryStream stream = new RawMemoryStream(s.ToArray(), s.Count);
+            MemoryStream stream = new MemoryStream(s.ToArray());
             WireDecoder d = new WireDecoder(stream, 0x0300);
 
             var val = d.ReadValue(NtType.StringArray);
@@ -782,25 +780,25 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadValueError3()
+        public void ReadValueError3()
         {
-            RawMemoryStream stream = new RawMemoryStream(new byte[0], 0);
+            MemoryStream stream = new MemoryStream(new byte[0]);
             WireDecoder d = new WireDecoder(stream, 0x0300);
             Assert.That(d.ReadValue(NtType.Unassigned), Is.Null);
             Assert.That(d.Error, Is.Not.Null);
         }
 
         [Test]
-        public void TestReadStringError2()
+        public void ReadStringError2()
         {
-            RawMemoryStream stream = new RawMemoryStream(new byte[] { 0x00, 0x05 }, 2);
+            MemoryStream stream = new MemoryStream(new byte[] { 0x00, 0x05 });
             WireDecoder d = new WireDecoder(stream, 0x0200);
             string str = "";
             Assert.That(d.ReadString(ref str), Is.False);
         }
 
         [Test]
-        public void TestReadString2()
+        public void ReadString2()
         {
             byte[] sNormalBytes = Encoding.UTF8.GetBytes(s_normal);
             byte[] sLongBytes = Encoding.UTF8.GetBytes(s_long);
@@ -814,7 +812,7 @@ namespace NetworkTablesCore.Test
             s.AddRange(sBigBytes);
             s.Add(0x55);
 
-            RawMemoryStream stream = new RawMemoryStream(s.ToArray(), s.Count);
+            MemoryStream stream = new MemoryStream(s.ToArray());
             WireDecoder d = new WireDecoder(stream, 0x0200);
 
             string outs = null;
@@ -836,25 +834,25 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReadStringError3()
+        public void ReadStringError3()
         {
-            RawMemoryStream stream = new RawMemoryStream(new byte[] { 0x05 }, 1);
+            MemoryStream stream = new MemoryStream(new byte[] { 0x05 });
             WireDecoder d = new WireDecoder(stream, 0x0300);
             string str = "";
             Assert.That(d.ReadString(ref str), Is.False);
         }
 
         [Test]
-        public void TestReadRawError3()
+        public void ReadRawError3()
         {
-            RawMemoryStream stream = new RawMemoryStream(new byte[] { 0x05 }, 1);
+            MemoryStream stream = new MemoryStream(new byte[] { 0x05 });
             WireDecoder d = new WireDecoder(stream, 0x0300);
             byte[] str = null;
             Assert.That(d.ReadRaw(ref str), Is.False);
         }
 
         [Test]
-        public void TestReadString3()
+        public void ReadString3()
         {
             byte[] sNormalBytes = Encoding.UTF8.GetBytes(s_normal);
             byte[] sLongBytes = Encoding.UTF8.GetBytes(s_long);
@@ -868,7 +866,7 @@ namespace NetworkTablesCore.Test
             s.AddRange(sBigBytes);
             s.Add(0x55);
 
-            RawMemoryStream stream = new RawMemoryStream(s.ToArray(), s.Count);
+            MemoryStream stream = new MemoryStream(s.ToArray());
             WireDecoder d = new WireDecoder(stream, 0x0300);
 
             string outs = null;

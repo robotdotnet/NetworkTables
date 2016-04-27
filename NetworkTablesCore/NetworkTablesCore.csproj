@@ -121,12 +121,9 @@
     <Compile Include="Native\Exceptions\TableKeyNotDefinedException.cs" />
     <Compile Include="Native\Interop.cs" />
     <Compile Include="Native\LoaderUtilities.cs" />
-    <Compile Include="Native\RawMemoryStream.cs" />
-    <Compile Include="Native\Leb128.cs" />
-    <Compile Include="Native\WireDecoder.cs" />
-    <Compile Include="Native\WireEncoder.cs" />
     <Compile Include="Native\Structs.cs" />
     <Compile Include="Native\Uname.cs" />
+    <Compile Include="NtCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Support\Timestamp.cs" />
   </ItemGroup>

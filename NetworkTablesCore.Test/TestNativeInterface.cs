@@ -31,7 +31,7 @@ namespace NetworkTablesCore.Test
             bool toWrite3 = true;
             CoreMethods.SetEntryBoolean(key3, toWrite3);
 
-            var entries = CoreMethods.GetEntries("", 0);
+            var entries = CoreMethods.GetEntryInfo("", 0);
 
             Assert.That(3, Is.EqualTo(entries.Count));
 
@@ -66,7 +66,7 @@ namespace NetworkTablesCore.Test
 
             Thread.Sleep(20);
 
-            var entries = CoreMethods.GetEntries("", NtType.String);
+            var entries = CoreMethods.GetEntryInfo("", NtType.String);
 
             Assert.That(1, Is.EqualTo(entries.Count));
 
@@ -138,7 +138,7 @@ namespace NetworkTablesCore.Test
 
             Assert.That(errors.Length, Is.EqualTo(0));
 
-            var entries = CoreMethods.GetEntries("", 0);
+            var entries = CoreMethods.GetEntryInfo("", 0);
 
             Assert.That(entries.Count, Is.EqualTo(2));
 
@@ -186,11 +186,11 @@ namespace NetworkTablesCore.Test
             double toWrite2 = 3.58;
             CoreMethods.SetEntryDouble(key2, toWrite2);
 
-            Assert.That(CoreMethods.GetEntries("", 0).Count, Is.EqualTo(2));
+            Assert.That(CoreMethods.GetEntryInfo("", 0).Count, Is.EqualTo(2));
 
             CoreMethods.DeleteEntry(key1);
 
-            Assert.That(CoreMethods.GetEntries("", 0).Count, Is.EqualTo(1));
+            Assert.That(CoreMethods.GetEntryInfo("", 0).Count, Is.EqualTo(1));
 
             const string err = "error";
             Assert.That(CoreMethods.GetEntryString(key1, err), Is.EqualTo(err));
@@ -207,11 +207,11 @@ namespace NetworkTablesCore.Test
             double toWrite2 = 3.58;
             CoreMethods.SetEntryDouble(key2, toWrite2);
 
-            Assert.That(CoreMethods.GetEntries("", 0).Count, Is.EqualTo(2));
+            Assert.That(CoreMethods.GetEntryInfo("", 0).Count, Is.EqualTo(2));
 
             CoreMethods.DeleteAllEntries();
 
-            Assert.That(CoreMethods.GetEntries("", 0).Count, Is.EqualTo(0));
+            Assert.That(CoreMethods.GetEntryInfo("", 0).Count, Is.EqualTo(0));
 
             const string err = "error";
             Assert.That(CoreMethods.GetEntryString(key1, err), Is.EqualTo(err));

@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using NetworkTables.Native;
 using NetworkTables;
+using NetworkTables.Wire;
 using NUnit.Framework;
 
 namespace NetworkTablesCore.Test
 {
     [TestFixture]
-    public class TestWireEncoder
+    public class WireEncoderTest
     {
-        const int BUFSIZE = 1024;
+        private const int BUFSIZE = 1024;
 
         [Test]
-        public void TestWireEncoderWrite8()
+        public void WireEncoderWrite8()
         {
             int off = BUFSIZE - 1;
             WireEncoder e = new WireEncoder(0x0300);
@@ -38,7 +36,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestConstruct()
+        public void Construct()
         {
             WireEncoder d = new WireEncoder(0x0300);
             Assert.That(d.Error, Is.Null);
@@ -46,15 +44,15 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestSetProtoRev()
+        public void SetProtoRev()
         {
             WireEncoder d = new WireEncoder(0x0300);
-            d.SetProtoRev(0x0200);
+            d.ProtoRev = 0x0200;
             Assert.That(d.ProtoRev, Is.EqualTo(0x0200));
         }
 
         [Test]
-        public void TestWireEncoderWrite16()
+        public void WireEncoderWrite16()
         {
             int off = BUFSIZE - 2;
             WireEncoder e = new WireEncoder(0x0300);
@@ -78,7 +76,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWireEncoderWrite32()
+        public void WireEncoderWrite32()
         {
             int off = BUFSIZE - 4;
             WireEncoder e = new WireEncoder(0x0300);
@@ -101,7 +99,7 @@ namespace NetworkTablesCore.Test
 
 
         [Test]
-        public void TestWireEncoderWriteDouble()
+        public void WireEncoderWriteDouble()
         {
             int off = BUFSIZE - 8;
             WireEncoder e = new WireEncoder(0x0300);
@@ -130,7 +128,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWireEncoderWriteLeb128()
+        public void WireEncoderWriteLeb128()
         {
             int off = BUFSIZE - 2;
             WireEncoder e = new WireEncoder(0x0300);
@@ -151,7 +149,7 @@ namespace NetworkTablesCore.Test
 
 
         [Test]
-        public void TestWireEncoderWriteType()
+        public void WireEncoderWriteType()
         {
             int off = BUFSIZE - 1;
             WireEncoder e = new WireEncoder(0x0300);
@@ -176,7 +174,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteTypeError()
+        public void WriteTypeError()
         {
             WireEncoder e = new WireEncoder(0x0200);
             e.WriteType(NtType.Unassigned);
@@ -195,7 +193,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestReset()
+        public void Reset()
         {
             WireEncoder e = new WireEncoder(0x0300);
             e.WriteType(NtType.Unassigned);
@@ -209,26 +207,26 @@ namespace NetworkTablesCore.Test
             Assert.That(e.Buffer, Is.Empty);
         }
 
-        private Value v_empty = Value.MakeEmpty();
-        Value v_boolean = Value.MakeBoolean(true);
-        Value v_double = Value.MakeDouble(1.0);
-        Value v_string = Value.MakeString("hello");
-        Value v_raw = Value.MakeRaw((byte)'h', (byte)'e', (byte)'l', (byte)'l', (byte)'o');
-        Value v_rpc = Value.MakeRpc((byte)'h', (byte)'e', (byte)'l', (byte)'l', (byte)'o');
-        Value v_boolArray = Value.MakeBooleanArray(false, true, false);
-        Value v_boolArrayBig = Value.MakeBooleanArray(new bool[256]);
-        Value v_doubleArray = Value.MakeDoubleArray(0.5, 0.25);
-        Value v_doubleArrayBig = Value.MakeDoubleArray(new double[256]);
+        private readonly Value v_empty = Value.MakeEmpty();
+        private readonly Value v_boolean = Value.MakeBoolean(true);
+        private readonly Value v_double = Value.MakeDouble(1.0);
+        private readonly Value v_string = Value.MakeString("hello");
+        private readonly Value v_raw = Value.MakeRaw((byte)'h', (byte)'e', (byte)'l', (byte)'l', (byte)'o');
+        private readonly Value v_rpc = Value.MakeRpc((byte)'h', (byte)'e', (byte)'l', (byte)'l', (byte)'o');
+        private readonly Value v_boolArray = Value.MakeBooleanArray(false, true, false);
+        private readonly Value v_boolArrayBig = Value.MakeBooleanArray(new bool[256]);
+        private readonly Value v_doubleArray = Value.MakeDoubleArray(0.5, 0.25);
+        private readonly Value v_doubleArrayBig = Value.MakeDoubleArray(new double[256]);
 
-        Value v_stringArray = Value.MakeStringArray("hello", "goodbye");
-        Value v_stringArrayBig;
+        private readonly Value v_stringArray = Value.MakeStringArray("hello", "goodbye");
+        private readonly Value v_stringArrayBig;
 
-        string s_normal = "hello";
+        private readonly string s_normal = "hello";
 
-        private string s_long;
-        private string s_big;
+        private readonly string s_long;
+        private readonly string s_big;
 
-        public TestWireEncoder()
+        public WireEncoderTest()
         {
             List<string> sa = new List<string>();
             for (int i = 0; i < 256; i++)
@@ -258,7 +256,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestGetValueSize2()
+        public void GetValueSize2()
         {
             WireEncoder e = new WireEncoder(0x0200);
             Assert.That(e.GetValueSize(null), Is.EqualTo(0));
@@ -278,7 +276,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteBooleanValue2()
+        public void WriteBooleanValue2()
         {
             WireEncoder e = new WireEncoder(0x0200);
             e.WriteValue(v_boolean);
@@ -290,7 +288,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteDoubleValue2()
+        public void WriteDoubleValue2()
         {
             WireEncoder e = new WireEncoder(0x0200);
             e.WriteValue(v_double);
@@ -300,7 +298,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteStringValue2()
+        public void WriteStringValue2()
         {
             WireEncoder e = new WireEncoder(0x0200);
             e.WriteValue(v_string);
@@ -310,7 +308,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteBooleanArrayValue2()
+        public void WriteBooleanArrayValue2()
         {
             WireEncoder e = new WireEncoder(0x0200);
             e.WriteValue(v_boolArray);
@@ -326,7 +324,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteDoubleArrayValue2()
+        public void WriteDoubleArrayValue2()
         {
             WireEncoder e = new WireEncoder(0x0200);
             e.WriteValue(v_doubleArray);
@@ -346,7 +344,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteStringArrayValue2()
+        public void WriteStringArrayValue2()
         {
             WireEncoder e = new WireEncoder(0x0200);
             e.WriteValue(v_stringArray);
@@ -366,7 +364,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestGetStringSize2()
+        public void GetStringSize2()
         {
             WireEncoder e = new WireEncoder(0x0200);
             Assert.That(e.GetStringSize(s_normal), Is.EqualTo(7));
@@ -375,7 +373,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteString2()
+        public void WriteString2()
         {
             WireEncoder e = new WireEncoder(0x0200);
             e.WriteString(s_normal);
@@ -403,7 +401,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteValueError2()
+        public void WriteValueError2()
         {
             WireEncoder e = new WireEncoder(0x0200);
             e.WriteValue(v_empty);
@@ -422,7 +420,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteValueNull2()
+        public void WriteValueNull2()
         {
             WireEncoder e = new WireEncoder(0x0200);
             e.WriteValue(null);
@@ -433,7 +431,7 @@ namespace NetworkTablesCore.Test
 
 
         [Test]
-        public void TestGetValueSize3()
+        public void GetValueSize3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             Assert.That(e.GetValueSize(null), Is.EqualTo(0));
@@ -453,7 +451,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteBooleanValue3()
+        public void WriteBooleanValue3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             e.WriteValue(v_boolean);
@@ -465,7 +463,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteDoubleValue3()
+        public void WriteDoubleValue3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             e.WriteValue(v_double);
@@ -475,7 +473,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteStringValue3()
+        public void WriteStringValue3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             e.WriteValue(v_string);
@@ -485,7 +483,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteRawArray3()
+        public void WriteRawArray3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             e.WriteValue(v_raw);
@@ -495,7 +493,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteRpcArray3()
+        public void WriteRpcArray3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             e.WriteValue(v_rpc);
@@ -505,7 +503,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteBooleanArrayValue3()
+        public void WriteBooleanArrayValue3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             e.WriteValue(v_boolArray);
@@ -521,7 +519,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteDoubleArrayValue3()
+        public void WriteDoubleArrayValue3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             e.WriteValue(v_doubleArray);
@@ -541,7 +539,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteStringArrayValue3()
+        public void WriteStringArrayValue3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             e.WriteValue(v_stringArray);
@@ -561,7 +559,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestGetStringSize3()
+        public void GetStringSize3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             Assert.That(e.GetStringSize(s_normal), Is.EqualTo(6));
@@ -570,7 +568,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteString3()
+        public void WriteString3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             e.WriteString(s_normal);
@@ -600,7 +598,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteValueError3()
+        public void WriteValueError3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             e.WriteValue(v_empty);
@@ -609,7 +607,7 @@ namespace NetworkTablesCore.Test
         }
 
         [Test]
-        public void TestWriteValueNull3()
+        public void WriteValueNull3()
         {
             WireEncoder e = new WireEncoder(0x0300);
             e.WriteValue(null);
