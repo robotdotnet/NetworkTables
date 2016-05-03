@@ -23,6 +23,7 @@ namespace NetworkTablesCore.Test
             Assert.That(info.ProtocolVersion, Is.EqualTo(protocolVersion));
         }
 
+        [Test]
         public void TestEntryInfo()
         {
             string name = "TestEntryInfo";

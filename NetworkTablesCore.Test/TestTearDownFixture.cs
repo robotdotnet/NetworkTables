@@ -6,7 +6,7 @@ namespace NetworkTablesCore.Test
     [SetUpFixture]
     public class TestTearDownFixture
     {
-        [TearDown]
+        [OneTimeTearDown]
         public void TearDown()
         {
             CoreMethods.StopClient();
