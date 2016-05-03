@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
@@ -27,8 +28,12 @@ namespace NetworkTablesCore.Test.SpecScanners
         public static List<HALDelegateClass> GetDelegates()
         {
             List<HALDelegateClass> halBaseMethods = new List<HALDelegateClass>();
+
+            var assembly = Assembly.GetExecutingAssembly();
             var p = Path.DirectorySeparatorChar;
-            var file = $"..{p}..{p}NetworkTablesCore{p}Native{p}Interop.cs";
+            var path = assembly.CodeBase.Replace("file:///", "").Replace("/", p.ToString());
+            path = Path.GetDirectoryName(path);
+            var file = $"{path}{p}..{p}..{p}NetworkTablesCore{p}Native{p}Interop.cs";
             HALDelegateClass cs = new HALDelegateClass
             {
                 ClassName = "",
@@ -58,8 +63,12 @@ namespace NetworkTablesCore.Test.SpecScanners
         public static List<string> GetRequestedNativeSymbols()
         {
             List<string> nativeFunctions = new List<string>();
+            var assembly = Assembly.GetExecutingAssembly();
             var p = Path.DirectorySeparatorChar;
-            var dir = $"..{p}..{p}NetworkTablesCore{p}Native";
+            var path = assembly.CodeBase.Replace("file:///", "").Replace("/", p.ToString());
+            path = Path.GetDirectoryName(path);
+            
+            var dir = $"{path}{p}..{p}..{p}NetworkTablesCore{p}Native";
             foreach (var file in Directory.GetFiles(dir, "*.cs"))
             {
                 if (!file.ToLower().Contains("Interop")) continue;
@@ -97,17 +106,23 @@ namespace NetworkTablesCore.Test.SpecScanners
             OsType type = LoaderUtilities.GetOsType();
 
             //Only run the roboRIO symbol test on windows.
-            if (type != OsType.Windows32 || type != OsType.Windows64) Assert.Pass();
+            if (type != OsType.Windows32 && type != OsType.Windows64) Assert.Pass();
 
             var roboRIOSymbols = GetRequestedNativeSymbols();
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var ps = Path.DirectorySeparatorChar;
+            var path = assembly.CodeBase.Replace("file:///", "").Replace("/", ps.ToString());
+            path = Path.GetDirectoryName(path);
 
             // Start the child process.
             Process p = new Process();
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.FileName = "..\\..\\NetworkTablesCore\\NativeLibraries\\roborio\\frcnm.exe";
+            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.FileName = path + "\\..\\..\\NetworkTablesCore\\NativeLibraries\\roborio\\frcnm.exe";
                 Console.WriteLine(p.StartInfo.FileName);
-            p.StartInfo.Arguments = "..\\..\\NetworkTablesCore\\NativeLibraries\\roborio\\libHALAthena.so";
+            p.StartInfo.Arguments = path + "\\..\\..\\NetworkTablesCore\\NativeLibraries\\roborio\\libHALAthena.so";
             p.Start();
             string output = p.StandardOutput.ReadToEnd();
             p.WaitForExit();
