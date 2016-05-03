@@ -18,11 +18,7 @@ build_script:
 
 test_script:
 - .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:nunit3-console.exe -targetargs:".\NetworkTables.Test\Output\NetworkTables.Test.dll --framework=net-4.5 " -filter:"+[Network*]* -[NetworkTables.T*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -output:coverage.xml -mergeoutput -returntargetcode
-- .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:nunit-console.exe -targetargs:".\NetworkTablesCore.Test\Output\NetworkTablesCore.Test.dll /noshadow /framework:net-4.0 " -filter:"+[Network*]* -[NetworkTablesCore.T*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -output:coverage.xml -mergeoutput -returntargetcode
-
-- cmd: >-
-
-    nunit-console-x86.exe %APPVEYOR_BUILD_FOLDER%\NetworkTablesCore.Test\Output\NetworkTablesCore.Test.dll /framework:net-4.0
+- .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:nunit3-console.exe -targetargs:".\NetworkTablesCore.Test\Output\NetworkTablesCore.Test.dll --framework=net-4.5 " -filter:"+[Network*]* -[NetworkTablesCore.T*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -output:coverage.xml -mergeoutput -returntargetcode
 
 - "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
 - pip install codecov
