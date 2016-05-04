@@ -134,7 +134,7 @@ namespace NetworkTablesCore.Test
 
             File.WriteAllLines(fileName, toWrite);
 
-            string[] errors = CoreMethods.LoadPersistent(fileName);
+            string[] errors = NtCore.LoadPersistent(fileName);
 
             Assert.That(errors.Length, Is.EqualTo(0));
 
@@ -169,7 +169,7 @@ namespace NetworkTablesCore.Test
 
             File.WriteAllLines(fileName, toWrite);
 
-            string[] errors = CoreMethods.LoadPersistent(fileName);
+            string[] errors = NtCore.LoadPersistent(fileName);
 
             Assert.That(errors.Length, Is.EqualTo(1));
             Assert.That(errors[0], Contains.Substring("3: unrecognized boolean value, not 'true' or 'false'"));

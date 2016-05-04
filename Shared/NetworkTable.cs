@@ -294,11 +294,7 @@ namespace NetworkTables
         /// <returns>True if the table contains the key, otherwise false.</returns>
         public bool ContainsKey(string key)
         {
-#if CORE
-            return CoreMethods.ContainsKey(m_path + PathSeperatorChar + key);
-#else
-            return (GetEntryValue(m_path + PathSeperatorChar + key) != null);
-#endif
+            return NtCore.ContainsKey(m_path + PathSeperatorChar + key);
         }
 
         /// <summary>
@@ -308,7 +304,7 @@ namespace NetworkTables
         /// <returns>True if the table contains the sub-table, otherwise false</returns>
         public bool ContainsSubTable(string key)
         {
-            return GetEntryInfo(m_path + PathSeperatorChar + key + PathSeperatorChar, 0).Count != 0;
+            return NtCore.GetEntryInfo(m_path + PathSeperatorChar + key + PathSeperatorChar, 0).Count != 0;
         }
 
         /// <summary>
@@ -320,7 +316,7 @@ namespace NetworkTables
         {
             HashSet<string> keys = new HashSet<string>();
             int prefixLen = m_path.Length + 1;
-            foreach (EntryInfo entry in GetEntryInfo(m_path + PathSeperatorChar, types))
+            foreach (EntryInfo entry in NtCore.GetEntryInfo(m_path + PathSeperatorChar, types))
             {
                 string relativeKey = entry.Name.Substring(prefixLen);
                 if (relativeKey.IndexOf(PathSeperatorChar) != -1)
@@ -347,7 +343,7 @@ namespace NetworkTables
         {
             HashSet<string> keys = new HashSet<string>();
             int prefixLen = m_path.Length + 1;
-            foreach (EntryInfo entry in GetEntryInfo(m_path + PathSeperatorChar, 0))
+            foreach (EntryInfo entry in NtCore.GetEntryInfo(m_path + PathSeperatorChar, 0))
             {
                 string relativeKey = entry.Name.Substring(prefixLen);
                 int endSubTable = relativeKey.IndexOf(PathSeperatorChar);
@@ -404,7 +400,7 @@ namespace NetworkTables
         /// <param name="flags">The flags to set. (Bitmask)</param>
         public void SetFlags(string key, EntryFlags flags)
         {
-            SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) | flags);
+            NtCore.SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) | flags);
         }
 
         /// <summary>
@@ -414,7 +410,7 @@ namespace NetworkTables
         /// <param name="flags">The flags to clear. (Bitmask)</param>
         public void ClearFlags(string key, EntryFlags flags)
         {
-            SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) & ~flags);
+            NtCore.SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) & ~flags);
         }
 
         /// <summary>
@@ -424,7 +420,7 @@ namespace NetworkTables
         /// <returns>The flags attached to the key.</returns>
         public EntryFlags GetFlags(string key)
         {
-            return GetEntryFlags(m_path + PathSeperatorChar + key);
+            return NtCore.GetEntryFlags(m_path + PathSeperatorChar + key);
         }
 
         /// <summary>
@@ -433,7 +429,7 @@ namespace NetworkTables
         /// <param name="key">The key name.</param>
         public void Delete(string key)
         {
-            DeleteEntry(m_path + PathSeperatorChar + key);
+            NtCore.DeleteEntry(m_path + PathSeperatorChar + key);
         }
 
         /// <summary>
@@ -441,7 +437,7 @@ namespace NetworkTables
         /// </summary>
         public static void GlobalDeleteAll()
         {
-            DeleteAllEntries();
+            NtCore.DeleteAllEntries();
         }
 
         /// <summary>
@@ -453,11 +449,7 @@ namespace NetworkTables
         /// </remarks>
         public static void Flush()
         {
-#if CORE
-            CoreMethods.Flush();
-#else
             NtCore.Flush();
-#endif
         }
 
         /// <summary>
@@ -466,11 +458,7 @@ namespace NetworkTables
         /// <param name="interval">The update interval in seconds (0.1 to 1.0).</param>
         public static void SetUpdateRate(double interval)
         {
-#if CORE
-            CoreMethods.SetUpdateRate(interval);
-#else
             NtCore.SetUpdateRate(interval);
-#endif
         }
 
         /// <summary>
@@ -481,11 +469,7 @@ namespace NetworkTables
         /// saving the file.</exception>
         public static void SavePersistent(string filename)
         {
-#if CORE
-            CoreMethods.SavePersistent(filename);
-#else
             NtCore.SavePersistent(filename);
-#endif
         }
 
         /// <summary>
@@ -497,17 +481,7 @@ namespace NetworkTables
         /// loading the file.</exception>
         public static string[] LoadPersistent(string filename)
         {
-#if CORE
-            return CoreMethods.LoadPersistent(filename);
-#else
-            List<string> warns = new List<string>();
-            string err = NtCore.LoadPersistent(filename, (line, msg) =>
-            {
-                warns.Add($"{line.ToString()}: {msg}");
-            });
-            if (err != null) throw new PersistentException("Load Persistent Failed");
-            return warns.ToArray();
-#endif
+            return NtCore.LoadPersistent(filename);
         }
 
         ///<inheritdoc/>
@@ -957,7 +931,7 @@ namespace NetworkTables
                 listener.ValueChanged(this, relativeKey, value, flags_);
             };
 
-            int id = AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
             adapters.Add(id);
         }
@@ -980,7 +954,7 @@ namespace NetworkTables
                 listener.ValueChanged(this, key, value, flags_);
             };
 
-            int id = AddEntryListener(fullKey, func, flags);
+            int id = NtCore.AddEntryListener(fullKey, func, flags);
 
             adapters.Add(id);
         }
@@ -1011,7 +985,7 @@ namespace NetworkTables
             NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
             if (localNotify)
                 flags |= NotifyFlags.NotifyLocal;
-            int id = AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
             adapters.Add(id);
         }
@@ -1048,7 +1022,7 @@ namespace NetworkTables
             {
                 foreach (int t in adapters)
                 {
-                    RemoveEntryListener(t);
+                    NtCore.RemoveEntryListener(t);
                 }
                 adapters.Clear();
             }
@@ -1076,7 +1050,7 @@ namespace NetworkTables
                 listenerDelegate(this, relativeKey, value, flags_);
             };
 
-            int id = AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
             adapters.Add(id);
         }
@@ -1099,7 +1073,7 @@ namespace NetworkTables
                 listenerDelegate(this, key, value, flags_);
             };
 
-            int id = AddEntryListener(fullKey, func, flags);
+            int id = NtCore.AddEntryListener(fullKey, func, flags);
 
             adapters.Add(id);
         }
@@ -1130,7 +1104,7 @@ namespace NetworkTables
             NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
             if (localNotify)
                 flags |= NotifyFlags.NotifyLocal;
-            int id = AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
             adapters.Add(id);
         }
@@ -1167,7 +1141,7 @@ namespace NetworkTables
             {
                 foreach (int t in adapters)
                 {
-                    RemoveEntryListener(t);
+                    NtCore.RemoveEntryListener(t);
                 }
                 adapters.Clear();
             }
@@ -1193,13 +1167,7 @@ namespace NetworkTables
                 if (connected) listener.Connected(this, conn);
                 else listener.Disconnected(this, conn);
             };
-
-#if CORE
-            int id = CoreMethods.AddConnectionListener(func, immediateNotify);
-#else
             int id = NtCore.AddConnectionListener(func, immediateNotify);
-#endif
-
             m_connectionListenerMap.Add(listener, id);
 
         }
@@ -1210,11 +1178,7 @@ namespace NetworkTables
             int val;
             if (m_connectionListenerMap.TryGetValue(listener, out val))
             {
-#if CORE
-                CoreMethods.RemoveConnectionListener(val);
-#else
                 NtCore.RemoveConnectionListener(val);
-#endif
             }
         }
 
@@ -1230,11 +1194,7 @@ namespace NetworkTables
             {
                 listener(this, conn, connected);
             };
-#if CORE
-            int id = CoreMethods.AddConnectionListener(func, immediateNotify);
-#else
             int id = NtCore.AddConnectionListener(func, immediateNotify);
-#endif
             m_actionConnectionListenerMap.Add(listener, id);
         }
 
@@ -1244,11 +1204,7 @@ namespace NetworkTables
             int val;
             if (m_actionConnectionListenerMap.TryGetValue(listener, out val))
             {
-#if CORE
-                CoreMethods.RemoveConnectionListener(val);
-#else
                 NtCore.RemoveConnectionListener(val);
-#endif
             }
         }
 
@@ -1259,7 +1215,7 @@ namespace NetworkTables
         {
             get
             {
-                var conns = GetConnections();
+                var conns = NtCore.GetConnections();
                 return conns.Count > 0;
             }
         }
@@ -1275,7 +1231,7 @@ namespace NetworkTables
         /// <returns>An array of all connections attached to this instance.</returns>
         public static List<ConnectionInfo> Connections()
         {
-            return GetConnections();
+            return NtCore.GetConnections();
         }
 
         /// <summary>

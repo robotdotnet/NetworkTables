@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{34CFC6
 		Shared\EntryInfo.cs = Shared\EntryInfo.cs
 		Shared\Enumerations.cs = Shared\Enumerations.cs
 		Shared\NetworkTable.cs = Shared\NetworkTable.cs
+		Shared\NtCore.cs = Shared\NtCore.cs
 		Shared\NtType.cs = Shared\NtType.cs
 		Shared\RemoteProcedureCall.cs = Shared\RemoteProcedureCall.cs
 		Shared\RpcStructs.cs = Shared\RpcStructs.cs

@@ -558,25 +558,37 @@ namespace NetworkTables.Native
 
         #region Persistent
 
-        internal static void SavePersistent(string filename)
+        internal static string SavePersistent(string filename)
         {
             UIntPtr size;
             byte[] name = CreateUTF8String(filename, out size);
             IntPtr err = Interop.NT_SavePersistent(name);
-            if (err != IntPtr.Zero) throw new PersistentException("Save persistent failed");
+            if (err != IntPtr.Zero)
+            {
+                return ReadUTF8String(err);
+            }
+            else
+            {
+                return null;
+            }
         }
 
-        internal static string[] LoadPersistent(string filename)
+        internal static string LoadPersistent(string filename, Action<int, string> warn)
         {
             UIntPtr size;
             byte[] name = CreateUTF8String(filename, out size);
-            List<string> warns = new List<string>();
             IntPtr err = Interop.NT_LoadPersistent(name, (line, msg) =>
             {
-                warns.Add($"{line.ToString()}: {ReadUTF8String(msg)}");
+                warn((int)line, ReadUTF8String(msg));
             });
-            if (err != IntPtr.Zero) throw new PersistentException("Load Persistent Failed");
-            return warns.ToArray();
+            if(err != IntPtr.Zero)
+            {
+                return ReadUTF8String(err);
+            }
+            else
+            {
+                return null;
+            }
         }
         #endregion
 

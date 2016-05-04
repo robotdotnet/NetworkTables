@@ -1,8 +1,10 @@
-﻿using NetworkTables.Native;
+﻿// CORE Only
+
+using NetworkTables.Native;
 
 namespace NetworkTables
 {
-    internal static class NtCore
+    public static partial class NtCoreOldStyle
     {
         public static void StartClient(string ipAddress, int port)
         {
