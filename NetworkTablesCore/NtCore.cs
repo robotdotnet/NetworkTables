@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NetworkTables.Native;
+﻿using NetworkTables.Native;
 
 namespace NetworkTables
 {
-    public static class NtCore
+    internal static class NtCore
     {
         public static void StartClient(string ipAddress, int port)
         {

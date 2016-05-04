@@ -15,7 +15,7 @@ namespace NetworkTables.Native
     /// Most of these are internal, however some of them can be used publicly, so the class is public,
     /// and specific methods are public.
     /// </remarks>
-    public static class CoreMethods
+    internal static class CoreMethods
     {
 
         #region Setters
