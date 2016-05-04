@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
+using NetworkTables.Wire;
 #if CORE
 using NetworkTables.Native;
+using System.Runtime.InteropServices;
 #endif
-using WireDecoder = NetworkTables.Wire.WireDecoder;
-using WireEncoder = NetworkTables.Wire.WireEncoder;
 
 namespace NetworkTables
 {
