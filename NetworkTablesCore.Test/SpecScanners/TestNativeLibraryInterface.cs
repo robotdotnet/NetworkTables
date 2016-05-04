@@ -33,6 +33,7 @@ namespace NetworkTablesCore.Test.SpecScanners
             var p = Path.DirectorySeparatorChar;
             var path = assembly.CodeBase.Replace("file:///", "").Replace("/", p.ToString());
             path = Path.GetDirectoryName(path);
+            Console.WriteLine(path);
             var file = $"{path}{p}..{p}..{p}NetworkTablesCore{p}Native{p}Interop.cs";
             HALDelegateClass cs = new HALDelegateClass
             {
