@@ -26,6 +26,30 @@ namespace NetworkTables.Test
         }
 
         [Test]
+        public void SetDefaultEntryExistsSameType()
+        {
+            var value = Value.MakeBoolean(true);
+            var retVal = storage.SetDefaultEntryValue("foo", value);
+            Assert.That(retVal, Is.True);
+            Assert.That(!ReferenceEquals(value, GetEntry("foo").Value));
+
+            Assert.That(outgoing, Is.Empty);
+        }
+
+        [Test]
+        public void SetDefaultEntryExistsDifferentType()
+        {
+            // existing entry is boolean
+            var value = Value.MakeDouble(2.0);
+            var retVal = storage.SetDefaultEntryValue("foo", value);
+            Assert.That(retVal, Is.False);
+            // should not have updated value in table if it already existed
+            Assert.That(value, Is.Not.EqualTo(GetEntry("foo").Value));
+
+            Assert.That(outgoing, Is.Empty);
+        }
+
+        [Test]
         public void SetEntryTypeValueAssignChangeType()
         {
             var value = Value.MakeDouble(0.0);

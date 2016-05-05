@@ -606,6 +606,61 @@ namespace NetworkTables
             }
         }
 
+        public bool SetDefaultEntryValue(string name, Value value)
+        {
+            if (value == null) return false; // can't compare to a null value
+            if (string.IsNullOrEmpty(name)) return false; // can't compare enpty name
+            bool lockEntered = false;
+            try
+            {
+                Monitor.Enter(m_mutex, ref lockEntered);
+                Entry newEntry;
+                if (m_entries.TryGetValue(name, out newEntry)) // entry already exists
+                {
+                    var oldValue = newEntry.Value;
+                    if (oldValue != null && oldValue.Type == value.Type) return true;
+                    else return false;
+                }
+
+                // if we've gotten here, entry does not exist, and we can write it.
+                newEntry = new Entry(name);
+                m_entries.Add(name, newEntry);
+
+                var entry = newEntry;
+
+                entry.Value = value;
+
+                // if we're the server, assign an id if it doesn't have one
+                if (m_server && entry.Id == 0xffff)
+                {
+                    int id = m_idMap.Count;
+                    entry.Id = (uint) id;
+                    m_idMap.Add(entry);
+                }
+
+                // notify (for local listeners)
+                if (m_notifier.LocalNotifiers())
+                {
+                    // always a new entry if we got this far
+                    m_notifier.NotifyEntry(name, value, NotifyFlags.NotifyNew | NotifyFlags.NotifyLocal);
+                }
+
+                // generate message
+                if (m_queueOutgoing == null) return true;
+                var queueOutgoing = m_queueOutgoing;
+                var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value, value, entry.Flags);
+
+                Monitor.Exit(m_mutex);
+                lockEntered = false;
+                queueOutgoing(msg, null, null);
+                return true;
+            }
+            finally
+            {
+                if (lockEntered) Monitor.Exit(m_mutex);
+            }
+        }
+
         public bool SetEntryValue(string name, Value value)
         {
             if (string.IsNullOrEmpty(name)) return true;
