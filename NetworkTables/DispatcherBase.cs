@@ -35,7 +35,7 @@ namespace NetworkTables
         private bool m_doReconnect = true;
         private string m_identity = "";
 
-        private IList<Connector> m_client_connectors = new List<Connector>(); 
+        private IList<Connector> m_clientConnectors = new List<Connector>(); 
 
         private DateTime m_lastFlush;
 
@@ -142,7 +142,7 @@ namespace NetworkTables
             {
                 if (m_active) return;
                 m_active = true;
-                m_client_connectors = connectors;
+                m_clientConnectors = connectors;
             }
             m_server = false;
 
@@ -172,7 +172,7 @@ namespace NetworkTables
             //Wake up client thread with a reconnect
             lock (m_userMutex)
             {
-                m_client_connectors.Clear();
+                m_clientConnectors.Clear();
             }
             ClientReconnect();
 
@@ -378,9 +378,9 @@ namespace NetworkTables
 
                 lock (m_userMutex)
                 {
-                    if (m_client_connectors.Count == 0) continue;
-                    if (i >= m_client_connectors.Count) i = 0;
-                    connect = m_client_connectors[i++];
+                    if (m_clientConnectors.Count == 0) continue;
+                    if (i >= m_clientConnectors.Count) i = 0;
+                    connect = m_clientConnectors[i++];
                 }
 
                 Debug("client trying to connect");

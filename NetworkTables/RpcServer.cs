@@ -9,19 +9,7 @@ namespace NetworkTables
 {
     internal class RpcServer : IDisposable
     {
-        internal struct RpcPair
-        {
-            public uint First { get; }
-            public uint Second { get; }
-
-            public RpcPair(uint first, uint second)
-            {
-                First = first;
-                Second = second;
-            }
-        }
-
-        private readonly Dictionary<RpcPair, SendMsgFunc> m_responseMap = new Dictionary<RpcPair, SendMsgFunc>();
+        private readonly Dictionary<ImmutablePair<uint, uint>, SendMsgFunc> m_responseMap = new Dictionary<ImmutablePair<uint, uint>, SendMsgFunc>();
 
         private static RpcServer s_instance;
 
@@ -118,7 +106,7 @@ namespace NetworkTables
                 callInfo.CallUid = callUid;
                 callInfo.Name = item.Name;
                 callInfo.Params = item.Msg.Str;
-                m_responseMap.Add(new RpcPair(item.Msg.Id, callUid), item.SendResponse);
+                m_responseMap.Add(new ImmutablePair<uint, uint>(item.Msg.Id, callUid), item.SendResponse);
                 m_pollQueue.Dequeue();
                 return true;
             }
@@ -131,7 +119,7 @@ namespace NetworkTables
         public void PostRpcResponse(long rpcId, long callId, params byte[] result)
         {
             SendMsgFunc func = null;
-            var pair = new RpcPair((uint)rpcId, (uint)callId);
+            var pair = new ImmutablePair<uint, uint>((uint)rpcId, (uint)callId);
             if (!m_responseMap.TryGetValue(pair, out func))
             {
                 Warning("posting PRC response to nonexistent call (or duplicate response)");
