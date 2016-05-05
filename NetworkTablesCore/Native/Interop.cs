@@ -25,6 +25,41 @@ namespace NetworkTables.Native
         private static string s_libraryLocation = null;
         private static bool s_useCommandLineFile = false;
         // ReSharper restore PrivateFieldCanBeConvertedToLocalVariable
+        private static bool s_runFinalizer = false;
+
+        // private constructor. Only used for our unload finalizer
+        private Interop() { }
+        private void Ping() { } // Used to force compilation
+        // static variable used only for interop purposes
+        private static Interop finalizeInterop = new Interop();
+        ~Interop()
+        {
+            // If we did not successfully get constructed, we don't need to destruct
+            if (!s_runFinalizer) return;
+            //Sets logger to null so no logger gets called back.
+            NT_SetLogger(null, 0);
+
+            NT_StopClient();
+            NT_StopServer();
+            NT_StopRpcServer();
+            NT_StopNotifier();
+
+            s_loader.UnloadLibrary(s_library);
+
+            try
+            {
+                //Don't delete file if we are using a specified file.
+                if (!s_useCommandLineFile && File.Exists(s_libraryLocation))
+                {
+                    File.Delete(s_libraryLocation);
+                }
+            }
+            catch
+            {
+                //Any errors just ignore.
+            }
+        }
+
 
         static Interop()
         {
@@ -32,7 +67,7 @@ namespace NetworkTables.Native
             {
                 try
                 {
-
+                    finalizeInterop.Ping();
                     string[] commandArgs = Environment.GetCommandLineArgs();
                     foreach (var commandArg in commandArgs)
                     {
@@ -105,40 +140,9 @@ namespace NetworkTables.Native
                     Console.WriteLine(e.StackTrace);
                     Environment.Exit(1);
                 }
+                s_runFinalizer = true;
                 s_libraryLoaded = true;
-
-                //Adds our unload code. OK to set both as only 1
-                //Will ever get called.
-                AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
-                AppDomain.CurrentDomain.DomainUnload += OnProcessExit;
             }
-        }
-
-        private static void OnProcessExit(object sender, EventArgs e)
-        {
-            //Sets logger to null so no logger gets called back.
-            NT_SetLogger(null, 0);
-
-            NT_StopClient();
-            NT_StopServer();
-            NT_StopRpcServer();
-            NT_StopNotifier();
-
-            s_loader.UnloadLibrary(s_library);
-
-            try
-            {
-                //Don't delete file if we are using a specified file.
-                if (!s_useCommandLineFile && File.Exists(s_libraryLocation))
-                {
-                    File.Delete(s_libraryLocation);
-                }
-            }
-            catch
-            {
-                //Any errors just ignore.
-            }
-            
         }
 
         private static void InitializeDelegates(IntPtr library, ILibraryLoader loader)
