@@ -25,7 +25,7 @@ namespace NetworkTables.Native
             if (addr == IntPtr.Zero)
             {
                 //Address not found. Throw Exception
-                throw new EntryPointNotFoundException($"Method not found: {name}");
+                throw new Exception($"Method not found: {name}");
             }
             return addr;
         }
