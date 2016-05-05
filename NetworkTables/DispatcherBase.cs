@@ -10,6 +10,8 @@ namespace NetworkTables
 {
     internal class DispatcherBase : IDisposable
     {
+        public delegate NtNetworkStream Connector();
+
         public const double MinimumUpdateTime = 0.1; //100ms
         public const double MaximumUpdateTime = 1.0; //1 second
 
@@ -32,6 +34,8 @@ namespace NetworkTables
         private bool m_doFlush;
         private bool m_doReconnect = true;
         private string m_identity = "";
+
+        private IList<Connector> m_client_connectors = new List<Connector>(); 
 
         private DateTime m_lastFlush;
 
@@ -125,12 +129,20 @@ namespace NetworkTables
             m_clientServerThread.Start();
         }
 
-        public void StartClient(Func<NtNetworkStream> connect)
+
+        public void StartClient(Connector connector)
+        {
+            List<Connector> connectors = new List<Connector>(1) {connector};
+            StartClient(connectors);
+        }
+
+        public void StartClient(IList<Connector> connectors)
         {
             lock (m_userMutex)
             {
                 if (m_active) return;
                 m_active = true;
+                m_client_connectors = connectors;
             }
             m_server = false;
 
@@ -146,8 +158,9 @@ namespace NetworkTables
             m_clientServerThread = new Thread(ClientThreadMain);
             m_clientServerThread.IsBackground = true;
             m_clientServerThread.Name = "Client Server Thread";
-            m_clientServerThread.Start(connect);
+            m_clientServerThread.Start();
         }
+
 
         public void Stop()
         {
@@ -156,7 +169,11 @@ namespace NetworkTables
             // Wake up dispatch thread with a flush
             m_flushCv.Set();
 
-            //Wake up client thread with a reconnected
+            //Wake up client thread with a reconnect
+            lock (m_userMutex)
+            {
+                m_client_connectors.Clear();
+            }
             ClientReconnect();
 
             //Wake up server thread by a socket shutdown
@@ -350,20 +367,21 @@ namespace NetworkTables
             }
         }
 
-        private void ClientThreadMain(object o)
+        private void ClientThreadMain()
         {
-            //If we were passed object, something bad has broken
-            //Fail fast
-            Func<NtNetworkStream> connect = o as Func<NtNetworkStream>;
-            if (connect == null)
-            {
-                Environment.FailFast("Fatal error in ClientThreadMain, thread passed invalid variable");
-            }
-
+            int i = 0;
             while (m_active)
             {
                 //Sleep between retries
-                Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                Thread.Sleep(TimeSpan.FromMilliseconds(250));
+                Connector connect;
+
+                lock (m_userMutex)
+                {
+                    if (m_client_connectors.Count == 0) continue;
+                    if (i >= m_client_connectors.Count) i = 0;
+                    connect = m_client_connectors[i++];
+                }
 
                 Debug("client trying to connect");
                 var stream = connect();

@@ -47,5 +47,15 @@ namespace NetworkTables
         {
             StartClient(() => TcpConnector.Connect(serverName, port, 1));
         }
+
+        public void StartClient(IList<ImmutablePair<string, int>> servers)
+        {
+            List<Connector> connectors = new List<Connector>();
+            foreach (var server in servers)
+            {
+                connectors.Add(() => TcpConnector.Connect(server.First, server.Second, 1));
+            }
+            StartClient(connectors);
+        }
     }
 }

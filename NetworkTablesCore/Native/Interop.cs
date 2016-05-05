@@ -157,6 +157,7 @@ namespace NetworkTables.Native
             NT_StartServer = (NT_StartServerDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StartServer"), typeof(NT_StartServerDelegate));
             NT_StopServer = (NT_StopServerDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StopServer"), typeof(NT_StopServerDelegate));
             NT_StartClient = (NT_StartClientDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StartClient"), typeof(NT_StartClientDelegate));
+            NT_StartClientMulti = (NT_StartClientMultiDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StartClientMulti"), typeof(NT_StartClientMultiDelegate));
             NT_StopClient = (NT_StopClientDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StopClient"), typeof(NT_StopClientDelegate));
             NT_StopRpcServer = (NT_StopRpcServerDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StopRpcServer"), typeof(NT_StopRpcServerDelegate));
             NT_StopNotifier = (NT_StopNotifierDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StopNotifier"), typeof(NT_StopNotifierDelegate));
@@ -257,6 +258,8 @@ namespace NetworkTables.Native
         internal delegate void NT_StopServerDelegate();
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_StartClientDelegate(byte[] server_name, uint port);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void NT_StartClientMultiDelegate(UIntPtr count, IntPtr[] server_names, uint[] port);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_StopClientDelegate();
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -369,6 +372,7 @@ namespace NetworkTables.Native
         internal static NT_StartServerDelegate NT_StartServer;
         internal static NT_StopServerDelegate NT_StopServer;
         internal static NT_StartClientDelegate NT_StartClient;
+        internal static NT_StartClientMultiDelegate NT_StartClientMulti;
         internal static NT_StopClientDelegate NT_StopClient;
         internal static NT_StopRpcServerDelegate NT_StopRpcServer;
         internal static NT_StopNotifierDelegate NT_StopNotifier;
