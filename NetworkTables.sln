@@ -7,27 +7,91 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkTables", "NetworkTab
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkTables.Test", "NetworkTables.Test\NetworkTables.Test.csproj", "{AAAA2A63-7610-4D4A-8E94-F96F5B4C83D1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{34CFC6E0-D250-4EF5-8100-DDBD9DE38F21}"
+	ProjectSection(SolutionItems) = preProject
+		Shared\ConnectionInfo.cs = Shared\ConnectionInfo.cs
+		Shared\Delegates.cs = Shared\Delegates.cs
+		Shared\EntryInfo.cs = Shared\EntryInfo.cs
+		Shared\Enumerations.cs = Shared\Enumerations.cs
+		Shared\NetworkTable.cs = Shared\NetworkTable.cs
+		Shared\NtCore.cs = Shared\NtCore.cs
+		Shared\NtType.cs = Shared\NtType.cs
+		Shared\RemoteProcedureCall.cs = Shared\RemoteProcedureCall.cs
+		Shared\RpcStructs.cs = Shared\RpcStructs.cs
+		Shared\Value.cs = Shared\Value.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exceptions", "Exceptions", "{B431B2D7-D8D9-4270-9C29-2867454DF25A}"
+	ProjectSection(SolutionItems) = preProject
+		Shared\Exceptions\PersistentException.cs = Shared\Exceptions\PersistentException.cs
+		Shared\Exceptions\TableKeyDifferentTypeException.cs = Shared\Exceptions\TableKeyDifferentTypeException.cs
+		Shared\Exceptions\TableKeyNotDefinedException.cs = Shared\Exceptions\TableKeyNotDefinedException.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tables", "Tables", "{118549AD-7DD4-4FFB-BFC5-0C2A084AEEFA}"
+	ProjectSection(SolutionItems) = preProject
+		Shared\Tables\IRemote.cs = Shared\Tables\IRemote.cs
+		Shared\Tables\IRemoteConnectionListener.cs = Shared\Tables\IRemoteConnectionListener.cs
+		Shared\Tables\ITable.cs = Shared\Tables\ITable.cs
+		Shared\Tables\ITableListener.cs = Shared\Tables\ITableListener.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Wire", "Wire", "{E443BAA0-3E43-40AE-9B7B-D42F7B089CE4}"
+	ProjectSection(SolutionItems) = preProject
+		Shared\Wire\Leb128.cs = Shared\Wire\Leb128.cs
+		Shared\Wire\WireDecoder.cs = Shared\Wire\WireDecoder.cs
+		Shared\Wire\WireEncoder.cs = Shared\Wire\WireEncoder.cs
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkTablesCore", "NetworkTablesCore\NetworkTablesCore.csproj", "{7BD949DB-C15F-436B-BDD4-2A47AE80A832}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkTablesCore.Test", "NetworkTablesCore.Test\NetworkTablesCore.Test.csproj", "{1E2FCA78-FDA6-43AB-BB56-BE77C0BC701A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		ArmStandalone|Any CPU = ArmStandalone|Any CPU
 		CI|Any CPU = CI|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6711EFB4-3FD9-45E5-B98E-BE6D5A480245}.ArmStandalone|Any CPU.ActiveCfg = Release|Any CPU
 		{6711EFB4-3FD9-45E5-B98E-BE6D5A480245}.CI|Any CPU.ActiveCfg = CI|Any CPU
 		{6711EFB4-3FD9-45E5-B98E-BE6D5A480245}.CI|Any CPU.Build.0 = CI|Any CPU
 		{6711EFB4-3FD9-45E5-B98E-BE6D5A480245}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6711EFB4-3FD9-45E5-B98E-BE6D5A480245}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6711EFB4-3FD9-45E5-B98E-BE6D5A480245}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6711EFB4-3FD9-45E5-B98E-BE6D5A480245}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAAA2A63-7610-4D4A-8E94-F96F5B4C83D1}.ArmStandalone|Any CPU.ActiveCfg = Release|Any CPU
 		{AAAA2A63-7610-4D4A-8E94-F96F5B4C83D1}.CI|Any CPU.ActiveCfg = CI|Any CPU
 		{AAAA2A63-7610-4D4A-8E94-F96F5B4C83D1}.CI|Any CPU.Build.0 = CI|Any CPU
 		{AAAA2A63-7610-4D4A-8E94-F96F5B4C83D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AAAA2A63-7610-4D4A-8E94-F96F5B4C83D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAAA2A63-7610-4D4A-8E94-F96F5B4C83D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAAA2A63-7610-4D4A-8E94-F96F5B4C83D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BD949DB-C15F-436B-BDD4-2A47AE80A832}.ArmStandalone|Any CPU.ActiveCfg = ArmStandalone|Any CPU
+		{7BD949DB-C15F-436B-BDD4-2A47AE80A832}.ArmStandalone|Any CPU.Build.0 = ArmStandalone|Any CPU
+		{7BD949DB-C15F-436B-BDD4-2A47AE80A832}.CI|Any CPU.ActiveCfg = Release|Any CPU
+		{7BD949DB-C15F-436B-BDD4-2A47AE80A832}.CI|Any CPU.Build.0 = Release|Any CPU
+		{7BD949DB-C15F-436B-BDD4-2A47AE80A832}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BD949DB-C15F-436B-BDD4-2A47AE80A832}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BD949DB-C15F-436B-BDD4-2A47AE80A832}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BD949DB-C15F-436B-BDD4-2A47AE80A832}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E2FCA78-FDA6-43AB-BB56-BE77C0BC701A}.ArmStandalone|Any CPU.ActiveCfg = ArmStandalone|Any CPU
+		{1E2FCA78-FDA6-43AB-BB56-BE77C0BC701A}.ArmStandalone|Any CPU.Build.0 = ArmStandalone|Any CPU
+		{1E2FCA78-FDA6-43AB-BB56-BE77C0BC701A}.CI|Any CPU.ActiveCfg = Release|Any CPU
+		{1E2FCA78-FDA6-43AB-BB56-BE77C0BC701A}.CI|Any CPU.Build.0 = Release|Any CPU
+		{1E2FCA78-FDA6-43AB-BB56-BE77C0BC701A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E2FCA78-FDA6-43AB-BB56-BE77C0BC701A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E2FCA78-FDA6-43AB-BB56-BE77C0BC701A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E2FCA78-FDA6-43AB-BB56-BE77C0BC701A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B431B2D7-D8D9-4270-9C29-2867454DF25A} = {34CFC6E0-D250-4EF5-8100-DDBD9DE38F21}
+		{118549AD-7DD4-4FFB-BFC5-0C2A084AEEFA} = {34CFC6E0-D250-4EF5-8100-DDBD9DE38F21}
+		{E443BAA0-3E43-40AE-9B7B-D42F7B089CE4} = {34CFC6E0-D250-4EF5-8100-DDBD9DE38F21}
 	EndGlobalSection
 EndGlobal

@@ -1,55 +1,128 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using NetworkTables.Wire;
+#if CORE
+using NetworkTables.Native;
+using System.Runtime.InteropServices;
+#endif
 
 namespace NetworkTables
 {
     public static class RemoteProcedureCall
     {
+#if CORE
+        private static readonly List<Interop.NT_RPCCallback> s_rpcCallbacks = new List<Interop.NT_RPCCallback>();
+#endif
+
         public static void CreateRpc(string name, byte[] def, RpcCallback callback)
         {
+#if CORE
+            Interop.NT_RPCCallback modCallback =
+                (IntPtr data, IntPtr ptr, UIntPtr len, IntPtr intPtr, UIntPtr paramsLen, out UIntPtr resultsLen) =>
+                {
+                    string retName = CoreMethods.ReadUTF8String(ptr, len);
+                    byte[] param = CoreMethods.GetRawDataFromPtr(intPtr, paramsLen);
+                    byte[] cb = callback(retName, param);
+                    resultsLen = (UIntPtr)cb.Length;
+                    IntPtr retPtr = Interop.NT_AllocateCharArray(resultsLen);
+                    Marshal.Copy(cb, 0, retPtr, cb.Length);
+                    return retPtr;
+                };
+            UIntPtr nameLen;
+            byte[] nameB = CoreMethods.CreateUTF8String(name, out nameLen);
+            Interop.NT_CreateRpc(nameB, nameLen, def, (UIntPtr)def.Length, IntPtr.Zero, modCallback);
+            s_rpcCallbacks.Add(modCallback);
+#else
             Storage.Instance.CreateRpc(name, def, callback);
+#endif
         }
 
         public static void CreateRpc(string name, RpcDefinition def, RpcCallback callback)
         {
+#if CORE
+            CreateRpc(name, PackRpcDefinition(def), callback);
+#else
             Storage.Instance.CreateRpc(name, PackRpcDefinition(def), callback);
+#endif
         }
 
         public static void CreatePolledRpc(string name, byte[] def)
         {
+#if CORE
+            UIntPtr nameLen;
+            byte[] nameB = CoreMethods.CreateUTF8String(name, out nameLen);
+            Interop.NT_CreatePolledRpc(nameB, nameLen, def, (UIntPtr)def.Length);
+#else
             Storage.Instance.CreatePolledRpc(name, def);
+#endif
         }
 
         public static void CreatePolledRpc(string name, RpcDefinition def)
         {
+#if CORE
+            CreatePolledRpc(name, PackRpcDefinition(def));
+#else
             Storage.Instance.CreatePolledRpc(name, PackRpcDefinition(def));
+#endif
         }
 
         public static bool PollRpc(bool blocking, ref RpcCallInfo callInfo)
         {
+#if CORE
+            NtRpcCallInfo nativeInfo = new NtRpcCallInfo();
+            int retVal = Interop.NT_PollRpc(blocking ? 1 : 0, ref nativeInfo);
+            callInfo = nativeInfo.ToManaged();
+            return retVal != 0;
+#else
             return RpcServer.Instance.PollRpc(blocking, ref callInfo);
+#endif
         }
 
         public static void PostRpcResponse(long rpcId, long callUid, params byte[] result)
         {
+#if CORE
+            Interop.NT_PostRpcResponse((uint)rpcId, (uint)callUid, result, (UIntPtr)result.Length);
+#else
             RpcServer.Instance.PostRpcResponse(rpcId, callUid, result);
+#endif
         }
 
         public static long CallRpc(string name, params byte[] param)
         {
+#if CORE
+            UIntPtr size;
+            byte[] nameB = CoreMethods.CreateUTF8String(name, out size);
+            return Interop.NT_CallRpc(nameB, size, param, (UIntPtr)param.Length);
+#else
             return Storage.Instance.CallRpc(name, param);
+#endif
         }
 
         public static long CallRpc(string name, params Value[] param)
         {
+#if CORE
+            return CallRpc(name, PackRpcValues(param));
+#else
             return Storage.Instance.CallRpc(name, PackRpcValues(param));
+#endif
         }
 
 
         public static bool GetRpcResult(bool blocking, long callUid, ref byte[] result)
         {
+#if CORE
+            UIntPtr size = UIntPtr.Zero;
+            IntPtr retVal = Interop.NT_GetRpcResult(blocking ? 1 : 0, (uint)callUid, ref size);
+            if (retVal == IntPtr.Zero)
+            {
+                return false;
+            }
+            result = CoreMethods.GetRawDataFromPtr(retVal, size);
+            return true;
+#else
             return Storage.Instance.GetRpcResult(blocking, callUid, ref result);
+#endif
         }
 
         public static byte[] PackRpcDefinition(RpcDefinition def)

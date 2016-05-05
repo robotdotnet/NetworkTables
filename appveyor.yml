@@ -14,9 +14,15 @@ before_build:
 - cmd: nuget restore
 build_script:
 - cmd: msbuild "NetworkTables.sln" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:Configuration=CI
+- cmd: msbuild "NetworkTables.sln" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:Configuration=ArmStandalone
 
 test_script:
 - .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:nunit3-console.exe -targetargs:".\NetworkTables.Test\Output\NetworkTables.Test.dll --framework=net-4.5 " -filter:"+[Network*]* -[NetworkTables.T*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -output:coverage.xml -mergeoutput -returntargetcode
+- .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:nunit3-console.exe -targetargs:".\NetworkTablesCore.Test\Output\NetworkTablesCore.Test.dll --framework=net-4.5 " -filter:"+[Network*]* -[NetworkTablesCore.T*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -output:coverage.xml -mergeoutput -returntargetcode
+
+- cmd: >-
+
+    nunit3-console.exe %APPVEYOR_BUILD_FOLDER%\NetworkTablesCore.Test\Output\NetworkTablesCore.Test.dll --framework=net-4.5 --x86
 
 
 - "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
@@ -28,13 +34,19 @@ on_success:
     
     If (($env:APPVEYOR_REPO_BRANCH -eq "master") -and (!$env:APPVEYOR_PULL_REQUEST_NUMBER)) {
 
-    ./nuget install EWSoftware.SHFB -Version 2015.10.10.0 -o sbpackages
+    ./nuget install EWSoftware.SHFB -Version 2016.4.9 -o sbpackages
 
     ./nuget install EWSoftware.SHFB.NETFramework -Version 4.6 -o sbpackages
 
      & 'C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe' Sandcastle\SandcastleXmlOnly.shfbproj /property:Configuration=Release
+     
+     & 'C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe' Sandcastle\SandcastleXmlOnlyCore.shfbproj /property:Configuration=Release
 
     ./nuget pack "$env:APPVEYOR_BUILD_FOLDER\NetworkTables\NetworkTables.csproj" -Properties "Configuration=Release;Platform=AnyCPU" -Symbols
+    
+    ./nuget pack "$env:APPVEYOR_BUILD_FOLDER\NetworkTablesCore\NetworkTablesCore.csproj" -Properties "Configuration=Release;Platform=AnyCPU" -Symbols
+    
+    ./nuget pack "$env:APPVEYOR_BUILD_FOLDER\NetworkTablesCore\NetworkTablesCoreArm.nuspec" -Properties "Configuration=ArmStandalone;Platform=AnyCPU" -Version $env:APPVEYOR_BUILD_VERSION
 
     Get-ChildItem .\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
     }
