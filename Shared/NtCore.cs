@@ -30,6 +30,16 @@ namespace NetworkTables
 #endif
         }
 
+
+        public static bool SetDefaultEntryValue(string name, Value value)
+        {
+#if CORE
+            throw new NotImplementedException("Not implemented in NetworkTablesCore yet");
+#else
+            return Storage.Instance.SetDefaultEntryValue(name, value);
+#endif
+        }
+
         public static void SetEntryTypeValue(string name, Value value)
         {
 #if CORE

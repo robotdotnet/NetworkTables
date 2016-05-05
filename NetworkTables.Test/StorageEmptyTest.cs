@@ -133,6 +133,83 @@ namespace NetworkTables.Test
         }
 
         [Test]
+        public void SetDefaultEntryAssignNew()
+        {
+            var value = Value.MakeBoolean(true);
+            var retVal = storage.SetDefaultEntryValue("foo", value);
+            Assert.That(retVal, Is.True);
+            Assert.That(value, Is.EqualTo(GetEntry("foo").Value));
+
+            Assert.That(outgoing, Has.Count.EqualTo(1));
+            Assert.That(outgoing[0].only, Is.Null);
+            Assert.That(outgoing[0].except, Is.Null);
+            var msg = outgoing[0].msg;
+            Assert.That(msg.Type, Is.EqualTo(Message.MsgType.EntryAssign));
+            Assert.That(msg.Str, Is.EqualTo("foo"));
+            if (m_server)
+            {
+                Assert.That(msg.Id, Is.EqualTo(0));//Assigned as server
+            }
+            else
+            {
+                Assert.That(msg.Id, Is.EqualTo(0xffff));
+            }
+            Assert.That(msg.SeqNumUid, Is.EqualTo(0));
+            Assert.That(msg.Val, Is.EqualTo(value));
+            Assert.That(msg.Flags, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void SetDefaultEntryEmptyName()
+        {
+            var value = Value.MakeBoolean(true);
+            var retVal = storage.SetDefaultEntryValue("", value);
+            Assert.That(retVal, Is.False);
+            var entry = GetEntry("foo");
+            Assert.That(entry.Value, Is.Null);
+            Assert.That(entry.Flags, Is.EqualTo(EntryFlags.None));
+            Assert.That("foobar", Is.EqualTo(entry.Name)); // since GetEntry uses the tmp_entry
+            Assert.That(0xffff, Is.EqualTo(entry.Id));
+            Assert.That(new SequenceNumber(), Is.EqualTo(entry.SeqNum));
+            Assert.That(Entries, Is.Empty);
+            Assert.That(IdMap, Is.Empty);
+            Assert.That(outgoing, Is.Empty);
+        }
+
+        [Test]
+        public void SetDefaultEntryNullName()
+        {
+            var value = Value.MakeBoolean(true);
+            var retVal = storage.SetDefaultEntryValue(null, value);
+            Assert.That(retVal, Is.False);
+            var entry = GetEntry("foo");
+            Assert.That(entry.Value, Is.Null);
+            Assert.That(entry.Flags, Is.EqualTo(EntryFlags.None));
+            Assert.That("foobar", Is.EqualTo(entry.Name)); // since GetEntry uses the tmp_entry
+            Assert.That(0xffff, Is.EqualTo(entry.Id));
+            Assert.That(new SequenceNumber(), Is.EqualTo(entry.SeqNum));
+            Assert.That(Entries, Is.Empty);
+            Assert.That(IdMap, Is.Empty);
+            Assert.That(outgoing, Is.Empty);
+        }
+
+        [Test]
+        public void SetDefaultEntryEmptyValue()
+        {
+            var retVal = storage.SetDefaultEntryValue("", null);
+            Assert.That(retVal, Is.False);
+            var entry = GetEntry("foo");
+            Assert.That(entry.Value, Is.Null);
+            Assert.That(entry.Flags, Is.EqualTo(EntryFlags.None));
+            Assert.That("foobar", Is.EqualTo(entry.Name)); // since GetEntry uses the tmp_entry
+            Assert.That(0xffff, Is.EqualTo(entry.Id));
+            Assert.That(new SequenceNumber(), Is.EqualTo(entry.SeqNum));
+            Assert.That(Entries, Is.Empty);
+            Assert.That(IdMap, Is.Empty);
+            Assert.That(outgoing, Is.Empty);
+        }
+
+        [Test]
         public void SetEntryValueAssignNew()
         {
             
