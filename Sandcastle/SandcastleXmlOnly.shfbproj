@@ -77,7 +77,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <!-- NOTE: Update the version number in the path (YYYY.M.D.R) to match the package version -->
-    <SHFBROOT Condition=" '$(SHFBROOT)' == '' ">$(MSBuildThisFileDirectory)..\sbpackages\EWSoftware.SHFB.2015.10.10.0\Tools\</SHFBROOT>
+    <SHFBROOT Condition=" '$(SHFBROOT)' == '' ">$(MSBuildThisFileDirectory)..\sbpackages\EWSoftware.SHFB.2016.4.9.0\Tools\</SHFBROOT>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Content" />
