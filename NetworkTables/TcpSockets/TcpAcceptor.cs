@@ -108,7 +108,8 @@ namespace NetworkTables.TcpSockets
 
             try
             {
-                socket = m_server.AcceptSocket();
+
+                socket = m_server.Server.Accept();
             }
             catch (SocketException ex)
             {

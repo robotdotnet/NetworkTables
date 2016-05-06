@@ -13,15 +13,18 @@ namespace NetworkTables.Streams
 
         public int PeerPort { get; }
 
+        private readonly Socket m_socket;
+
         // Allow turning off Nagle algorithm
         public bool NoDelay
         {
-            get { return Socket.NoDelay; }
-            set { Socket.NoDelay = value; }
+            get { return m_socket.NoDelay; }
+            set { m_socket.NoDelay = value; }
         }
 
         public NtNetworkStream(Socket socket) : base(socket, true)
         {
+            m_socket = socket;
             IPEndPoint ipEp = socket.RemoteEndPoint as IPEndPoint;
             if (ipEp != null)
             {
@@ -37,7 +40,7 @@ namespace NetworkTables.Streams
 
         public int Send(byte[] buffer, int pos, int len)
         {
-            if (Socket == null || !CanWrite)
+            if (m_socket == null || !CanWrite)
             {
                 return 0;
             }

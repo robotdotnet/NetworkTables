@@ -55,7 +55,7 @@ namespace NetworkTables.TcpSockets
                 catch (SocketException ex)
                 {
                     Error($"Connect() to {server} port {port} failed: {ex.SocketErrorCode}");
-                    client.Close();
+                    ((IDisposable)client).Dispose();
                     return null;
                 }
                 return new NtNetworkStream(client.Client);
@@ -76,7 +76,7 @@ namespace NetworkTables.TcpSockets
                     }
                     //Timed out
                     Info($"Connect() to {server} port {port} timed out");
-                    client.Close();
+                    ((IDisposable)client).Dispose();
                     return null;
                 }
                 //Connected
@@ -91,7 +91,7 @@ namespace NetworkTables.TcpSockets
             {
                 //Failed to connect
                 Error($"Connect()  to {server} port {port} error {ex.NativeErrorCode} - {ex.SocketErrorCode}");
-                client.Close();
+                ((IDisposable)client).Dispose();
                 return null;
             }
         }
