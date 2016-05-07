@@ -89,7 +89,7 @@ namespace NetworkTables.Test.NetworkTablesApi
         public void TestSetTeam()
         {
             NetworkTable.SetTeam(1234);
-            Assert.That(NetworkTable.IPAddress, Is.EqualTo("roboRIO-1234-FRC.local"));
+            Assert.That(NetworkTable.GetIPAddresses()[0], Is.EqualTo("roboRIO-1234-FRC.local"));
         }
 
         [Test]
@@ -97,7 +97,7 @@ namespace NetworkTables.Test.NetworkTablesApi
         {
             NetworkTable.SetIPAddress("127.0.0.1");
             NetworkTable.SetIPAddress("10.12.34.2");
-            Assert.That(NetworkTable.IPAddress, Is.EqualTo("10.12.34.2"));
+            Assert.That(NetworkTable.GetIPAddresses()[0], Is.EqualTo("10.12.34.2"));
         }
 
         [Test]

@@ -99,7 +99,7 @@ namespace NetworkTables
 
         private readonly Dictionary<string, Entry> m_entries = new Dictionary<string, Entry>();
         private readonly List<Entry> m_idMap = new List<Entry>();
-        internal readonly Dictionary<RpcPair, byte[]> m_rpcResults = new Dictionary<RpcPair, byte[]>();
+        internal readonly Dictionary<ImmutablePair<uint, uint>, byte[]> m_rpcResults = new Dictionary<ImmutablePair<uint, uint>, byte[]>();
 
         private bool m_terminating = false;
         private readonly AutoResetEvent m_rpcResultsCond = new AutoResetEvent(false);
@@ -460,7 +460,7 @@ namespace NetworkTables
                     case RpcResponse:
                         if (m_server) return;
                         if (!msg.Val.IsRpc()) return; //Not an RPC message
-                        m_rpcResults.Add(new RpcPair(msg.Id, msg.SeqNumUid), msg.Val.GetRpc());
+                        m_rpcResults.Add(new ImmutablePair<uint, uint>(msg.Id, msg.SeqNumUid), msg.Val.GetRpc());
                         m_rpcResultsCond.Set();
                         break;
                     default:
@@ -1038,7 +1038,7 @@ namespace NetworkTables
                     {
                         lock (m_mutex)
                         {
-                            m_rpcResults.Add(new RpcPair(msg.Id, msg.SeqNumUid), msg.Val.GetRpc());
+                            m_rpcResults.Add(new ImmutablePair<uint, uint>(msg.Id, msg.SeqNumUid), msg.Val.GetRpc());
                             m_rpcResultsCond.Set();
                         }
                     });
@@ -1068,7 +1068,7 @@ namespace NetworkTables
                 byte[] str = null;
                 for (;;)
                 {
-                    var pair = new RpcPair((uint)callUid >> 16, (uint)callUid & 0xffff);
+                    var pair = new ImmutablePair<uint, uint>((uint)callUid >> 16, (uint)callUid & 0xffff);
                     if (!m_rpcResults.TryGetValue(pair, out str))
                     {
                         if (!blocking || m_terminating) return false;

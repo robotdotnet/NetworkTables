@@ -512,6 +512,27 @@ namespace NetworkTables.Native
             Interop.NT_StartClient(serverNamePtr, port);
         }
 
+        internal static void StartClient(IList<ImmutablePair<string,int>> servers)
+        {
+            uint[] uPorts = new uint[servers.Count];
+            for (int i = 0; i < uPorts.Length; i++)
+            {
+                uPorts[i] = (uint) servers[i].Second;
+            }
+            IntPtr[] serv = new IntPtr[servers.Count];
+            UIntPtr len = UIntPtr.Zero;
+            for (int i = 0; i < serv.Length; i++)
+            {
+                serv[i] = CreateUTF8StringPointer(servers[i].First, out len);
+            }
+            len = (UIntPtr) servers.Count;
+            Interop.NT_StartClientMulti(len, serv, uPorts);
+            foreach (var s in serv)
+            {
+                DeleteUTF8StringPointer(s);
+            }
+        }
+
         internal static void StartServer(string fileName, string listenAddress, uint port)
         {
             UIntPtr size;
@@ -727,6 +748,20 @@ namespace NetworkTables.Native
             Encoding.UTF8.GetBytes(str, 0, str.Length, buffer, 0);
             buffer[bytes] = 0;
             return buffer;
+        }
+
+        internal static IntPtr CreateUTF8StringPointer(string str, out UIntPtr size)
+        {
+            var bytes = CreateUTF8String(str, out size);
+            var buffer = Marshal.AllocHGlobal(bytes.Length*sizeof (byte));
+
+            Marshal.Copy(bytes, 0, buffer, bytes.Length);
+            return buffer;
+        }
+
+        internal static void DeleteUTF8StringPointer(IntPtr ptr)
+        {
+            Marshal.FreeHGlobal(ptr);
         }
 
         //Must be null terminated

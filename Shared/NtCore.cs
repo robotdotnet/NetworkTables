@@ -10,7 +10,7 @@ using NetworkTables.Native;
 
 namespace NetworkTables
 {
-    public static partial class NtCore
+    public static class NtCore
     {
         public static Value GetEntryValue(string name)
         {
@@ -200,6 +200,15 @@ namespace NetworkTables
             CoreMethods.StartClient(serverName, (uint)port);
 #else
             Dispatcher.Instance.StartClient(serverName, port);
+#endif
+        }
+
+        public static void StartClient(IList<ImmutablePair<string, int>> servers)
+        {
+#if CORE
+            CoreMethods.StartClient(servers);
+#else
+            Dispatcher.Instance.StartClient(servers);
 #endif
         }
 
