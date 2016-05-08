@@ -36,6 +36,43 @@ namespace NetworkTables.Test
         }
 
         [Test]
+        public void SetDefaultEntryEmptyName()
+        {
+            var value = Value.MakeBoolean(true);
+            var retVal = storage.SetDefaultEntryValue("", value);
+            Assert.That(retVal, Is.False);
+            // assert that no entries got added
+            Assert.That(Entries, Has.Count.EqualTo(4));
+            if (m_server)
+            {
+                Assert.That(IdMap, Has.Count.EqualTo(4));
+            }
+            else
+            {
+                Assert.That(IdMap, Has.Count.EqualTo(0));
+            }
+            Assert.That(outgoing, Is.Empty);
+        }
+
+        [Test]
+        public void SetDefaultEntryEmptyValue()
+        {
+            var retVal = storage.SetDefaultEntryValue("", null);
+            Assert.That(retVal, Is.False);
+            // assert that no entries got added
+            Assert.That(Entries, Has.Count.EqualTo(4));
+            if (m_server)
+            {
+                Assert.That(IdMap, Has.Count.EqualTo(4));
+            }
+            else
+            {
+                Assert.That(IdMap, Has.Count.EqualTo(0));
+            }
+            Assert.That(outgoing, Is.Empty);
+        }
+
+        [Test]
         public void TestStoragePopulatedSetEntryTypeValueDifferentValue()
         {
 

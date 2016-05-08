@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using NetworkTables.Exceptions;
 #if CORE
 using NetworkTables.Native;
@@ -93,11 +95,21 @@ namespace NetworkTables
         /// </summary>
         public const string DefaultPersistentFileName = "networktables.ini";
         internal static int Port { get; private set; } = DefaultPort;
-        internal static string IPAddress { get; private set; } = "";
+        internal static string[] s_ipAddresses = new string[0];
         internal static bool Client { get; private set; }
         internal static bool Running { get; private set; }
 
         internal static string PersistentFilename { get; private set; } = DefaultPersistentFileName;
+
+        internal static string[] GetIPAddresses()
+        {
+            string[] tmp = new string[s_ipAddresses.Length];
+            for (int i = 0; i < s_ipAddresses.Length; i++)
+            {
+                tmp[i] = s_ipAddresses[i];
+            }
+            return tmp;
+        }
 
         private static void CheckInit()
         {
@@ -124,7 +136,9 @@ namespace NetworkTables
                     Shutdown();
                 if (Client)
                 {
-                    StartClient(IPAddress, Port);
+                    List<ImmutablePair<string, int>> servers = new List<ImmutablePair<string, int>>(s_ipAddresses.Length);
+                    servers.AddRange(s_ipAddresses.Select(ipAddress => new ImmutablePair<string, int>(ipAddress, Port)));
+                    NtCore.StartClient(servers);
                 }
                 else
                 {
@@ -214,11 +228,28 @@ namespace NetworkTables
         {
             lock (s_lockObject)
             {
-                if (IPAddress == address)
+                if (s_ipAddresses.Length == 1 && s_ipAddresses[0] == address)
                     return;
                 CheckInit();
-                IPAddress = address;
+                s_ipAddresses = new string[1];
+                s_ipAddresses[0] = address;
             }
+        }
+
+        /// <summary>
+        /// Sets the IP address that will be connected to in client mode using round robin order.
+        /// </summary>
+        /// <param name="addresses">The IP address to connect to in client mode using round robin order.</param>
+        public static void SetIPAddress(string[] addresses)
+        {
+            if (s_ipAddresses.Length == addresses.Length)
+            {
+                bool match = !addresses.Where((t, i) => s_ipAddresses[i] != t).Any();
+                if (match)
+                    return;
+            }
+            CheckInit();
+            s_ipAddresses = addresses;
         }
 
         /// <summary>

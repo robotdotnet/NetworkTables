@@ -361,7 +361,7 @@ namespace NetworkTablesCore.Test
 
             Assert.That(id, Is.Not.EqualTo(0));
 
-            CoreMethods.RemoveEntryListener(id);
+            CoreMethods.RemoveConnectionListener(id);
         }
     }
 }
