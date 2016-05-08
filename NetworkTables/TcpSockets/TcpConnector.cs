@@ -12,9 +12,14 @@ namespace NetworkTables.TcpSockets
         {
             try
             {
-
-                var addressEntry = Dns.GetHostEntry(hostName);
-                addr = addressEntry.AddressList;
+                var entries = Dns.GetHostAddressesAsync(hostName);
+                var success = entries.Wait(1000);
+                if (!success)
+                {
+                    addr = null;
+                    return 1;
+                }
+                addr = entries.Result;
 
             }
             catch (SocketException e)

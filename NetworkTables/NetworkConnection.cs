@@ -362,7 +362,7 @@ namespace NetworkTables
                 {
                     if (decoder.Error != null) Info($"read error: {decoder.Error}");
                     //terminate connection on bad message
-                    m_stream?.Close();
+                    m_stream?.Dispose();
                     break;
                 }
                 Debug3($"received type={msg.Type} with str={msg.Str} id={msg.Id} seqNum={msg.SeqNumUid}");
@@ -406,7 +406,7 @@ namespace NetworkTables
             if (m_state != State.Dead) m_notifier.NotifyConnection(false, GetConnectionInfo());
             m_state = State.Dead;
             Active = false;
-            m_stream?.Close(); // Also kill read thread
+            m_stream?.Dispose(); // Also kill read thread
         }
     }
 }

@@ -180,7 +180,8 @@ namespace NetworkTables
             //Start writing to a temp file
             try
             {
-                using (StreamWriter writer = new StreamWriter(tmp))
+                using (FileStream fStream = File.Open(tmp, FileMode.Create, FileAccess.Write, FileShare.Read))
+                using (StreamWriter writer = new StreamWriter(fStream))
                 {
                     Debug($"saving persistent file '{filename}'");
                     SavePersistentImpl(writer, entries);

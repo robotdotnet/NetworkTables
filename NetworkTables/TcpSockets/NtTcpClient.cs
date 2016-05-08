@@ -75,7 +75,7 @@ namespace NetworkTables.TcpSockets
                 Socket chkClientSocket = Client;
                 if (chkClientSocket != null)
                 {
-                    chkClientSocket.Close();
+                    chkClientSocket.Dispose();
                     Client = null;
                 }
 

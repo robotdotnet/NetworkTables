@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace NetworkTables.Native
 {
@@ -21,10 +22,19 @@ namespace NetworkTables.Native
     [ExcludeFromCodeCoverage]
     internal static class LoaderUtilities
     {
-        internal static OsType GetOsType()
+        internal static bool Is64BitOs()
+         {
+             return Marshal.SizeOf(typeof(IntPtr)) == 8;
+         }
+ 
+         internal static bool IsWindows()
+         {
+             return Path.DirectorySeparatorChar == '\\';
+         }
+
+internal static OsType GetOsType()
         {
-            var platform = (int)Environment.OSVersion.Platform;
-            if (platform == 4 || platform == 6 || platform == 128)
+            if (!IsWindows())
             {
                 //These 3 mean we are running on a unix based system
                 //Check for RIO first
@@ -52,7 +62,7 @@ namespace NetworkTables.Native
                 if (armv7) return OsType.Armv7HardFloat;
 
                 //Check for Bitness
-                if (Environment.Is64BitProcess)
+                if (Is64BitOs())
                 {
                     //We are 64 bit.
                     if (mac) return OsType.MacOs64;
@@ -70,7 +80,7 @@ namespace NetworkTables.Native
             else
             {
                 //Assume we are on windows otherwise
-                return Environment.Is64BitProcess ? OsType.Windows64 : OsType.Windows32;
+                return Is64BitOs() ? OsType.Windows64 : OsType.Windows32;
             }
         }
 
@@ -187,7 +197,7 @@ namespace NetworkTables.Native
         {
             byte[] bytes;
             //Load our resource file into memory
-            using (Stream s = Assembly.GetExecutingAssembly().GetManifestResourceStream(embeddedResourceLocation))
+            using (Stream s = typeof(LoaderUtilities).GetTypeInfo().Assembly.GetManifestResourceStream(embeddedResourceLocation))
             {
                 if (s == null || s.Length == 0)
                     return false;
