@@ -44,7 +44,7 @@ namespace NetworkTables.TcpSockets
 
 
             //Create out client
-            TcpClient client = new TcpClient(AddressFamily.InterNetwork);
+            NtTcpClient client = new NtTcpClient(AddressFamily.InterNetwork);
             // No time limit, connect forever
             if (timeout == 0)
             {

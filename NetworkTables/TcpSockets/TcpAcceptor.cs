@@ -7,7 +7,7 @@ namespace NetworkTables.TcpSockets
 {
     internal class TcpAcceptor : INetworkAcceptor
     {
-        private TcpListener m_server;
+        private NtTcpListener m_server;
 
         private readonly int m_port;
         private readonly string m_address;
@@ -43,7 +43,7 @@ namespace NetworkTables.TcpSockets
                 address = IPAddress.Any;
             }
 
-            m_server = new TcpListener(address, m_port);
+            m_server = new NtTcpListener(address, m_port);
 
             try
             {
