@@ -12,6 +12,8 @@ namespace NetworkTables.TcpSockets
     internal class NtTcpListener
     {
         private IPEndPoint m_serverSocketEP;
+        private Socket m_serverSocket;
+        private bool m_active;
         private bool m_exclusiveAddressUse;
 
         public NtTcpListener(IPAddress localaddr, int port)
@@ -21,60 +23,35 @@ namespace NetworkTables.TcpSockets
                 throw new ArgumentNullException(nameof(localaddr));
             }
             m_serverSocketEP = new IPEndPoint(localaddr, port);
-            Server = new Socket(m_serverSocketEP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-        }
-
-        public Socket Server { get; private set; }
-
-        public bool Active { get; private set; }
-
-        public EndPoint LocalEndpoint => Active ? Server.LocalEndPoint : m_serverSocketEP;
-
-        public bool ExclusiveAddressUse
-        {
-            get
-            {
-                return Server.ExclusiveAddressUse;
-            }
-            set
-            {
-                if (Active)
-                {
-                    throw new InvalidOperationException("TcpListener must be stopped to set Exclusive Use");
-                }
-
-                Server.ExclusiveAddressUse = value;
-                m_exclusiveAddressUse = value;
-            }
+            m_serverSocket = new Socket(m_serverSocketEP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         }
 
         public void Start()
         {
-            Start((int)SocketOptionName.MaxConnections);
+            Start((int) SocketOptionName.MaxConnections);
         }
 
         public void Start(int backlog)
         {
-            if (backlog > (int)SocketOptionName.MaxConnections || backlog < 0)
+            if (backlog > (int) SocketOptionName.MaxConnections || backlog < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(backlog));
             }
 
-            if (Server == null)
+            if (m_serverSocket == null)
             {
                 throw new InvalidOperationException("Invalid Socket Handle");
             }
 
-            if (Active)
+            if (m_active)
             {
                 return;
             }
 
-            Server.Bind(m_serverSocketEP);
-
+            m_serverSocket.Bind(m_serverSocketEP);
             try
             {
-                Server.Listen(backlog);
+                m_serverSocket.Listen(backlog);
             }
             catch (SocketException)
             {
@@ -82,21 +59,39 @@ namespace NetworkTables.TcpSockets
                 throw;
             }
 
-            Active = true;
+            m_active = true;
         }
 
         public void Stop()
         {
-            Server?.Dispose();
-            Server = null;
-
-            Active = false;
-            Server = new Socket(m_serverSocketEP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            if (m_serverSocket != null)
+            {
+                m_serverSocket.Dispose();
+                m_serverSocket = null;
+            }
+            m_active = false;
+            m_serverSocket = new Socket(m_serverSocketEP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             if (m_exclusiveAddressUse)
             {
-                Server.ExclusiveAddressUse = true;
+                m_serverSocket.ExclusiveAddressUse = true;
             }
+        }
+
+        public Socket Accept(out SocketError errorCode)
+        {
+            Socket socket = null;
+            try
+            {
+                socket = m_serverSocket.Accept();
+            }
+            catch (SocketException ex)
+            {
+                errorCode = ex.SocketErrorCode;
+                return null;
+            }
+            errorCode = 0;
+            return socket;
         }
     }
 }

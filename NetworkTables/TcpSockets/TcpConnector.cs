@@ -30,7 +30,7 @@ namespace NetworkTables.TcpSockets
             return 0;
         }
 
-        public static NtNetworkStream Connect(string server, int port, int timeout = 0)
+        public static NtTcpClient Connect(string server, int port, int timeout = 0)
         {
             IPAddress[] addr = null;
             if (ResolveHostName(server, out addr) != 0)
@@ -63,7 +63,7 @@ namespace NetworkTables.TcpSockets
                     ((IDisposable)client).Dispose();
                     return null;
                 }
-                return new NtNetworkStream(client.Client);
+                return client;
             }
 
             //Connect with time limit
@@ -87,7 +87,7 @@ namespace NetworkTables.TcpSockets
                 //Connected
                 if (client.Connected)
                 {
-                    return new NtNetworkStream(client.Client);
+                    return client;
                 }
                 Error($"Timeout connect to {server} port {port} did not connect properly.");
                 return null;

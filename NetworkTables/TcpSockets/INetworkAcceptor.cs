@@ -7,6 +7,6 @@ namespace NetworkTables.TcpSockets
     {
         int Start();
         void Shutdown();
-        NtNetworkStream Accept();
+        NtTcpClient Accept();
     }
 }

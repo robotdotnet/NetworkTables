@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using NetworkTables.Streams;
 using NetworkTables.Support;
+using NetworkTables.TcpSockets;
 using NetworkTables.Wire;
 using static NetworkTables.Logging.Logger;
 
@@ -24,6 +25,8 @@ namespace NetworkTables
         private static long s_uid;
 
         private readonly NtNetworkStream m_stream;
+
+        private readonly NtTcpClient m_client;
 
         private readonly Notifier m_notifier;
 
@@ -52,11 +55,12 @@ namespace NetworkTables
 
         private readonly List<MutablePair<int, int>> m_pendingUpdate = new List<MutablePair<int, int>>();
 
-        public NetworkConnection(NtNetworkStream stream, Notifier notifier, HandshakeFunc handshake,
+        public NetworkConnection(NtTcpClient client, Notifier notifier, HandshakeFunc handshake,
             Message.GetEntryTypeFunc getEntryType)
         {
             Uid = (uint)Interlocked.Increment(ref s_uid) - 1;
-            m_stream = stream;
+            m_client = client;
+            m_stream = client.GetStream();
             m_notifier = notifier;
             m_handshake = handshake;
             m_getEntryType = getEntryType;

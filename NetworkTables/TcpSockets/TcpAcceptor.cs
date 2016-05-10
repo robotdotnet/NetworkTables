@@ -100,20 +100,15 @@ namespace NetworkTables.TcpSockets
             m_server = null;
         }
 
-        public NtNetworkStream Accept()
+        public NtTcpClient Accept()
         {
             if (!m_listening || m_shutdown) return null;
 
-            Socket socket;
-
-            try
+            SocketError error;
+            Socket socket = m_server.Accept(out error);
+            if (socket == null)
             {
-
-                socket = m_server.Server.Accept();
-            }
-            catch (SocketException ex)
-            {
-                if (!m_shutdown) Error($"Accept() failed: {ex.SocketErrorCode}");
+                if (!m_shutdown) Error($"Accept() failed: {error}");
                 return null;
             }
             if (m_shutdown)
@@ -121,7 +116,7 @@ namespace NetworkTables.TcpSockets
                 socket.Dispose();
                 return null;
             }
-            return new NtNetworkStream(socket);
+            return new NtTcpClient(socket);
         }
     }
 }

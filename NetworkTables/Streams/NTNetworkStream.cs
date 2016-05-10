@@ -22,7 +22,7 @@ namespace NetworkTables.Streams
             set { m_socket.NoDelay = value; }
         }
 
-        public NtNetworkStream(Socket socket) : base(socket, true)
+        public NtNetworkStream(Socket socket, bool owns) : base(socket, owns)
         {
             m_socket = socket;
             IPEndPoint ipEp = socket.RemoteEndPoint as IPEndPoint;
