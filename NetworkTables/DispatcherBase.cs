@@ -10,7 +10,7 @@ namespace NetworkTables
 {
     internal class DispatcherBase : IDisposable
     {
-        public delegate NtNetworkStream Connector();
+        public delegate NtTcpClient Connector();
 
         public const double MinimumUpdateTime = 0.1; //100ms
         public const double MaximumUpdateTime = 1.0; //1 second
