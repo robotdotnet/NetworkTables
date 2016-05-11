@@ -5,15 +5,15 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
-using NetworkTables.Streams;
+using System.IO;
 
 namespace NetworkTables.TcpSockets
 {
-    internal class NtTcpClient : IDisposable
+    internal class NtTcpClient : IDisposable, IClient
     {
         private readonly AddressFamily m_family;
         private Socket m_clientSocket;
-        private NtNetworkStream m_dataStream;
+        private NetworkStream m_dataStream;
         private bool m_cleanedUp = false;
         private bool m_active;
 
@@ -21,6 +21,14 @@ namespace NetworkTables.TcpSockets
         {
             
         }
+
+        public bool NoDelay
+        {
+            get { return m_clientSocket.NoDelay; }
+            set { m_clientSocket.NoDelay = value; }
+        }
+
+        public EndPoint RemoteEndPoint => m_clientSocket.RemoteEndPoint;
 
         public NtTcpClient(AddressFamily family)
         {
@@ -45,6 +53,7 @@ namespace NetworkTables.TcpSockets
             set { m_active = value; }
         }
 
+
         public IAsyncResult BeginConnect(IPAddress[] address, int port, AsyncCallback requestCallback, object state)
         {
             IAsyncResult result = m_clientSocket.BeginConnect(address, port, requestCallback, state);
@@ -57,7 +66,7 @@ namespace NetworkTables.TcpSockets
             m_active = true;
         }
 
-        public NtNetworkStream GetStream()
+        public Stream GetStream()
         {
             if (m_cleanedUp)
             {
@@ -69,10 +78,10 @@ namespace NetworkTables.TcpSockets
             }
             if (m_dataStream == null)
             {
-                m_dataStream = new NtNetworkStream(m_clientSocket, true);
+                m_dataStream = new NetworkStream(m_clientSocket, true);
             }
 
-            return m_dataStream;;
+            return m_dataStream;
 
         }
 
@@ -130,24 +139,6 @@ namespace NetworkTables.TcpSockets
         }
 
         public bool Connected => m_clientSocket.Connected;
-
-        public string PeerIP
-        {
-            get
-            {
-                IPEndPoint ipEp = m_clientSocket.RemoteEndPoint as IPEndPoint;
-                return ipEp?.Address.ToString();
-            }
-        }
-
-        public int PeerPort
-        {
-            get
-            {
-                IPEndPoint ipEp = m_clientSocket.RemoteEndPoint as IPEndPoint;
-                return ipEp?.Port ?? 0;
-            }
-        }
         /*
         private bool m_active;
         

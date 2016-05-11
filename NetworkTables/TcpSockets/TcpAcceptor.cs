@@ -100,7 +100,7 @@ namespace NetworkTables.TcpSockets
             m_server = null;
         }
 
-        public NtTcpClient Accept()
+        public IClient Accept()
         {
             if (!m_listening || m_shutdown) return null;
 

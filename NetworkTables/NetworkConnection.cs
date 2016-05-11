@@ -8,6 +8,8 @@ using NetworkTables.Support;
 using NetworkTables.TcpSockets;
 using NetworkTables.Wire;
 using static NetworkTables.Logging.Logger;
+using System.IO;
+using System.Net;
 
 namespace NetworkTables
 {
@@ -24,9 +26,12 @@ namespace NetworkTables
 
         private static long s_uid;
 
-        private readonly NtNetworkStream m_stream;
+        private readonly Stream m_stream;
 
-        private readonly NtTcpClient m_client;
+        private readonly IClient m_client;
+
+        public int PeerPort { get; }
+        public string PeerIP { get; }
 
         private readonly Notifier m_notifier;
 
@@ -55,7 +60,7 @@ namespace NetworkTables
 
         private readonly List<MutablePair<int, int>> m_pendingUpdate = new List<MutablePair<int, int>>();
 
-        public NetworkConnection(NtTcpClient client, Notifier notifier, HandshakeFunc handshake,
+        public NetworkConnection(IClient client, Notifier notifier, HandshakeFunc handshake,
             Message.GetEntryTypeFunc getEntryType)
         {
             Uid = (uint)Interlocked.Increment(ref s_uid) - 1;
@@ -70,8 +75,20 @@ namespace NetworkTables
             m_state = State.Created;
             LastUpdate = 0;
 
+            IPEndPoint ipEp = m_client.RemoteEndPoint as IPEndPoint;
+            if (ipEp != null)
+            {
+                PeerIP = ipEp.Address.ToString();
+                PeerPort = ipEp.Port;
+            }
+            else
+            {
+                PeerIP = "";
+                PeerPort = 0;
+            }
+
             // turns of Nagle, as we bundle packets ourselves
-            m_stream.NoDelay = true;
+            m_client.NoDelay = true;
         }
 
         public bool Disposed { get; private set; } = false;
@@ -128,12 +145,12 @@ namespace NetworkTables
 
         public ConnectionInfo GetConnectionInfo()
         {
-            return new ConnectionInfo(RemoteId, m_stream.PeerIP, m_stream.PeerPort, LastUpdate, (int)ProtoRev);
+            return new ConnectionInfo(RemoteId, PeerIP, PeerPort, LastUpdate, (int)ProtoRev);
         }
 
         public bool Active { get; private set; }
 
-        public NtNetworkStream Stream()
+        public Stream GetStream()
         {
             return m_stream;
         }
