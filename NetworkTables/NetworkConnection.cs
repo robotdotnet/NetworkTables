@@ -5,8 +5,11 @@ using System.Linq;
 using System.Threading;
 using NetworkTables.Streams;
 using NetworkTables.Support;
+using NetworkTables.TcpSockets;
 using NetworkTables.Wire;
 using static NetworkTables.Logging.Logger;
+using System.IO;
+using System.Net;
 
 namespace NetworkTables
 {
@@ -23,7 +26,12 @@ namespace NetworkTables
 
         private static long s_uid;
 
-        private readonly NtNetworkStream m_stream;
+        private readonly Stream m_stream;
+
+        private readonly IClient m_client;
+
+        public int PeerPort { get; }
+        public string PeerIP { get; }
 
         private readonly Notifier m_notifier;
 
@@ -52,11 +60,12 @@ namespace NetworkTables
 
         private readonly List<MutablePair<int, int>> m_pendingUpdate = new List<MutablePair<int, int>>();
 
-        public NetworkConnection(NtNetworkStream stream, Notifier notifier, HandshakeFunc handshake,
+        public NetworkConnection(IClient client, Notifier notifier, HandshakeFunc handshake,
             Message.GetEntryTypeFunc getEntryType)
         {
             Uid = (uint)Interlocked.Increment(ref s_uid) - 1;
-            m_stream = stream;
+            m_client = client;
+            m_stream = client.GetStream();
             m_notifier = notifier;
             m_handshake = handshake;
             m_getEntryType = getEntryType;
@@ -66,8 +75,20 @@ namespace NetworkTables
             m_state = State.Created;
             LastUpdate = 0;
 
+            IPEndPoint ipEp = m_client.RemoteEndPoint as IPEndPoint;
+            if (ipEp != null)
+            {
+                PeerIP = ipEp.Address.ToString();
+                PeerPort = ipEp.Port;
+            }
+            else
+            {
+                PeerIP = "";
+                PeerPort = 0;
+            }
+
             // turns of Nagle, as we bundle packets ourselves
-            m_stream.NoDelay = true;
+            m_client.NoDelay = true;
         }
 
         public bool Disposed { get; private set; } = false;
@@ -110,7 +131,7 @@ namespace NetworkTables
 
             Active = false;
             //Closing stream to terminate read thread
-            m_stream?.Close();
+            m_stream?.Dispose();
             //Send an empty message to terminate the write thread
             m_outgoing.Add(new List<Message>());
 
@@ -124,12 +145,12 @@ namespace NetworkTables
 
         public ConnectionInfo GetConnectionInfo()
         {
-            return new ConnectionInfo(RemoteId, m_stream.PeerIP, m_stream.PeerPort, LastUpdate, (int)ProtoRev);
+            return new ConnectionInfo(RemoteId, PeerIP, PeerPort, LastUpdate, (int)ProtoRev);
         }
 
         public bool Active { get; private set; }
 
-        public NtNetworkStream Stream()
+        public Stream GetStream()
         {
             return m_stream;
         }
@@ -362,7 +383,7 @@ namespace NetworkTables
                 {
                     if (decoder.Error != null) Info($"read error: {decoder.Error}");
                     //terminate connection on bad message
-                    m_stream?.Close();
+                    m_stream?.Dispose();
                     break;
                 }
                 Debug3($"received type={msg.Type} with str={msg.Str} id={msg.Id} seqNum={msg.SeqNumUid}");
@@ -406,7 +427,7 @@ namespace NetworkTables
             if (m_state != State.Dead) m_notifier.NotifyConnection(false, GetConnectionInfo());
             m_state = State.Dead;
             Active = false;
-            m_stream?.Close(); // Also kill read thread
+            m_stream?.Dispose(); // Also kill read thread
         }
     }
 }

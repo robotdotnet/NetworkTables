@@ -67,7 +67,7 @@ namespace NetworkTables.Native
             IntPtr err = dlerror();
             if (err != IntPtr.Zero)
             {
-                throw new EntryPointNotFoundException($"Method not found: {Marshal.PtrToStringAnsi(err)}");
+                throw new TypeLoadException($"Method not found: {Marshal.PtrToStringAnsi(err)}");
             }
             return result;
         }
@@ -113,7 +113,7 @@ namespace NetworkTables.Native
             IntPtr err = dlerror();
             if (err != IntPtr.Zero)
             {
-                throw new EntryPointNotFoundException($"Method not found: {Marshal.PtrToStringAnsi(err)}");
+                throw new TypeLoadException($"Method not found: {Marshal.PtrToStringAnsi(err)}");
             }
             return result;
         }
@@ -159,7 +159,7 @@ namespace NetworkTables.Native
             IntPtr err = dlerror();
             if (err != IntPtr.Zero)
             {
-                throw new EntryPointNotFoundException($"Method not found: {Marshal.PtrToStringAnsi(err)}");
+                throw new TypeLoadException($"Method not found: {Marshal.PtrToStringAnsi(err)}");
             }
             return result;
         }
@@ -204,7 +204,7 @@ namespace NetworkTables.Native
             IntPtr err = dlerror();
             if (err != IntPtr.Zero)
             {
-                throw new EntryPointNotFoundException($"Method not found: {Marshal.PtrToStringAnsi(err)}");
+                throw new TypeLoadException($"Method not found: {Marshal.PtrToStringAnsi(err)}");
             }
             return result;
         }

@@ -1,43 +1,15 @@
-﻿using System.Collections;
-using System.IO;
-using System.Net;
+﻿using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using static NetworkTables.Logging.Logger;
 
 namespace NetworkTables.Streams
 {
-    internal class NtNetworkStream : NetworkStream
+    internal static class StreamExtensions
     {
-        public string PeerIP { get; }
-
-        public int PeerPort { get; }
-
-        // Allow turning off Nagle algorithm
-        public bool NoDelay
+        public static int Send(this Stream stream, byte[] buffer, int pos, int len)
         {
-            get { return Socket.NoDelay; }
-            set { Socket.NoDelay = value; }
-        }
-
-        public NtNetworkStream(Socket socket) : base(socket, true)
-        {
-            IPEndPoint ipEp = socket.RemoteEndPoint as IPEndPoint;
-            if (ipEp != null)
-            {
-                PeerIP = ipEp.Address.ToString();
-                PeerPort = ipEp.Port;
-            }
-            else
-            {
-                PeerIP = "";
-                PeerPort = 0;
-            }
-        }
-
-        public int Send(byte[] buffer, int pos, int len)
-        {
-            if (Socket == null || !CanWrite)
+            if (!stream.CanWrite)
             {
                 return 0;
             }
@@ -47,7 +19,7 @@ namespace NetworkTables.Streams
             {
                 try
                 {
-                    Write(buffer, pos, len);
+                    stream.Write(buffer, pos, len);
                     break;
                 }
                 catch (IOException ex)
@@ -79,16 +51,16 @@ namespace NetworkTables.Streams
             return len;
         }
 
-        public override int Read(byte[] buffer, int offset, int size)
+        public static int Receive(this Stream stream, byte[] buffer, int offset, int size)
         {
-            if (!CanRead) return 0;
+            if (!stream.CanRead) return 0;
             try
             {
                 int pos = offset;
 
                 while (pos < size + offset)
                 {
-                    int count = base.Read(buffer, pos, size - pos);
+                    int count = stream.Read(buffer, pos, size - pos);
                     if (count == 0) return 0;
                     pos += count;
                 }
@@ -106,7 +78,7 @@ namespace NetworkTables.Streams
                 //Return 0 on socket exception
                 return 0;
             }
-            
+
         }
     }
 }

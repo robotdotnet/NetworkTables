@@ -5,12 +5,13 @@ using NetworkTables.TcpSockets;
 using static NetworkTables.Logging.Logger;
 using NetworkTables.Extensions;
 using NetworkTables.Streams;
+using System.Net;
 
 namespace NetworkTables
 {
     internal class DispatcherBase : IDisposable
     {
-        public delegate NtNetworkStream Connector();
+        public delegate NtTcpClient Connector();
 
         public const double MinimumUpdateTime = 0.1; //100ms
         public const double MaximumUpdateTime = 1.0; //1 second
@@ -339,7 +340,15 @@ namespace NetworkTables
                 }
                 if (!m_active) return;
 
-                Debug($"server: client connection from {stream.PeerIP} port {stream.PeerPort}");
+                IPEndPoint ipEp = stream.RemoteEndPoint as IPEndPoint;
+                if (ipEp != null)
+                {
+                    Debug($"server: client connection from {ipEp.Address.ToString()} port {ipEp.Port}");
+                }
+                else
+                {
+                    Warning($"server: client connection from unknown IP address and Port");
+                }
 
                 var conn = new NetworkConnection(stream, m_notifier, ServerHandshake, m_storage.GetEntryType);
                 conn.SetProcessIncoming(((msg, connection) =>
@@ -490,7 +499,7 @@ namespace NetworkTables
 
             if (outgoing.Count != 0) sendMsgs(outgoing);
 
-            Info($"client: CONNECTED to server {conn.Stream().PeerIP} port {conn.Stream().PeerPort}");
+            Info($"client: CONNECTED to server {conn.PeerIP} port {conn.PeerPort}");
 
             return true;
         }
@@ -576,7 +585,7 @@ namespace NetworkTables
                 }
             }
 
-            Info($"server: client CONNECTED: {conn.Stream().PeerIP} port {conn.Stream().PeerPort}");
+            Info($"server: client CONNECTED: {conn.PeerIP} port {conn.PeerPort}");
             return true;
         }
 

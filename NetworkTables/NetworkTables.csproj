@@ -130,11 +130,14 @@
     <Compile Include="SequenceNumber.cs" />
     <Compile Include="Storage.cs" />
     <Compile Include="StorageSaving.cs" />
-    <Compile Include="Streams\NTNetworkStream.cs" />
+    <Compile Include="Streams\StreamExtensions.cs" />
     <Compile Include="Support\Timestamp.cs" />
+    <Compile Include="TcpSockets\IClient.cs" />
     <Compile Include="TcpSockets\INetworkAcceptor.cs" />
+    <Compile Include="TcpSockets\NtTcpClient.cs" />
     <Compile Include="TcpSockets\TcpAcceptor.cs" />
     <Compile Include="TcpSockets\TcpConnector.cs" />
+    <Compile Include="TcpSockets\NtTcpListener.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

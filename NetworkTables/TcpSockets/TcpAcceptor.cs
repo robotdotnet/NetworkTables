@@ -7,7 +7,7 @@ namespace NetworkTables.TcpSockets
 {
     internal class TcpAcceptor : INetworkAcceptor
     {
-        private TcpListener m_server;
+        private NtTcpListener m_server;
 
         private readonly int m_port;
         private readonly string m_address;
@@ -43,7 +43,7 @@ namespace NetworkTables.TcpSockets
                 address = IPAddress.Any;
             }
 
-            m_server = new TcpListener(address, m_port);
+            m_server = new NtTcpListener(address, m_port);
 
             try
             {
@@ -100,19 +100,15 @@ namespace NetworkTables.TcpSockets
             m_server = null;
         }
 
-        public NtNetworkStream Accept()
+        public IClient Accept()
         {
             if (!m_listening || m_shutdown) return null;
 
-            Socket socket;
-
-            try
+            SocketError error;
+            Socket socket = m_server.Accept(out error);
+            if (socket == null)
             {
-                socket = m_server.AcceptSocket();
-            }
-            catch (SocketException ex)
-            {
-                if (!m_shutdown) Error($"Accept() failed: {ex.SocketErrorCode}");
+                if (!m_shutdown) Error($"Accept() failed: {error}");
                 return null;
             }
             if (m_shutdown)
@@ -120,7 +116,7 @@ namespace NetworkTables.TcpSockets
                 socket.Dispose();
                 return null;
             }
-            return new NtNetworkStream(socket);
+            return new NtTcpClient(socket);
         }
     }
 }
