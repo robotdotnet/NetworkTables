@@ -78,6 +78,7 @@
     <Compile Include="StorageTestPersistent.cs" />
     <Compile Include="StorageTestPopulated.cs" />
     <Compile Include="StorageTestPopulateOne.cs" />
+    <Compile Include="TestBase.cs" />
     <Compile Include="ValueTest.cs" />
     <Compile Include="WireDecoderTest.cs" />
     <Compile Include="WireEncoderTest.cs" />

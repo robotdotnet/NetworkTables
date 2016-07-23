@@ -10,7 +10,7 @@ namespace NetworkTables.Test.NtCoreTests
         [SetUp]
         public void Setup()
         {
-            NtCore.DeleteAllEntries();
+            TestBase.DeleteAllWithPersistent();
         }
 
         [Test]
@@ -206,7 +206,7 @@ namespace NetworkTables.Test.NtCoreTests
 
             Assert.That(NtCore.GetEntryInfo("", 0).Count, Is.EqualTo(2));
 
-            NtCore.DeleteAllEntries();
+            TestBase.DeleteAllWithPersistent();
 
             Assert.That(NtCore.GetEntryInfo("", 0).Count, Is.EqualTo(0));
 

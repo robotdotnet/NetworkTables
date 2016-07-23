@@ -40,7 +40,8 @@ namespace NetworkTables.Test.NetworkTablesApi
         [SetUp]
         public void TestSetup()
         {
-            NtCore.DeleteAllEntries();
+            TestBase.DeleteAllWithPersistent();
+
             m_table = NetworkTable.GetTable("Table");
         }
 

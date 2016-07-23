@@ -14,7 +14,7 @@ namespace NetworkTables.Test.NtCoreTests
         [SetUp]
         public void Setup()
         {
-            NtCore.DeleteAllEntries();
+            TestBase.DeleteAllWithPersistent();
         }
 
         [OneTimeTearDown]

@@ -6,6 +6,14 @@ namespace NetworkTablesCore.Test
 {
     public class TestBase
     {
+        public static void DeleteAllWithPersistent()
+        {
+            foreach (var entryInfo in NtCore.GetEntryInfo("", 0))
+            {
+                NtCore.DeleteEntry(entryInfo.Name);
+            }
+        }
+
         public static bool s_started = false;
 
         [TestFixtureSetUp]
