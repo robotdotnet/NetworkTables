@@ -5,6 +5,40 @@ using NetworkTables.Extensions;
 
 namespace NetworkTables
 {
+    internal class UidList<T>
+    {
+        private List<T> m_list = new List<T>();
+        private Queue<int> m_free = new Queue<int>();
+
+        public int Count => m_list.Count;
+
+        public T this[int i] => m_list[i];
+
+        public int Add(T args)
+        {
+            int uid = 0;
+            if (m_free.Count == 0)
+            {
+                uid = m_list.Count;
+                m_list.Add(args);
+            }
+            else
+            {
+                uid = m_free.Dequeue();
+                m_list[uid] = args;
+            }
+            return uid + 1;
+        }
+
+        public void Erase(int uid)
+        {
+            --uid;
+            if (uid >= m_list.Count || m_list[uid] == null) return;
+            m_free.Enqueue(uid);
+            m_list[uid] = default(T);
+        }
+    }
+
     internal class Notifier : IDisposable
     {
         private static Notifier s_instance;
@@ -27,8 +61,8 @@ namespace NetworkTables
             public NotifyFlags Flags { get; }
         }
 
-        private readonly List<EntryListener> m_entryListeners = new List<EntryListener>();
-        private readonly List<ConnectionListenerCallback> m_connListeners = new List<ConnectionListenerCallback>();
+        private readonly UidList<EntryListener?> m_entryListeners = new UidList<EntryListener?>();
+        private readonly UidList<ConnectionListenerCallback> m_connListeners = new UidList<ConnectionListenerCallback>();
 
         private struct EntryNotification
         {
@@ -125,12 +159,12 @@ namespace NetworkTables
                         // Use index because iterator might get invalidated
                         for (int i = 0; i < m_entryListeners.Count; ++i)
                         {
-                            if (m_entryListeners[i].Callback == null) continue; //removed
+                            if (m_entryListeners[i] == null) continue; //removed
 
                             // Flags must be within requested set flag for this listener
                             // Because assign messages can result in both a value and flags update,
                             // we handle that case specifically
-                            NotifyFlags listenFlags = m_entryListeners[i].Flags;
+                            NotifyFlags listenFlags = m_entryListeners[i].Value.Flags;
                             NotifyFlags flags = item.Flags;
                             const NotifyFlags assignBoth = (NotifyFlags.NotifyUpdate | NotifyFlags.NotifyFlagsChanged);
 
@@ -143,10 +177,10 @@ namespace NetworkTables
                             if ((flags & ~listenFlags) != 0) continue;
 
                             //Must match prefix
-                            if (!name.StartsWith(m_entryListeners[i].Prefix)) continue;
+                            if (!name.StartsWith(m_entryListeners[i].Value.Prefix)) continue;
 
                             // make a copy of the callback so wwe can release the mutex
-                            var callback = m_entryListeners[i].Callback;
+                            var callback = m_entryListeners[i].Value.Callback;
 
                             Monitor.Exit(m_mutex);
                             lockEntered = false;
