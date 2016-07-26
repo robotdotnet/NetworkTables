@@ -5,6 +5,10 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+#if (!CORE)
+using NetworkTables.Streams;
+#endif
+
 
 namespace NetworkTables.Wire
 {
@@ -58,7 +62,11 @@ namespace NetworkTables.Wire
             }
             if (len > m_allocated) Realloc(len);
             buf = m_buffer;
+#if CORE
             int rv = m_stream.Read(m_buffer, 0, len);
+#else
+            int rv = m_stream.Receive(m_buffer, 0, len);
+#endif
             return rv != 0;
         }
 

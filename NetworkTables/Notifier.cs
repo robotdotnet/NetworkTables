@@ -13,6 +13,77 @@ namespace NetworkTables
 
         private Thread m_thread;
 
+        // Special class for Entry Listeners
+        private class UidListEntryListener
+        {
+            private List<EntryListener> m_list = new List<EntryListener>();
+            private Queue<int> m_free = new Queue<int>();
+
+            public int Count => m_list.Count;
+
+            public EntryListener this[int i] => m_list[i];
+
+            public int Add(string prefix, EntryListenerCallback callback, NotifyFlags flags)
+            {
+                int uid = 0;
+                var listener = new EntryListener(prefix, callback, flags);
+                if (m_free.Count == 0)
+                {
+                    uid = m_list.Count;
+                    m_list.Add(listener);
+                }
+                else
+                {
+                    uid = m_free.Dequeue();
+                    m_list[uid] = listener;
+                }
+                return uid + 1;
+            }
+
+            public void Erase(int uid)
+            {
+                --uid;
+                if (uid >= m_list.Count || m_list[uid].IsNull()) return;
+                m_free.Enqueue(uid);
+                m_list[uid].SetNull();
+            }
+        }
+
+        // Special class for Connection Listeners
+        private class UidListConnectionListenerCallback
+        {
+            private List<ConnectionListenerCallback> m_list = new List<ConnectionListenerCallback>();
+            private Queue<int> m_free = new Queue<int>();
+
+            public int Count => m_list.Count;
+
+            public ConnectionListenerCallback this[int i] => m_list[i];
+
+            public int Add(ConnectionListenerCallback args)
+            {
+                int uid = 0;
+                if (m_free.Count == 0)
+                {
+                    uid = m_list.Count;
+                    m_list.Add(args);
+                }
+                else
+                {
+                    uid = m_free.Dequeue();
+                    m_list[uid] = args;
+                }
+                return uid + 1;
+            }
+
+            public void Erase(int uid)
+            {
+                --uid;
+                if (uid >= m_list.Count || m_list[uid] == null) return;
+                m_free.Enqueue(uid);
+                m_list[uid] = null;
+            }
+        }
+
         private struct EntryListener
         {
             public EntryListener(string prefix, EntryListenerCallback callback, NotifyFlags flags)
@@ -25,10 +96,20 @@ namespace NetworkTables
             public string Prefix { get; }
             public EntryListenerCallback Callback { get; internal set; }
             public NotifyFlags Flags { get; }
+
+            public void SetNull()
+            {
+                Callback = null;
+            }
+
+            public bool IsNull()
+            {
+                return Callback == null;
+            }
         }
 
-        private readonly List<EntryListener> m_entryListeners = new List<EntryListener>();
-        private readonly List<ConnectionListenerCallback> m_connListeners = new List<ConnectionListenerCallback>();
+        private readonly UidListEntryListener m_entryListeners = new UidListEntryListener();
+        private readonly UidListConnectionListenerCallback m_connListeners = new UidListConnectionListenerCallback();
 
         private struct EntryNotification
         {
@@ -125,7 +206,7 @@ namespace NetworkTables
                         // Use index because iterator might get invalidated
                         for (int i = 0; i < m_entryListeners.Count; ++i)
                         {
-                            if (m_entryListeners[i].Callback == null) continue; //removed
+                            if (m_entryListeners[i].IsNull()) continue; //removed
 
                             // Flags must be within requested set flag for this listener
                             // Because assign messages can result in both a value and flags update,
@@ -231,23 +312,16 @@ namespace NetworkTables
         {
             lock (m_mutex)
             {
-                int uid = m_entryListeners.Count;
-                m_entryListeners.Add(new EntryListener(prefix, callback, flags));
                 if ((flags & NotifyFlags.NotifyLocal) != 0) m_localNotifiers = true;
-                return uid + 1;
+                return m_entryListeners.Add(prefix, callback, flags);
             }
         }
 
         public void RemoveEntryListener(int entryListenerUid)
         {
-            --entryListenerUid;
             lock (m_mutex)
             {
-                if (entryListenerUid < m_entryListeners.Count)
-                {
-                    var listener = m_entryListeners[entryListenerUid];
-                    listener.Callback = null;
-                }
+                m_entryListeners.Erase(entryListenerUid);
             }
         }
 
@@ -268,21 +342,15 @@ namespace NetworkTables
         {
             lock (m_mutex)
             {
-                int uid = m_connListeners.Count;
-                m_connListeners.Add(callback);
-                return uid + 1;
+                return m_connListeners.Add(callback);
             }
         }
 
         public void RemoveConnectionListener(int connListenerUid)
         {
-            --connListenerUid;
             lock (m_mutex)
             {
-                if (connListenerUid < m_connListeners.Count)
-                {
-                    m_connListeners[connListenerUid] = null;
-                }
+                m_connListeners.Erase(connListenerUid);
             }
         }
 

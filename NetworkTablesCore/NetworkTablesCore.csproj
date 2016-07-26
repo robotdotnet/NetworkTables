@@ -120,7 +120,6 @@
       <Link>Wire\WireEncoder.cs</Link>
     </Compile>
     <Compile Include="Native\CoreMethods.cs" />
-    <Compile Include="Native\IInputStream.cs" />
     <Compile Include="Native\LibraryLoader.cs" />
     <Compile Include="Native\Interop.cs" />
     <Compile Include="Native\LoaderUtilities.cs" />
