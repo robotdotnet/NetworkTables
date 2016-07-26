@@ -97,7 +97,7 @@ namespace NetworkTables
 
         }
 
-        private readonly Dictionary<string, Entry> m_entries = new Dictionary<string, Entry>();
+        private Dictionary<string, Entry> m_entries = new Dictionary<string, Entry>();
         private readonly List<Entry> m_idMap = new List<Entry>();
         internal readonly Dictionary<ImmutablePair<uint, uint>, byte[]> m_rpcResults = new Dictionary<ImmutablePair<uint, uint>, byte[]>();
 
@@ -115,7 +115,7 @@ namespace NetworkTables
         private readonly RpcServer m_rpcServer;
 
 
-        
+
 
         public delegate void QueueOutgoingFunc(Message msg, NetworkConnection only, NetworkConnection except);
 
@@ -411,16 +411,7 @@ namespace NetworkTables
                         }
                     case ClearEntries:
                         {
-                            m_idMap.Clear();
-
-                            m_persistentDirty = true;
-
-                            foreach (var e in m_entries)
-                            {
-                                m_notifier.NotifyEntry(e.Key, e.Value.Value, NotifyFlags.NotifyDelete);
-                            }
-
-                            m_entries.Clear();
+                            DeleteAllEntriesImpl();
 
                             if (m_server && m_queueOutgoing != null)
                             {
@@ -634,7 +625,7 @@ namespace NetworkTables
                 if (m_server && entry.Id == 0xffff)
                 {
                     int id = m_idMap.Count;
-                    entry.Id = (uint) id;
+                    entry.Id = (uint)id;
                     m_idMap.Add(entry);
                 }
 
@@ -887,6 +878,37 @@ namespace NetworkTables
             }
         }
 
+        private void DeleteAllEntriesImpl()
+        {
+            if (m_entries.Count == 0) return;
+
+            // only delete non-persistent values
+            // can't erase without invalidating iterators, so build
+            // a new dictionary
+
+            Dictionary<string, Entry> entries = new Dictionary<string, Entry>();
+            foreach (var i in m_entries)
+            {
+                var entry = i.Value;
+                if (!entry.IsPersistent())
+                {
+                    // notify it's getting deleted
+                    if (m_notifier.LocalNotifiers())
+                    {
+                        m_notifier.NotifyEntry(i.Key, i.Value.Value, NotifyFlags.NotifyDelete | NotifyFlags.NotifyLocal);
+                    }
+                    // remove it from idmap
+                    if (entry.Id != 0xffff) m_idMap[(int)entry.Id] = null;
+                }
+                else
+                {
+                    // Add it to new entries
+                    entries.Add(i.Key, i.Value);
+                }
+            }
+            m_entries = entries;
+        }
+
         public void DeleteAllEntries()
         {
             bool lockEntered = false;
@@ -895,18 +917,8 @@ namespace NetworkTables
                 Monitor.Enter(m_mutex, ref lockEntered);
                 if (m_entries.Count == 0) return;
 
-                m_idMap.Clear();
+                DeleteAllEntriesImpl();
 
-                m_persistentDirty = true;
-
-                if (m_notifier.LocalNotifiers())
-                {
-                    foreach (var entry in m_entries)
-                    {
-                        m_notifier.NotifyEntry(entry.Key, entry.Value.Value, (NotifyFlags.NotifyDelete | NotifyFlags.NotifyLocal));
-                    }
-                }
-                m_entries.Clear();
                 if (m_queueOutgoing == null) return;
                 var queueOutgoing = m_queueOutgoing;
                 Monitor.Exit(m_mutex);
@@ -951,7 +963,7 @@ namespace NetworkTables
             }
         }
 
-        
+
 
         public void CreateRpc(string name, byte[] def, RpcCallback callback)
         {

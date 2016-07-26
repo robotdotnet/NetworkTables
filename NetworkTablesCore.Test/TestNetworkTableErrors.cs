@@ -14,7 +14,7 @@ namespace NetworkTablesCore.Test
         [SetUp]
         public void SetUp()
         {
-            CoreMethods.DeleteAllEntries();
+            TestBase.DeleteAllWithPersistent();
             m_nt = NetworkTable.GetTable("");
         }
 

@@ -23,7 +23,7 @@ namespace NetworkTablesCore.Test
         [SetUp]
         public void TestSetup()
         {
-            CoreMethods.DeleteAllEntries();
+            TestBase.DeleteAllWithPersistent();
             m_table = NetworkTable.GetTable("Table");
         }
 

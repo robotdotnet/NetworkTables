@@ -70,7 +70,7 @@ namespace NetworkTables.Test.NetworkTablesApi
         [SetUp]
         public void SetUp()
         {
-            NtCore.DeleteAllEntries();
+            TestBase.DeleteAllWithPersistent();
             m_table = NetworkTable.GetTable("Table");
         }
 

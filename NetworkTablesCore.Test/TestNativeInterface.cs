@@ -12,7 +12,7 @@ namespace NetworkTablesCore.Test
         [SetUp]
         public void SetUp()
         {
-            CoreMethods.DeleteAllEntries();
+            TestBase.DeleteAllWithPersistent();
         }
 
         [Test]
@@ -209,7 +209,7 @@ namespace NetworkTablesCore.Test
 
             Assert.That(CoreMethods.GetEntryInfo("", 0).Count, Is.EqualTo(2));
 
-            CoreMethods.DeleteAllEntries();
+            TestBase.DeleteAllWithPersistent();
 
             Assert.That(CoreMethods.GetEntryInfo("", 0).Count, Is.EqualTo(0));
 

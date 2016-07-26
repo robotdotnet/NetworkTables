@@ -194,6 +194,21 @@ namespace NetworkTables.Test
         }
 
         [Test]
+        public void TestStoragePopulatedDeleteAllEntriesPersistent()
+        {
+            GetEntry("foo2").Flags = EntryFlags.Persistent;
+            storage.DeleteAllEntries();
+            Assert.That(Entries, Has.Count.EqualTo(1));
+            Assert.That(Entries, Contains.Key("foo2"));
+
+            Assert.That(outgoing, Has.Count.EqualTo(1));
+            Assert.That(outgoing[0].only, Is.Null);
+            Assert.That(outgoing[0].except, Is.Null);
+            var msg = outgoing[0].msg;
+            Assert.That(msg.Type, Is.EqualTo(Message.MsgType.ClearEntries));
+        }
+
+        [Test]
         public void TestStoragePopulatedGetEntryInfoAll()
         {
 
