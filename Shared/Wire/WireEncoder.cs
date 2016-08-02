@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NetworkTables.Wire
 {
-    internal class WireEncoder
+    public class WireEncoder
     {
         private readonly List<byte> m_buffer = new List<byte>(1024);
 

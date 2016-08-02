@@ -12,7 +12,7 @@ using NetworkTables.Streams;
 
 namespace NetworkTables.Wire
 {
-    internal class WireDecoder
+    public class WireDecoder
     {
         public static double ReadDouble(byte[] buf, int count)
         {
