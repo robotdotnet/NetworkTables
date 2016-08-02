@@ -67,6 +67,15 @@ namespace NetworkTables.TcpSockets
             }
 
             //Connect with time limit
+            bool connectedWithTimeout = client.ConnectWithTimeout(addr, port, timeout);
+            if (!connectedWithTimeout)
+            {
+                ((IDisposable)client).Dispose();
+                return null;
+            }
+            return client;
+
+            /*
             try
             {
                 var result = client.BeginConnect(addr, port, null, null);
@@ -99,6 +108,7 @@ namespace NetworkTables.TcpSockets
                 ((IDisposable)client).Dispose();
                 return null;
             }
+            */
         }
     }
 }
