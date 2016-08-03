@@ -6,6 +6,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using static NetworkTables.Logging.Logger;
 
 namespace NetworkTables.TcpSockets
 {
@@ -53,19 +54,6 @@ namespace NetworkTables.TcpSockets
             set { m_active = value; }
         }
 
-
-        public IAsyncResult BeginConnect(IPAddress[] address, int port, AsyncCallback requestCallback, object state)
-        {
-            IAsyncResult result = m_clientSocket.BeginConnect(address, port, requestCallback, state);
-            return result;
-        }
-
-        public void EndConnect(IAsyncResult result)
-        {
-            m_clientSocket.EndConnect(result);
-            m_active = true;
-        }
-
         public Stream GetStream()
         {
             if (m_cleanedUp)
@@ -91,6 +79,66 @@ namespace NetworkTables.TcpSockets
             m_active = true;
         }
 
+        public bool ConnectWithTimeout(IPAddress[] ipAddresses, int port, int timeout)
+        {
+            m_clientSocket.Blocking = false;
+            try
+            {
+                m_clientSocket.Connect(ipAddresses, port);
+                //We have connected
+                m_active = true;
+                return true;
+            }
+            catch (SocketException ex)
+            {
+                if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.InProgress)
+                {
+                    DateTime waitUntil = DateTime.UtcNow + TimeSpan.FromSeconds(timeout);
+                    try
+                    {
+                        while (true)
+                        {
+                            if (m_clientSocket.Poll(1000, SelectMode.SelectWrite))
+                            {
+                                // We have connected
+                                m_active = true;
+                                return true;
+                            }
+                            else
+                            {
+                                if (DateTime.UtcNow >= waitUntil)
+                                {
+                                    // We have timed out
+                                    Info($"Connect() to {ipAddresses[0]} port {port} timed out");
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    catch (SocketException ex2)
+                    {
+                        Error($"Select() to {ipAddresses[0]} port {port} error {ex2.SocketErrorCode}");
+                    }
+                }
+                else
+                {
+                    if (ex.SocketErrorCode == SocketError.ConnectionRefused)
+                    {
+                        // A connection refused is an uneceptional case
+                        Info($"Connect() to {ipAddresses[0]} port {port} timed out");
+                        return false;
+                    }
+                    Error($"Connect() to {ipAddresses[0]} port {port} error {ex.SocketErrorCode}");
+                }
+
+            }
+            finally
+            {
+                m_clientSocket.Blocking = true;
+            }
+            return false;
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (m_cleanedUp)
@@ -114,6 +162,7 @@ namespace NetworkTables.TcpSockets
                         {
                             chkClientSocket.Shutdown(SocketShutdown.Both);
                         }
+                        catch (SocketException) { } // Ignore any socket exception
                         finally
                         {
                             chkClientSocket.Dispose();
