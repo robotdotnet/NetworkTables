@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using NetworkTables.Streams;
 using static NetworkTables.Logging.Logger;
 
@@ -100,23 +101,11 @@ namespace NetworkTables.TcpSockets
             m_server = null;
         }
 
-        public IClient Accept()
+        public Task<NtTcpClient> Accept()
         {
             if (!m_listening || m_shutdown) return null;
 
-            SocketError error;
-            Socket socket = m_server.Accept(out error);
-            if (socket == null)
-            {
-                if (!m_shutdown) Error($"Accept() failed: {error}");
-                return null;
-            }
-            if (m_shutdown)
-            {
-                socket.Dispose();
-                return null;
-            }
-            return new NtTcpClient(socket);
+            return m_server.AcceptTcpClientAsync();
         }
     }
 }

@@ -6,6 +6,8 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using static NetworkTables.Logging.Logger;
 
 namespace NetworkTables.TcpSockets
@@ -79,7 +81,7 @@ namespace NetworkTables.TcpSockets
             m_active = true;
         }
 
-        public bool ConnectWithTimeout(IPAddress[] ipAddresses, int port, int timeout)
+        public async Task<bool> ConnectWithTimeout(IPAddress[] ipAddresses, int port, CancellationToken token, TimeSpan timeout)
         {
             m_clientSocket.Blocking = false;
             try
@@ -93,10 +95,13 @@ namespace NetworkTables.TcpSockets
             {
                 if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.InProgress)
                 {
-                    DateTime waitUntil = DateTime.UtcNow + TimeSpan.FromSeconds(timeout);
+                    bool waitIndefinately = timeout == TimeSpan.MaxValue;
+                    DateTime waitUntil = DateTime.MinValue;
+                    if (!waitIndefinately)
+                        waitUntil = DateTime.UtcNow + timeout;
                     try
                     {
-                        while (true)
+                        while (!token.IsCancellationRequested)
                         {
                             if (m_clientSocket.Poll(1000, SelectMode.SelectWrite))
                             {
@@ -106,6 +111,7 @@ namespace NetworkTables.TcpSockets
                             }
                             else
                             {
+                                if (waitIndefinately) continue;
                                 if (DateTime.UtcNow >= waitUntil)
                                 {
                                     // We have timed out
@@ -114,6 +120,8 @@ namespace NetworkTables.TcpSockets
                                 }
                             }
                         }
+                        // Task Canceled
+                        return false;
                     }
                     catch (SocketException ex2)
                     {

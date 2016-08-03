@@ -6,12 +6,13 @@ using static NetworkTables.Logging.Logger;
 using NetworkTables.Extensions;
 using NetworkTables.Streams;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace NetworkTables
 {
     internal class DispatcherBase : IDisposable
     {
-        public delegate NtTcpClient Connector();
+        public delegate Task<NtTcpClient> Connector(CancellationToken token);
 
         public const double MinimumUpdateTime = 0.1; //100ms
         public const double MaximumUpdateTime = 1.0; //1 second
@@ -28,6 +29,8 @@ namespace NetworkTables
 
         private readonly object m_userMutex = new object();
 
+        private readonly CancellationTokenSource m_cancellationTokenSource = new CancellationTokenSource();
+
         private bool m_active;
         private Thread m_clientServerThread;
         private List<NetworkConnection> m_connections = new List<NetworkConnection>();
@@ -36,7 +39,7 @@ namespace NetworkTables
         private bool m_doReconnect = true;
         private string m_identity = "";
 
-        private IList<Connector> m_clientConnectors = new List<Connector>(); 
+        private IList<Connector> m_clientConnectors = new List<Connector>();
 
         private DateTime m_lastFlush;
 
@@ -133,7 +136,7 @@ namespace NetworkTables
 
         public void StartClient(Connector connector)
         {
-            List<Connector> connectors = new List<Connector>(1) {connector};
+            List<Connector> connectors = new List<Connector>(1) { connector };
             StartClient(connectors);
         }
 
@@ -169,6 +172,8 @@ namespace NetworkTables
 
             // Wake up dispatch thread with a flush
             m_flushCv.Set();
+
+            m_cancellationTokenSource.Cancel();
 
             //Wake up client thread with a reconnect
             lock (m_userMutex)
@@ -249,6 +254,7 @@ namespace NetworkTables
 
         private void DispatchThreadMain()
         {
+            CancellationToken token = m_cancellationTokenSource.Token;
             var timeoutTime = DateTime.UtcNow;
 
             var nextSaveTime = timeoutTime + s_saveDeltaTime;
@@ -259,7 +265,7 @@ namespace NetworkTables
             try
             {
                 Monitor.Enter(m_flushMutex, ref lockEntered);
-                while (m_active)
+                while (!token.IsCancellationRequested)
                 {
                     //Handle loop taking too long
                     var start = DateTime.UtcNow;
@@ -324,21 +330,32 @@ namespace NetworkTables
 
         private void ServerThreadMain()
         {
+            CancellationToken token = m_cancellationTokenSource.Token;
             if (m_serverAccepter.Start() != 0)
             {
                 m_active = false;
                 return;
             }
 
-            while (m_active)
+            while (!token.IsCancellationRequested)
             {
-                var stream = m_serverAccepter.Accept();
-                if (stream == null)
+                var clientTask = m_serverAccepter.Accept();
+                try
+                {
+                    clientTask.Wait(token);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Ignore Operation Canceled Exception
+                }
+                if (clientTask.IsCanceled || clientTask.IsFaulted)
                 {
                     m_active = false;
                     return;
                 }
-                if (!m_active) return;
+                if (token.IsCancellationRequested) return;
+
+                var stream = clientTask.Result;
 
                 IPEndPoint ipEp = stream.RemoteEndPoint as IPEndPoint;
                 if (ipEp != null)
@@ -378,6 +395,8 @@ namespace NetworkTables
 
         private void ClientThreadMain()
         {
+            CancellationToken token = m_cancellationTokenSource.Token;
+
             int i = 0;
             while (m_active)
             {
@@ -393,7 +412,17 @@ namespace NetworkTables
                 }
 
                 Debug("client trying to connect");
-                var stream = connect();
+                var connectTask = connect(token);
+                try
+                {
+                    connectTask.Wait(token);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+                if (connectTask.IsCanceled || connectTask.IsFaulted) return;
+                var stream = connectTask.Result;
                 if (stream == null) continue; //keep retrying
                 Debug("client connected");
 

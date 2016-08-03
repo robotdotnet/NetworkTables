@@ -78,20 +78,49 @@ namespace NetworkTables.TcpSockets
             }
         }
 
-        public Socket Accept(out SocketError errorCode)
+        internal IAsyncResult BeginAcceptTcpClient(AsyncCallback callback, object state)
         {
-            Socket socket = null;
-            try
+            if (!m_active)
             {
-                socket = m_serverSocket.Accept();
+                throw new InvalidOperationException("Tcp listener is stopped and cannot accept new connections");
             }
-            catch (SocketException ex)
+
+            IAsyncResult result = m_serverSocket.BeginAccept(callback, state);
+            return result;
+        }
+
+        internal NtTcpClient EndAcceptTcpClient(IAsyncResult asyncResult)
+        {
+            if (asyncResult == null)
             {
-                errorCode = ex.SocketErrorCode;
-                return null;
+                throw new ArgumentNullException(nameof(asyncResult));
+
             }
-            errorCode = 0;
-            return socket;
+
+            NtTcpListener listener = asyncResult.AsyncState as NtTcpListener;
+            if (listener == null)
+            {
+                throw new ArgumentNullException(nameof(listener));
+            }
+            Socket asyncSocket = listener.m_serverSocket;
+            if (asyncSocket == null)
+            {
+                throw new NullReferenceException(nameof(asyncSocket));
+            }
+
+            // Will throw ObjectDisposedException if Stopped
+            Socket socket = asyncSocket.EndAccept(asyncResult);
+
+            return new NtTcpClient(socket);
+        }
+
+
+        public Task<NtTcpClient> AcceptTcpClientAsync()
+        {
+            return Task<NtTcpClient>.Factory.FromAsync(
+                (callback, state) => ((NtTcpListener)state).BeginAcceptTcpClient(callback, state),
+                asyncResult => ((NtTcpListener)asyncResult.AsyncState).EndAcceptTcpClient(asyncResult),
+                state: this);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace NetworkTables.Test.ConnectionTesting
 
         public void StartClient(string serverName, int port)
         {
-            StartClient(() => TcpConnector.Connect(serverName, port, 1));
+            StartClient(token => TcpConnector.Connect(serverName, port, token, TimeSpan.FromSeconds(1)));
         }
     }
 

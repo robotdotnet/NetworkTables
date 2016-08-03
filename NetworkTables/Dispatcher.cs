@@ -45,7 +45,7 @@ namespace NetworkTables
 
         public void StartClient(string serverName, int port)
         {
-            StartClient(() => TcpConnector.Connect(serverName, port, 1));
+            StartClient(token => TcpConnector.Connect(serverName, port, token, TimeSpan.FromSeconds(1)));
         }
 
         public void StartClient(IList<ImmutablePair<string, int>> servers)
@@ -53,7 +53,7 @@ namespace NetworkTables
             List<Connector> connectors = new List<Connector>();
             foreach (var server in servers)
             {
-                connectors.Add(() => TcpConnector.Connect(server.First, server.Second, 1));
+                connectors.Add(token => TcpConnector.Connect(server.First, server.Second, token, TimeSpan.FromSeconds(1)));
             }
             StartClient(connectors);
         }

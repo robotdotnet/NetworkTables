@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace NetworkTables.TcpSockets
 {
@@ -6,6 +7,6 @@ namespace NetworkTables.TcpSockets
     {
         int Start();
         void Shutdown();
-        IClient Accept();
+        Task<NtTcpClient> Accept();
     }
 }
