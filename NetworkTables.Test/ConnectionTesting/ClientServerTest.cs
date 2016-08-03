@@ -162,7 +162,7 @@ namespace NetworkTables.Test.ConnectionTesting
             Thread.Sleep(500);
             m_clientDispatcher.StartClient("localhost", 9999);
 
-            Thread.Sleep(2000);
+            Thread.Sleep(5000);
 
             var serverConnections = m_serverDispatcher.GetConnections();
             Assert.That(serverConnections, Has.Count.EqualTo(1));
@@ -178,7 +178,7 @@ namespace NetworkTables.Test.ConnectionTesting
 
             m_clientDispatcher.Stop();
 
-            Thread.Sleep(2000);
+            Thread.Sleep(5000);
 
             serverConnections = m_serverDispatcher.GetConnections();
             Assert.That(serverConnections, Has.Count.EqualTo(0));
@@ -194,7 +194,7 @@ namespace NetworkTables.Test.ConnectionTesting
             Thread.Sleep(500);
             m_clientDispatcher.StartClient("localhost", 9999);
 
-            Thread.Sleep(2000);
+            Thread.Sleep(5000);
 
             var serverConnections = m_serverDispatcher.GetConnections();
             Assert.That(serverConnections, Has.Count.EqualTo(1));
@@ -210,7 +210,7 @@ namespace NetworkTables.Test.ConnectionTesting
 
             m_serverDispatcher.Stop();
 
-            Thread.Sleep(2000);
+            Thread.Sleep(5000);
 
             serverConnections = m_serverDispatcher.GetConnections();
             Assert.That(serverConnections, Has.Count.EqualTo(0));
@@ -239,7 +239,7 @@ namespace NetworkTables.Test.ConnectionTesting
             notifier.Start();
             m_clientDispatcher.StartClient("localhost", 9999);
 
-            Thread.Sleep(2000);
+            Thread.Sleep(5000);
 
             Assert.That(retUid, Is.EqualTo(1));
             Assert.That(retConnected, Is.True);
@@ -247,7 +247,7 @@ namespace NetworkTables.Test.ConnectionTesting
 
             m_clientDispatcher.Stop();
 
-            Thread.Sleep(2000);
+            Thread.Sleep(5000);
 
             Assert.That(retUid, Is.EqualTo(1));
             Assert.That(retConnected, Is.False);
@@ -275,7 +275,7 @@ namespace NetworkTables.Test.ConnectionTesting
             notifier.Start();
 
             m_serverDispatcher.StartServer("", "", 9999);
-            Thread.Sleep(2000);
+            Thread.Sleep(5000);
 
             Assert.That(retUid, Is.EqualTo(1));
             Assert.That(retConnected, Is.True);
@@ -283,7 +283,7 @@ namespace NetworkTables.Test.ConnectionTesting
 
             m_serverDispatcher.Stop();
 
-            Thread.Sleep(2000);
+            Thread.Sleep(5000);
 
             Assert.That(retUid, Is.EqualTo(1));
             Assert.That(retConnected, Is.False);
