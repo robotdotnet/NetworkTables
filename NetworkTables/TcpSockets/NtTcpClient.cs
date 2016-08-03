@@ -85,23 +85,34 @@ namespace NetworkTables.TcpSockets
             try
             {
                 m_clientSocket.Connect(ipAddresses, port);
+                //We have connected
+                m_active = true;
+                return true;
             }
             catch (SocketException ex)
             {
                 if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.InProgress)
                 {
+                    DateTime waitUntil = DateTime.UtcNow + TimeSpan.FromSeconds(timeout);
                     try
                     {
-                        if (m_clientSocket.Poll(timeout*1000000, SelectMode.SelectWrite))
+                        while (true)
                         {
-                            // We have connected
-                            m_active = true;
-                            return true;
-                        }
-                        else
-                        {
-                            // We have timed out
-                            Info($"Connect() to {ipAddresses[0]} port {port} timed out");
+                            if (m_clientSocket.Poll(1000, SelectMode.SelectWrite))
+                            {
+                                // We have connected
+                                m_active = true;
+                                return true;
+                            }
+                            else
+                            {
+                                if (DateTime.UtcNow >= waitUntil)
+                                {
+                                    // We have timed out
+                                    Info($"Connect() to {ipAddresses[0]} port {port} timed out");
+                                    break;
+                                }
+                            }
                         }
                     }
                     catch (SocketException ex2)
@@ -111,7 +122,13 @@ namespace NetworkTables.TcpSockets
                 }
                 else
                 {
-                    Error($"Connectr() to {ipAddresses[0]} port {port} error {ex.SocketErrorCode}");
+                    if (ex.SocketErrorCode == SocketError.ConnectionRefused)
+                    {
+                        // A connection refused is an uneceptional case
+                        Info($"Connect() to {ipAddresses[0]} port {port} timed out");
+                        return false;
+                    }
+                    Error($"Connect() to {ipAddresses[0]} port {port} error {ex.SocketErrorCode}");
                 }
 
             }
