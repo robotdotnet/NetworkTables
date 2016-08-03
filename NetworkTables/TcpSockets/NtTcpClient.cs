@@ -145,6 +145,7 @@ namespace NetworkTables.TcpSockets
                         {
                             chkClientSocket.Shutdown(SocketShutdown.Both);
                         }
+                        catch (SocketException) { } // Ignore any socket exception
                         finally
                         {
                             chkClientSocket.Dispose();
