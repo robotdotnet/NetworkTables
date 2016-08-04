@@ -1128,6 +1128,11 @@ namespace NetworkTables
 
         public bool GetRpcResult(bool blocking, long callUid, ref byte[] result)
         {
+            return GetRpcResult(blocking, callUid, Timeout.InfiniteTimeSpan, ref result);
+        }
+
+        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, ref byte[] result)
+        {
             bool lockEntered = false;
             try
             {
@@ -1139,8 +1144,13 @@ namespace NetworkTables
                     if (!m_rpcResults.TryGetValue(pair, out str))
                     {
                         if (!blocking || m_terminating) return false;
-                        m_rpcResultsCond.Wait(m_mutex, ref lockEntered);
-                        if (m_terminating) return false;
+                        bool timedOut = false;
+                        bool pred = m_rpcResultsCond.WaitTimeout(m_mutex, ref lockEntered, timeout, () => m_terminating,
+                            out timedOut);
+                        if (timedOut || pred)
+                        {
+                            return false;
+                        }
                         continue;
                     }
                     result = new byte[str.Length];

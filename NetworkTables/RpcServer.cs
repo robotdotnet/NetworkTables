@@ -91,6 +91,11 @@ namespace NetworkTables
 
         public bool PollRpc(bool blocking, ref RpcCallInfo callInfo)
         {
+            return PollRpc(blocking, Timeout.InfiniteTimeSpan, ref callInfo);
+        }
+
+        public bool PollRpc(bool blocking, TimeSpan timeout, ref RpcCallInfo callInfo)
+        {
             bool lockEntered = false;
             try
             {
@@ -98,7 +103,13 @@ namespace NetworkTables
                 while (m_pollQueue.Count == 0)
                 {
                     if (!blocking || m_terminating) return false;
-                    m_pollCond.Wait(m_mutex, ref lockEntered);
+                    bool timedOut = false;
+                    bool pred = m_pollCond.WaitTimeout(m_mutex, ref lockEntered, timeout, () => m_terminating,
+                        out timedOut);
+                    if (timedOut || pred)
+                    {
+                        return false;
+                    }
                 }
                 var item = m_pollQueue.Peek();
                 uint callUid = (item.ConnId << 16) | item.Msg.SeqNumUid;
@@ -160,7 +171,8 @@ namespace NetworkTables
                         Monitor.Exit(m_mutex);
                         lockEntered = false;
                         var result = item.Func(item.Name, item.Msg.Val.GetRpc());
-                        item.SendResponse(Message.RpcResponse(item.Msg.Id, item.Msg.SeqNumUid, result));
+                        var response = Message.RpcResponse(item.Msg.Id, item.Msg.SeqNumUid, result);
+                        item.SendResponse(response);
                         Monitor.Enter(m_mutex, ref lockEntered);
                     }
                 }

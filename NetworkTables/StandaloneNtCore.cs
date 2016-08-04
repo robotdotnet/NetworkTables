@@ -7,8 +7,10 @@ using NetworkTables.Tables;
 
 namespace NetworkTables
 {
-    public class StandaloneNtCore : IStandaloneTable, IDisposable
+    public class StandaloneNtCore : IStandaloneTable
     {
+        public const int DefaultPort = NetworkTable.DefaultPort;
+
         internal Storage m_storage;
         internal Notifier m_notifier;
         internal Dispatcher m_dispatcher;

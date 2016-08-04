@@ -67,6 +67,15 @@ namespace NetworkTables
 #endif
         }
 
+        public static bool PollRpc(bool blocking, TimeSpan timeout, ref RpcCallInfo callInfo)
+        {
+#if CORE
+            throw new NotImplementedException();
+#else
+            return RpcServer.Instance.PollRpc(blocking, timeout, ref callInfo);
+#endif
+        }
+
         public static bool PollRpc(bool blocking, ref RpcCallInfo callInfo)
         {
 #if CORE
@@ -105,6 +114,15 @@ namespace NetworkTables
             return CallRpc(name, PackRpcValues(param));
 #else
             return Storage.Instance.CallRpc(name, PackRpcValues(param));
+#endif
+        }
+
+        public static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, ref byte[] result)
+        {
+#if CORE
+            throw new NotImplementedException();
+#else
+            return Storage.Instance.GetRpcResult(blocking, callUid, timeout, ref result);
 #endif
         }
 
