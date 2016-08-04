@@ -445,7 +445,7 @@ namespace NetworkTables
                             NetworkConnection c;
                             connWeak.TryGetTarget(out c);
                             if (c != null && !c.Disposed)
-                                c.QueueOutgoing(msg);
+                                c.QueueOutgoing(message);
                         });
                         break;
                     case RpcResponse:
