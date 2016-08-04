@@ -43,8 +43,7 @@ namespace NetworkTables.Extensions
             return true;
         }
 
-        public static bool WaitTimeout(this AutoResetEvent e, object mutex, ref bool lockEntered, TimeSpan timeout, 
-            Func<bool> pred, out bool timedOut)
+        public static bool WaitTimeout(this AutoResetEvent e, object mutex, ref bool lockEntered, TimeSpan timeout)
         {
             //Throw if thread currently doesn't own the lock
             if (!Monitor.IsEntered(mutex))
@@ -53,23 +52,17 @@ namespace NetworkTables.Extensions
             }
             if (timeout < TimeSpan.Zero && timeout != Timeout.InfiniteTimeSpan)
                 timeout = TimeSpan.Zero;
-            //While pred is false.
-            while (!pred())
+            Monitor.Exit(mutex);
+            lockEntered = false;
+            if (!e.WaitOne(timeout))
             {
-                Monitor.Exit(mutex);
-                lockEntered = false;
-                if (!e.WaitOne(timeout))
-                {
-                    //Timed out
-                    Monitor.Enter(mutex, ref lockEntered);
-                    timedOut = true;
-                    return pred();
-                }
+                //Timed out
                 Monitor.Enter(mutex, ref lockEntered);
+                return false;
             }
-            timedOut = false;
+            Monitor.Enter(mutex, ref lockEntered);
             return true;
-        } 
+        }
 
         public static void Wait(this AutoResetEvent e, object mutex, ref bool lockEntered, Func<bool> pred)
         {

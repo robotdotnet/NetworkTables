@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using NetworkTables.Wire;
 #if CORE
 using NetworkTables.Native;
@@ -76,6 +78,15 @@ namespace NetworkTables
 #endif
         }
 
+        public static async Task<RpcCallInfo?> PollRpcAsync(bool blocking, CancellationToken token) 
+        {
+#if CORE
+            throw new NotImplementedException();
+#else
+            return await RpcServer.Instance.PollRpcAsync(token);
+#endif
+        }
+
         public static bool PollRpc(bool blocking, ref RpcCallInfo callInfo)
         {
 #if CORE
@@ -114,6 +125,15 @@ namespace NetworkTables
             return CallRpc(name, PackRpcValues(param));
 #else
             return Storage.Instance.CallRpc(name, PackRpcValues(param));
+#endif
+        }
+
+        public static async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
+        {
+#if CORE
+            throw new NotImplementedException();
+#else
+            return await Storage.Instance.GetRpcResultAsync(callUid, token);
 #endif
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetworkTables
@@ -35,6 +36,16 @@ namespace NetworkTables
             m_ntCore.m_storage.CreatePolledRpc(name, PackRpcDefinition(def));
         }
 
+        public async Task<RpcCallInfo?> PollRpc(CancellationToken token)
+        {
+            return await m_ntCore.m_rpcServer.PollRpcAsync(token);
+        }
+
+        public bool PollRpc(bool blocking, TimeSpan timeout, ref RpcCallInfo callInfo)
+        {
+            return m_ntCore.m_rpcServer.PollRpc(blocking, timeout, ref callInfo);
+        }
+
         public bool PollRpc(bool blocking, ref RpcCallInfo callInfo)
         {
             return m_ntCore.m_rpcServer.PollRpc(blocking, ref callInfo);
@@ -55,6 +66,15 @@ namespace NetworkTables
             return m_ntCore.m_storage.CallRpc(name, PackRpcValues(param));
         }
 
+        public async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
+        {
+            return await m_ntCore.m_storage.GetRpcResultAsync(callUid, token);
+        }
+
+        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timout, ref byte[] result)
+        {
+            return m_ntCore.m_storage.GetRpcResult(blocking, callUid, timout, ref result);
+        }
 
         public bool GetRpcResult(bool blocking, long callUid, ref byte[] result)
         {

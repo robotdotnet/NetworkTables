@@ -1179,10 +1179,8 @@ namespace NetworkTables
                     if (!m_rpcResults.TryGetValue(pair, out str))
                     {
                         if (!blocking || m_terminating) return false;
-                        bool timedOut = false;
-                        bool pred = m_rpcResultsCond.WaitTimeout(m_mutex, ref lockEntered, timeout, () => m_terminating,
-                            out timedOut);
-                        if (timedOut || pred)
+                        bool notTimedOut = m_rpcResultsCond.WaitTimeout(m_mutex, ref lockEntered, timeout);
+                        if (!notTimedOut || m_terminating)
                         {
                             return false;
                         }

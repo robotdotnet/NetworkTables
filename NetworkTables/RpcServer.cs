@@ -138,10 +138,8 @@ namespace NetworkTables
                 while (m_pollQueue.Count == 0)
                 {
                     if (!blocking || m_terminating) return false;
-                    bool timedOut = false;
-                    bool pred = m_pollCond.WaitTimeout(m_mutex, ref lockEntered, timeout, () => m_terminating,
-                        out timedOut);
-                    if (timedOut || pred)
+                    bool notTimedOut = m_pollCond.WaitTimeout(m_mutex, ref lockEntered, timeout);
+                    if (!notTimedOut || m_terminating)
                     {
                         return false;
                     }
