@@ -9,6 +9,7 @@ using System.Threading;
 
 namespace NetworkTables.Test.ConnectionTesting
 {
+    /*
     internal class MockDispatcher : DispatcherBase
     {
         internal MockDispatcher(Storage storage, Notifier notifier)
@@ -27,6 +28,7 @@ namespace NetworkTables.Test.ConnectionTesting
             StartClient(() => TcpConnector.Connect(serverName, port, 1));
         }
     }
+    */
 
     [TestFixture]
     public class ClientServerTest
@@ -34,12 +36,12 @@ namespace NetworkTables.Test.ConnectionTesting
         private RpcServer m_clientRpc;
         private Storage m_clientStorage;
         private Notifier m_clientNotifier;
-        private MockDispatcher m_clientDispatcher;
+        private Dispatcher m_clientDispatcher;
 
         private RpcServer m_serverRpc;
         private Storage m_serverStorage;
         private Notifier m_serverNotifier;
-        private MockDispatcher m_serverDispatcher;
+        private Dispatcher m_serverDispatcher;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -48,7 +50,7 @@ namespace NetworkTables.Test.ConnectionTesting
             m_clientNotifier = new Notifier();
             m_clientStorage = new Storage(m_clientNotifier, m_clientRpc);
             
-            m_clientDispatcher = new MockDispatcher(m_clientStorage, m_clientNotifier);
+            m_clientDispatcher = new Dispatcher(m_clientStorage, m_clientNotifier);
 
             m_clientDispatcher.Identity = "TestClient";
 
@@ -56,7 +58,7 @@ namespace NetworkTables.Test.ConnectionTesting
             m_serverNotifier = new Notifier();
             m_serverStorage = new Storage(m_serverNotifier, m_serverRpc);
 
-            m_serverDispatcher = new MockDispatcher(m_serverStorage, m_serverNotifier);
+            m_serverDispatcher = new Dispatcher(m_serverStorage, m_serverNotifier);
 
             m_serverDispatcher.Identity = "TestServer";
         }

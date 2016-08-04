@@ -16,7 +16,7 @@ namespace NetworkTables
         {
         }
 
-        private Dispatcher(Storage storage, Notifier notifier)
+        public Dispatcher(Storage storage, Notifier notifier)
             : base(storage, notifier)
         {
             

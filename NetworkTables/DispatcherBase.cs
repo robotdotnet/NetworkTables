@@ -60,6 +60,7 @@ namespace NetworkTables
 
         public double UpdateRate
         {
+            get { return m_updateRate; }
             set
             {
                 //Don't allow update rates faster the 100ms or slower then 1 second
@@ -73,6 +74,13 @@ namespace NetworkTables
 
         public string Identity
         {
+            get
+            {
+                lock (m_userMutex)
+                {
+                    return m_identity;
+                }
+            }
             set
             {
                 lock (m_userMutex)
