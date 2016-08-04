@@ -5,8 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using NetworkTables.Extensions;
 using NetworkTables.Logging;
+using Nito.AsyncEx;
 using static NetworkTables.Logging.Logger;
 using static NetworkTables.Message.MsgType;
 using static NetworkTables.RpcServer;
@@ -62,6 +64,7 @@ namespace NetworkTables
             Logger.Instance.SetDefaultLogger();
             m_terminating = true;
             m_rpcResultsCond.Set();
+            m_rpcResultsCondAsync.Set();
         }
 
         internal Storage(Notifier notifier, RpcServer rpcServer)
@@ -103,6 +106,7 @@ namespace NetworkTables
 
         private bool m_terminating = false;
         private readonly AutoResetEvent m_rpcResultsCond = new AutoResetEvent(false);
+        private readonly AsyncAutoResetEvent m_rpcResultsCondAsync = new AsyncAutoResetEvent(false);
 
         private readonly object m_mutex = new object();
 
@@ -453,6 +457,7 @@ namespace NetworkTables
                         if (!msg.Val.IsRpc()) return; //Not an RPC message
                         m_rpcResults.Add(new ImmutablePair<uint, uint>(msg.Id, msg.SeqNumUid), msg.Val.GetRpc());
                         m_rpcResultsCond.Set();
+                        m_rpcResultsCondAsync.Set();
                         break;
                     default:
                         break;
@@ -1107,6 +1112,7 @@ namespace NetworkTables
                         {
                             m_rpcResults.Add(new ImmutablePair<uint, uint>(msg.Id, msg.SeqNumUid), msg.Val.GetRpc());
                             m_rpcResultsCond.Set();
+                            m_rpcResultsCondAsync.Set();
                         }
                     });
                 }
@@ -1119,6 +1125,34 @@ namespace NetworkTables
                 }
                 return combinedUid;
 
+            }
+            finally
+            {
+                if (lockEntered) Monitor.Exit(m_mutex);
+            }
+        }
+
+        public async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
+        {
+            bool lockEntered = false;
+            try
+            {
+                Monitor.Enter(m_mutex, ref lockEntered);
+                byte[] str = null;
+                for (;;)
+                {
+                    var pair = new ImmutablePair<uint, uint>((uint)callUid >> 16, (uint)callUid & 0xffff);
+                    if (!m_rpcResults.TryGetValue(pair, out str))
+                    {
+                        if (m_terminating) return null;
+                        await m_rpcResultsCondAsync.WaitAsync(token);
+                        if (m_terminating) return null;
+                        continue;
+                    }
+                    byte[] result = new byte[str.Length];
+                    Array.Copy(str, result, result.Length);
+                    return result;
+                }
             }
             finally
             {

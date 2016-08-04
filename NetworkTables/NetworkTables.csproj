@@ -118,6 +118,16 @@
     <Compile Include="..\Shared\Wire\WireEncoder.cs">
       <Link>Wire\WireEncoder.cs</Link>
     </Compile>
+    <Compile Include="AsyncEx\AsyncAutoResetEvent.cs" />
+    <Compile Include="AsyncEx\AsyncWaitQueue.cs" />
+    <Compile Include="AsyncEx\Deque.cs" />
+    <Compile Include="AsyncEx\Enlightenment.cs" />
+    <Compile Include="AsyncEx\ExceptionEnlightenment.cs" />
+    <Compile Include="AsyncEx\ExceptionHelpers.cs" />
+    <Compile Include="AsyncEx\IdManager.cs" />
+    <Compile Include="AsyncEx\TaskConstants.cs" />
+    <Compile Include="AsyncEx\TaskExceptions.cs" />
+    <Compile Include="AsyncEx\TaskShim.cs" />
     <Compile Include="Dispatcher.cs" />
     <Compile Include="DispatcherBase.cs" />
     <Compile Include="Extensions\AutoResetEventExtensions.cs" />
@@ -143,7 +153,9 @@
     <Compile Include="TcpSockets\TcpConnector.cs" />
     <Compile Include="TcpSockets\NtTcpListener.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="AsyncEx\License.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

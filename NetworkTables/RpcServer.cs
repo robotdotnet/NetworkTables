@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using NetworkTables.Extensions;
 using NetworkTables.Logging;
+using Nito.AsyncEx;
 using static NetworkTables.Logging.Logger;
 
 namespace NetworkTables
@@ -35,7 +37,9 @@ namespace NetworkTables
         {
             Logger.Instance.SetDefaultLogger();
             m_terminating = true;
+            m_cancellationTokenSource.Cancel();
             m_pollCond.Set();
+            m_pollCondAsync.Set();
         }
 
         public delegate void SendMsgFunc(Message msg);
@@ -86,6 +90,36 @@ namespace NetworkTables
             else
             {
                 m_pollCond.Set();
+                m_pollCondAsync.Set();
+            }
+        }
+
+        public async Task<RpcCallInfo?> PollRpcAsync(CancellationToken token)
+        {
+            bool lockEntered = false;
+            try
+            {
+                Monitor.Enter(m_mutex, ref lockEntered);
+                while (m_pollQueue.Count == 0)
+                {
+                    if (m_terminating) return null;
+                    await m_pollCondAsync.WaitAsync(token);
+                    if (m_terminating) return null;
+                }
+                var item = m_pollQueue.Peek();
+                uint callUid = (item.ConnId << 16) | item.Msg.SeqNumUid;
+                RpcCallInfo callInfo = new RpcCallInfo();
+                callInfo.RpcId = item.Msg.Id;
+                callInfo.CallUid = callUid;
+                callInfo.Name = item.Name;
+                callInfo.Params = item.Msg.Str;
+                m_responseMap.Add(new ImmutablePair<uint, uint>(item.Msg.Id, callUid), item.SendResponse);
+                m_pollQueue.Dequeue();
+                return callInfo;
+            }
+            finally
+            {
+                if (lockEntered) Monitor.Exit(m_mutex);
             }
         }
 
@@ -184,6 +218,7 @@ namespace NetworkTables
         }
 
         private bool m_terminating = false;
+        private CancellationTokenSource m_cancellationTokenSource = new CancellationTokenSource();
 
         private struct RpcCall
         {
@@ -213,5 +248,6 @@ namespace NetworkTables
         private readonly object m_mutex = new object();
         private readonly AutoResetEvent m_callCond = new AutoResetEvent(false);
         private readonly AutoResetEvent m_pollCond = new AutoResetEvent(false);
+        private readonly AsyncAutoResetEvent m_pollCondAsync = new AsyncAutoResetEvent(false);
     }
 }
