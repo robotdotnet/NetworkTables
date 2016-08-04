@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 #if (!CORE)
@@ -171,6 +172,20 @@ namespace NetworkTables.Wire
                     Error = "invalid type when trying to read value";
                     Console.WriteLine("invalid type when trying to read value");
                     return null;
+            }
+        }
+
+        public bool HasMoreBytes(int numBytesToCheck)
+        {
+            try
+            {
+                long length = m_stream.Length;
+                long position = m_stream.Position;
+                return length - position >= numBytesToCheck;
+            }
+            catch (NotImplementedException)
+            {
+                return false;
             }
         }
 

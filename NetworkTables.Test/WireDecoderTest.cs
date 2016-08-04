@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using NetworkTables.Wire;
@@ -276,6 +277,30 @@ namespace NetworkTables.Test
             Assert.That(d.Error, Is.Not.Null);
             d.Reset();
             Assert.That(d.Error, Is.Null);
+        }
+
+        [Test]
+        public void HasMoreBytesSuccess()
+        {
+            int numBytes = 13;
+            byte[] data = new byte[numBytes];
+
+            MemoryStream stream = new MemoryStream(data);
+            WireDecoder d = new WireDecoder(stream, 0x0300);
+
+            Assert.That(d.HasMoreBytes(numBytes), Is.True);
+        }
+
+        [Test]
+        public void HasMoreBytesFailure()
+        {
+            int numBytes = 13;
+            byte[] data = new byte[numBytes - 1];
+
+            MemoryStream stream = new MemoryStream(data);
+            WireDecoder d = new WireDecoder(stream, 0x0300);
+
+            Assert.That(d.HasMoreBytes(numBytes), Is.False);
         }
 
         [Test]
