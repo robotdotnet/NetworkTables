@@ -1146,6 +1146,7 @@ namespace NetworkTables
                     {
                         if (m_terminating) return null;
                         await m_rpcResultsCondAsync.WaitAsync(token);
+                        if (token.IsCancellationRequested) return null;
                         if (m_terminating) return null;
                         continue;
                     }

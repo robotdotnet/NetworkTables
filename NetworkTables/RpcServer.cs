@@ -104,6 +104,7 @@ namespace NetworkTables
                 {
                     if (m_terminating) return null;
                     await m_pollCondAsync.WaitAsync(token);
+                    if (token.IsCancellationRequested) return null;
                     if (m_terminating) return null;
                 }
                 var item = m_pollQueue.Peek();
