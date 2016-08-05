@@ -1145,7 +1145,10 @@ namespace NetworkTables
                     if (!m_rpcResults.TryGetValue(pair, out str))
                     {
                         if (m_terminating) return null;
+                        Monitor.Exit(m_mutex);
+                        lockEntered = false;
                         await m_rpcResultsCondAsync.WaitAsync(token);
+                        Monitor.Enter(m_mutex, ref lockEntered);
                         if (token.IsCancellationRequested) return null;
                         if (m_terminating) return null;
                         continue;

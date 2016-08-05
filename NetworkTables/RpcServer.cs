@@ -103,7 +103,10 @@ namespace NetworkTables
                 while (m_pollQueue.Count == 0)
                 {
                     if (m_terminating) return null;
+                    Monitor.Exit(m_mutex);
+                    lockEntered = false;
                     await m_pollCondAsync.WaitAsync(token);
+                    Monitor.Enter(m_mutex, ref lockEntered);
                     if (token.IsCancellationRequested) return null;
                     if (m_terminating) return null;
                 }
