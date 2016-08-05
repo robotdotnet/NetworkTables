@@ -6,8 +6,8 @@
     <title>FRC $title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>https://github.com/robotdotnet/NetworkTablesCore/blob/master/LICENSE.txt</licenseUrl>
-    <projectUrl>https://github.com/robotdotnet/NetworkTablesCore</projectUrl>
+    <licenseUrl>https://github.com/robotdotnet/NetworkTables/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/robotdotnet/NetworkTables</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <copyright>Copyright 2015-2016</copyright>

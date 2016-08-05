@@ -6,15 +6,15 @@
     <title>FRC NetworkTables Arm Standalone</title>
     <authors>RobotDotNet</authors>
     <owners>RobotDotNet</owners>
-    <licenseUrl>https://github.com/robotdotnet/NetworkTablesCore/blob/master/LICENSE.txt</licenseUrl>
-    <projectUrl>https://github.com/robotdotnet/NetworkTablesCore</projectUrl>
+    <licenseUrl>https://github.com/robotdotnet/NetworkTables/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/robotdotnet/NetworkTables</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>NetworkTables built for Arm devices</description>
     <copyright>Copyright 2015-2016</copyright>
     <tags>WPILib FRC FIRST RoboRIO</tags>
   </metadata>
   <files>
-	<file src="Output\ArmStandalone\NetworkTables.dll" target="lib\" />
-	<file src="Output\ArmStandalone\NetworkTables.xml" target="lib\" />
+	<file src="Output\ArmStandalone\NetworkTables.Core.Arm.dll" target="lib\" />
+	<file src="Output\ArmStandalone\NetworkTables.Core.Arm.xml" target="lib\" />
   </files>
 </package>

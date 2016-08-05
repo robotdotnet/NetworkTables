@@ -1,4 +1,4 @@
-version: 2016.10.0.{build}
+version: 2017.0.1.{build}
 skip_tags: true
 os: Visual Studio 2015
 
@@ -38,9 +38,9 @@ on_success:
 
     ./nuget install EWSoftware.SHFB.NETFramework -Version 4.6 -o sbpackages
 
-     & 'C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe' Sandcastle\SandcastleXmlOnly.shfbproj /property:Configuration=Release
+     & 'C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe' Sandcastle\SandcastleXmlOnly.shfbproj /property:Configuration=Release /v:m
      
-     & 'C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe' Sandcastle\SandcastleXmlOnlyCore.shfbproj /property:Configuration=Release
+     & 'C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe' Sandcastle\SandcastleXmlOnlyCore.shfbproj /property:Configuration=Release /v:m
 
     ./nuget pack "$env:APPVEYOR_BUILD_FOLDER\NetworkTables\NetworkTables.csproj" -Properties "Configuration=Release;Platform=AnyCPU" -Symbols
     

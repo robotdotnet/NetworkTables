@@ -103,7 +103,7 @@
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
-    <PostBuildEvent>xcopy Help\NetworkTables.xml ..\NetworkTables\Output /y</PostBuildEvent>
+    <PostBuildEvent>xcopy Help\NetworkTables.Managed.xml ..\NetworkTables\Output /y</PostBuildEvent>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
 </Project>

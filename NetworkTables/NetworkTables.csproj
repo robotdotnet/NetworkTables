@@ -8,12 +8,12 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NetworkTables</RootNamespace>
-    <AssemblyName>NetworkTables</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <AssemblyName>NetworkTables.Managed</AssemblyName>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,21 +24,23 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <AssemblyName>NetworkTables.Managed</AssemblyName>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Output\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>Output\NetworkTables.XML</DocumentationFile>
+    <DocumentationFile>Output\NetworkTables.Managed.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <NoWarn>
     </NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'CI|AnyCPU'">
+    <AssemblyName>NetworkTables.Managed</AssemblyName>
     <OutputPath>Output\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <DocumentationFile>Output\NetworkTables.XML</DocumentationFile>
+    <DocumentationFile>Output\NetworkTables.Managed.XML</DocumentationFile>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -152,9 +154,6 @@
     <Compile Include="TcpSockets\TcpAcceptor.cs" />
     <Compile Include="TcpSockets\TcpConnector.cs" />
     <Compile Include="TcpSockets\NtTcpListener.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="AsyncEx\License.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
