@@ -2,6 +2,9 @@ version: 2017.0.1.{build}
 skip_tags: true
 os: Visual Studio 2015
 
+init:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'
@@ -54,3 +57,6 @@ on_success:
 
     Get-ChildItem .\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
     }
+    
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
