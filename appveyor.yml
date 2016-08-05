@@ -48,5 +48,9 @@ on_success:
     
     ./nuget pack "$env:APPVEYOR_BUILD_FOLDER\NetworkTablesCore\NetworkTablesCoreArm.nuspec" -Properties "Configuration=ArmStandalone;Platform=AnyCPU" -Version $env:APPVEYOR_BUILD_VERSION
 
+    7z a AllPackages.zip %APPVEYOR_BUILD_FOLDER%\*.nupkg
+
+    Push-AppveyorArtifact AllPackages.zip
+
     Get-ChildItem .\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
     }

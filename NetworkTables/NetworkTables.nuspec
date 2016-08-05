@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>FRC.$id$.Managed</id>
+    <id>FRC.$id$</id>
     <version>$version$</version>
     <title>FRC $title$</title>
     <authors>$author$</authors>
