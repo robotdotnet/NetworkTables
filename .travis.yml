@@ -14,8 +14,8 @@ addons:
 
 install:
   - nuget restore NetworkTables.sln
-  - nuget install NUnit.Console -Version 3.2.1 -OutputDirectory testrunner
+  - nuget install NUnit.Console -Version 3.4.1 -OutputDirectory testrunner
 script:
   - xbuild /p:Configuration=CI NetworkTables.sln
-  - mono ./testrunner/NUnit.ConsoleRunner.3.2.1/tools/nunit3-console.exe ./NetworkTables.Test/Output/NetworkTables.Test.dll -v
-  - mono ./testrunner/NUnit.ConsoleRunner.3.2.1/tools/nunit3-console.exe ./NetworkTablesCore.Test/Output/NetworkTablesCore.Test.dll -v
+  - mono ./testrunner/NUnit.ConsoleRunner.3.4.1/tools/nunit3-console.exe ./NetworkTables.Test/Output/NetworkTables.Test.dll -v
+  - mono ./testrunner/NUnit.ConsoleRunner.3.4.1/tools/nunit3-console.exe ./NetworkTablesCore.Test/Output/NetworkTablesCore.Test.dll -v
