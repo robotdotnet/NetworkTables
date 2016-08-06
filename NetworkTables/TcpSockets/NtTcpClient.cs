@@ -138,7 +138,7 @@ namespace NetworkTables.TcpSockets
                         {
                             // A connection refused is an unexceptional case
                             Info($"Connect() to {ipAddresses[0]} port {port} timed out");
-                            return false;
+                            return true;
                         }
                         Error($"Connect() to {ipAddresses[0]} port {port} error {ex.SocketErrorCode}");
                     }
