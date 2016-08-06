@@ -152,6 +152,7 @@
     <Compile Include="Support\Timestamp.cs" />
     <Compile Include="TcpSockets\IClient.cs" />
     <Compile Include="TcpSockets\INetworkAcceptor.cs" />
+    <Compile Include="TcpSockets\RuntimeDetector.cs" />
     <Compile Include="TcpSockets\NtTcpClient.cs" />
     <Compile Include="TcpSockets\TcpAcceptor.cs" />
     <Compile Include="TcpSockets\TcpConnector.cs" />
