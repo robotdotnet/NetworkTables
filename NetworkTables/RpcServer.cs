@@ -31,7 +31,7 @@ namespace NetworkTables
             }
         }
 
-        public bool Active { get; private set; } = false;
+        public bool Active { get; private set; }
 
         public void Dispose()
         {
@@ -51,9 +51,11 @@ namespace NetworkTables
                 if (Active) return;
                 Active = true;
             }
-            m_thread = new Thread(ThreadMain);
-            m_thread.Name = "Rpc Thread";
-            m_thread.IsBackground = true;
+            m_thread = new Thread(ThreadMain)
+            {
+                Name = "Rpc Thread",
+                IsBackground = true
+            };
             m_thread.Start();
         }
 
@@ -77,6 +79,7 @@ namespace NetworkTables
                 if (func != null)
                     m_callQueue.Enqueue(new RpcCall(name, msg, func, connId, sendResponse));
                 else
+                // ReSharper disable once ExpressionIsAlwaysNull
                     m_pollQueue.Enqueue(new RpcCall(name, msg, func, connId, sendResponse));
             }
             finally
@@ -110,15 +113,11 @@ namespace NetworkTables
                     if (token.IsCancellationRequested) return null;
                     if (m_terminating) return null;
                 }
-                var item = m_pollQueue.Peek();
+                var item = m_pollQueue.Dequeue();
                 uint callUid = (item.ConnId << 16) | item.Msg.SeqNumUid;
-                RpcCallInfo callInfo = new RpcCallInfo();
-                callInfo.RpcId = item.Msg.Id;
-                callInfo.CallUid = callUid;
-                callInfo.Name = item.Name;
-                callInfo.Params = item.Msg.Str;
+                if (!item.Msg.Val.IsRpc()) return null;
+                RpcCallInfo callInfo = new RpcCallInfo(item.Msg.Id, callUid, item.Name, item.Msg.Val.GetRpc());
                 m_responseMap.Add(new ImmutablePair<uint, uint>(item.Msg.Id, callUid), item.SendResponse);
-                m_pollQueue.Dequeue();
                 return callInfo;
             }
             finally
@@ -127,12 +126,12 @@ namespace NetworkTables
             }
         }
 
-        public bool PollRpc(bool blocking, ref RpcCallInfo callInfo)
+        public bool PollRpc(bool blocking, out RpcCallInfo callInfo)
         {
-            return PollRpc(blocking, Timeout.InfiniteTimeSpan, ref callInfo);
+            return PollRpc(blocking, Timeout.InfiniteTimeSpan, out callInfo);
         }
 
-        public bool PollRpc(bool blocking, TimeSpan timeout, ref RpcCallInfo callInfo)
+        public bool PollRpc(bool blocking, TimeSpan timeout, out RpcCallInfo callInfo)
         {
             bool lockEntered = false;
             try
@@ -140,19 +139,26 @@ namespace NetworkTables
                 Monitor.Enter(m_mutex, ref lockEntered);
                 while (m_pollQueue.Count == 0)
                 {
-                    if (!blocking || m_terminating) return false;
+                    if (!blocking || m_terminating)
+                    {
+                        callInfo = default(RpcCallInfo);
+                        return false;
+                    }
                     bool notTimedOut = m_pollCond.WaitTimeout(m_mutex, ref lockEntered, timeout);
                     if (!notTimedOut || m_terminating)
                     {
+                        callInfo = default(RpcCallInfo);
                         return false;
                     }
                 }
-                var item = m_pollQueue.Peek();
+                var item = m_pollQueue.Dequeue();
                 uint callUid = (item.ConnId << 16) | item.Msg.SeqNumUid;
-                callInfo.RpcId = item.Msg.Id;
-                callInfo.CallUid = callUid;
-                callInfo.Name = item.Name;
-                callInfo.Params = item.Msg.Str;
+                if (!item.Msg.Val.IsRpc())
+                {
+                    callInfo = default(RpcCallInfo);
+                    return false;
+                }
+                callInfo = new RpcCallInfo(item.Msg.Id, callUid, item.Name, item.Msg.Val.GetRpc());
                 m_responseMap.Add(new ImmutablePair<uint, uint>(item.Msg.Id, callUid), item.SendResponse);
                 m_pollQueue.Dequeue();
                 return true;
@@ -165,7 +171,7 @@ namespace NetworkTables
 
         public void PostRpcResponse(long rpcId, long callId, params byte[] result)
         {
-            SendMsgFunc func = null;
+            SendMsgFunc func;
             var pair = new ImmutablePair<uint, uint>((uint)rpcId, (uint)callId);
             if (!m_responseMap.TryGetValue(pair, out func))
             {
@@ -219,8 +225,8 @@ namespace NetworkTables
             }
         }
 
-        private bool m_terminating = false;
-        private CancellationTokenSource m_cancellationTokenSource = new CancellationTokenSource();
+        private bool m_terminating;
+        private readonly CancellationTokenSource m_cancellationTokenSource = new CancellationTokenSource();
 
         private struct RpcCall
         {

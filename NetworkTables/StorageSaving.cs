@@ -105,8 +105,6 @@ namespace NetworkTables
                             WriteString(stream, b);
                         }
                         break;
-                    default:
-                        break;
                 }
                 //eol
                 stream.Write('\n');
@@ -220,7 +218,6 @@ namespace NetworkTables
                     //Do nothing if it fails
                 }
                 err = "could not rename temp file to real file";
-                goto done;
             }
 
             done:
@@ -250,7 +247,6 @@ namespace NetworkTables
 
             first = source.Substring(0, pos);
             second = source.Substring(pos);
-            return;
         }
 
         private static bool IsXDigit(char c)
@@ -350,24 +346,18 @@ namespace NetworkTables
 
         public bool LoadPersistent(Stream stream, Action<int, string> warn)
         {
-            string lineStr;
             int lineNum = 1;
 
             List<StoragePair> entries = new List<StoragePair>();
 
-            string name = null, str = null;
-
             List<bool> boolArray = new List<bool>();
             List<double> doubleArray = new List<double>();
             List<string> stringArray = new List<string>();
-            bool tmpBoolean = false;
-            double tmpDouble = 0.0;
             string strTok = null;
-            string[] spl = null;
-            string elemTok = null;
 
             using (StreamReader reader = new StreamReader(stream))
             {
+                string lineStr;
                 while ((lineStr = reader.ReadLine()) != null)
                 {
                     string line = lineStr.Trim();
@@ -393,9 +383,8 @@ namespace NetworkTables
                         continue;
                     }
 
-                    string typeTok;
                     string[] split = line.Split(new[] { ' ' }, 2);
-                    typeTok = split[0];
+                    var typeTok = split[0];
                     line = split[1];
                     NtType type = NtType.Unassigned;
                     if (typeTok == "boolean") type = NtType.Boolean;
@@ -404,9 +393,8 @@ namespace NetworkTables
                     else if (typeTok == "raw") type = NtType.Raw;
                     else if (typeTok == "array")
                     {
-                        string arrayTok;
                         split = line.Split(new[] { ' ' }, 2);
-                        arrayTok = split[0];
+                        var arrayTok = split[0];
                         line = split[1];
                         if (arrayTok == "boolean") type = NtType.BooleanArray;
                         else if (arrayTok == "double") type = NtType.DoubleArray;
@@ -426,6 +414,7 @@ namespace NetworkTables
                         warn?.Invoke(lineNum, "unterminated name string");
                         continue;
                     }
+                    string name;
                     UnescapeString(nameTok, out name);
 
                     line = line.TrimStart('\t');
@@ -437,6 +426,10 @@ namespace NetworkTables
                     line = line.Substring(1).TrimStart(' ', '\t');
 
                     Value value = null;
+                    string str;
+                    bool tmpBoolean;
+                    double tmpDouble;
+                    string[] spl;
                     switch (type)
                     {
                         case NtType.Boolean:
@@ -483,14 +476,7 @@ namespace NetworkTables
                             while (!string.IsNullOrEmpty(line))
                             {
                                 spl = line.Split(new[] { ',' }, 2);
-                                if (spl.Length < 2)
-                                {
-                                    line = string.Empty;
-                                }
-                                else
-                                {
-                                    line = spl[1];
-                                }
+                                line = spl.Length < 2 ? string.Empty : spl[1];
                                 strTok = spl[0].Trim(' ', '\t');
                                 if (strTok == "true")
                                     boolArray.Add(true);
@@ -509,14 +495,7 @@ namespace NetworkTables
                             while (!string.IsNullOrEmpty(line))
                             {
                                 spl = line.Split(new[] { ',' }, 2);
-                                if (spl.Length == 1)
-                                {
-                                    line = string.Empty;
-                                }
-                                else
-                                {
-                                    line = spl[1];
-                                }
+                                line = spl.Length == 1 ? string.Empty : spl[1];
                                 strTok = spl[0].Trim(' ', '\t');
                                 tmpBoolean = double.TryParse(strTok, out tmpDouble);
                                 if (!tmpBoolean)
@@ -532,6 +511,7 @@ namespace NetworkTables
                             stringArray.Clear();
                             while (!string.IsNullOrEmpty(line))
                             {
+                                string elemTok;
                                 ReadStringToken(out elemTok, out line, line);
                                 if (string.IsNullOrEmpty(elemTok))
                                 {
@@ -557,8 +537,6 @@ namespace NetworkTables
                             }
 
                             value = Value.MakeStringArray(stringArray.ToArray());
-                            break;
-                        default:
                             break;
                     }
                     if (name.Length != 0 && value != null)

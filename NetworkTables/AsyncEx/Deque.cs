@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable InconsistentNaming
+// ReSharper disable All
 
 // https://github.com/StephenCleary/AsyncEx/blob/master/Source/Nito.AsyncEx%20(NET45%2C%20Win8%2C%20WP8%2C%20WPA81)/Deque.cs
 // ReSharper disable once CheckNamespace
@@ -88,13 +91,13 @@ namespace Nito
         {
             get
             {
-                CheckExistingIndexArgument(this.Count, index);
+                CheckExistingIndexArgument(Count, index);
                 return DoGetItem(index);
             }
 
             set
             {
-                CheckExistingIndexArgument(this.Count, index);
+                CheckExistingIndexArgument(Count, index);
                 DoSetItem(index, value);
             }
         }
@@ -196,7 +199,7 @@ namespace Nito
             if (array == null)
                 throw new ArgumentNullException("array", "Array is null");
 
-            int count = this.Count;
+            int count = Count;
             CheckRangeArguments(array.Length, arrayIndex, count);
             for (int i = 0; i != count; ++i)
             {
@@ -232,7 +235,7 @@ namespace Nito
         /// </returns>
         public IEnumerator<T> GetEnumerator()
         {
-            int count = this.Count;
+            int count = Count;
             for (int i = 0; i != count; ++i)
             {
                 yield return DoGetItem(i);
@@ -247,7 +250,7 @@ namespace Nito
         /// </returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
 
         #endregion
@@ -629,7 +632,7 @@ namespace Nito
                     buffer[DequeIndexToBufferIndex(writeIndex + j)] = buffer[DequeIndexToBufferIndex(j)];
 
                 // Rotate to the new view
-                this.PreDecrement(collectionCount);
+                PreDecrement(collectionCount);
             }
             else
             {
@@ -664,7 +667,7 @@ namespace Nito
             if (index == 0)
             {
                 // Removing from the beginning: rotate to the new view
-                this.PostIncrement(collectionCount);
+                PostIncrement(collectionCount);
                 Count -= collectionCount;
                 return;
             }
@@ -686,7 +689,7 @@ namespace Nito
                     buffer[DequeIndexToBufferIndex(writeIndex + j)] = buffer[DequeIndexToBufferIndex(j)];
 
                 // Rotate to new view
-                this.PostIncrement(collectionCount);
+                PostIncrement(collectionCount);
             }
             else
             {
@@ -708,9 +711,9 @@ namespace Nito
         /// </summary>
         private void EnsureCapacityForOneElement()
         {
-            if (this.IsFull)
+            if (IsFull)
             {
-                this.Capacity = this.Capacity * 2;
+                Capacity = Capacity * 2;
             }
         }
 
@@ -748,7 +751,7 @@ namespace Nito
             // Overflow-safe check for "this.Count + collectionCount > this.Capacity"
             if (collectionCount > Capacity - Count)
             {
-                this.Capacity = checked(Count + collectionCount);
+                Capacity = checked(Count + collectionCount);
             }
 
             if (collectionCount == 0)
@@ -756,7 +759,7 @@ namespace Nito
                 return;
             }
 
-            this.DoInsertRange(index, collection, collectionCount);
+            DoInsertRange(index, collection, collectionCount);
         }
 
         /// <summary>
@@ -766,6 +769,7 @@ namespace Nito
         /// <param name="count">The number of elements to remove.</param>
         /// <exception cref="ArgumentOutOfRangeException">Either <paramref name="offset"/> or <paramref name="count"/> is less than 0.</exception>
         /// <exception cref="ArgumentException">The range [<paramref name="offset"/>, <paramref name="offset"/> + <paramref name="count"/>) is not within the range [0, <see cref="Count"/>).</exception>
+        // ReSharper disable once ParameterHidesMember
         public void RemoveRange(int offset, int count)
         {
             CheckRangeArguments(Count, offset, count);
@@ -775,7 +779,7 @@ namespace Nito
                 return;
             }
 
-            this.DoRemoveRange(offset, count);
+            DoRemoveRange(offset, count);
         }
 
         /// <summary>
@@ -785,10 +789,10 @@ namespace Nito
         /// <exception cref="InvalidOperationException">The deque is empty.</exception>
         public T RemoveFromBack()
         {
-            if (this.IsEmpty)
+            if (IsEmpty)
                 throw new InvalidOperationException("The deque is empty.");
 
-            return this.DoRemoveFromBack();
+            return DoRemoveFromBack();
         }
 
         /// <summary>
@@ -798,10 +802,10 @@ namespace Nito
         /// <exception cref="InvalidOperationException">The deque is empty.</exception>
         public T RemoveFromFront()
         {
-            if (this.IsEmpty)
+            if (IsEmpty)
                 throw new InvalidOperationException("The deque is empty.");
 
-            return this.DoRemoveFromFront();
+            return DoRemoveFromFront();
         }
 
         /// <summary>
@@ -809,29 +813,19 @@ namespace Nito
         /// </summary>
         public void Clear()
         {
-            this.offset = 0;
-            this.Count = 0;
+            offset = 0;
+            Count = 0;
         }
 
         [DebuggerNonUserCode]
         private sealed class DebugView
         {
-            private readonly Deque<T> deque;
+            // ReSharper disable once NotAccessedField.Local
+            private readonly Deque<T> m_deque;
 
             public DebugView(Deque<T> deque)
             {
-                this.deque = deque;
-            }
-
-            [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-            public T[] Items
-            {
-                get
-                {
-                    var array = new T[deque.Count];
-                    ((ICollection<T>)deque).CopyTo(array, 0);
-                    return array;
-                }
+                m_deque = deque;
             }
         }
     }

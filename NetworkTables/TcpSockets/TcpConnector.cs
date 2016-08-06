@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using NetworkTables.Streams;
 using static NetworkTables.Logging.Logger;
 
 namespace NetworkTables.TcpSockets
@@ -32,7 +31,7 @@ namespace NetworkTables.TcpSockets
 
         public static NtTcpClient Connect(string server, int port, int timeout = 0)
         {
-            IPAddress[] addr = null;
+            IPAddress[] addr;
             if (ResolveHostName(server, out addr) != 0)
             {
                 try

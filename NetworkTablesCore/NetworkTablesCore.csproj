@@ -85,6 +85,9 @@
     <Compile Include="..\Shared\NtCore.cs">
       <Link>NtCore.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\NtIPAddress.cs">
+      <Link>NtIPAddress.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\NtType.cs">
       <Link>NtType.cs</Link>
     </Compile>

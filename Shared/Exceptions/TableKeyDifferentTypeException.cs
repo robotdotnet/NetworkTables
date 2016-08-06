@@ -8,10 +8,22 @@ namespace NetworkTables.Exceptions
     /// </summary>
     public class TableKeyDifferentTypeException : InvalidOperationException
     {
+        /// <summary>
+        /// Gets the key that was requested
+        /// </summary>
         public string RequestedKey { get; }
+        /// <summary>
+        /// Gets the type that was requested
+        /// </summary>
         public NtType RequestedType { get; }
+        /// <summary>
+        /// Gets the type that actually exists in the table or value
+        /// </summary>
         public NtType TypeInTable { get; }
 
+        /// <summary>
+        /// Gets if the exception was thrown during a <see cref="Value"/> Get() method.
+        /// </summary>
         public bool ThrownByValueGet { get; }
 
         /// <summary>
@@ -29,6 +41,11 @@ namespace NetworkTables.Exceptions
             ThrownByValueGet = false;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="TableKeyDifferentTypeException"/> during a <see cref="Value"/> error
+        /// </summary>
+        /// <param name="requested">The type requested.</param>
+        /// <param name="typeInTable">The type actually in the value.</param>
         public TableKeyDifferentTypeException(NtType requested, NtType typeInTable)
             : base($"Requested Type {requested} does not match actual Type {typeInTable}.")
         {

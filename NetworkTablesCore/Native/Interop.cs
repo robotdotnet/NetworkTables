@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 // ReSharper disable InconsistentNaming
@@ -22,16 +21,16 @@ namespace NetworkTables.Native
         private static readonly IntPtr s_library;
         private static readonly ILibraryLoader s_loader;
         private static readonly OsType s_osType;
-        private static string s_libraryLocation = null;
-        private static bool s_useCommandLineFile = false;
+        private static readonly string s_libraryLocation;
+        private static readonly bool s_useCommandLineFile;
         // ReSharper restore PrivateFieldCanBeConvertedToLocalVariable
-        private static bool s_runFinalizer = false;
+        private static readonly bool s_runFinalizer;
 
         // private constructor. Only used for our unload finalizer
         private Interop() { }
         private void Ping() { } // Used to force compilation
         // static variable used only for interop purposes
-        private static Interop finalizeInterop = new Interop();
+        private static readonly Interop finalizeInterop = new Interop();
         ~Interop()
         {
             // If we did not successfully get constructed, we don't need to destruct
@@ -353,7 +352,7 @@ namespace NetworkTables.Native
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_CreatePolledRpcDelegate(byte[] name, UIntPtr name_len, byte[] def, UIntPtr def_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_PollRpcDelegate(int blocking, ref NtRpcCallInfo call_info);
+        internal delegate int NT_PollRpcDelegate(int blocking, out NtRpcCallInfo call_info);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_PostRpcResponseDelegate(uint rpc_id, uint call_uid, byte[] result, UIntPtr result_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

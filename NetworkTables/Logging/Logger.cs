@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+// ReSharper disable ExplicitCallerInfoArgument
 
 namespace NetworkTables.Logging
 {
@@ -48,7 +48,7 @@ namespace NetworkTables.Logging
                 Console.Error.WriteLine($"NT: {msg}");
             }
 
-            string levelmsg = "";
+            string levelmsg;
             if (level >= LogLevel.LogCritical)
                 levelmsg = "CRITICAL";
             else if (level >= LogLevel.LogError)
@@ -62,12 +62,13 @@ namespace NetworkTables.Logging
         }
 
 
+        // ReSharper disable once UnusedParameter.Global
         public static void Log(LogLevel level, string msg, [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
             do
             {
-                Logger logger = Logger.Instance;
+                Logger logger = Instance;
                 if (logger.MinLevel <= level && logger.HasLogger())
                 {
                     logger.Log(level, filePath, lineNumber, msg);

@@ -9,7 +9,7 @@ namespace NetworkTablesCore.Test
         [SetUp]
         public void SetUp()
         {
-            TestBase.DeleteAllWithPersistent();
+            DeleteAllWithPersistent();
         }
 
         [Test]

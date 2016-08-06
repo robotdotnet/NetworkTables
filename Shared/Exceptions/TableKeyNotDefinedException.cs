@@ -8,6 +8,9 @@ namespace NetworkTables.Exceptions
     /// </summary>
     public class TableKeyNotDefinedException : InvalidOperationException
     {
+        /// <summary>
+        /// Gets the key that is not defined
+        /// </summary>
         public string Key { get; }
 
         /// <summary>

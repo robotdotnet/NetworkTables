@@ -1,33 +1,60 @@
+using System;
+using System.Collections.Generic;
+
 namespace NetworkTables
 {
-    /// <summary>
-    /// Creates an Immutable pair as a struct
-    /// </summary>
-    /// <typeparam name="T">The first type of the pair</typeparam>
-    /// <typeparam name="U">The second type of the pair</typeparam>
-    public struct ImmutablePair<T,U>
+    internal struct ImmutablePair<T, T2> : IEquatable<ImmutablePair<T, T2>>
     {
-        public T First { get; }
-        public U Second { get; }
+        public bool Equals(ImmutablePair<T, T2> other)
+        {
+            return EqualityComparer<T>.Default.Equals(First, other.First) && EqualityComparer<T2>.Default.Equals(Second, other.Second);
+        }
 
-        public ImmutablePair(T f, U s)
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            return obj is ImmutablePair<T, T2> && Equals((ImmutablePair<T, T2>)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (EqualityComparer<T>.Default.GetHashCode(First) * 397) ^ EqualityComparer<T2>.Default.GetHashCode(Second);
+            }
+        }
+
+        public static bool operator ==(ImmutablePair<T, T2> left, ImmutablePair<T, T2> right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ImmutablePair<T, T2> left, ImmutablePair<T, T2> right)
+        {
+            return !left.Equals(right);
+        }
+
+        public T First { get; }
+        public T2 Second { get; }
+
+        public ImmutablePair(T f, T2 s)
         {
             First = f;
             Second = s;
         }
     }
 
-    public struct MutablePair<T, U>
+    internal struct MutablePair<T, T2>
     {
         public T First { get; private set; }
-        public U Second { get; private set; }
+        public T2 Second { get; private set; }
 
         public void SetFirst(T first)
         {
             First = first;
         }
 
-        public void SetSecond(U second)
+        public void SetSecond(T2 second)
         {
             Second = second;
         }

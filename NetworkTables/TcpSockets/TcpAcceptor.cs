@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using NetworkTables.Streams;
 using static NetworkTables.Logging.Logger;
 
 namespace NetworkTables.TcpSockets
@@ -12,8 +11,8 @@ namespace NetworkTables.TcpSockets
         private readonly int m_port;
         private readonly string m_address;
 
-        private bool m_shutdown = false;
-        private bool m_listening = false;
+        private bool m_shutdown;
+        private bool m_listening;
 
         public TcpAcceptor(int port, string address)
         {
@@ -33,15 +32,7 @@ namespace NetworkTables.TcpSockets
         {
             if (m_listening) return 0;
 
-            IPAddress address = null;
-            if (!string.IsNullOrEmpty(m_address))
-            {
-                address = IPAddress.Parse(m_address);
-            }
-            else
-            {
-                address = IPAddress.Any;
-            }
+            var address = !string.IsNullOrEmpty(m_address) ? IPAddress.Parse(m_address) : IPAddress.Any;
 
             m_server = new NtTcpListener(address, m_port);
 
@@ -64,15 +55,7 @@ namespace NetworkTables.TcpSockets
             m_shutdown = true;
 
             //Force wakeup with non-blocking connect to ourselves
-            IPAddress address = null;
-            if (!string.IsNullOrEmpty(m_address))
-            {
-                address = IPAddress.Parse(m_address);
-            }
-            else
-            {
-                address = IPAddress.Loopback;
-            }
+            var address = !string.IsNullOrEmpty(m_address) ? IPAddress.Parse(m_address) : IPAddress.Loopback;
 
             Socket connectSocket;
             try

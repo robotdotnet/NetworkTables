@@ -512,18 +512,18 @@ namespace NetworkTables.Native
             Interop.NT_StartClient(serverNamePtr, port);
         }
 
-        internal static void StartClient(IList<ImmutablePair<string,int>> servers)
+        internal static void StartClient(IList<NtIPAddress> servers)
         {
             uint[] uPorts = new uint[servers.Count];
             for (int i = 0; i < uPorts.Length; i++)
             {
-                uPorts[i] = (uint) servers[i].Second;
+                uPorts[i] = (uint) servers[i].Port;
             }
             IntPtr[] serv = new IntPtr[servers.Count];
-            UIntPtr len = UIntPtr.Zero;
+            UIntPtr len;
             for (int i = 0; i < serv.Length; i++)
             {
-                serv[i] = CreateUTF8StringPointer(servers[i].First, out len);
+                serv[i] = CreateUTF8StringPointer(servers[i].IpAddress, out len);
             }
             len = (UIntPtr) servers.Count;
             Interop.NT_StartClientMulti(len, serv, uPorts);
@@ -533,12 +533,12 @@ namespace NetworkTables.Native
             }
         }
 
-        internal static void StartServer(string fileName, string listenAddress, uint port)
+        internal static void StartServer(string fileName, string listenAddress, int port)
         {
             UIntPtr size;
             var fileNamePtr = string.IsNullOrEmpty(fileName) ? new[] { (byte)0 } : CreateUTF8String(fileName, out size);
             var listenAddressPtr = string.IsNullOrEmpty(fileName) ? new[] { (byte)0 } : CreateUTF8String(listenAddress, out size);
-            Interop.NT_StartServer(fileNamePtr, listenAddressPtr, port);
+            Interop.NT_StartServer(fileNamePtr, listenAddressPtr, (uint)port);
         }
 
         internal static void StopClient()

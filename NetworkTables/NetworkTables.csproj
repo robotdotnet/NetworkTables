@@ -84,6 +84,9 @@
     <Compile Include="..\Shared\NtCore.cs">
       <Link>NtCore.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\NtIPAddress.cs">
+      <Link>NtIPAddress.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\NtType.cs">
       <Link>NtType.cs</Link>
     </Compile>
@@ -147,7 +150,6 @@
     <Compile Include="StorageSaving.cs" />
     <Compile Include="Streams\StreamExtensions.cs" />
     <Compile Include="Support\Timestamp.cs" />
-    <Compile Include="Tables\IStandaloneTable.cs" />
     <Compile Include="TcpSockets\IClient.cs" />
     <Compile Include="TcpSockets\INetworkAcceptor.cs" />
     <Compile Include="TcpSockets\NtTcpClient.cs" />

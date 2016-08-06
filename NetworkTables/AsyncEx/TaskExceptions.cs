@@ -9,7 +9,7 @@ namespace Nito.AsyncEx.Synchronous
     /// <summary>
     /// Provides synchronous extension methods for tasks.
     /// </summary>
-    public static class TaskExtensions
+    internal static class TaskExtensions
     {
         /// <summary>
         /// Waits for the task to complete, unwrapping any exceptions.

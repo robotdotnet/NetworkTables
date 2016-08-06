@@ -232,6 +232,7 @@ namespace NetworkTables.Test.ConnectionTesting
             bool retConnected = false;
             ConnectionInfo retInfo = default(ConnectionInfo);
 
+            // ReSharper disable once UnusedVariable
             int uid = notifier.AddConnectionListener((id, connected, connInfo) =>
             {
                 retUid = id;

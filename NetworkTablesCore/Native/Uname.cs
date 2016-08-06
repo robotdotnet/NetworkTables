@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+// ReSharper disable InconsistentNaming
 
 namespace NetworkTables.Native
 {
@@ -16,9 +17,11 @@ namespace NetworkTables.Native
 
         public override int GetHashCode()
         {
+            // ReSharper disable NonReadonlyMemberInGetHashCode
             return sysname.GetHashCode() ^ nodename.GetHashCode() ^
                 release.GetHashCode() ^ version.GetHashCode() ^
                 machine.GetHashCode() ^ domainname.GetHashCode();
+            // ReSharper restore NonReadonlyMemberInGetHashCode
         }
 
         public override bool Equals(object obj)
@@ -75,12 +78,12 @@ namespace NetworkTables.Native
             {
                 to = new Utsname
                 {
-                    sysname = Marshal.PtrToStringAnsi(@from.sysname),
-                    nodename = Marshal.PtrToStringAnsi(@from.nodename),
-                    release = Marshal.PtrToStringAnsi(@from.release),
-                    version = Marshal.PtrToStringAnsi(@from.version),
-                    machine = Marshal.PtrToStringAnsi(@from.machine),
-                    domainname = Marshal.PtrToStringAnsi(@from.domainname)
+                    sysname = Marshal.PtrToStringAnsi(from.sysname),
+                    nodename = Marshal.PtrToStringAnsi(from.nodename),
+                    release = Marshal.PtrToStringAnsi(from.release),
+                    version = Marshal.PtrToStringAnsi(from.version),
+                    machine = Marshal.PtrToStringAnsi(from.machine),
+                    domainname = Marshal.PtrToStringAnsi(from.domainname)
                 };
             }
             finally

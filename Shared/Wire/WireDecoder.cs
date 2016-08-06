@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
+
 #if (!CORE)
 using NetworkTables.Streams;
 #endif
@@ -13,9 +11,12 @@ using NetworkTables.Streams;
 
 namespace NetworkTables.Wire
 {
+    /// <summary>
+    /// Utility class that can be used to read values from a byte array
+    /// </summary>
     public class WireDecoder
     {
-        public static double ReadDouble(byte[] buf, int count)
+        internal static double ReadDouble(byte[] buf, int count)
         {
             return BitConverter.Int64BitsToDouble(IPAddress.NetworkToHostOrder(BitConverter.ToInt64(buf, count * 8)));
         }
@@ -24,11 +25,22 @@ namespace NetworkTables.Wire
         private byte[] m_buffer;
         private int m_allocated;
 
+        /// <summary>
+        /// Gets the error currently set by the decoder
+        /// </summary>
         public string Error { get; internal set; }
 
-        public uint ProtoRev { get; set; }
+        /// <summary>
+        /// Gets or sets the protocol revision of NetworkTables
+        /// </summary>
+        public int ProtoRev { get; set; }
 
-        public WireDecoder(Stream istream, uint protoRev)
+        /// <summary>
+        /// Creates a new <see cref="WireDecoder"/>
+        /// </summary>
+        /// <param name="istream">The <see cref="Stream">Input Stream</see> to read from</param>
+        /// <param name="protoRev">The protocol revision for the decoder</param>
+        public WireDecoder(Stream istream, int protoRev)
         {
             m_allocated = 1024;
             m_buffer = new byte[m_allocated];
@@ -37,6 +49,9 @@ namespace NetworkTables.Wire
             ProtoRev = protoRev;
         }
 
+        /// <summary>
+        /// Resets the wire decoder
+        /// </summary>
         public void Reset()
         {
             Error = null;
@@ -53,6 +68,12 @@ namespace NetworkTables.Wire
             m_allocated = newLen;
         }
 
+        /// <summary>
+        /// Reads a specific number of bytes from teh buffer
+        /// </summary>
+        /// <param name="buf">The buffer to output to.</param>
+        /// <param name="len">The length of data to read</param>
+        /// <returns>True if the bytes were read, otherwise false</returns>
         public bool Read(out byte[] buf, int len)
         {
             if (len == 0)
@@ -71,6 +92,11 @@ namespace NetworkTables.Wire
             return rv != 0;
         }
 
+        /// <summary>
+        /// Read the next <see cref="NtType"/> that is waiting in the buffer
+        /// </summary>
+        /// <param name="type">The <see cref="NtType"/> that is next in the buffer</param>
+        /// <returns>True if the type was read, else false</returns>
         public bool ReadType(ref NtType type)
         {
             byte itype = 0;
@@ -109,6 +135,11 @@ namespace NetworkTables.Wire
             return true;
         }
 
+        /// <summary>
+        /// Read the next <see cref="Value"/> that is waiting in the buffer
+        /// </summary>
+        /// <param name="type">The <see cref="NtType"/> the <see cref="Value"/> should be</param>
+        /// <returns>True if the value was read, otherwise false</returns>
         public Value ReadValue(NtType type)
         {
             byte size = 0;
@@ -175,6 +206,12 @@ namespace NetworkTables.Wire
             }
         }
 
+        /// <summary>
+        /// Checks to see if a specific number of bytes exists in the buffer
+        /// </summary>
+        /// <param name="numBytesToCheck">The number of bytes to check</param>
+        /// <returns>True if the number of requested bytes exists in the array</returns>
+        /// <remarks>Note that using a <see cref="NetworkStream"/> will always result in false.</remarks>
         public bool HasMoreBytes(int numBytesToCheck)
         {
             try
@@ -189,11 +226,21 @@ namespace NetworkTables.Wire
             }
         }
 
+        /// <summary>
+        /// Read a Uleb128 length from the buffer.
+        /// </summary>
+        /// <param name="val">The length read</param>
+        /// <returns>True if the length was read</returns>
         public bool ReadUleb128(out ulong val)
         {
             return Leb128.ReadUleb128(m_stream, out val);
         }
 
+        /// <summary>
+        /// Reads a byte from the buffer
+        /// </summary>
+        /// <param name="val">The byte read</param>
+        /// <returns>True if the byte was read</returns>
         public bool Read8(ref byte val)
         {
             byte[] buf;
@@ -202,6 +249,11 @@ namespace NetworkTables.Wire
             return true;
         }
 
+        /// <summary>
+        /// Reads a ushort from the buffer
+        /// </summary>
+        /// <param name="val">The ushort read</param>
+        /// <returns>True if the ushort was read</returns>
         public bool Read16(ref ushort val)
         {
             byte[] buf;
@@ -210,6 +262,11 @@ namespace NetworkTables.Wire
             return true;
         }
 
+        /// <summary>
+        /// Reads a uint from the buffer
+        /// </summary>
+        /// <param name="val">The uint read</param>
+        /// <returns>True if the uint was read</returns>
         public bool Read32(ref uint val)
         {
             byte[] buf;
@@ -218,6 +275,11 @@ namespace NetworkTables.Wire
             return true;
         }
 
+        /// <summary>
+        /// Reads a double from the buffer
+        /// </summary>
+        /// <param name="val">The double read</param>
+        /// <returns>True if the double was read</returns>
         public bool ReadDouble(ref double val)
         {
             byte[] buf;
@@ -226,6 +288,11 @@ namespace NetworkTables.Wire
             return true;
         }
 
+        /// <summary>
+        /// Reads a string from the buffer
+        /// </summary>
+        /// <param name="val">The string read</param>
+        /// <returns>True if the string was read</returns>
         public bool ReadString(ref string val)
         {
             int len;
@@ -237,7 +304,7 @@ namespace NetworkTables.Wire
             }
             else
             {
-                ulong v = 0;
+                ulong v;
                 if (!ReadUleb128(out v)) return false;
                 len = (int)v;
             }
@@ -247,6 +314,11 @@ namespace NetworkTables.Wire
             return true;
         }
 
+        /// <summary>
+        /// Reads a raw byte array from the buffer
+        /// </summary>
+        /// <param name="val">The raw array read</param>
+        /// <returns>True if the raw array was read</returns>
         public bool ReadRaw(ref byte[] val)
         {
             ulong v;

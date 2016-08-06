@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using NetworkTables.Exceptions;
 #if CORE
 using NetworkTables.Native;
 using static NetworkTables.Native.CoreMethods;
+#else
+using static NetworkTables.NtCore;
 #endif
 using NetworkTables.Tables;
-using static NetworkTables.NtCore;
+
 
 
 namespace NetworkTables
@@ -88,7 +89,7 @@ namespace NetworkTables
         /// <summary>The default port NetworkTables listens on.</summary>
         public const int DefaultPort = 1735;
 
-        private static object s_lockObject = new object();
+        private static readonly object s_lockObject = new object();
 
         /// <summary>
         /// The default file name used for Persistent Storage.
@@ -136,9 +137,9 @@ namespace NetworkTables
                     Shutdown();
                 if (Client)
                 {
-                    List<ImmutablePair<string, int>> servers = new List<ImmutablePair<string, int>>(s_ipAddresses.Length);
-                    servers.AddRange(s_ipAddresses.Select(ipAddress => new ImmutablePair<string, int>(ipAddress, Port)));
-                    NtCore.StartClient(servers);
+                    List<NtIPAddress> servers = new List<NtIPAddress>(s_ipAddresses.Length);
+                    servers.AddRange(s_ipAddresses.Select(ipAddress => new NtIPAddress(ipAddress, Port)));
+                    StartClient(servers);
                 }
                 else
                 {
@@ -159,11 +160,11 @@ namespace NetworkTables
                     return;
                 if (Client)
                 {
-                    NtCore.StopClient();
+                    StopClient();
                 }
                 else
                 {
-                    NtCore.StopServer();
+                    StopServer();
                 }
                 Running = false;
             }
@@ -335,7 +336,7 @@ namespace NetworkTables
         /// <returns>True if the table contains the sub-table, otherwise false</returns>
         public bool ContainsSubTable(string key)
         {
-            return NtCore.GetEntryInfo(m_path + PathSeperatorChar + key + PathSeperatorChar, 0).Count != 0;
+            return GetEntryInfo(m_path + PathSeperatorChar + key + PathSeperatorChar, 0).Count != 0;
         }
 
         /// <summary>
@@ -347,7 +348,7 @@ namespace NetworkTables
         {
             HashSet<string> keys = new HashSet<string>();
             int prefixLen = m_path.Length + 1;
-            foreach (EntryInfo entry in NtCore.GetEntryInfo(m_path + PathSeperatorChar, types))
+            foreach (EntryInfo entry in GetEntryInfo(m_path + PathSeperatorChar, types))
             {
                 string relativeKey = entry.Name.Substring(prefixLen);
                 if (relativeKey.IndexOf(PathSeperatorChar) != -1)
@@ -374,7 +375,7 @@ namespace NetworkTables
         {
             HashSet<string> keys = new HashSet<string>();
             int prefixLen = m_path.Length + 1;
-            foreach (EntryInfo entry in NtCore.GetEntryInfo(m_path + PathSeperatorChar, 0))
+            foreach (EntryInfo entry in GetEntryInfo(m_path + PathSeperatorChar, 0))
             {
                 string relativeKey = entry.Name.Substring(prefixLen);
                 int endSubTable = relativeKey.IndexOf(PathSeperatorChar);
@@ -431,7 +432,7 @@ namespace NetworkTables
         /// <param name="flags">The flags to set. (Bitmask)</param>
         public void SetFlags(string key, EntryFlags flags)
         {
-            NtCore.SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) | flags);
+            SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) | flags);
         }
 
         /// <summary>
@@ -441,7 +442,7 @@ namespace NetworkTables
         /// <param name="flags">The flags to clear. (Bitmask)</param>
         public void ClearFlags(string key, EntryFlags flags)
         {
-            NtCore.SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) & ~flags);
+            SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) & ~flags);
         }
 
         /// <summary>
@@ -451,7 +452,7 @@ namespace NetworkTables
         /// <returns>The flags attached to the key.</returns>
         public EntryFlags GetFlags(string key)
         {
-            return NtCore.GetEntryFlags(m_path + PathSeperatorChar + key);
+            return GetEntryFlags(m_path + PathSeperatorChar + key);
         }
 
         /// <summary>
@@ -460,7 +461,7 @@ namespace NetworkTables
         /// <param name="key">The key name.</param>
         public void Delete(string key)
         {
-            NtCore.DeleteEntry(m_path + PathSeperatorChar + key);
+            DeleteEntry(m_path + PathSeperatorChar + key);
         }
 
         /// <summary>
@@ -468,7 +469,7 @@ namespace NetworkTables
         /// </summary>
         public static void GlobalDeleteAll()
         {
-            NtCore.DeleteAllEntries();
+            DeleteAllEntries();
         }
 
         /// <summary>
@@ -674,7 +675,7 @@ namespace NetworkTables
             }
 #endif
         }
-
+#if !CORE
         private void ThrowException(string name, Value v, NtType requestedType)
         {
             if (v == null || v.Type == NtType.Unassigned)
@@ -686,6 +687,7 @@ namespace NetworkTables
                 throw new TableKeyDifferentTypeException(name, requestedType, v.Type);
             }
         }
+#endif
 
         ///<inheritdoc/>
         public bool PutNumber(string key, double value)
@@ -719,6 +721,7 @@ namespace NetworkTables
             var v = GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.Double)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.Double);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetDouble();
 #endif
         }
@@ -755,6 +758,7 @@ namespace NetworkTables
             var v = GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.String)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.String);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetString();
 #endif
         }
@@ -791,6 +795,7 @@ namespace NetworkTables
             var v = GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.Boolean)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.Boolean);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetBoolean();
 #endif
         }
@@ -815,6 +820,7 @@ namespace NetworkTables
             var v = GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.StringArray)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.StringArray);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetStringArray();
 #endif
         }
@@ -851,6 +857,7 @@ namespace NetworkTables
             var v = GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.DoubleArray)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.DoubleArray);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetDoubleArray();
 #endif
         }
@@ -887,6 +894,7 @@ namespace NetworkTables
             var v = GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.BooleanArray)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.BooleanArray);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetBooleanArray();
 #endif
         }
@@ -910,6 +918,7 @@ namespace NetworkTables
             var v = GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.Raw)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.Raw);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetRaw();
 #endif
         }
@@ -962,7 +971,7 @@ namespace NetworkTables
                 listener.ValueChanged(this, relativeKey, value, flags_);
             };
 
-            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
             adapters.Add(id);
         }
@@ -985,7 +994,7 @@ namespace NetworkTables
                 listener.ValueChanged(this, key, value, flags_);
             };
 
-            int id = NtCore.AddEntryListener(fullKey, func, flags);
+            int id = AddEntryListener(fullKey, func, flags);
 
             adapters.Add(id);
         }
@@ -1016,7 +1025,7 @@ namespace NetworkTables
             NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
             if (localNotify)
                 flags |= NotifyFlags.NotifyLocal;
-            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
             adapters.Add(id);
         }
@@ -1053,7 +1062,7 @@ namespace NetworkTables
             {
                 foreach (int t in adapters)
                 {
-                    NtCore.RemoveEntryListener(t);
+                    RemoveEntryListener(t);
                 }
                 adapters.Clear();
             }
@@ -1081,7 +1090,7 @@ namespace NetworkTables
                 listenerDelegate(this, relativeKey, value, flags_);
             };
 
-            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
             adapters.Add(id);
         }
@@ -1104,7 +1113,7 @@ namespace NetworkTables
                 listenerDelegate(this, key, value, flags_);
             };
 
-            int id = NtCore.AddEntryListener(fullKey, func, flags);
+            int id = AddEntryListener(fullKey, func, flags);
 
             adapters.Add(id);
         }
@@ -1135,7 +1144,7 @@ namespace NetworkTables
             NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
             if (localNotify)
                 flags |= NotifyFlags.NotifyLocal;
-            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
             adapters.Add(id);
         }
@@ -1172,7 +1181,7 @@ namespace NetworkTables
             {
                 foreach (int t in adapters)
                 {
-                    NtCore.RemoveEntryListener(t);
+                    RemoveEntryListener(t);
                 }
                 adapters.Clear();
             }
@@ -1246,7 +1255,7 @@ namespace NetworkTables
         {
             get
             {
-                var conns = NtCore.GetConnections();
+                var conns = GetConnections();
                 return conns.Count > 0;
             }
         }
@@ -1262,7 +1271,7 @@ namespace NetworkTables
         /// <returns>An array of all connections attached to this instance.</returns>
         public static List<ConnectionInfo> Connections()
         {
-            return NtCore.GetConnections();
+            return GetConnections();
         }
 
         /// <summary>

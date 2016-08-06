@@ -8,7 +8,7 @@ namespace Nito.AsyncEx
     /// <summary>
     /// Provides helper (non-extension) methods dealing with exceptions.
     /// </summary>
-    public static class ExceptionHelpers
+    internal static class ExceptionHelpers
     {
         /// <summary>
         /// Attempts to prepare the exception for re-throwing by preserving the stack trace. The returned exception should be immediately thrown.

@@ -4,8 +4,9 @@
 // ReSharper disable once CheckNamespace
 namespace Nito.AsyncEx.Internal.PlatformEnlightenment
 {
-    public static class ExceptionEnlightenment
+    internal static class ExceptionEnlightenment
     {
+        // ReSharper disable once UnusedParameter.Global
         public static Exception PrepareForRethrow(Exception exception)
         {
             throw Enlightenment.Exception();

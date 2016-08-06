@@ -178,17 +178,17 @@ namespace NetworkTablesCore.Test
         {
             WireEncoder e = new WireEncoder(0x0200);
             e.WriteType(NtType.Unassigned);
-            Assert.That(e.Size(), Is.EqualTo(0));
+            Assert.That(e.Count, Is.EqualTo(0));
             Assert.That(e.Error, Is.EqualTo("unrecognized Type"));
 
             e.Reset();
             e.WriteType(NtType.Raw);
-            Assert.That(e.Size(), Is.EqualTo(0));
+            Assert.That(e.Count, Is.EqualTo(0));
             Assert.That(e.Error, Is.EqualTo("raw type not supported in protocol < 3.0"));
 
             e.Reset();
             e.WriteType(NtType.Rpc);
-            Assert.That(e.Size(), Is.EqualTo(0));
+            Assert.That(e.Count, Is.EqualTo(0));
             Assert.That(e.Error, Is.EqualTo("RPC type not supported in protocol < 3.0"));
         }
 
@@ -410,12 +410,12 @@ namespace NetworkTablesCore.Test
 
             e.Reset();
             e.WriteValue(v_raw);
-            Assert.That(e.Size(), Is.EqualTo(0));
+            Assert.That(e.Count, Is.EqualTo(0));
             Assert.That(e.Error, Is.Not.Null);
 
             e.Reset();
             e.WriteValue(v_rpc);
-            Assert.That(e.Size(), Is.EqualTo(0));
+            Assert.That(e.Count, Is.EqualTo(0));
             Assert.That(e.Error, Is.Not.Null);
         }
 

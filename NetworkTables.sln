@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkTables", "NetworkTables\NetworkTables.csproj", "{6711EFB4-3FD9-45E5-B98E-BE6D5A480245}"
 EndProject
@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{34CFC6
 		Shared\Enumerations.cs = Shared\Enumerations.cs
 		Shared\NetworkTable.cs = Shared\NetworkTable.cs
 		Shared\NtCore.cs = Shared\NtCore.cs
+		Shared\NtIPAddress.cs = Shared\NtIPAddress.cs
 		Shared\NtType.cs = Shared\NtType.cs
 		Shared\RemoteProcedureCall.cs = Shared\RemoteProcedureCall.cs
 		Shared\RpcStructs.cs = Shared\RpcStructs.cs

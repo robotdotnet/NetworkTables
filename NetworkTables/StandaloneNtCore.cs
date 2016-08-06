@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using NetworkTables.Exceptions;
 using NetworkTables.Logging;
-using NetworkTables.Tables;
 
 namespace NetworkTables
 {
-    public class StandaloneNtCore : IStandaloneTable
+    public class StandaloneNtCore
     {
         public const int DefaultPort = NetworkTable.DefaultPort;
 
-        internal Storage m_storage;
-        internal Notifier m_notifier;
-        internal Dispatcher m_dispatcher;
-        internal RpcServer m_rpcServer;
+        internal readonly Storage m_storage;
+        internal readonly Notifier m_notifier;
+        internal readonly Dispatcher m_dispatcher;
+        internal readonly RpcServer m_rpcServer;
 
         private readonly object m_lockObject = new object();
 
@@ -146,8 +145,8 @@ namespace NetworkTables
                 Client = true;
                 Running = true;
             }
-            List<ImmutablePair<string, int>> servers = new List<ImmutablePair<string, int>>(ipAddresses.Length);
-            servers.AddRange(ipAddresses.Select(ipAddress => new ImmutablePair<string, int>(ipAddress, port)));
+            List<NtIPAddress> servers = new List<NtIPAddress>(ipAddresses.Length);
+            servers.AddRange(ipAddresses.Select(ipAddress => new NtIPAddress(ipAddress, port)));
 
             m_dispatcher.StartClient(servers);
         }
@@ -171,8 +170,6 @@ namespace NetworkTables
             }
             m_dispatcher.Stop();
         }
-
-        private string m_remoteName = "Standalone Network Table";
 
         public string RemoteName
         {

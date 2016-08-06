@@ -27,6 +27,7 @@ namespace NetworkTables.Extensions
             if (timeout < TimeSpan.Zero && timeout != Timeout.InfiniteTimeSpan)
                 timeout = TimeSpan.Zero;
             //While pred is false.
+            // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
             while (!pred())
             {
                 Monitor.Exit(mutex);
@@ -72,6 +73,7 @@ namespace NetworkTables.Extensions
                 throw new SynchronizationLockException();
             }
             //While pred is false.
+            // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
             while (!pred())
             {
                 Monitor.Exit(mutex);

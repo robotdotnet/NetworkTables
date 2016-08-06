@@ -16,8 +16,8 @@ namespace NetworkTables
         // Special class for Entry Listeners
         private class UidListEntryListener
         {
-            private List<EntryListener> m_list = new List<EntryListener>();
-            private Queue<int> m_free = new Queue<int>();
+            private readonly List<EntryListener> m_list = new List<EntryListener>();
+            private readonly Queue<int> m_free = new Queue<int>();
 
             public int Count => m_list.Count;
 
@@ -25,7 +25,7 @@ namespace NetworkTables
 
             public int Add(string prefix, EntryListenerCallback callback, NotifyFlags flags)
             {
-                int uid = 0;
+                int uid;
                 var listener = new EntryListener(prefix, callback, flags);
                 if (m_free.Count == 0)
                 {
@@ -52,8 +52,8 @@ namespace NetworkTables
         // Special class for Connection Listeners
         private class UidListConnectionListenerCallback
         {
-            private List<ConnectionListenerCallback> m_list = new List<ConnectionListenerCallback>();
-            private Queue<int> m_free = new Queue<int>();
+            private readonly List<ConnectionListenerCallback> m_list = new List<ConnectionListenerCallback>();
+            private readonly Queue<int> m_free = new Queue<int>();
 
             public int Count => m_list.Count;
 
@@ -61,7 +61,7 @@ namespace NetworkTables
 
             public int Add(ConnectionListenerCallback args)
             {
-                int uid = 0;
+                int uid;
                 if (m_free.Count == 0)
                 {
                     uid = m_list.Count;
@@ -94,7 +94,7 @@ namespace NetworkTables
             }
 
             public string Prefix { get; }
-            public EntryListenerCallback Callback { get; internal set; }
+            public EntryListenerCallback Callback { get; private set; }
             public NotifyFlags Flags { get; }
 
             public void SetNull()
@@ -284,9 +284,11 @@ namespace NetworkTables
                 if (m_active) return;
                 m_active = true;
             }
-            m_thread = new Thread(ThreadMain);
-            m_thread.IsBackground = true;
-            m_thread.Name = "Notifier Thread";
+            m_thread = new Thread(ThreadMain)
+            {
+                IsBackground = true,
+                Name = "Notifier Thread"
+            };
             m_thread.Start();
         }
 

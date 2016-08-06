@@ -23,6 +23,13 @@ namespace NetworkTables.Native
             Marshal.Copy(str, arr, 0, (int)len.ToUInt64());
             return Encoding.UTF8.GetString(arr);
         }
+
+        public byte[] ToRpcArray()
+        {
+            byte[] arr = new byte[len.ToUInt64()];
+            Marshal.Copy(str, arr, 0, (int)len.ToUInt64());
+            return arr;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -58,9 +65,11 @@ namespace NetworkTables.Native
     internal struct NtEntryInfo
     {
         public NtStringRead name;
+        // ReSharper disable FieldCanBeMadeReadOnly.Global
         public NtType type;
         public uint flags;
         public ulong last_change;
+        // ReSharper restore FieldCanBeMadeReadOnly.Global
     }
 
 
@@ -90,7 +99,8 @@ namespace NetworkTables.Native
 
         public RpcCallInfo ToManaged()
         {
-            return new RpcCallInfo(RpcId, CallUid, Name.ToString(), Param.ToString());
+            // ReSharper disable once ImpureMethodCallOnReadonlyValueField
+            return new RpcCallInfo(RpcId, CallUid, Name.ToString(), Param.ToRpcArray());
         }
     }
 

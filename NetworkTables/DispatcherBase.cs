@@ -4,7 +4,6 @@ using System.Threading;
 using NetworkTables.TcpSockets;
 using static NetworkTables.Logging.Logger;
 using NetworkTables.Extensions;
-using NetworkTables.Streams;
 using System.Net;
 
 namespace NetworkTables
@@ -41,7 +40,7 @@ namespace NetworkTables
         private DateTime m_lastFlush;
 
         private string m_persistFilename;
-        private uint m_reconnectProtoRev = 0x0300;
+        private int m_reconnectProtoRev = 0x0300;
 
         private bool m_server;
 
@@ -127,14 +126,18 @@ namespace NetworkTables
             m_storage.SetOutgoing(QueueOutgoing, m_server);
 
             //Start our threads
-            m_dispatchThread = new Thread(DispatchThreadMain);
-            m_dispatchThread.IsBackground = true;
-            m_dispatchThread.Name = "Dispatch Thread";
+            m_dispatchThread = new Thread(DispatchThreadMain)
+            {
+                IsBackground = true,
+                Name = "Dispatch Thread"
+            };
             m_dispatchThread.Start();
 
-            m_clientServerThread = new Thread(ServerThreadMain);
-            m_clientServerThread.IsBackground = true;
-            m_clientServerThread.Name = "Client Server Thread";
+            m_clientServerThread = new Thread(ServerThreadMain)
+            {
+                IsBackground = true,
+                Name = "Client Server Thread"
+            };
             m_clientServerThread.Start();
         }
 
@@ -159,14 +162,18 @@ namespace NetworkTables
             m_storage.SetOutgoing(QueueOutgoing, m_server);
 
             //Start our threads
-            m_dispatchThread = new Thread(DispatchThreadMain);
-            m_dispatchThread.IsBackground = true;
-            m_dispatchThread.Name = "Dispatch Thread";
+            m_dispatchThread = new Thread(DispatchThreadMain)
+            {
+                IsBackground = true,
+                Name = "Dispatch Thread"
+            };
             m_dispatchThread.Start();
 
-            m_clientServerThread = new Thread(ClientThreadMain);
-            m_clientServerThread.IsBackground = true;
-            m_clientServerThread.Name = "Client Server Thread";
+            m_clientServerThread = new Thread(ClientThreadMain)
+            {
+                IsBackground = true,
+                Name = "Client Server Thread"
+            };
             m_clientServerThread.Start();
         }
 
@@ -351,11 +358,11 @@ namespace NetworkTables
                 IPEndPoint ipEp = stream.RemoteEndPoint as IPEndPoint;
                 if (ipEp != null)
                 {
-                    Debug($"server: client connection from {ipEp.Address.ToString()} port {ipEp.Port}");
+                    Debug($"server: client connection from {ipEp.Address} port {ipEp.Port}");
                 }
                 else
                 {
-                    Warning($"server: client connection from unknown IP address and Port");
+                    Warning("server: client connection from unknown IP address and Port");
                 }
 
                 var conn = new NetworkConnection(stream, m_notifier, ServerHandshake, m_storage.GetEntryType);
@@ -528,7 +535,7 @@ namespace NetworkTables
                 return false;
             }
 
-            uint protoRev = msg.Id;
+            int protoRev = (int)msg.Id;
 
             if (protoRev > 0x0300)
             {
@@ -597,7 +604,7 @@ namespace NetworkTables
             return true;
         }
 
-        private void ClientReconnect(uint protoRev = 0x0300)
+        private void ClientReconnect(int protoRev = 0x0300)
         {
             if (m_server) return;
             lock (m_userMutex)

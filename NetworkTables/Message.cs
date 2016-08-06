@@ -123,7 +123,7 @@ namespace NetworkTables
                 case MsgType.ClearEntries:
                     if (encoder.ProtoRev < 0x0300u) return;  // new message in version 3.0
                     encoder.Write8((byte)MsgType.ClearEntries);
-                    encoder.Write32((uint)ClearAllMagic);
+                    encoder.Write32(ClearAllMagic);
                     break;
                 case MsgType.ExecuteRpc:
                     if (encoder.ProtoRev < 0x0300u) return;  // new message in version 3.0
@@ -138,8 +138,6 @@ namespace NetworkTables
                     encoder.Write16((ushort)Id);
                     encoder.Write16((ushort)SeqNumUid);
                     encoder.WriteValue(Val);
-                    break;
-                default:
                     break;
             }
         }
@@ -267,9 +265,9 @@ namespace NetworkTables
                     msg.Id = tmpUs;
                     if (!decoder.Read16(ref tmpUs)) return null;
                     msg.SeqNumUid = tmpUs;
-                    ulong size = 0;
+                    ulong size;
                     if (!decoder.ReadUleb128(out size)) return null;
-                    byte[] results = null;
+                    byte[] results;
                     if (!decoder.Read(out results, (int)size)) return null;
                     msg.Val = Value.MakeRpc(results, (int)size);
                     break;
@@ -283,9 +281,9 @@ namespace NetworkTables
                     msg.Id = tmpUs;
                     if (!decoder.Read16(ref tmpUs)) return null;
                     msg.SeqNumUid = tmpUs;
-                    ulong size2 = 0;
+                    ulong size2;
                     if (!decoder.ReadUleb128(out size2)) return null;
-                    byte[] results2 = null;
+                    byte[] results2;
                     if (!decoder.Read(out results2, (int)size2)) return null;
                     msg.Val = Value.MakeRpc(results2, (int)size2);
                     break;
@@ -309,69 +307,79 @@ namespace NetworkTables
 
         public static Message ClientHello(string selfId)
         {
-            var msg = new Message(MsgType.ClientHello);
-            msg.m_str = selfId;
+            var msg = new Message(MsgType.ClientHello) {m_str = selfId};
             return msg;
         }
 
         public static Message ServerHello(uint flags, string selfId)
         {
-            var msg = new Message(MsgType.ServerHello);
-            msg.m_str = selfId;
-            msg.Flags = flags;
+            var msg = new Message(MsgType.ServerHello)
+            {
+                m_str = selfId,
+                Flags = flags
+            };
             return msg;
         }
 
         public static Message EntryAssign(string name, uint id, uint seqNum, Value value, EntryFlags flags)
         {
-            var msg = new Message(MsgType.EntryAssign);
-            msg.m_str = name;
-            msg.Val = value;
-            msg.Id = id;
-            msg.Flags = (uint)flags;
-            msg.SeqNumUid = seqNum;
+            var msg = new Message(MsgType.EntryAssign)
+            {
+                m_str = name,
+                Val = value,
+                Id = id,
+                Flags = (uint) flags,
+                SeqNumUid = seqNum
+            };
             return msg;
         }
 
         public static Message EntryUpdate(uint id, uint seqNum, Value value)
         {
-            var msg = new Message(MsgType.EntryUpdate);
-            msg.Val = value;
-            msg.Id = id;
-            msg.SeqNumUid = seqNum;
+            var msg = new Message(MsgType.EntryUpdate)
+            {
+                Val = value,
+                Id = id,
+                SeqNumUid = seqNum
+            };
             return msg;
         }
 
         public static Message FlagsUpdate(uint id, EntryFlags flags)
         {
-            var msg = new Message(MsgType.FlagsUpdate);
-            msg.Id = id;
-            msg.Flags = (uint)flags;
+            var msg = new Message(MsgType.FlagsUpdate)
+            {
+                Id = id,
+                Flags = (uint) flags
+            };
             return msg;
         }
 
         public static Message EntryDelete(uint id)
         {
-            var msg = new Message(MsgType.EntryDelete);
-            msg.Id = id;
+            var msg = new Message(MsgType.EntryDelete) {Id = id};
             return msg;
         }
 
         public static Message ExecuteRpc(uint id, uint uid, byte[] param)
         {
-            var msg = new Message(MsgType.ExecuteRpc);
-            msg.Val = Value.MakeRpc(param, param.Length);
-            msg.Id = id;
-            msg.SeqNumUid = uid;
+            var msg = new Message(MsgType.ExecuteRpc)
+            {
+                Val = Value.MakeRpc(param, param.Length),
+                Id = id,
+                SeqNumUid = uid
+            };
             return msg;
         }
 
         public static Message RpcResponse(uint id, uint uid, byte[] results)
         {
-            var msg = new Message(MsgType.RpcResponse);
-            msg.Val = Value.MakeRpc(results, results.Length);
-            msg.Id = id;
-            msg.SeqNumUid = uid;
+            var msg = new Message(MsgType.RpcResponse)
+            {
+                Val = Value.MakeRpc(results, results.Length),
+                Id = id,
+                SeqNumUid = uid
+            };
             return msg;
         }
     }

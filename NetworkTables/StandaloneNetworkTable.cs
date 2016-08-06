@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NetworkTables.Exceptions;
 using NetworkTables.Tables;
 
@@ -409,6 +406,7 @@ namespace NetworkTables
             var v = m_ntCore.GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.Double)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.Double);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetDouble();
 #endif
         }
@@ -445,6 +443,7 @@ namespace NetworkTables
             var v = m_ntCore.GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.String)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.String);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetString();
 #endif
         }
@@ -481,6 +480,7 @@ namespace NetworkTables
             var v = m_ntCore.GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.Boolean)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.Boolean);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetBoolean();
 #endif
         }
@@ -505,6 +505,7 @@ namespace NetworkTables
             var v = m_ntCore.GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.StringArray)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.StringArray);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetStringArray();
 #endif
         }
@@ -541,6 +542,7 @@ namespace NetworkTables
             var v = m_ntCore.GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.DoubleArray)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.DoubleArray);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetDoubleArray();
 #endif
         }
@@ -577,6 +579,7 @@ namespace NetworkTables
             var v = m_ntCore.GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.BooleanArray)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.BooleanArray);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetBooleanArray();
 #endif
         }
@@ -600,6 +603,7 @@ namespace NetworkTables
             var v = m_ntCore.GetEntryValue(m_path + PathSeperatorChar + key);
             if (v == null || v.Type != NtType.Raw)
                 ThrowException(m_path + PathSeperatorChar + key, v, NtType.Raw);
+            // ReSharper disable once PossibleNullReferenceException
             return v.GetRaw();
 #endif
         }

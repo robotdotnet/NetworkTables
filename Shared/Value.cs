@@ -241,6 +241,12 @@ namespace NetworkTables
             return this == v;
         }
 
+        /// <summary>
+        /// Checks to see if two <see cref="Value">Values</see> are equal
+        /// </summary>
+        /// <param name="lhs">The left hand <see cref="Value"/></param>
+        /// <param name="rhs">The right hand <see cref="Value"/></param>
+        /// <returns>True if the <see cref="Value">Values</see> are equal</returns>
         public static bool operator ==(Value lhs, Value rhs)
         {
             if (ReferenceEquals(lhs, rhs)) return true;
@@ -253,6 +259,7 @@ namespace NetworkTables
                 case NtType.Boolean:
                     return (bool)lhs.Val == (bool)rhs.Val;
                 case NtType.Double:
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
                     return (double)lhs.Val == (double)rhs.Val;
                 case NtType.String:
                     return (string)lhs.Val == (string)rhs.Val;
@@ -281,6 +288,7 @@ namespace NetworkTables
                     if (doubleLhs.Length != doubleRhs.Length) return false;
                     for (int i = 0; i < doubleLhs.Length; i++)
                     {
+                        // ReSharper disable once CompareOfFloatsByEqualityOperator
                         if (doubleLhs[i] != doubleRhs[i]) return false;
                     }
                     return true;
@@ -299,27 +307,53 @@ namespace NetworkTables
             }
         }
 
+        /// <summary>
+        /// Checks to see if two <see cref="Value">Values</see> are not equal
+        /// </summary>
+        /// <param name="lhs">The left hand <see cref="Value"/></param>
+        /// <param name="rhs">The right hand <see cref="Value"/></param>
+        /// <returns>True if the <see cref="Value">Values</see> are not equal</returns>
         public static bool operator !=(Value lhs, Value rhs)
         {
             return !(lhs == rhs);
         }
 
+        /// <summary>
+        /// Makes a double <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeDouble(double val)
         {
             return new Value(val);
         }
 
+        /// <summary>
+        /// Makes a boolean <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeBoolean(bool val)
         {
             return new Value(val);
         }
 
+        /// <summary>
+        /// Makes a string <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeString(string val)
         {
             if (val == null) throw new ArgumentNullException(nameof(val));
             return new Value(val);
         }
 
+        /// <summary>
+        /// Makes a raw <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeRaw(params byte[] val)
         {
             byte[] tmp = new byte[val.Length];
@@ -327,11 +361,22 @@ namespace NetworkTables
             return new Value(tmp);
         }
 
+        /// <summary>
+        /// Makes a raw <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeRaw(List<byte> val)
         {
             return new Value(val.ToArray());
         }
 
+        /// <summary>
+        /// Makes an Rpc <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <param name="size">The size of the array to use for the Rpc</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeRpc(byte[] val, int size)
         {
             if (size > val.Length) return null;
@@ -340,6 +385,11 @@ namespace NetworkTables
             return new Value(tmp, true);
         }
 
+        /// <summary>
+        /// Makes an Rpc <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeRpc(params byte[] val)
         {
             byte[] tmp = new byte[val.Length];
@@ -347,11 +397,21 @@ namespace NetworkTables
             return new Value(tmp, true);
         }
 
+        /// <summary>
+        /// Makes an Rpc <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeRpc(List<byte> val)
         {
             return new Value(val.ToArray(), true);
         }
 
+        /// <summary>
+        /// Makes a boolean array <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeBooleanArray(params bool[] val)
         {
             bool[] tmp = new bool[val.Length];
@@ -359,6 +419,11 @@ namespace NetworkTables
             return new Value(tmp);
         }
 
+        /// <summary>
+        /// Makes a double array <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeDoubleArray(params double[] val)
         {
             double[] tmp = new double[val.Length];
@@ -366,6 +431,11 @@ namespace NetworkTables
             return new Value(tmp);
         }
 
+        /// <summary>
+        /// Makes a string array <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeStringArray(params string[] val)
         {
             string[] tmp = new string[val.Length];
@@ -373,16 +443,31 @@ namespace NetworkTables
             return new Value(tmp);
         }
 
+        /// <summary>
+        /// Makes a boolean array <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeBooleanArray(List<bool> val)
         {
             return new Value(val.ToArray());
         }
 
+        /// <summary>
+        /// Makes a double array <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeDoubleArray(List<double> val)
         {
             return new Value(val.ToArray());
         }
 
+        /// <summary>
+        /// Makes a string array <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeStringArray(List<string> val)
         {
             return new Value(val.ToArray());
@@ -405,6 +490,8 @@ namespace NetworkTables
             Val = val;
         }
 
+        // Extra parameter 
+        // ReSharper disable once UnusedParameter.Local
         private Value(byte[] val, bool rpc)
         {
             Type = NtType.Rpc;

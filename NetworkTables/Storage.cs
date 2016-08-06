@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkTables.Extensions;
@@ -11,7 +8,6 @@ using NetworkTables.Logging;
 using Nito.AsyncEx;
 using static NetworkTables.Logging.Logger;
 using static NetworkTables.Message.MsgType;
-using static NetworkTables.RpcServer;
 
 namespace NetworkTables
 {
@@ -104,7 +100,7 @@ namespace NetworkTables
         private readonly List<Entry> m_idMap = new List<Entry>();
         internal readonly Dictionary<ImmutablePair<uint, uint>, byte[]> m_rpcResults = new Dictionary<ImmutablePair<uint, uint>, byte[]>();
 
-        private bool m_terminating = false;
+        private bool m_terminating;
         private readonly AutoResetEvent m_rpcResultsCond = new AutoResetEvent(false);
         private readonly AsyncAutoResetEvent m_rpcResultsCondAsync = new AsyncAutoResetEvent(false);
 
@@ -113,7 +109,7 @@ namespace NetworkTables
         QueueOutgoingFunc m_queueOutgoing;
         bool m_server = true;
 
-        bool m_persistentDirty = false;
+        bool m_persistentDirty;
 
         private readonly Notifier m_notifier;
         private readonly RpcServer m_rpcServer;
@@ -156,8 +152,8 @@ namespace NetworkTables
                 Monitor.Enter(m_mutex, ref lockEntered);
                 Message.MsgType type = msg.Type;
                 SequenceNumber seqNum;
-                Entry entry = null;
-                uint id = 0;
+                Entry entry;
+                uint id;
                 switch (type)
                 {
                     case KeepAlive:
@@ -182,10 +178,12 @@ namespace NetworkTables
 
 
                                     id = (uint)m_idMap.Count;
-                                    entry = new Entry(name);
-                                    entry.Value = msg.Val;
-                                    entry.Flags = (EntryFlags)msg.Flags;
-                                    entry.Id = id;
+                                    entry = new Entry(name)
+                                    {
+                                        Value = msg.Val,
+                                        Flags = (EntryFlags) msg.Flags,
+                                        Id = id
+                                    };
                                     m_entries[name] = entry;
                                     m_idMap.Add(entry);
 
@@ -230,10 +228,12 @@ namespace NetworkTables
                                     if (!m_entries.ContainsKey(name))
                                     {
                                         //Entry didn't exist at all.
-                                        newEntry = new Entry(name);
-                                        newEntry.Value = msg.Val;
-                                        newEntry.Flags = (EntryFlags)msg.Flags;
-                                        newEntry.Id = id;
+                                        newEntry = new Entry(name)
+                                        {
+                                            Value = msg.Val,
+                                            Flags = (EntryFlags) msg.Flags,
+                                            Id = id
+                                        };
                                         m_idMap[(int)id] = newEntry;
                                         m_entries[name] = newEntry;
 
@@ -459,8 +459,6 @@ namespace NetworkTables
                         m_rpcResultsCond.Set();
                         m_rpcResultsCondAsync.Set();
                         break;
-                    default:
-                        break;
                 }
             }
             finally
@@ -533,10 +531,12 @@ namespace NetworkTables
                     Entry entry;
                     if (!m_entries.TryGetValue(name, out entry))
                     {
-                        entry = new Entry(name);
-                        entry.Value = msg.Val;
-                        entry.Flags = (EntryFlags)msg.Flags;
-                        entry.SeqNum = seqNum;
+                        entry = new Entry(name)
+                        {
+                            Value = msg.Val,
+                            Flags = (EntryFlags) msg.Flags,
+                            SeqNum = seqNum
+                        };
                         m_notifier.NotifyEntry(name, entry.Value, NotifyFlags.NotifyNew);
                         m_entries.Add(name, entry);
                     }
@@ -735,7 +735,7 @@ namespace NetworkTables
             try
             {
                 Monitor.Enter(m_mutex, ref lockEntered);
-                Entry entry = null;
+                Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {
                     entry = new Entry(name);
@@ -801,7 +801,7 @@ namespace NetworkTables
             try
             {
                 Monitor.Enter(m_mutex, ref lockEntered);
-                Entry entry = null;
+                Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {
                     //Key does not exist. Return
@@ -979,7 +979,7 @@ namespace NetworkTables
                 Monitor.Enter(m_mutex, ref lockEntered);
                 if (!m_server) return;
 
-                Entry entry = null;
+                Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {
                     entry = new Entry(name);
@@ -1036,7 +1036,7 @@ namespace NetworkTables
                 Monitor.Enter(m_mutex, ref lockEntered);
                 if (!m_server) return;
 
-                Entry entry = null;
+                Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {
                     entry = new Entry(name);
@@ -1089,7 +1089,7 @@ namespace NetworkTables
             try
             {
                 Monitor.Enter(m_mutex, ref lockEntered);
-                Entry entry = null;
+                Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {
                     return 0;
@@ -1138,10 +1138,10 @@ namespace NetworkTables
             try
             {
                 Monitor.Enter(m_mutex, ref lockEntered);
-                byte[] str = null;
                 for (;;)
                 {
                     var pair = new ImmutablePair<uint, uint>((uint)callUid >> 16, (uint)callUid & 0xffff);
+                    byte[] str;
                     if (!m_rpcResults.TryGetValue(pair, out str))
                     {
                         if (m_terminating) return null;
@@ -1164,27 +1164,32 @@ namespace NetworkTables
             }
         }
 
-        public bool GetRpcResult(bool blocking, long callUid, ref byte[] result)
+        public bool GetRpcResult(bool blocking, long callUid, out byte[] result)
         {
-            return GetRpcResult(blocking, callUid, Timeout.InfiniteTimeSpan, ref result);
+            return GetRpcResult(blocking, callUid, Timeout.InfiniteTimeSpan, out result);
         }
 
-        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, ref byte[] result)
+        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
         {
             bool lockEntered = false;
             try
             {
                 Monitor.Enter(m_mutex, ref lockEntered);
-                byte[] str = null;
                 for (;;)
                 {
                     var pair = new ImmutablePair<uint, uint>((uint)callUid >> 16, (uint)callUid & 0xffff);
+                    byte[] str;
                     if (!m_rpcResults.TryGetValue(pair, out str))
                     {
-                        if (!blocking || m_terminating) return false;
+                        if (!blocking || m_terminating)
+                        {
+                            result = null;
+                            return false;
+                        }
                         bool notTimedOut = m_rpcResultsCond.WaitTimeout(m_mutex, ref lockEntered, timeout);
                         if (!notTimedOut || m_terminating)
                         {
+                            result = null;
                             return false;
                         }
                         continue;

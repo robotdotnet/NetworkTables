@@ -15,7 +15,7 @@ namespace NetworkTables
 {
     internal class NetworkConnection : IDisposable
     {
-        public uint ProtoRev { get; set; }
+        public int ProtoRev { get; set; }
 
 
         public enum State { Created, Init, Handshake, Synchronized, Active, Dead };
@@ -28,6 +28,7 @@ namespace NetworkTables
 
         private readonly Stream m_stream;
 
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
         private readonly IClient m_client;
 
         public int PeerPort { get; }
@@ -91,7 +92,7 @@ namespace NetworkTables
             m_client.NoDelay = true;
         }
 
-        public bool Disposed { get; private set; } = false;
+        public bool Disposed { get; private set; }
 
         public void Dispose()
         {
@@ -113,14 +114,18 @@ namespace NetworkTables
             while (m_outgoing.Count != 0) m_outgoing.Take();
 
             //Start Threads
-            m_writeThread = new Thread(WriteThreadMain);
-            m_writeThread.IsBackground = true;
-            m_writeThread.Name = "Connection Write Thread";
+            m_writeThread = new Thread(WriteThreadMain)
+            {
+                IsBackground = true,
+                Name = "Connection Write Thread"
+            };
             m_writeThread.Start();
 
-            m_readThread = new Thread(ReadThreadMain);
-            m_readThread.IsBackground = true;
-            m_readThread.Name = "Connection Read Thread";
+            m_readThread = new Thread(ReadThreadMain)
+            {
+                IsBackground = true,
+                Name = "Connection Read Thread"
+            };
             m_readThread.Start();
         }
 
@@ -145,7 +150,7 @@ namespace NetworkTables
 
         public ConnectionInfo GetConnectionInfo()
         {
-            return new ConnectionInfo(RemoteId, PeerIP, PeerPort, LastUpdate, (int)ProtoRev);
+            return new ConnectionInfo(RemoteId, PeerIP, PeerPort, LastUpdate, ProtoRev);
         }
 
         public bool Active { get; private set; }
@@ -163,7 +168,7 @@ namespace NetworkTables
             {
                 if (newSize > m_pendingUpdate.Capacity)
                     m_pendingUpdate.Capacity = newSize;
-                m_pendingUpdate.AddRange(Enumerable.Repeat<MutablePair<int, int>>(default(MutablePair<int, int>), newSize - currentSize));
+                m_pendingUpdate.AddRange(Enumerable.Repeat(default(MutablePair<int, int>), newSize - currentSize));
             }
         }
 
@@ -419,9 +424,9 @@ namespace NetworkTables
                     }
                 }
                 if (m_stream == null) break;
-                if (encoder.Size() == 0) continue;
-                if (m_stream.Send(encoder.Buffer, 0, encoder.Size()) == 0) break;
-                Debug4($"sent {encoder.Size()} bytes");
+                if (encoder.Count == 0) continue;
+                if (m_stream.Send(encoder.Buffer, 0, encoder.Count) == 0) break;
+                Debug4($"sent {encoder.Count} bytes");
             }
             Debug2($"write thread died ({this})");
             if (m_state != State.Dead) m_notifier.NotifyConnection(false, GetConnectionInfo());

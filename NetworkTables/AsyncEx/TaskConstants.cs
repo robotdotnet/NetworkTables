@@ -1,5 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Nito.AsyncEx.Internal;
+// ReSharper disable InconsistentNaming
+// ReSharper disable All
 
 // https://github.com/StephenCleary/AsyncEx/blob/master/Source/Nito.AsyncEx%20(NET45%2C%20Win8%2C%20WP8%2C%20WPA81)/TaskConstants.cs
 // ReSharper disable once CheckNamespace
@@ -8,7 +10,7 @@ namespace Nito.AsyncEx
     /// <summary>
     /// Provides completed task constants.
     /// </summary>
-    public static class TaskConstants
+    internal static class TaskConstants
     {
         private static readonly Task<bool> booleanTrue = TaskShim.FromResult(true);
         private static readonly Task<int> intNegativeOne = TaskShim.FromResult(-1);
@@ -95,7 +97,7 @@ namespace Nito.AsyncEx
     /// Provides completed task constants.
     /// </summary>
     /// <typeparam name="T">The type of the task result.</typeparam>
-    public static class TaskConstants<T>
+    internal static class TaskConstants<T>
     {
         private static readonly Task<T> defaultValue = TaskShim.FromResult(default(T));
 

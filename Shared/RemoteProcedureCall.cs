@@ -14,6 +14,8 @@ namespace NetworkTables
     public static class RemoteProcedureCall
     {
 #if CORE
+        // TODO: Clear these on Rpc shutdown
+        // ReSharper disable once CollectionNeverQueried.Local
         private static readonly List<Interop.NT_RPCCallback> s_rpcCallbacks = new List<Interop.NT_RPCCallback>();
 #endif
 
@@ -69,16 +71,16 @@ namespace NetworkTables
 #endif
         }
 
-        public static bool PollRpc(bool blocking, TimeSpan timeout, ref RpcCallInfo callInfo)
+        public static bool PollRpc(bool blocking, TimeSpan timeout, out RpcCallInfo callInfo)
         {
 #if CORE
             throw new NotImplementedException();
 #else
-            return RpcServer.Instance.PollRpc(blocking, timeout, ref callInfo);
+            return RpcServer.Instance.PollRpc(blocking, timeout, out callInfo);
 #endif
         }
 
-        public static async Task<RpcCallInfo?> PollRpcAsync(bool blocking, CancellationToken token) 
+        public static async Task<RpcCallInfo?> PollRpcAsync(CancellationToken token) 
         {
 #if CORE
             throw new NotImplementedException();
@@ -87,15 +89,15 @@ namespace NetworkTables
 #endif
         }
 
-        public static bool PollRpc(bool blocking, ref RpcCallInfo callInfo)
+        public static bool PollRpc(bool blocking, out RpcCallInfo callInfo)
         {
 #if CORE
-            NtRpcCallInfo nativeInfo = new NtRpcCallInfo();
-            int retVal = Interop.NT_PollRpc(blocking ? 1 : 0, ref nativeInfo);
+            NtRpcCallInfo nativeInfo;
+            int retVal = Interop.NT_PollRpc(blocking ? 1 : 0, out nativeInfo);
             callInfo = nativeInfo.ToManaged();
             return retVal != 0;
 #else
-            return RpcServer.Instance.PollRpc(blocking, ref callInfo);
+            return RpcServer.Instance.PollRpc(blocking, out callInfo);
 #endif
         }
 
@@ -137,29 +139,30 @@ namespace NetworkTables
 #endif
         }
 
-        public static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, ref byte[] result)
+        public static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
         {
 #if CORE
             throw new NotImplementedException();
 #else
-            return Storage.Instance.GetRpcResult(blocking, callUid, timeout, ref result);
+            return Storage.Instance.GetRpcResult(blocking, callUid, timeout, out result);
 #endif
         }
 
 
-        public static bool GetRpcResult(bool blocking, long callUid, ref byte[] result)
+        public static bool GetRpcResult(bool blocking, long callUid, out byte[] result)
         {
 #if CORE
             UIntPtr size = UIntPtr.Zero;
             IntPtr retVal = Interop.NT_GetRpcResult(blocking ? 1 : 0, (uint)callUid, ref size);
             if (retVal == IntPtr.Zero)
             {
+                result = null;
                 return false;
             }
             result = CoreMethods.GetRawDataFromPtr(retVal, size);
             return true;
 #else
-            return Storage.Instance.GetRpcResult(blocking, callUid, ref result);
+            return Storage.Instance.GetRpcResult(blocking, callUid, out result);
 #endif
         }
 
@@ -198,13 +201,12 @@ namespace NetworkTables
             string str = "";
 
             if (!dec.Read8(ref ref8)) return false;
-            def.Version = ref8;
+            def.SetVersion(ref8);
             if (!dec.ReadString(ref str)) return false;
-            def.Name = str;
+            def.SetName(str);
 
-            int paramsSize = 0;
             if (!dec.Read8(ref ref8)) return false;
-            paramsSize = ref8;
+            int paramsSize = ref8;
             def.Params.Clear();
             NtType type = 0;
             for (int i = 0; i < paramsSize; i++)
@@ -217,9 +219,8 @@ namespace NetworkTables
                 def.Params.Add(new RpcParamDef(str, val));
             }
 
-            int resultsSize = 0;
             if (!dec.Read8(ref ref8)) return false;
-            resultsSize = ref8;
+            int resultsSize = ref8;
             def.Results.Clear();
             for (int i = 0; i < resultsSize; i++)
             {

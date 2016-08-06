@@ -48,7 +48,7 @@ namespace NetworkTablesCore.Test
         [SetUp]
         public void SetUp()
         {
-            TestBase.DeleteAllWithPersistent();
+            DeleteAllWithPersistent();
             m_table = NetworkTable.GetTable("Table");
         }
 

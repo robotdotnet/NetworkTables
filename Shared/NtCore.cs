@@ -189,7 +189,7 @@ namespace NetworkTables
         public static void StartServer(string persistFilename, string listenAddress, int port)
         {
 #if CORE
-            CoreMethods.StartServer(persistFilename, listenAddress, (uint)port);
+            CoreMethods.StartServer(persistFilename, listenAddress, port);
 #else
             Dispatcher.Instance.StartServer(persistFilename, listenAddress, port);
 #endif
@@ -213,7 +213,7 @@ namespace NetworkTables
 #endif
         }
 
-        public static void StartClient(IList<ImmutablePair<string, int>> servers)
+        public static void StartClient(IList<NtIPAddress> servers)
         {
 #if CORE
             CoreMethods.StartClient(servers);

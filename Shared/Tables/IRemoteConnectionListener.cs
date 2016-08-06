@@ -1,4 +1,5 @@
-﻿namespace NetworkTables.Tables
+﻿// ReSharper disable UnusedParameter.Global
+namespace NetworkTables.Tables
 {
     /// <summary>
     /// A listener that listens for connection changes in an <see cref="IRemote"/> object.

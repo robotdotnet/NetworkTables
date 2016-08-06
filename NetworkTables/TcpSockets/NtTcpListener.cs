@@ -5,16 +5,15 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 
 namespace NetworkTables.TcpSockets
 {
     internal class NtTcpListener
     {
-        private IPEndPoint m_serverSocketEP;
+        private readonly IPEndPoint m_serverSocketEp;
         private Socket m_serverSocket;
         private bool m_active;
-        private bool m_exclusiveAddressUse;
+
 
         public NtTcpListener(IPAddress localaddr, int port)
         {
@@ -22,18 +21,13 @@ namespace NetworkTables.TcpSockets
             {
                 throw new ArgumentNullException(nameof(localaddr));
             }
-            m_serverSocketEP = new IPEndPoint(localaddr, port);
-            m_serverSocket = new Socket(m_serverSocketEP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            m_serverSocketEp = new IPEndPoint(localaddr, port);
+            m_serverSocket = new Socket(m_serverSocketEp.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         }
 
-        public void Start()
+        public void Start(int backlog = (int) SocketOptionName.MaxConnections)
         {
-            Start((int) SocketOptionName.MaxConnections);
-        }
-
-        public void Start(int backlog)
-        {
-            if (backlog > (int) SocketOptionName.MaxConnections || backlog < 0)
+            if (backlog < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(backlog));
             }
@@ -48,7 +42,7 @@ namespace NetworkTables.TcpSockets
                 return;
             }
 
-            m_serverSocket.Bind(m_serverSocketEP);
+            m_serverSocket.Bind(m_serverSocketEp);
             try
             {
                 m_serverSocket.Listen(backlog);
@@ -70,17 +64,12 @@ namespace NetworkTables.TcpSockets
                 m_serverSocket = null;
             }
             m_active = false;
-            m_serverSocket = new Socket(m_serverSocketEP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-            if (m_exclusiveAddressUse)
-            {
-                m_serverSocket.ExclusiveAddressUse = true;
-            }
+            m_serverSocket = new Socket(m_serverSocketEp.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         }
 
         public Socket Accept(out SocketError errorCode)
         {
-            Socket socket = null;
+            Socket socket;
             try
             {
                 socket = m_serverSocket.Accept();
