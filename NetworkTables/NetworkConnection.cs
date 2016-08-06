@@ -15,6 +15,22 @@ namespace NetworkTables
 {
     internal class NetworkConnection : IDisposable
     {
+        private struct PendingUpdateIds
+        {
+            public int First { get; private set; }
+            public int Second { get; private set; }
+
+            public void SetFirst(int first)
+            {
+                First = first;
+            }
+
+            public void SetSecond(int second)
+            {
+                Second = second;
+            }
+        }
+
         public int ProtoRev { get; set; }
 
 
@@ -59,7 +75,7 @@ namespace NetworkTables
 
         private readonly List<Message> m_pendingOutgoing = new List<Message>();
 
-        private readonly List<MutablePair<int, int>> m_pendingUpdate = new List<MutablePair<int, int>>();
+        private readonly List<PendingUpdateIds> m_pendingUpdate = new List<PendingUpdateIds>();
 
         public NetworkConnection(IClient client, Notifier notifier, HandshakeFunc handshake,
             Message.GetEntryTypeFunc getEntryType)
@@ -169,7 +185,7 @@ namespace NetworkTables
             {
                 if (newSize > m_pendingUpdate.Capacity)
                     m_pendingUpdate.Capacity = newSize;
-                m_pendingUpdate.AddRange(Enumerable.Repeat(default(MutablePair<int, int>), newSize - currentSize));
+                m_pendingUpdate.AddRange(Enumerable.Repeat(default(PendingUpdateIds), newSize - currentSize));
             }
         }
 

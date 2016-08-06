@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace NetworkTables
 {
-    /*
     internal struct ImmutablePair<T, T2> : IEquatable<ImmutablePair<T, T2>>
     {
         public bool Equals(ImmutablePair<T, T2> other)
@@ -44,5 +43,4 @@ namespace NetworkTables
             Second = s;
         }
     }
-    */
 }

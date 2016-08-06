@@ -96,9 +96,6 @@
     <Compile Include="..\Shared\RpcStructs.cs">
       <Link>RpcStructs.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\Structures.cs">
-      <Link>Structures.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\Tables\IRemote.cs">
       <Link>Tables\IRemote.cs</Link>
     </Compile>
@@ -136,6 +133,7 @@
     <Compile Include="Dispatcher.cs" />
     <Compile Include="DispatcherBase.cs" />
     <Compile Include="Extensions\AutoResetEventExtensions.cs" />
+    <Compile Include="ImmutablePair.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="NetworkConnection.cs" />
