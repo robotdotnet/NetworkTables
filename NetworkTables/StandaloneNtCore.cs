@@ -203,8 +203,8 @@ namespace NetworkTables
                 CheckInit();
                 Client = true;
                 Running = true;
+                m_dispatcher.StartClient(serverName, port);
             }
-            m_dispatcher.StartClient(serverName, port);
         }
 
         public void StopClient()
@@ -212,8 +212,8 @@ namespace NetworkTables
             lock (m_lockObject)
             {
                 Running = false;
+                m_dispatcher.Stop();
             }
-            m_dispatcher.Stop();
         }
 
         public void StopRpcServer()
