@@ -137,6 +137,7 @@ namespace NetworkTables
             Active = false;
             //Closing stream to terminate read thread
             m_stream?.Dispose();
+            m_client?.Dispose();
             //Send an empty message to terminate the write thread
             m_outgoing.Add(new List<Message>());
 

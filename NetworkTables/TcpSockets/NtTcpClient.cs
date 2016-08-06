@@ -75,13 +75,12 @@ namespace NetworkTables.TcpSockets
             if (ipAddresses.Length == 0)
                 throw new ArgumentOutOfRangeException(nameof(ipAddresses), "IP Adresses must have values internally");
 
-            m_clientSocket.Blocking = false;
             foreach (var ipAddress in ipAddresses)
             {
+                IPEndPoint ipEp = new IPEndPoint(ipAddress, port);
                 try
                 {
-
-                    IPEndPoint ipEp = new IPEndPoint(ipAddress, port);
+                    m_clientSocket.Blocking = false;
                     m_clientSocket.Connect(ipEp);
                     // TODO: Switch back to Connect(ipAddresses) when
                     // mono gets fixed
@@ -107,6 +106,7 @@ namespace NetworkTables.TcpSockets
                             {
                                 if (m_clientSocket.Poll(1000, SelectMode.SelectWrite))
                                 {
+                                    m_clientSocket.Connect(ipEp);
                                     // We have connected
                                     m_active = true;
                                     return true;
@@ -131,7 +131,7 @@ namespace NetworkTables.TcpSockets
                     {
                         if (ex.SocketErrorCode == SocketError.ConnectionRefused)
                         {
-                            // A connection refused is an uneceptional case
+                            // A connection refused is an unexceptional case
                             Info($"Connect() to {ipAddresses[0]} port {port} timed out");
                             return false;
                         }
@@ -185,14 +185,14 @@ namespace NetworkTables.TcpSockets
             m_cleanedUp = true;
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
         ~NtTcpClient()
         {
             Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
         }
 
         public bool Connected => m_clientSocket.Connected;
