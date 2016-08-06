@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using static NetworkTables.Logging.Logger;
@@ -18,7 +19,17 @@ namespace NetworkTables.TcpSockets
                     addr = null;
                     return 1;
                 }
-                addr = entries.Result;
+                List<IPAddress> addresses = new List<IPAddress>();
+                foreach (var ipAddress in entries.Result)
+                {
+                    // Only allow IPV4 addresses for now
+                    // Sockets don't all support IPV6
+                    if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        addresses.Add(ipAddress);
+                    }
+                }
+                addr = addresses.ToArray();
 
             }
             catch (SocketException e)
@@ -72,41 +83,6 @@ namespace NetworkTables.TcpSockets
                 return null;
             }
             return client;
-
-            /*
-            try
-            {
-                var result = client.BeginConnect(addr, port, null, null);
-                if (!result.AsyncWaitHandle.WaitOne(timeout))
-                {
-                    try
-                    {
-                        client.EndConnect(result);
-                    }
-                    catch (SocketException)
-                    {
-                    }
-                    //Timed out
-                    Info($"Connect() to {server} port {port} timed out");
-                    ((IDisposable)client).Dispose();
-                    return null;
-                }
-                //Connected
-                if (client.Connected)
-                {
-                    return client;
-                }
-                Error($"Timeout connect to {server} port {port} did not connect properly.");
-                return null;
-            }
-            catch (SocketException ex)
-            {
-                //Failed to connect
-                Error($"Connect()  to {server} port {port} error {ex.NativeErrorCode} - {ex.SocketErrorCode}");
-                ((IDisposable)client).Dispose();
-                return null;
-            }
-            */
         }
     }
 }

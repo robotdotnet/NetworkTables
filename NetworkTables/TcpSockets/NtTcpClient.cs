@@ -17,10 +17,7 @@ namespace NetworkTables.TcpSockets
         private bool m_cleanedUp;
         private bool m_active;
 
-        public NtTcpClient() : this(AddressFamily.InterNetwork)
-        {
-            
-        }
+        public NtTcpClient() : this(AddressFamily.InterNetwork) { }
 
         public bool NoDelay
         {
@@ -73,60 +70,79 @@ namespace NetworkTables.TcpSockets
 
         public bool ConnectWithTimeout(IPAddress[] ipAddresses, int port, int timeout)
         {
+            if (ipAddresses == null)
+                throw new ArgumentNullException(nameof(ipAddresses), "IP Addresses cannot be null");
+            if (ipAddresses.Length == 0)
+                throw new ArgumentOutOfRangeException(nameof(ipAddresses), "IP Adresses must have values internally");
+
             m_clientSocket.Blocking = false;
-            try
+            foreach (var ipAddress in ipAddresses)
             {
-                m_clientSocket.Connect(ipAddresses, port);
-                //We have connected
-                m_active = true;
-                return true;
-            }
-            catch (SocketException ex)
-            {
-                if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.InProgress)
+                try
                 {
-                    DateTime waitUntil = DateTime.UtcNow + TimeSpan.FromSeconds(timeout);
-                    try
+
+                    IPEndPoint ipEp = new IPEndPoint(ipAddress, port);
+                    m_clientSocket.Connect(ipEp);
+                    // TODO: Switch back to Connect(ipAddresses) when
+                    // mono gets fixed
+                    // https://github.com/mono/mono/pull/3368
+                    //m_clientSocket.Connect(ipAddresses, port);
+                    //We have connected
+                    m_active = true;
+                    return true;
+
+                }
+                catch (SocketException ex)
+                {
+                    if (ex.SocketErrorCode == SocketError.AddressFamilyNotSupported)
                     {
-                        while (true)
+                        continue;
+                    }
+                    if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.InProgress)
+                    {
+                        DateTime waitUntil = DateTime.UtcNow + TimeSpan.FromSeconds(timeout);
+                        try
                         {
-                            if (m_clientSocket.Poll(1000, SelectMode.SelectWrite))
+                            while (true)
                             {
-                                // We have connected
-                                m_active = true;
-                                return true;
-                            }
-                            else
-                            {
-                                if (DateTime.UtcNow >= waitUntil)
+                                if (m_clientSocket.Poll(1000, SelectMode.SelectWrite))
                                 {
-                                    // We have timed out
-                                    Info($"Connect() to {ipAddresses[0]} port {port} timed out");
-                                    break;
+                                    // We have connected
+                                    m_active = true;
+                                    return true;
+                                }
+                                else
+                                {
+                                    if (DateTime.UtcNow >= waitUntil)
+                                    {
+                                        // We have timed out
+                                        Info($"Connect() to {ipAddresses[0]} port {port} timed out");
+                                        break;
+                                    }
                                 }
                             }
                         }
+                        catch (SocketException ex2)
+                        {
+                            Error($"Select() to {ipAddresses[0]} port {port} error {ex2.SocketErrorCode}");
+                        }
                     }
-                    catch (SocketException ex2)
+                    else
                     {
-                        Error($"Select() to {ipAddresses[0]} port {port} error {ex2.SocketErrorCode}");
+                        if (ex.SocketErrorCode == SocketError.ConnectionRefused)
+                        {
+                            // A connection refused is an uneceptional case
+                            Info($"Connect() to {ipAddresses[0]} port {port} timed out");
+                            return false;
+                        }
+                        Error($"Connect() to {ipAddresses[0]} port {port} error {ex.SocketErrorCode}");
                     }
-                }
-                else
-                {
-                    if (ex.SocketErrorCode == SocketError.ConnectionRefused)
-                    {
-                        // A connection refused is an uneceptional case
-                        Info($"Connect() to {ipAddresses[0]} port {port} timed out");
-                        return false;
-                    }
-                    Error($"Connect() to {ipAddresses[0]} port {port} error {ex.SocketErrorCode}");
-                }
 
-            }
-            finally
-            {
-                m_clientSocket.Blocking = true;
+                }
+                finally
+                {
+                    m_clientSocket.Blocking = true;
+                }
             }
             return false;
         }
