@@ -79,7 +79,7 @@ namespace NetworkTables
                 if (func != null)
                     m_callQueue.Enqueue(new RpcCall(name, msg, func, connId, sendResponse));
                 else
-                // ReSharper disable once ExpressionIsAlwaysNull
+                    // ReSharper disable once ExpressionIsAlwaysNull
                     m_pollQueue.Enqueue(new RpcCall(name, msg, func, connId, sendResponse));
             }
             finally
@@ -119,6 +119,11 @@ namespace NetworkTables
                 RpcCallInfo callInfo = new RpcCallInfo(item.Msg.Id, callUid, item.Name, item.Msg.Val.GetRpc());
                 m_responseMap.Add(new ImmutablePair<uint, uint>(item.Msg.Id, callUid), item.SendResponse);
                 return callInfo;
+            }
+            catch (OperationCanceledException)
+            {
+                // Operation canceled. Return null.
+                return null;
             }
             finally
             {

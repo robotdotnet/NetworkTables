@@ -1158,6 +1158,11 @@ namespace NetworkTables
                     return result;
                 }
             }
+            catch (OperationCanceledException)
+            {
+                // Operation canceled. Return null.
+                return null;
+            }
             finally
             {
                 if (lockEntered) Monitor.Exit(m_mutex);
