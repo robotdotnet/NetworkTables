@@ -124,6 +124,11 @@ namespace NetworkTables.TcpSockets
                         }
                         catch (SocketException ex2)
                         {
+                            if (ex2.SocketErrorCode == SocketError.IsConnected)
+                            {
+                                m_active = true;
+                                return false;
+                            }
                             Error($"Select() to {ipAddresses[0]} port {port} error {ex2.SocketErrorCode}");
                         }
                     }
