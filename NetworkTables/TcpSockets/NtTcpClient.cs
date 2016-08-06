@@ -127,7 +127,7 @@ namespace NetworkTables.TcpSockets
                             if (ex2.SocketErrorCode == SocketError.IsConnected)
                             {
                                 m_active = true;
-                                return false;
+                                return true;
                             }
                             Error($"Select() to {ipAddresses[0]} port {port} error {ex2.SocketErrorCode}");
                         }
@@ -138,7 +138,7 @@ namespace NetworkTables.TcpSockets
                         {
                             // A connection refused is an unexceptional case
                             Info($"Connect() to {ipAddresses[0]} port {port} timed out");
-                            return true;
+                            return false;
                         }
                         Error($"Connect() to {ipAddresses[0]} port {port} error {ex.SocketErrorCode}");
                     }
