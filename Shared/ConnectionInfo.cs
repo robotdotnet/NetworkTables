@@ -7,8 +7,8 @@
     {
         /// <summary>Gets the Remote Id of the Connection.</summary>
         public string RemoteId { get; }
-        /// <summary>Gets the Remote Name of the Connection.</summary>
-        public string RemoteName { get; }
+        /// <summary>Gets the Remote IP Address of the Connection.</summary>
+        public string RemoteIp { get; }
         /// <summary>Gets the Remote Port of the Connection.</summary>
         public int RemotePort { get; }
         /// <summary>Gets the last update time of the Connection.</summary>
@@ -16,10 +16,10 @@
         /// <summary>Gets the Protocol Version of the Connection.</summary>
         public int ProtocolVersion { get; }
 
-        internal ConnectionInfo(string rId, string rName, int rPort, long lastUpdate, int protocolVersion)
+        internal ConnectionInfo(string rId, string rIp, int rPort, long lastUpdate, int protocolVersion)
         {
             RemoteId = rId;
-            RemoteName = rName;
+            RemoteIp = rIp;
             RemotePort = rPort;
             LastUpdate = lastUpdate;
             ProtocolVersion = protocolVersion;

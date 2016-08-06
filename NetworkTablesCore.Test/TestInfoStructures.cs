@@ -10,14 +10,14 @@ namespace NetworkTablesCore.Test
         public void TestConnectionInfo()
         {
             string remoteId = "remote";
-            string remoteName = "remoteName";
+            string remoteIp = "remoteIp";
             int remotePort = 1234;
             long lastUpdate = 50;
             int protocolVersion = 3;
-            ConnectionInfo info = new ConnectionInfo(remoteId, remoteName, remotePort, lastUpdate, protocolVersion);
+            ConnectionInfo info = new ConnectionInfo(remoteId, remoteIp, remotePort, lastUpdate, protocolVersion);
 
             Assert.That(info.RemoteId, Is.EqualTo(remoteId));
-            Assert.That(info.RemoteName, Is.EqualTo(remoteName));
+            Assert.That(info.RemoteIp, Is.EqualTo(remoteIp));
             Assert.That(info.RemotePort, Is.EqualTo(remotePort));
             Assert.That(info.LastUpdate, Is.EqualTo(lastUpdate));
             Assert.That(info.ProtocolVersion, Is.EqualTo(protocolVersion));

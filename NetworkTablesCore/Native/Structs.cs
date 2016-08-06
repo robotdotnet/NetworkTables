@@ -74,12 +74,15 @@ namespace NetworkTables.Native
 
 
     //Looks like this will always be created for us by the library, so we do not have to write it.
+    //
     [StructLayout(LayoutKind.Sequential)]
     internal struct NtConnectionInfo
     {
 #pragma warning disable 649
         public readonly NtStringRead RemoteId;
-        public readonly IntPtr RemoteName;
+        //To be switched when #87 gets merged
+        //public readonly NtStringRead RemoteIp;
+        public readonly IntPtr RemoteIp;
         public readonly uint RemotePort;
         public readonly ulong LastUpdate;
         public readonly uint ProtocolVersion;
