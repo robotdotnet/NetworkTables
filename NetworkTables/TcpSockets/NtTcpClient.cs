@@ -105,7 +105,8 @@ namespace NetworkTables.TcpSockets
                         {
                             if (m_clientSocket.Poll(1000, SelectMode.SelectWrite))
                             {
-                                //m_clientSocket.Connect(ipEp);
+                                if (!isProperlySupported)
+                                    m_clientSocket.Connect(ipEp);
                                 // We have connected
                                 m_active = true;
                                 return true;
@@ -123,13 +124,14 @@ namespace NetworkTables.TcpSockets
                     }
                     catch (SocketException ex2)
                     {
-                        /*
-                        if (ex2.SocketErrorCode == SocketError.IsConnected)
+                        if (!isProperlySupported)
                         {
-                            m_active = true;
-                            return true;
+                            if (ex2.SocketErrorCode == SocketError.IsConnected)
+                            {
+                                m_active = true;
+                                return true;
+                            }
                         }
-                        */
                         Error($"Select() to {ipAddresses[0]} port {port} error {ex2.SocketErrorCode}");
                     }
                 }
