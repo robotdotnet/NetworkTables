@@ -473,8 +473,8 @@ namespace NetworkTables
         public static void StopRpcServer()
         {
 #if CORE
-            RemoteProcedureCall.RpcCallbacks.Clear();
             CoreMethods.StopRpcServer();
+            RemoteProcedureCall.s_rpcCallbacks.Clear();
 #else
             RpcServer.Instance.Stop();
 #endif

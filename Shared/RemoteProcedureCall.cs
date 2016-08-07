@@ -14,8 +14,9 @@ namespace NetworkTables
     public static class RemoteProcedureCall
     {
 #if CORE
-        // TODO: Clear these on Rpc shutdown
-        internal static readonly List<Interop.NT_RPCCallback> RpcCallbacks = new List<Interop.NT_RPCCallback>();
+        // Never queried because it is only used to save for the GC
+        // ReSharper disable once CollectionNeverQueried.Global
+        internal static readonly List<Interop.NT_RPCCallback> s_rpcCallbacks = new List<Interop.NT_RPCCallback>();
 #endif
 
         public static void CreateRpc(string name, byte[] def, RpcCallback callback)
@@ -35,7 +36,7 @@ namespace NetworkTables
             UIntPtr nameLen;
             byte[] nameB = CoreMethods.CreateUTF8String(name, out nameLen);
             Interop.NT_CreateRpc(nameB, nameLen, def, (UIntPtr)def.Length, IntPtr.Zero, modCallback);
-            RpcCallbacks.Add(modCallback);
+            s_rpcCallbacks.Add(modCallback);
 #else
             Storage.Instance.CreateRpc(name, def, callback);
 #endif
@@ -73,16 +74,51 @@ namespace NetworkTables
         public static bool PollRpc(bool blocking, TimeSpan timeout, out RpcCallInfo callInfo)
         {
 #if CORE
-            throw new NotImplementedException();
+            Func<RpcCallInfo?> func = () =>
+            {
+                RpcCallInfo info;
+                bool success = PollRpc(true, out info);
+                if (success) return info;
+                return null;
+            };
+
+            var task = Task.Run(func);
+            var completed = task.Wait(timeout);
+            if (completed)
+            {
+                if (task.Result.HasValue)
+                {
+                    callInfo = task.Result.Value;
+                    return true;
+                }
+            }
+            callInfo = new RpcCallInfo();
+            return false;
 #else
             return RpcServer.Instance.PollRpc(blocking, timeout, out callInfo);
 #endif
         }
 
-        public static async Task<RpcCallInfo?> PollRpcAsync(CancellationToken token) 
+        public static async Task<RpcCallInfo?> PollRpcAsync(CancellationToken token)
         {
 #if CORE
-            throw new NotImplementedException();
+            try
+            {
+                Func<RpcCallInfo?> func = () =>
+                {
+                    RpcCallInfo info;
+                    bool success = PollRpc(true, out info);
+                    if (success) return info;
+                    return null;
+                };
+
+                var result = await Task.Run(func, token);
+                return result;
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
+            }
 #else
             return await RpcServer.Instance.PollRpcAsync(token);
 #endif
@@ -132,7 +168,21 @@ namespace NetworkTables
         public static async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
         {
 #if CORE
-            throw new NotImplementedException();
+            try
+            {
+                var result = await Task.Run(() =>
+                {
+                    byte[] info;
+                    bool success = GetRpcResult(true, callUid, out info);
+                    if (success) return info;
+                    return null;
+                }, token);
+                return result;
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
+            }
 #else
             return await Storage.Instance.GetRpcResultAsync(callUid, token);
 #endif
@@ -141,7 +191,21 @@ namespace NetworkTables
         public static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
         {
 #if CORE
-            throw new NotImplementedException();
+            var task = Task.Run(() =>
+            {
+                byte[] info;
+                bool success = GetRpcResult(true, callUid, out info);
+                if (success) return info;
+                return null;
+            });
+            var completed = task.Wait(timeout);
+            if (completed)
+            {
+                result = task.Result;
+                return true;
+            }
+            result = null;
+            return false;
 #else
             return Storage.Instance.GetRpcResult(blocking, callUid, timeout, out result);
 #endif
