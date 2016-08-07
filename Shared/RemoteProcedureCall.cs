@@ -15,8 +15,7 @@ namespace NetworkTables
     {
 #if CORE
         // TODO: Clear these on Rpc shutdown
-        // ReSharper disable once CollectionNeverQueried.Local
-        private static readonly List<Interop.NT_RPCCallback> s_rpcCallbacks = new List<Interop.NT_RPCCallback>();
+        internal static readonly List<Interop.NT_RPCCallback> RpcCallbacks = new List<Interop.NT_RPCCallback>();
 #endif
 
         public static void CreateRpc(string name, byte[] def, RpcCallback callback)
@@ -36,7 +35,7 @@ namespace NetworkTables
             UIntPtr nameLen;
             byte[] nameB = CoreMethods.CreateUTF8String(name, out nameLen);
             Interop.NT_CreateRpc(nameB, nameLen, def, (UIntPtr)def.Length, IntPtr.Zero, modCallback);
-            s_rpcCallbacks.Add(modCallback);
+            RpcCallbacks.Add(modCallback);
 #else
             Storage.Instance.CreateRpc(name, def, callback);
 #endif

@@ -101,7 +101,7 @@ namespace NetworkTables.Tables
         /// <param name="key">The key name.</param>
         /// <param name="defaultValue">The default value if the key does not exist or is null</param>
         /// <returns>The value requested, or defaultValue if the key does not exist or is null.</returns>
-        object GetValue(string key, object defaultValue);
+        Value GetValue(string key, Value defaultValue);
 
         /// <summary>
         /// Returns the value that the key maps to.
@@ -112,7 +112,7 @@ namespace NetworkTables.Tables
         /// exist in the table, or if the key is null.</exception>
         /// <exception cref="TableKeyDifferentTypeException">Thrown if the key exists
         /// as a different type in the table.</exception>
-        object GetValue(string key);
+        Value GetValue(string key);
 
         /// <summary>
         /// Maps the specified key to the specified value in the table. 
@@ -126,7 +126,7 @@ namespace NetworkTables.Tables
         /// <returns>True if the key was set properly, otherwise false</returns>
         /// <exception cref="ArgumentException">Thrown if the value is not a type supported
         /// by the table.</exception>
-        bool PutValue(string key, object value);
+        bool PutValue(string key, Value value);
 
         /// <summary>
         /// Maps the specified key to the specified value in the table. 

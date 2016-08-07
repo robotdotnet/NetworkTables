@@ -2,12 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NetworkTables.Exceptions;
-#if CORE
-using NetworkTables.Native;
-using static NetworkTables.Native.CoreMethods;
-#else
-using static NetworkTables.NtCore;
-#endif
 using NetworkTables.Tables;
 
 
@@ -139,11 +133,11 @@ namespace NetworkTables
                 {
                     List<NtIPAddress> servers = new List<NtIPAddress>(s_ipAddresses.Length);
                     servers.AddRange(s_ipAddresses.Select(ipAddress => new NtIPAddress(ipAddress, Port)));
-                    StartClient(servers);
+                    NtCore.StartClient(servers);
                 }
                 else
                 {
-                    StartServer(PersistentFilename, "", Port);
+                    NtCore.StartServer(PersistentFilename, "", Port);
                 }
                 Running = true;
             }
@@ -160,11 +154,11 @@ namespace NetworkTables
                     return;
                 if (Client)
                 {
-                    StopClient();
+                    NtCore.StopClient();
                 }
                 else
                 {
-                    StopServer();
+                    NtCore.StopServer();
                 }
                 Running = false;
             }
@@ -336,7 +330,7 @@ namespace NetworkTables
         /// <returns>True if the table contains the sub-table, otherwise false</returns>
         public bool ContainsSubTable(string key)
         {
-            return GetEntryInfo(m_path + PathSeperatorChar + key + PathSeperatorChar, 0).Count != 0;
+            return NtCore.GetEntryInfo(m_path + PathSeperatorChar + key + PathSeperatorChar, 0).Count != 0;
         }
 
         /// <summary>
@@ -348,7 +342,7 @@ namespace NetworkTables
         {
             HashSet<string> keys = new HashSet<string>();
             int prefixLen = m_path.Length + 1;
-            foreach (EntryInfo entry in GetEntryInfo(m_path + PathSeperatorChar, types))
+            foreach (EntryInfo entry in NtCore.GetEntryInfo(m_path + PathSeperatorChar, types))
             {
                 string relativeKey = entry.Name.Substring(prefixLen);
                 if (relativeKey.IndexOf(PathSeperatorChar) != -1)
@@ -375,7 +369,7 @@ namespace NetworkTables
         {
             HashSet<string> keys = new HashSet<string>();
             int prefixLen = m_path.Length + 1;
-            foreach (EntryInfo entry in GetEntryInfo(m_path + PathSeperatorChar, 0))
+            foreach (EntryInfo entry in NtCore.GetEntryInfo(m_path + PathSeperatorChar, 0))
             {
                 string relativeKey = entry.Name.Substring(prefixLen);
                 int endSubTable = relativeKey.IndexOf(PathSeperatorChar);
@@ -432,7 +426,7 @@ namespace NetworkTables
         /// <param name="flags">The flags to set. (Bitmask)</param>
         public void SetFlags(string key, EntryFlags flags)
         {
-            SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) | flags);
+            NtCore.SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) | flags);
         }
 
         /// <summary>
@@ -442,7 +436,7 @@ namespace NetworkTables
         /// <param name="flags">The flags to clear. (Bitmask)</param>
         public void ClearFlags(string key, EntryFlags flags)
         {
-            SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) & ~flags);
+            NtCore.SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) & ~flags);
         }
 
         /// <summary>
@@ -452,7 +446,7 @@ namespace NetworkTables
         /// <returns>The flags attached to the key.</returns>
         public EntryFlags GetFlags(string key)
         {
-            return GetEntryFlags(m_path + PathSeperatorChar + key);
+            return NtCore.GetEntryFlags(m_path + PathSeperatorChar + key);
         }
 
         /// <summary>
@@ -461,7 +455,7 @@ namespace NetworkTables
         /// <param name="key">The key name.</param>
         public void Delete(string key)
         {
-            DeleteEntry(m_path + PathSeperatorChar + key);
+            NtCore.DeleteEntry(m_path + PathSeperatorChar + key);
         }
 
         /// <summary>
@@ -469,7 +463,7 @@ namespace NetworkTables
         /// </summary>
         public static void GlobalDeleteAll()
         {
-            DeleteAllEntries();
+            NtCore.DeleteAllEntries();
         }
 
         /// <summary>
@@ -518,432 +512,181 @@ namespace NetworkTables
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public object GetValue(string key)
+        public Value GetValue(string key)
         {
             string localPath = m_path + PathSeperatorChar + key;
-#if CORE
-            NtType type = CoreMethods.GetType(localPath);
-            switch (type)
-            {
-                case NtType.Boolean:
-                    return GetEntryBoolean(localPath);
-                case NtType.Double:
-                    return GetEntryDouble(localPath);
-                case NtType.String:
-                    return GetEntryString(localPath);
-                case NtType.Raw:
-                    return GetEntryRaw(localPath);
-                case NtType.BooleanArray:
-                    return GetEntryBooleanArray(localPath);
-                case NtType.DoubleArray:
-                    return GetEntryDoubleArray(localPath);
-                case NtType.StringArray:
-                    return GetEntryStringArray(localPath);
-                default:
-                    throw new TableKeyNotDefinedException(localPath);
-            }
-#else
-            var v = GetEntryValue(localPath);
+            var v = NtCore.GetEntryValue(localPath);
             if (v == null) throw new TableKeyNotDefinedException(localPath);
-            NtType type = v.Type;
-            switch (type)
-            {
-                case NtType.Boolean:
-                    return v.GetBoolean();
-                case NtType.Double:
-                    return v.GetDouble();
-                case NtType.String:
-                    return v.GetString();
-                case NtType.Raw:
-                    return v.GetRaw();
-                case NtType.BooleanArray:
-                    return v.GetBooleanArray();
-                case NtType.DoubleArray:
-                    return v.GetDoubleArray();
-                case NtType.StringArray:
-                    return v.GetStringArray();
-                default:
-                    throw new TableKeyNotDefinedException(localPath);
-            }
-#endif
+            return v;
         }
 
         ///<inheritdoc/>
-        public object GetValue(string key, object defaultValue)
+        public Value GetValue(string key, Value defaultValue)
         {
             string localPath = m_path + PathSeperatorChar + key;
-#if CORE
-            NtType type = CoreMethods.GetType(localPath);
-            switch (type)
-            {
-                case NtType.Boolean:
-                    return GetEntryBoolean(localPath);
-                case NtType.Double:
-                    return GetEntryDouble(localPath);
-                case NtType.String:
-                    return GetEntryString(localPath);
-                case NtType.Raw:
-                    return GetEntryRaw(localPath);
-                case NtType.BooleanArray:
-                    return GetEntryBooleanArray(localPath);
-                case NtType.DoubleArray:
-                    return GetEntryDoubleArray(localPath);
-                case NtType.StringArray:
-                    return GetEntryStringArray(localPath);
-                default:
-                    return defaultValue;
-            }
-#else
-            var v = GetEntryValue(localPath);
+            var v = NtCore.GetEntryValue(localPath);
             if (v == null) return defaultValue;
-            NtType type = v.Type;
-            switch (type)
-            {
-                case NtType.Boolean:
-                    return v.GetBoolean();
-                case NtType.Double:
-                    return v.GetDouble();
-                case NtType.String:
-                    return v.GetString();
-                case NtType.Raw:
-                    return v.GetRaw();
-                case NtType.BooleanArray:
-                    return v.GetBooleanArray();
-                case NtType.DoubleArray:
-                    return v.GetDoubleArray();
-                case NtType.StringArray:
-                    return v.GetStringArray();
-                default:
-                    return defaultValue;
-            }
-#endif
+            return v;
         }
 
         ///<inheritdoc/>
-        public bool PutValue(string key, object value)
+        public bool PutValue(string key, Value value)
         {
             key = m_path + PathSeperatorChar + key;
-#if CORE
-            //TODO: Make number accept all numbers.
-            if (value is double) return SetEntryDouble(key, (double)value);
-            else if (value is string) return SetEntryString(key, (string)value);
-            else if (value is bool) return SetEntryBoolean(key, (bool)value);
-            else if (value is byte[])
-            {
-                return SetEntryRaw(key, (byte[])value);
-            }
-            else if (value is double[])
-            {
-                return SetEntryDoubleArray(key, (double[])value);
-            }
-            else if (value is bool[])
-            {
-                return SetEntryBooleanArray(key, (bool[])value);
-            }
-            else if (value is string[])
-            {
-                return SetEntryStringArray(key, (string[])value);
-            }
-            else
-            {
-                throw new ArgumentException("Value is either null or an invalid type.");
-            }
-#else
-            //TODO: Make number accept all numbers.
-            if (value is double) return SetEntryValue(key, Value.MakeDouble((double)value));
-            else if (value is string) return SetEntryValue(key, Value.MakeString((string)value));
-            else if (value is bool) return SetEntryValue(key, Value.MakeBoolean((bool)value));
-            else if (value is byte[])
-            {
-                return SetEntryValue(key, Value.MakeRaw((byte[])value));
-            }
-            else if (value is double[])
-            {
-                return SetEntryValue(key, Value.MakeDoubleArray((double[])value));
-            }
-            else if (value is bool[])
-            {
-                return SetEntryValue(key, Value.MakeBooleanArray((bool[])value));
-            }
-            else if (value is string[])
-            {
-                return SetEntryValue(key, Value.MakeStringArray((string[])value));
-            }
-            else
-            {
-                throw new ArgumentException("Value is either null or an invalid type.");
-            }
-#endif
+            return NtCore.SetEntryValue(key, value);
         }
-#if !CORE
-        private void ThrowException(string name, Value v, NtType requestedType)
-        {
-            if (v == null || v.Type == NtType.Unassigned)
-            {
-                throw new TableKeyNotDefinedException(name);
-            }
-            else
-            {
-                throw new TableKeyDifferentTypeException(name, requestedType, v.Type);
-            }
-        }
-#endif
 
         ///<inheritdoc/>
         public bool PutNumber(string key, double value)
         {
-#if CORE
-            return SetEntryDouble(m_path + PathSeperatorChar + key, value);
-#else
-            return SetEntryValue(m_path + PathSeperatorChar + key, Value.MakeDouble(value));
-#endif
+
+            return NtCore.SetEntryDouble(m_path + PathSeperatorChar + key, value);
         }
 
         ///<inheritdoc/>
         public double GetNumber(string key, double defaultValue)
         {
-#if CORE
-            return GetEntryDouble(m_path + PathSeperatorChar + key, defaultValue);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.Double) return defaultValue;
-            return v.GetDouble();
-#endif
+
+            return NtCore.GetEntryDouble(m_path + PathSeperatorChar + key, defaultValue);
         }
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
         public double GetNumber(string key)
         {
-#if CORE
-            return GetEntryDouble(m_path + PathSeperatorChar + key);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.Double)
-                ThrowException(m_path + PathSeperatorChar + key, v, NtType.Double);
-            // ReSharper disable once PossibleNullReferenceException
-            return v.GetDouble();
-#endif
+
+            return NtCore.GetEntryDouble(m_path + PathSeperatorChar + key);
         }
 
         ///<inheritdoc/>
         public bool PutString(string key, string value)
         {
-#if CORE
-            return SetEntryString(m_path + PathSeperatorChar + key, value);
-#else
-            return SetEntryValue(m_path + PathSeperatorChar + key, Value.MakeString(value));
-#endif
+
+            return NtCore.SetEntryString(m_path + PathSeperatorChar + key, value);
         }
 
         ///<inheritdoc/>
         public string GetString(string key, string defaultValue)
         {
-#if CORE
-            return GetEntryString(m_path + PathSeperatorChar + key, defaultValue);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.String) return defaultValue;
-            return v.GetString();
-#endif
+
+            return NtCore.GetEntryString(m_path + PathSeperatorChar + key, defaultValue);
         }
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
         public string GetString(string key)
         {
-#if CORE
-            return GetEntryString(m_path + PathSeperatorChar + key);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.String)
-                ThrowException(m_path + PathSeperatorChar + key, v, NtType.String);
-            // ReSharper disable once PossibleNullReferenceException
-            return v.GetString();
-#endif
+
+            return NtCore.GetEntryString(m_path + PathSeperatorChar + key);
         }
 
         ///<inheritdoc/>
         public bool PutBoolean(string key, bool value)
         {
-#if CORE
-            return SetEntryBoolean(m_path + PathSeperatorChar + key, value);
-#else
-            return SetEntryValue(m_path + PathSeperatorChar + key, Value.MakeBoolean(value));
-#endif
+
+            return NtCore.SetEntryBoolean(m_path + PathSeperatorChar + key, value);
         }
 
         ///<inheritdoc/>
         public bool GetBoolean(string key, bool defaultValue)
         {
-#if CORE
-            return GetEntryBoolean(m_path + PathSeperatorChar + key, defaultValue);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.Boolean) return defaultValue;
-            return v.GetBoolean();
-#endif
+
+            return NtCore.GetEntryBoolean(m_path + PathSeperatorChar + key, defaultValue);
         }
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
         public bool GetBoolean(string key)
         {
-#if CORE
-            return GetEntryBoolean(m_path + PathSeperatorChar + key);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.Boolean)
-                ThrowException(m_path + PathSeperatorChar + key, v, NtType.Boolean);
-            // ReSharper disable once PossibleNullReferenceException
-            return v.GetBoolean();
-#endif
+
+            return NtCore.GetEntryBoolean(m_path + PathSeperatorChar + key);
         }
 
         ///<inheritdoc/>
         public bool PutStringArray(string key, string[] value)
         {
-#if CORE
-            return SetEntryStringArray(m_path + PathSeperatorChar + key, value);
-#else
-            return SetEntryValue(m_path + PathSeperatorChar + key, Value.MakeStringArray(value));
-#endif
+
+            return NtCore.SetEntryStringArray(m_path + PathSeperatorChar + key, value);
         }
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
         public string[] GetStringArray(string key)
         {
-#if CORE
-            return GetEntryStringArray(m_path + PathSeperatorChar + key);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.StringArray)
-                ThrowException(m_path + PathSeperatorChar + key, v, NtType.StringArray);
-            // ReSharper disable once PossibleNullReferenceException
-            return v.GetStringArray();
-#endif
+
+            return NtCore.GetEntryStringArray(m_path + PathSeperatorChar + key);
         }
 
         ///<inheritdoc/>
         public string[] GetStringArray(string key, string[] defaultValue)
         {
-#if CORE
-            return GetEntryStringArray(m_path + PathSeperatorChar + key, defaultValue);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.StringArray) return defaultValue;
-            return v.GetStringArray();
-#endif
+
+            return NtCore.GetEntryStringArray(m_path + PathSeperatorChar + key, defaultValue);
+
         }
 
         ///<inheritdoc/>
         public bool PutNumberArray(string key, double[] value)
         {
-#if CORE
-            return SetEntryDoubleArray(m_path + PathSeperatorChar + key, value);
-#else
-            return SetEntryValue(m_path + PathSeperatorChar + key, Value.MakeDoubleArray(value));
-#endif
+
+            return NtCore.SetEntryDoubleArray(m_path + PathSeperatorChar + key, value);
         }
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
         public double[] GetNumberArray(string key)
         {
-#if CORE
-            return GetEntryDoubleArray(m_path + PathSeperatorChar + key);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.DoubleArray)
-                ThrowException(m_path + PathSeperatorChar + key, v, NtType.DoubleArray);
-            // ReSharper disable once PossibleNullReferenceException
-            return v.GetDoubleArray();
-#endif
+
+            return NtCore.GetEntryDoubleArray(m_path + PathSeperatorChar + key);
         }
 
         ///<inheritdoc/>
         public double[] GetNumberArray(string key, double[] defaultValue)
         {
-#if CORE
-            return GetEntryDoubleArray(m_path + PathSeperatorChar + key, defaultValue);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.DoubleArray) return defaultValue;
-            return v.GetDoubleArray();
-#endif
+
+            return NtCore.GetEntryDoubleArray(m_path + PathSeperatorChar + key, defaultValue);
         }
 
         ///<inheritdoc/>
         public bool PutBooleanArray(string key, bool[] value)
         {
-#if CORE
-            return SetEntryBooleanArray(m_path + PathSeperatorChar + key, value);
-#else
-            return SetEntryValue(m_path + PathSeperatorChar + key, Value.MakeBooleanArray(value));
-#endif
+
+            return NtCore.SetEntryBooleanArray(m_path + PathSeperatorChar + key, value);
         }
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
         public bool[] GetBooleanArray(string key)
         {
-#if CORE
-            return GetEntryBooleanArray(m_path + PathSeperatorChar + key);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.BooleanArray)
-                ThrowException(m_path + PathSeperatorChar + key, v, NtType.BooleanArray);
-            // ReSharper disable once PossibleNullReferenceException
-            return v.GetBooleanArray();
-#endif
+
+            return NtCore.GetEntryBooleanArray(m_path + PathSeperatorChar + key);
         }
 
         ///<inheritdoc/>
         public bool PutRaw(string key, byte[] value)
         {
-#if CORE
-            return SetEntryRaw(m_path + PathSeperatorChar + key, value);
-#else
-            return SetEntryValue(m_path + PathSeperatorChar + key, Value.MakeRaw(value));
-#endif
+
+            return NtCore.SetEntryRaw(m_path + PathSeperatorChar + key, value);
         }
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
         public byte[] GetRaw(string key)
         {
-#if CORE
-            return GetEntryRaw(m_path + PathSeperatorChar + key);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.Raw)
-                ThrowException(m_path + PathSeperatorChar + key, v, NtType.Raw);
-            // ReSharper disable once PossibleNullReferenceException
-            return v.GetRaw();
-#endif
+
+            return NtCore.GetEntryRaw(m_path + PathSeperatorChar + key);
         }
         ///<inheritdoc/>
         public byte[] GetRaw(string key, byte[] defaultValue)
         {
-#if CORE
-            return GetEntryRaw(m_path + PathSeperatorChar + key, defaultValue);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.Raw) return defaultValue;
-            return v.GetRaw();
-#endif
+
+            return NtCore.GetEntryRaw(m_path + PathSeperatorChar + key, defaultValue);
         }
 
         ///<inheritdoc/>
         public bool[] GetBooleanArray(string key, bool[] defaultValue)
         {
-#if CORE
-            return GetEntryBooleanArray(m_path + PathSeperatorChar + key, defaultValue);
-#else
-            var v = GetEntryValue(m_path + PathSeperatorChar + key);
-            if (v == null || v.Type != NtType.BooleanArray) return defaultValue;
-            return v.GetBooleanArray();
-#endif
+
+            return NtCore.GetEntryBooleanArray(m_path + PathSeperatorChar + key, defaultValue);
         }
 
         private readonly Dictionary<ITableListener, List<int>> m_listenerMap = new Dictionary<ITableListener, List<int>>();
@@ -971,7 +714,7 @@ namespace NetworkTables
                 listener.ValueChanged(this, relativeKey, value, flags_);
             };
 
-            int id = AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
             adapters.Add(id);
         }
@@ -994,7 +737,7 @@ namespace NetworkTables
                 listener.ValueChanged(this, key, value, flags_);
             };
 
-            int id = AddEntryListener(fullKey, func, flags);
+            int id = NtCore.AddEntryListener(fullKey, func, flags);
 
             adapters.Add(id);
         }
@@ -1025,7 +768,7 @@ namespace NetworkTables
             NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
             if (localNotify)
                 flags |= NotifyFlags.NotifyLocal;
-            int id = AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
             adapters.Add(id);
         }
@@ -1062,7 +805,7 @@ namespace NetworkTables
             {
                 foreach (int t in adapters)
                 {
-                    RemoveEntryListener(t);
+                    NtCore.RemoveEntryListener(t);
                 }
                 adapters.Clear();
             }
@@ -1090,7 +833,7 @@ namespace NetworkTables
                 listenerDelegate(this, relativeKey, value, flags_);
             };
 
-            int id = AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
             adapters.Add(id);
         }
@@ -1113,7 +856,7 @@ namespace NetworkTables
                 listenerDelegate(this, key, value, flags_);
             };
 
-            int id = AddEntryListener(fullKey, func, flags);
+            int id = NtCore.AddEntryListener(fullKey, func, flags);
 
             adapters.Add(id);
         }
@@ -1144,7 +887,7 @@ namespace NetworkTables
             NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
             if (localNotify)
                 flags |= NotifyFlags.NotifyLocal;
-            int id = AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
             adapters.Add(id);
         }
@@ -1181,7 +924,7 @@ namespace NetworkTables
             {
                 foreach (int t in adapters)
                 {
-                    RemoveEntryListener(t);
+                    NtCore.RemoveEntryListener(t);
                 }
                 adapters.Clear();
             }
@@ -1255,7 +998,7 @@ namespace NetworkTables
         {
             get
             {
-                var conns = GetConnections();
+                var conns = NtCore.GetConnections();
                 return conns.Count > 0;
             }
         }
@@ -1271,7 +1014,7 @@ namespace NetworkTables
         /// <returns>An array of all connections attached to this instance.</returns>
         public static List<ConnectionInfo> Connections()
         {
-            return GetConnections();
+            return NtCore.GetConnections();
         }
 
         /// <summary>

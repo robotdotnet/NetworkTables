@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NetworkTables
+namespace NetworkTables.Independent
 {
     /// <summary>
     /// A RemoteProcedureCall class that can be run without the static NetworkTables implmentation
     /// </summary>
-    public class StandaloneRemoteProcedureCall
+    public class IndependentRemoteProcedureCall
     {
-        private readonly StandaloneNtCore m_ntCore;
+        private readonly IndependentNtCore m_ntCore;
 
         /// <summary>
-        /// Creates a new <see cref="StandaloneNetworkTable"/> object from a <see cref="StandaloneNtCore"/> object
+        /// Creates a new <see cref="IndependentNetworkTable"/> object from a <see cref="IndependentNtCore"/> object
         /// </summary>
-        /// <param name="ntCore">The <see cref="StandaloneNtCore"/> object to use</param>
-        public StandaloneRemoteProcedureCall(StandaloneNtCore ntCore)
+        /// <param name="ntCore">The <see cref="IndependentNtCore"/> object to use</param>
+        public IndependentRemoteProcedureCall(IndependentNtCore ntCore)
         {
             m_ntCore = ntCore;
         }

@@ -4,9 +4,9 @@ using System.Linq;
 using NetworkTables.Exceptions;
 using NetworkTables.Logging;
 
-namespace NetworkTables
+namespace NetworkTables.Independent
 {
-    public class StandaloneNtCore
+    public class IndependentNtCore
     {
         public const int DefaultPort = NetworkTable.DefaultPort;
 
@@ -17,9 +17,9 @@ namespace NetworkTables
 
         private readonly object m_lockObject = new object();
 
-        
 
-        public StandaloneNtCore()
+
+        public IndependentNtCore()
         {
             m_notifier = new Notifier();
             m_rpcServer = new RpcServer();
@@ -38,6 +38,169 @@ namespace NetworkTables
             m_rpcServer.Dispose();
             m_notifier.Dispose();
         }
+
+        public bool SetEntryBoolean(string name, bool value, bool force = false)
+        {
+            return m_storage.SetEntryValue(name, Value.MakeBoolean(value));
+
+        }
+
+        public bool SetEntryDouble(string name, double value, bool force = false)
+        {
+            return m_storage.SetEntryValue(name, Value.MakeDouble(value));
+
+        }
+
+        public bool SetEntryString(string name, string value, bool force = false)
+        {
+            return m_storage.SetEntryValue(name, Value.MakeString(value));
+
+        }
+
+        public bool SetEntryBooleanArray(string name, bool[] value, bool force = false)
+        {
+            return m_storage.SetEntryValue(name, Value.MakeBooleanArray(value));
+
+        }
+
+        public bool SetEntryDoubleArray(string name, double[] value, bool force = false)
+        {
+
+            return m_storage.SetEntryValue(name, Value.MakeDoubleArray(value));
+
+        }
+
+        public bool SetEntryStringArray(string name, string[] value, bool force = false)
+        {
+            return m_storage.SetEntryValue(name, Value.MakeStringArray(value));
+
+        }
+
+        public bool SetEntryRaw(string name, byte[] value, bool force = false)
+        {
+            return m_storage.SetEntryValue(name, Value.MakeRaw(value));
+
+        }
+
+
+
+        #region ThrowingGetters
+
+        public bool GetEntryBoolean(string name)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsBoolean()) NtCore.ThrowException(name, v, NtType.Boolean);
+            return v.GetBoolean();
+
+        }
+
+        public double GetEntryDouble(string name)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsDouble()) NtCore.ThrowException(name, v, NtType.Double);
+            return v.GetDouble();
+
+        }
+
+        public string GetEntryString(string name)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsString()) NtCore.ThrowException(name, v, NtType.String);
+            return v.GetString();
+
+        }
+
+        public bool[] GetEntryBooleanArray(string name)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsBooleanArray()) NtCore.ThrowException(name, v, NtType.BooleanArray);
+            return v.GetBooleanArray();
+
+        }
+
+        public double[] GetEntryDoubleArray(string name)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsDoubleArray()) NtCore.ThrowException(name, v, NtType.DoubleArray);
+            return v.GetDoubleArray();
+
+        }
+
+        public string[] GetEntryStringArray(string name)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsStringArray()) NtCore.ThrowException(name, v, NtType.StringArray);
+            return v.GetStringArray();
+
+        }
+
+        public byte[] GetEntryRaw(string name)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsRaw()) NtCore.ThrowException(name, v, NtType.Raw);
+            return v.GetRaw();
+
+        }
+
+        #endregion
+
+        #region DefaultGetters
+        public bool GetEntryBoolean(string name, bool defaultValue)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsBoolean()) return defaultValue;
+            return v.GetBoolean();
+
+        }
+
+        public double GetEntryDouble(string name, double defaultValue)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsDouble()) return defaultValue;
+            return v.GetDouble();
+
+        }
+
+        public string GetEntryString(string name, string defaultValue)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsString()) return defaultValue;
+            return v.GetString();
+
+        }
+
+        public bool[] GetEntryBooleanArray(string name, bool[] defaultValue)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsBooleanArray()) return defaultValue;
+            return v.GetBooleanArray();
+
+        }
+
+        public double[] GetEntryDoubleArray(string name, double[] defaultValue)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsDoubleArray()) return defaultValue;
+            return v.GetDoubleArray();
+
+        }
+
+        public string[] GetEntryStringArray(string name, string[] defaultValue)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsStringArray()) return defaultValue;
+            return v.GetStringArray();
+
+        }
+
+        public byte[] GetEntryRaw(string name, byte[] defaultValue)
+        {
+            var v = m_storage.GetEntryValue(name);
+            if (v == null || !v.IsRaw()) return defaultValue;
+            return v.GetRaw();
+
+        }
+        #endregion
 
         public Value GetEntryValue(string name)
         {

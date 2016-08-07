@@ -12,10 +12,249 @@ namespace NetworkTables
 {
     public static class NtCore
     {
+        public static bool SetEntryBoolean(string name, bool value, bool force = false)
+        {
+#if CORE
+            return CoreMethods.SetEntryBoolean(name, value, force);
+#else
+            return Storage.Instance.SetEntryValue(name, Value.MakeBoolean(value));
+#endif
+        }
+
+        public static bool SetEntryDouble(string name, double value, bool force = false)
+        {
+#if CORE
+            return CoreMethods.SetEntryDouble(name, value, force);
+#else
+            return Storage.Instance.SetEntryValue(name, Value.MakeDouble(value));
+#endif
+        }
+
+        public static bool SetEntryString(string name, string value, bool force = false)
+        {
+#if CORE
+            return CoreMethods.SetEntryString(name, value, force);
+#else
+            return Storage.Instance.SetEntryValue(name, Value.MakeString(value));
+#endif
+        }
+
+        public static bool SetEntryBooleanArray(string name, bool[] value, bool force = false)
+        {
+#if CORE
+            return CoreMethods.SetEntryBooleanArray(name, value, force);
+#else
+            return Storage.Instance.SetEntryValue(name, Value.MakeBooleanArray(value));
+#endif
+        }
+
+        public static bool SetEntryDoubleArray(string name, double[] value, bool force = false)
+        {
+#if CORE
+            return CoreMethods.SetEntryDoubleArray(name, value, force);
+#else
+            return Storage.Instance.SetEntryValue(name, Value.MakeDoubleArray(value));
+#endif
+        }
+
+        public static bool SetEntryStringArray(string name, string[] value, bool force = false)
+        {
+#if CORE
+            return CoreMethods.SetEntryStringArray(name, value, force);
+#else
+            return Storage.Instance.SetEntryValue(name, Value.MakeStringArray(value));
+#endif
+        }
+
+        public static bool SetEntryRaw(string name, byte[] value, bool force = false)
+        {
+#if CORE
+            return CoreMethods.SetEntryRaw(name, value, force);
+#else
+            return Storage.Instance.SetEntryValue(name, Value.MakeRaw(value));
+#endif
+        }
+
+
+
+        #region ThrowingGetters
+
+#if !CORE
+        internal static void ThrowException(string name, Value v, NtType requestedType)
+        {
+            if (v == null || v.Type == NtType.Unassigned)
+            {
+                throw new TableKeyNotDefinedException(name);
+            }
+            else
+            {
+                throw new TableKeyDifferentTypeException(name, requestedType, v.Type);
+            }
+        }
+#endif
+
+        public static bool GetEntryBoolean(string name)
+        {
+#if CORE
+            return CoreMethods.GetEntryBoolean(name);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsBoolean()) ThrowException(name, v, NtType.Boolean);
+            return v.GetBoolean();
+#endif
+        }
+
+        public static double GetEntryDouble(string name)
+        {
+#if CORE
+            return CoreMethods.GetEntryDouble(name);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsDouble()) ThrowException(name, v, NtType.Double);
+            return v.GetDouble();
+#endif
+        }
+
+        public static string GetEntryString(string name)
+        {
+#if CORE
+            return CoreMethods.GetEntryString(name);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsString()) ThrowException(name, v, NtType.String);
+            return v.GetString();
+#endif
+        }
+
+        public static bool[] GetEntryBooleanArray(string name)
+        {
+#if CORE
+            return CoreMethods.GetEntryBooleanArray(name);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsBooleanArray()) ThrowException(name, v, NtType.BooleanArray);
+            return v.GetBooleanArray();
+#endif
+        }
+
+        public static double[] GetEntryDoubleArray(string name)
+        {
+#if CORE
+            return CoreMethods.GetEntryDoubleArray(name);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsDoubleArray()) ThrowException(name, v, NtType.DoubleArray);
+            return v.GetDoubleArray();
+#endif
+        }
+
+        public static string[] GetEntryStringArray(string name)
+        {
+#if CORE
+            return CoreMethods.GetEntryStringArray(name);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsStringArray()) ThrowException(name, v, NtType.StringArray);
+            return v.GetStringArray();
+#endif
+        }
+
+        public static byte[] GetEntryRaw(string name)
+        {
+#if CORE
+            return CoreMethods.GetEntryRaw(name);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsRaw()) ThrowException(name, v, NtType.Raw);
+            return v.GetRaw();
+#endif
+        }
+
+        #endregion
+
+        #region DefaultGetters
+        public static bool GetEntryBoolean(string name, bool defaultValue)
+        {
+#if CORE
+            return CoreMethods.GetEntryBoolean(name, defaultValue);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsBoolean()) return defaultValue;
+            return v.GetBoolean();
+#endif
+        }
+
+        public static double GetEntryDouble(string name, double defaultValue)
+        {
+#if CORE
+            return CoreMethods.GetEntryDouble(name, defaultValue);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsDouble()) return defaultValue;
+            return v.GetDouble();
+#endif
+        }
+
+        public static string GetEntryString(string name, string defaultValue)
+        {
+#if CORE
+            return CoreMethods.GetEntryString(name, defaultValue);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsString()) return defaultValue;
+            return v.GetString();
+#endif
+        }
+
+        public static bool[] GetEntryBooleanArray(string name, bool[] defaultValue)
+        {
+#if CORE
+            return CoreMethods.GetEntryBooleanArray(name, defaultValue);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsBooleanArray()) return defaultValue;
+            return v.GetBooleanArray();
+#endif
+        }
+
+        public static double[] GetEntryDoubleArray(string name, double[] defaultValue)
+        {
+#if CORE
+            return CoreMethods.GetEntryDoubleArray(name, defaultValue);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsDoubleArray()) return defaultValue;
+            return v.GetDoubleArray();
+#endif
+        }
+
+        public static string[] GetEntryStringArray(string name, string[] defaultValue)
+        {
+#if CORE
+            return CoreMethods.GetEntryStringArray(name, defaultValue);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsStringArray()) return defaultValue;
+            return v.GetStringArray();
+#endif
+        }
+
+        public static byte[] GetEntryRaw(string name, byte[] defaultValue)
+        {
+#if CORE
+            return CoreMethods.GetEntryRaw(name, defaultValue);
+#else
+            var v = Storage.Instance.GetEntryValue(name);
+            if (v == null || !v.IsRaw()) return defaultValue;
+            return v.GetRaw();
+#endif
+        }
+#endregion
+
         public static Value GetEntryValue(string name)
         {
 #if CORE
-            throw new NotImplementedException("Not implemented in NetworkTablesCore yet");
+            return CoreMethods.GetEntryValue(name);
 #else
             return Storage.Instance.GetEntryValue(name);
 #endif
@@ -24,7 +263,7 @@ namespace NetworkTables
         public static bool SetEntryValue(string name, Value value)
         {
 #if CORE
-            throw new NotImplementedException("Not implemented in NetworkTablesCore yet");
+            return CoreMethods.SetEntryValue(name, value);
 #else
             return Storage.Instance.SetEntryValue(name, value);
 #endif
@@ -43,7 +282,7 @@ namespace NetworkTables
         public static void SetEntryTypeValue(string name, Value value)
         {
 #if CORE
-            throw new NotImplementedException("Not implemented in NetworkTablesCore yet");
+            CoreMethods.SetEntryValue(name, value, true);
 #else
             Storage.Instance.SetEntryTypeValue(name, value);
 #endif
@@ -234,6 +473,7 @@ namespace NetworkTables
         public static void StopRpcServer()
         {
 #if CORE
+            RemoteProcedureCall.RpcCallbacks.Clear();
             CoreMethods.StopRpcServer();
 #else
             RpcServer.Instance.Stop();

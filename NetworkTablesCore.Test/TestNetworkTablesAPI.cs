@@ -294,6 +294,8 @@ namespace NetworkTablesCore.Test
 
 #region Getters and Setters
 
+        // TODO: Rewrite
+        /*
         [Test]
         [TestCase(3.56, ExpectedResult = 3.56)]
         [TestCase(true, ExpectedResult = true)]
@@ -318,7 +320,7 @@ namespace NetworkTablesCore.Test
             }
             else if (value is byte[])
             {
-                m_table.PutValue(key, (byte[])value);
+                m_table.PutRaw(key, (byte[])value);
             }
             else if (value is double[])
             {
@@ -338,6 +340,7 @@ namespace NetworkTablesCore.Test
             }
             return m_table.GetValue(key);
         }
+        */
 
         [Test]
         public void TestGetValueStringArray()
@@ -347,7 +350,10 @@ namespace NetworkTablesCore.Test
 
             m_table.PutStringArray(key, array);
 
-            Assert.That(m_table.GetValue(key), Is.EquivalentTo(array));
+            var v = m_table.GetValue(key);
+            Assert.That(v, Is.Not.Null);
+
+            Assert.That(v.GetStringArray(), Is.EquivalentTo(array));
         }
 
         [Test]
@@ -356,8 +362,8 @@ namespace NetworkTablesCore.Test
             Assert.Throws<TableKeyNotDefinedException>(() => m_table.GetValue("key"));
         }
 
-
-
+        // TODO: Rewrite
+        /*
         [Test]
         [TestCase(3.56, ExpectedResult = 3.56)]
         [TestCase(true, ExpectedResult = true)]
@@ -382,7 +388,7 @@ namespace NetworkTablesCore.Test
             }
             else if (value is byte[])
             {
-                m_table.PutValue(key, (byte[])value);
+                m_table.PutRaw(key, (byte[])value);
             }
             else if (value is double[])
             {
@@ -402,7 +408,7 @@ namespace NetworkTablesCore.Test
             }
             return m_table.GetValue(key, null);
         }
-
+        */
         [Test]
         public void TestGetValueStringArrayDefault()
         {
@@ -411,15 +417,14 @@ namespace NetworkTablesCore.Test
 
             m_table.PutStringArray(key, array);
 
-            Assert.That(m_table.GetValue(key, null), Is.EquivalentTo(array));
+            var v = m_table.GetValue(key);
+            Assert.That(v, Is.Not.Null);
+
+            Assert.That(v.GetStringArray(), Is.EquivalentTo(array));
         }
 
-        [Test]
-        public void TestGetValueInvalidDefault()
-        {
-            Assert.That(m_table.GetValue("key", "value"), Is.EqualTo("value"));
-        }
-
+        // TODO: REWRITE
+        /*
         [Test]
         [TestCase(3.56, ExpectedResult = 3.56)]
         [TestCase(true, ExpectedResult = true)]
@@ -433,6 +438,7 @@ namespace NetworkTablesCore.Test
             m_table.PutValue(key, value);
             return m_table.GetValue(key);
         }
+        */
 
         [Test]
         public void TestPutValueStringArray()
@@ -440,15 +446,12 @@ namespace NetworkTablesCore.Test
             string key = "key";
             string[] array = new[] { "Hello1", "Hello2" };
 
-            m_table.PutValue(key, array);
+            m_table.PutValue(key, Value.MakeStringArray(array));
 
-            Assert.That(m_table.GetValue(key), Is.EquivalentTo(array));
-        }
+            var v = m_table.GetValue(key);
+            Assert.That(v, Is.Not.Null);
 
-        [Test]
-        public void TestInvalidPutValue()
-        {
-            Assert.Throws<ArgumentException>(() => m_table.PutValue("key", this));
+            Assert.That(v.GetStringArray(), Is.EquivalentTo(array));
         }
 
 

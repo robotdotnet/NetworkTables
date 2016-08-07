@@ -118,13 +118,5 @@ namespace NetworkTables.Test.NetworkTablesApi
             bool retVal = m_nt.PutNumberArray("emptyNumberArray", new double[0]);
             Assert.IsTrue(retVal);
         }
-        [Test]
-        public void TestInvalidValueSet()
-        {
-            Assert.Throws<ArgumentException>(() =>
-            {
-                m_nt.PutValue("randomValue", m_nt);
-            });
-        }
     }
 }

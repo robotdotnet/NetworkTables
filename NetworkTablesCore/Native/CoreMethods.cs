@@ -19,6 +19,30 @@ namespace NetworkTables.Native
     {
 
         #region Setters
+
+        internal static bool SetEntryValue(string name, Value value, bool force = false)
+        {
+            switch (value.Type)
+            {
+                case NtType.Boolean:
+                    return SetEntryBoolean(name, value.GetBoolean(), force);
+                case NtType.Double:
+                    return SetEntryDouble(name, value.GetDouble(), force);
+                case NtType.String:
+                    return SetEntryString(name, value.GetString(), force);
+                case NtType.Raw:
+                    return SetEntryRaw(name, value.GetRpc(), force);
+                case NtType.BooleanArray:
+                    return SetEntryBooleanArray(name, value.GetBooleanArray(), force);
+                case NtType.DoubleArray:
+                    return SetEntryDoubleArray(name, value.GetDoubleArray(), force);
+                case NtType.StringArray:
+                    return SetEntryStringArray(name, value.GetStringArray(), force);
+                default:
+                    return false;
+            }
+        }
+
         internal static bool SetEntryBoolean(string name, bool value, bool force = false)
         {
             UIntPtr size;
@@ -49,7 +73,7 @@ namespace NetworkTables.Native
         {
             UIntPtr size;
             byte[] namePtr = CreateUTF8String(name, out size);
-            int retVal = Interop.NT_SetEntryRaw(namePtr, size, value, (UIntPtr)value.Length, force ? 1 : 0);
+            int retVal = Interop.NT_SetEntryRaw(namePtr, size, value, (UIntPtr) value.Length, force ? 1 : 0);
             return retVal != 0;
         }
 
@@ -64,7 +88,7 @@ namespace NetworkTables.Native
                 valueIntArr[i] = value[i] ? 1 : 0;
             }
 
-            int retVal = Interop.NT_SetEntryBooleanArray(namePtr, size, valueIntArr, (UIntPtr)valueIntArr.Length, force ? 1 : 0);
+            int retVal = Interop.NT_SetEntryBooleanArray(namePtr, size, valueIntArr, (UIntPtr) valueIntArr.Length, force ? 1 : 0);
 
             return retVal != 0;
         }
@@ -74,7 +98,7 @@ namespace NetworkTables.Native
             UIntPtr size;
             byte[] namePtr = CreateUTF8String(name, out size);
 
-            int retVal = Interop.NT_SetEntryDoubleArray(namePtr, size, value, (UIntPtr)value.Length, force ? 1 : 0);
+            int retVal = Interop.NT_SetEntryDoubleArray(namePtr, size, value, (UIntPtr) value.Length, force ? 1 : 0);
 
             return retVal != 0;
         }
@@ -90,7 +114,7 @@ namespace NetworkTables.Native
                 ntStrings[i] = new NtStringWrite(value[i]);
             }
 
-            int retVal = Interop.NT_SetEntryStringArray(namePtr, size, ntStrings, (UIntPtr)ntStrings.Length, force ? 1 : 0);
+            int retVal = Interop.NT_SetEntryStringArray(namePtr, size, ntStrings, (UIntPtr) ntStrings.Length, force ? 1 : 0);
 
             foreach (var ntString in ntStrings)
             {
@@ -103,6 +127,7 @@ namespace NetworkTables.Native
         #endregion
 
         #region DefaultGetters
+
         internal static bool GetEntryBoolean(string name, bool defaultValue)
         {
             UIntPtr size;
@@ -216,9 +241,41 @@ namespace NetworkTables.Native
             Interop.NT_FreeStringArray(arrPtr, arrSize);
             return arr;
         }
+
         #endregion
 
         #region Getters
+
+        internal static Value GetEntryValue(string name)
+        {
+            NtType type = GetType(name);
+            try
+            {
+                switch (type)
+                {
+                    case NtType.Boolean:
+                        return Value.MakeBoolean(GetEntryBoolean(name));
+                    case NtType.Double:
+                        return Value.MakeDouble(GetEntryDouble(name));
+                    case NtType.String:
+                        return Value.MakeString(GetEntryString(name));
+                    case NtType.Raw:
+                        return Value.MakeRaw(GetEntryRaw(name));
+                    case NtType.BooleanArray:
+                        return Value.MakeBooleanArray(GetEntryBooleanArray(name));
+                    case NtType.DoubleArray:
+                        return Value.MakeDoubleArray(GetEntryDoubleArray(name));
+                    case NtType.StringArray:
+                        return Value.MakeStringArray(GetEntryStringArray(name));
+                    default:
+                        return null;
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+        }
 
         private static void ThrowException(string name, byte[] namePtr, UIntPtr size, NtType requestedType)
         {
@@ -340,6 +397,7 @@ namespace NetworkTables.Native
             Interop.NT_FreeStringArray(arrPtr, arrSize);
             return arr;
         }
+
         #endregion
 
         #region EntryInfo
@@ -349,20 +407,21 @@ namespace NetworkTables.Native
             UIntPtr size;
             byte[] str = CreateUTF8String(prefix, out size);
             UIntPtr arrSize = UIntPtr.Zero;
-            IntPtr arr = Interop.NT_GetEntryInfo(str, size, (uint)types, ref arrSize);
+            IntPtr arr = Interop.NT_GetEntryInfo(str, size, (uint) types, ref arrSize);
             int entryInfoSize = Marshal.SizeOf(typeof(NtEntryInfo));
-            int arraySize = (int)arrSize.ToUInt64();
+            int arraySize = (int) arrSize.ToUInt64();
             List<EntryInfo> entryArray = new List<EntryInfo>(arraySize);
 
             for (int i = 0; i < arraySize; i++)
             {
-                IntPtr data = new IntPtr(arr.ToInt64() + entryInfoSize * i);
-                NtEntryInfo info = (NtEntryInfo)Marshal.PtrToStructure(data, typeof(NtEntryInfo));
-                entryArray.Add(new EntryInfo(info.name.ToString(), info.type, (EntryFlags)info.flags, (long)info.last_change));
+                IntPtr data = new IntPtr(arr.ToInt64() + entryInfoSize*i);
+                NtEntryInfo info = (NtEntryInfo) Marshal.PtrToStructure(data, typeof(NtEntryInfo));
+                entryArray.Add(new EntryInfo(info.name.ToString(), info.type, (EntryFlags) info.flags, (long) info.last_change));
             }
             Interop.NT_DisposeEntryInfoArray(arr, arrSize);
             return entryArray;
         }
+
         #endregion
 
         #region ConnectionInfo
@@ -372,24 +431,25 @@ namespace NetworkTables.Native
             UIntPtr count = UIntPtr.Zero;
             IntPtr connections = Interop.NT_GetConnections(ref count);
             int connectionInfoSize = Marshal.SizeOf(typeof(NtConnectionInfo));
-            int arraySize = (int)count.ToUInt64();
+            int arraySize = (int) count.ToUInt64();
 
             List<ConnectionInfo> connectionsArray = new List<ConnectionInfo>(arraySize);
 
             for (int i = 0; i < arraySize; i++)
             {
-                IntPtr data = new IntPtr(connections.ToInt64() + connectionInfoSize * i);
-                var con = (NtConnectionInfo)Marshal.PtrToStructure(data, typeof(NtConnectionInfo));
-                connectionsArray.Add(new ConnectionInfo(con.RemoteId.ToString(), ReadUTF8String(con.RemoteIp), (int)con.RemotePort, (long)con.LastUpdate, (int)con.ProtocolVersion));
+                IntPtr data = new IntPtr(connections.ToInt64() + connectionInfoSize*i);
+                var con = (NtConnectionInfo) Marshal.PtrToStructure(data, typeof(NtConnectionInfo));
+                connectionsArray.Add(new ConnectionInfo(con.RemoteId.ToString(), ReadUTF8String(con.RemoteIp), (int) con.RemotePort, (long) con.LastUpdate, (int) con.ProtocolVersion));
             }
             Interop.NT_DisposeConnectionInfoArray(connections, count);
             return connectionsArray;
         }
+
         #endregion
 
         #region EntryListeners
-        private static readonly Dictionary<int, Interop.NT_EntryListenerCallback> s_entryCallbacks =
-            new Dictionary<int, Interop.NT_EntryListenerCallback>();
+
+        private static readonly Dictionary<int, Interop.NT_EntryListenerCallback> s_entryCallbacks = new Dictionary<int, Interop.NT_EntryListenerCallback>();
 
         internal static int AddEntryListener(string prefix, EntryListenerCallback listener, NotifyFlags flags)
         {
@@ -445,52 +505,53 @@ namespace NetworkTables.Native
                         break;
                 }
                 string key = ReadUTF8String(name, len);
-                listener((int)uid, key, obj, (NotifyFlags)flags_);
+                listener((int) uid, key, obj, (NotifyFlags) flags_);
             };
             UIntPtr prefixSize;
             byte[] prefixStr = CreateUTF8String(prefix, out prefixSize);
-            int retVal = (int)Interop.NT_AddEntryListener(prefixStr, prefixSize, IntPtr.Zero, modCallback, (uint)flags);
+            int retVal = (int) Interop.NT_AddEntryListener(prefixStr, prefixSize, IntPtr.Zero, modCallback, (uint) flags);
             s_entryCallbacks.Add(retVal, modCallback);
             return retVal;
         }
 
         internal static void RemoveEntryListener(int uid)
         {
-            Interop.NT_RemoveEntryListener((uint)uid);
+            Interop.NT_RemoveEntryListener((uint) uid);
             if (s_entryCallbacks.ContainsKey(uid))
             {
                 s_entryCallbacks.Remove(uid);
             }
         }
+
         #endregion
 
         #region Connection Listeners
-        private static readonly Dictionary<int, Interop.NT_ConnectionListenerCallback> s_connectionCallbacks =
-            new Dictionary<int, Interop.NT_ConnectionListenerCallback>();
+
+        private static readonly Dictionary<int, Interop.NT_ConnectionListenerCallback> s_connectionCallbacks = new Dictionary<int, Interop.NT_ConnectionListenerCallback>();
 
         internal static int AddConnectionListener(ConnectionListenerCallback callback, bool immediateNotify)
         {
-            Interop.NT_ConnectionListenerCallback modCallback =
-                (uint uid, IntPtr data, int connected, ref NtConnectionInfo conn) =>
-                {
-                    string remoteName = ReadUTF8String(conn.RemoteIp);
-                    ConnectionInfo info = new ConnectionInfo(conn.RemoteId.ToString(), remoteName, (int)conn.RemotePort, (long)conn.LastUpdate, (int)conn.ProtocolVersion);
-                    callback((int)uid, connected != 0, info);
-                };
+            Interop.NT_ConnectionListenerCallback modCallback = (uint uid, IntPtr data, int connected, ref NtConnectionInfo conn) =>
+            {
+                string remoteName = ReadUTF8String(conn.RemoteIp);
+                ConnectionInfo info = new ConnectionInfo(conn.RemoteId.ToString(), remoteName, (int) conn.RemotePort, (long) conn.LastUpdate, (int) conn.ProtocolVersion);
+                callback((int) uid, connected != 0, info);
+            };
 
-            int retVal = (int)Interop.NT_AddConnectionListener(IntPtr.Zero, modCallback, immediateNotify ? 1 : 0);
+            int retVal = (int) Interop.NT_AddConnectionListener(IntPtr.Zero, modCallback, immediateNotify ? 1 : 0);
             s_connectionCallbacks.Add(retVal, modCallback);
             return retVal;
         }
 
         internal static void RemoveConnectionListener(int uid)
         {
-            Interop.NT_RemoveConnectionListener((uint)uid);
+            Interop.NT_RemoveConnectionListener((uint) uid);
             if (s_connectionCallbacks.ContainsKey(uid))
             {
                 s_connectionCallbacks.Remove(uid);
             }
         }
+
         #endregion
 
         #region Server and Client Methods
@@ -501,6 +562,7 @@ namespace NetworkTables.Native
             byte[] namePtr = CreateUTF8String(name, out size);
             Interop.NT_SetNetworkIdentity(namePtr, size);
         }
+
         internal static void StartClient(string serverName, uint port)
         {
             if (serverName == null)
@@ -536,9 +598,9 @@ namespace NetworkTables.Native
         internal static void StartServer(string fileName, string listenAddress, int port)
         {
             UIntPtr size;
-            var fileNamePtr = string.IsNullOrEmpty(fileName) ? new[] { (byte)0 } : CreateUTF8String(fileName, out size);
-            var listenAddressPtr = string.IsNullOrEmpty(fileName) ? new[] { (byte)0 } : CreateUTF8String(listenAddress, out size);
-            Interop.NT_StartServer(fileNamePtr, listenAddressPtr, (uint)port);
+            var fileNamePtr = string.IsNullOrEmpty(fileName) ? new[] {(byte) 0} : CreateUTF8String(fileName, out size);
+            var listenAddressPtr = string.IsNullOrEmpty(fileName) ? new[] {(byte) 0} : CreateUTF8String(listenAddress, out size);
+            Interop.NT_StartServer(fileNamePtr, listenAddressPtr, (uint) port);
         }
 
         internal static void StopClient()
@@ -575,6 +637,7 @@ namespace NetworkTables.Native
         {
             Interop.NT_SetUpdateRate(interval);
         }
+
         #endregion
 
         #region Persistent
@@ -598,11 +661,8 @@ namespace NetworkTables.Native
         {
             UIntPtr size;
             byte[] name = CreateUTF8String(filename, out size);
-            IntPtr err = Interop.NT_LoadPersistent(name, (line, msg) =>
-            {
-                warn((int)line, ReadUTF8String(msg));
-            });
-            if(err != IntPtr.Zero)
+            IntPtr err = Interop.NT_LoadPersistent(name, (line, msg) => { warn((int) line, ReadUTF8String(msg)); });
+            if (err != IntPtr.Zero)
             {
                 return ReadUTF8String(err);
             }
@@ -611,14 +671,16 @@ namespace NetworkTables.Native
                 return null;
             }
         }
+
         #endregion
 
         #region Flags
+
         internal static void SetEntryFlags(string name, EntryFlags flags)
         {
             UIntPtr size;
             byte[] str = CreateUTF8String(name, out size);
-            Interop.NT_SetEntryFlags(str, size, (uint)flags);
+            Interop.NT_SetEntryFlags(str, size, (uint) flags);
         }
 
         internal static EntryFlags GetEntryFlags(string name)
@@ -626,8 +688,9 @@ namespace NetworkTables.Native
             UIntPtr size;
             byte[] str = CreateUTF8String(name, out size);
             uint flags = Interop.NT_GetEntryFlags(str, size);
-            return (EntryFlags)flags;
+            return (EntryFlags) flags;
         }
+
         #endregion
 
         #region Utility
@@ -665,8 +728,9 @@ namespace NetworkTables.Native
 
         internal static long Now()
         {
-            return (long)Interop.NT_Now();
+            return (long) Interop.NT_Now();
         }
+
         #endregion
 
         #region Logger
@@ -686,15 +750,16 @@ namespace NetworkTables.Native
                 string message = ReadUTF8String(msg);
                 string fileName = ReadUTF8String(file);
 
-                func((LogLevel)level, fileName, (int)line, message);
+                func((LogLevel) level, fileName, (int) line, message);
             };
 
-            Interop.NT_SetLogger(s_nativeLog, (uint)minLevel);
+            Interop.NT_SetLogger(s_nativeLog, (uint) minLevel);
         }
 
         #endregion
 
         #region IntPtr to Array Conversions
+
         private static double[] GetDoubleArrayFromPtr(IntPtr ptr, UIntPtr size)
         {
             double[] arr = new double[size.ToUInt64()];
@@ -704,7 +769,7 @@ namespace NetworkTables.Native
 
         internal static byte[] GetRawDataFromPtr(IntPtr ptr, UIntPtr size)
         {
-            int len = (int)size.ToUInt64();
+            int len = (int) size.ToUInt64();
             byte[] data = new byte[len];
             Marshal.Copy(ptr, data, 0, len);
             return data;
@@ -712,12 +777,12 @@ namespace NetworkTables.Native
 
         private static bool[] GetBooleanArrayFromPtr(IntPtr ptr, UIntPtr size)
         {
-            int iSize = (int)size.ToUInt64();
+            int iSize = (int) size.ToUInt64();
 
             bool[] bArr = new bool[iSize];
             for (int i = 0; i < iSize; i++)
             {
-                bArr[i] = Marshal.ReadInt32(ptr, sizeof(int) * i) != 0;
+                bArr[i] = Marshal.ReadInt32(ptr, sizeof(int)*i) != 0;
             }
             return bArr;
         }
@@ -725,16 +790,17 @@ namespace NetworkTables.Native
         private static string[] GetStringArrayFromPtr(IntPtr ptr, UIntPtr size)
         {
             int ntStringSize = Marshal.SizeOf(typeof(NtStringRead));
-            int arraySize = (int)size.ToUInt64();
+            int arraySize = (int) size.ToUInt64();
             string[] strArray = new string[arraySize];
 
             for (int i = 0; i < arraySize; i++)
             {
-                IntPtr data = new IntPtr(ptr.ToInt64() + ntStringSize * i);
+                IntPtr data = new IntPtr(ptr.ToInt64() + ntStringSize*i);
                 strArray[i] = Marshal.PtrToStructure(data, typeof(NtStringRead)).ToString();
             }
             return strArray;
         }
+
         #endregion
 
         #region IntPtrs To String Conversions
@@ -744,7 +810,7 @@ namespace NetworkTables.Native
             var bytes = Encoding.UTF8.GetByteCount(str);
 
             var buffer = new byte[bytes + 1];
-            size = (UIntPtr)bytes;
+            size = (UIntPtr) bytes;
             Encoding.UTF8.GetBytes(str, 0, str.Length, buffer, 0);
             buffer[bytes] = 0;
             return buffer;
@@ -753,7 +819,7 @@ namespace NetworkTables.Native
         internal static IntPtr CreateUTF8StringPointer(string str, out UIntPtr size)
         {
             var bytes = CreateUTF8String(str, out size);
-            var buffer = Marshal.AllocHGlobal(bytes.Length*sizeof (byte));
+            var buffer = Marshal.AllocHGlobal(bytes.Length*sizeof(byte));
 
             Marshal.Copy(bytes, 0, buffer, bytes.Length);
             return buffer;
@@ -767,7 +833,7 @@ namespace NetworkTables.Native
         //Must be null terminated
         internal static string ReadUTF8String(IntPtr str, UIntPtr size)
         {
-            int iSize = (int)size.ToUInt64();
+            int iSize = (int) size.ToUInt64();
             byte[] data = new byte[iSize];
             Marshal.Copy(str, data, 0, iSize);
             return Encoding.UTF8.GetString(data);
@@ -788,7 +854,7 @@ namespace NetworkTables.Native
             }
             return Encoding.UTF8.GetString(data.ToArray());
         }
-        #endregion
 
+        #endregion
     }
 }

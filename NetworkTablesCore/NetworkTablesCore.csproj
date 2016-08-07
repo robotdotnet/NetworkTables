@@ -97,9 +97,6 @@
     <Compile Include="..\Shared\RpcStructs.cs">
       <Link>RpcStructs.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\Structures.cs">
-      <Link>Structures.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\Tables\IRemote.cs">
       <Link>Tables\IRemote.cs</Link>
     </Compile>
