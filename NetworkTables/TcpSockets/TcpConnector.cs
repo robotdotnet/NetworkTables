@@ -35,7 +35,7 @@ namespace NetworkTables.TcpSockets
             catch (SocketException e)
             {
                 addr = null;
-                return e.NativeErrorCode;
+                return (int)e.SocketErrorCode;
             }
             return 0;
         }

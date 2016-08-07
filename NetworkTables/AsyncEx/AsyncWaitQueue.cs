@@ -110,8 +110,6 @@ namespace Nito.AsyncEx
     /// The default wait queue implementation, which uses a double-ended queue.
     /// </summary>
     /// <typeparam name="T">The type of the results. If this isn't needed, use <see cref="Object"/>.</typeparam>
-    [DebuggerDisplay("Count = {Count}")]
-    [DebuggerTypeProxy(typeof(DefaultAsyncWaitQueue<>.DebugView))]
     internal sealed class DefaultAsyncWaitQueue<T> : IAsyncWaitQueue<T>
     {
         private readonly Deque<TaskCompletionSource<T>> _queue = new Deque<TaskCompletionSource<T>>();
@@ -218,7 +216,6 @@ namespace Nito.AsyncEx
             }
         }
 
-        [DebuggerNonUserCode]
         internal sealed class DebugView
         {
             private readonly DefaultAsyncWaitQueue<T> _queue;
@@ -228,7 +225,6 @@ namespace Nito.AsyncEx
                 _queue = queue;
             }
 
-            [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
             public Task<T>[] Tasks
             {
                 get { return _queue._queue.Select(x => x.Task).ToArray(); }

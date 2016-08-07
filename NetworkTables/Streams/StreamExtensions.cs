@@ -30,9 +30,9 @@ namespace NetworkTables.Streams
                         //Not socket exception is real error. Rethrow
                         throw;
                     }
-                    if (sx.NativeErrorCode != 10035)//WSAEWOULDBLOCK 
+                    if (sx.SocketErrorCode != SocketError.WouldBlock)//WSAEWOULDBLOCK 
                     {
-                        errorCode = sx.NativeErrorCode;
+                        errorCode = (int)sx.SocketErrorCode;
                         break;
                     }
                     else

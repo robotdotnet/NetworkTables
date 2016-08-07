@@ -14,8 +14,6 @@ namespace Nito
     /// A double-ended queue (deque), which provides O(1) indexed access, O(1) removals from the front and back, amortized O(1) insertions to the front and back, and O(N) insertions and removals anywhere else (with the operations getting slower as the index approaches the middle).
     /// </summary>
     /// <typeparam name="T">The type of elements contained in the deque.</typeparam>
-    [DebuggerDisplay("Count = {Count}, Capacity = {Capacity}")]
-    [DebuggerTypeProxy(typeof(Deque<>.DebugView))]
     internal sealed class Deque<T> : IList<T>, System.Collections.IList
     {
         /// <summary>
@@ -817,7 +815,6 @@ namespace Nito
             Count = 0;
         }
 
-        [DebuggerNonUserCode]
         private sealed class DebugView
         {
             // ReSharper disable once NotAccessedField.Local

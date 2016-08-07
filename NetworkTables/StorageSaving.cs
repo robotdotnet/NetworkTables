@@ -76,7 +76,7 @@ namespace NetworkTables
                         WriteString(stream, v.GetString());
                         break;
                     case NtType.Raw:
-                        stream.Write(Convert.ToBase64String(v.GetRaw(), Base64FormattingOptions.None));
+                        stream.Write(Convert.ToBase64String(v.GetRaw()));
                         break;
                     case NtType.BooleanArray:
                         bool first = true;

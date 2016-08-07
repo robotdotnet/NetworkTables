@@ -1,0 +1,68 @@
+{
+  "version": "2017.0.1",
+  "title": "FRC NetworkTables",
+  "description": "A Managed version of the NetworkTables3 Protocol.",
+  "copyright": "Copyright 2016 RobotDotNet",
+  "authors": [
+    "RobotDotNet"
+  ],
+
+  "packOptions": {
+    "owners": [
+      "RobotDotNet"
+    ],
+    "authors": [
+      "RobotDotNet"
+    ],
+    "tags": [ "WPILib", "FRC", "FIRST", "RoboRio" ],
+    "requireLicenseAcceptance": false,
+    "projectUrl": "https://github.com/robotdotnet/NetworkTables",
+    "summary": "A Managed version of the NetworkTables3 Protocol.",
+    "licenseUrl": "https://github.com/robotdotnet/NetworkTables/blob/master/LICENSE.txt",
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/robotdotnet/NetworkTables"
+    }
+  },
+  
+    "buildOptions": {
+        "compile": {
+            "includeFiles": [
+                "../Shared/Value.cs",
+                "../Shared/RpcStructs.cs",
+                "../Shared/RemoteProcedureCall.cs",
+                "../Shared/NtType.cs",
+                "../Shared/NtIPAddress.cs",
+                "../Shared/NtCore.cs",
+                "../Shared/NetworkTable.cs",
+                "../Shared/Enumerations.cs",
+                "../Shared/EntryInfo.cs",
+                "../Shared/Delegates.cs",
+                "../Shared/ConnectionInfo.cs",
+                "../Shared/Exceptions/PersistentException.cs",
+                "../Shared/Exceptions/TableKeyDifferentTypeException.cs",
+                "../Shared/Exceptions/TableKeyNotDefinedException.cs",
+                "../Shared/Tables/ITable.cs",
+                "../Shared/Tables/ITableListener.cs",
+                "../Shared/Tables/IRemote.cs",
+                "../Shared/Tables/IRemoteConnectionListener.cs",
+                "../Shared/Wire/Leb128.cs",
+                "../Shared/Wire/WireDecoder.cs",
+                "../Shared/Wire/WireEncoder.cs",
+            ]
+         }
+     },
+
+
+  "frameworks": {
+    "net45": {},
+    "netstandard1.5": {
+      "dependencies": {
+       "NETStandard.Library": "1.6.0",
+      },
+      "buildOptions": {
+        "define": [ "CORE" ]
+      }
+    }
+  },
+}

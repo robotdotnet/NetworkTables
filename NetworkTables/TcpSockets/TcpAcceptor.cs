@@ -43,7 +43,7 @@ namespace NetworkTables.TcpSockets
             catch (SocketException ex)
             {
                 Error($"TcpListener Start(): failed {ex.SocketErrorCode}");
-                return ex.NativeErrorCode;
+                return (int)ex.SocketErrorCode;
             }
 
             m_listening = true;

@@ -15,8 +15,6 @@ namespace Nito.AsyncEx
     /// <summary>
     /// An async-compatible auto-reset event.
     /// </summary>
-    [DebuggerDisplay("Id = {Id}, IsSet = {_set}")]
-    [DebuggerTypeProxy(typeof(DebugView))]
     internal sealed class AsyncAutoResetEvent
     {
         /// <summary>
@@ -167,7 +165,6 @@ namespace Nito.AsyncEx
         }
 
         // ReSharper disable UnusedMember.Local
-        [DebuggerNonUserCode]
         private sealed class DebugView
         {
             private readonly AsyncAutoResetEvent _are;
