@@ -69,15 +69,18 @@ namespace NetworkTables.TcpSockets
                     return client;
                 }
             }
-            catch (AggregateException)
+            catch (AggregateException e)
             {
                 // TODO: Figure out how to handle this
+                Console.WriteLine(e);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException e)
             {
+                Console.WriteLine(e);
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException e)
             {
+                Console.WriteLine(e);
             }
             ((IDisposable)client).Dispose();
             return null;

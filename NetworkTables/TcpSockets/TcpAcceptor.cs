@@ -82,17 +82,20 @@ namespace NetworkTables.TcpSockets
                     return null;
                 }
             }
-            catch (AggregateException)
+            catch (AggregateException e)
             {
+                Console.WriteLine(e);
                 // TODO: Figure out how to handle this
                 return null;
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException e)
             {
+                Console.WriteLine(e);
                 return null;
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException e)
             {
+                Console.WriteLine(e);
                 return null;
             }
         }
