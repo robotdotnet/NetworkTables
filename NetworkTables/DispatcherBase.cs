@@ -101,6 +101,7 @@ namespace NetworkTables
 
         public void StartServer(string persistentFilename, INetworkAcceptor acceptor)
         {
+            m_cancellationTokenSource = new CancellationTokenSource();
             lock (m_userMutex)
             {
                 if (m_active) return;
@@ -153,6 +154,7 @@ namespace NetworkTables
 
         public void StartClient(IList<Connector> connectors)
         {
+            m_cancellationTokenSource = new CancellationTokenSource();
             lock (m_userMutex)
             {
                 if (m_active) return;
