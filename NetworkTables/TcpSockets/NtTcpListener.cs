@@ -41,7 +41,7 @@ namespace NetworkTables.TcpSockets
             {
                 return;
             }
-            m_serverSocket.ExclusiveAddressUse = false;
+            m_serverSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
             m_serverSocket.Bind(m_serverSocketEp);
             try
             {
