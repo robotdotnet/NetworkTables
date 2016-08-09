@@ -77,6 +77,13 @@ namespace NetworkTables.Test.ConnectionTesting
             m_serverRpc.Dispose();
         }
 
+        [SetUp]
+        public void SetUp()
+        {
+            // Sleep 10 seconds to ensure socket is released
+            Thread.Sleep(10000);
+        }
+
         [TearDown]
         public void TearDown()
         {
