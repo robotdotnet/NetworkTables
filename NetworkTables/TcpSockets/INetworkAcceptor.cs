@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Net.Sockets;
 
 namespace NetworkTables.TcpSockets
 {
-    internal interface INetworkAcceptor: IDisposable
+    internal interface INetworkAcceptor
     {
         int Start();
         void Shutdown();
-        IClient Accept();
+        TcpClient Accept();
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using NetworkTables.TcpSockets;
 
@@ -41,7 +42,7 @@ namespace NetworkTables
 
         public void StartClient(string serverName, int port)
         {
-            StartClient(() => TcpConnector.Connect(serverName, port, 1));
+            StartClient((token) => TcpConnector.Connect(serverName, port, token, 1));
         }
 
         public void StartClient(IList<NtIPAddress> servers)
@@ -49,7 +50,7 @@ namespace NetworkTables
             List<Connector> connectors = new List<Connector>();
             foreach (var server in servers)
             {
-                connectors.Add(() => TcpConnector.Connect(server.IpAddress, server.Port, 1));
+                connectors.Add((token) => TcpConnector.Connect(server.IpAddress, server.Port, token, 1));
             }
             StartClient(connectors);
         }

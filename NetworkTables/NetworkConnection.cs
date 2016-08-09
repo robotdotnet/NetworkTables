@@ -10,6 +10,7 @@ using NetworkTables.Wire;
 using static NetworkTables.Logging.Logger;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 
 namespace NetworkTables
 {
@@ -45,7 +46,7 @@ namespace NetworkTables
         private readonly Stream m_stream;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-        private readonly IClient m_client;
+        private readonly TcpClient m_client;
 
         public int PeerPort { get; }
         public string PeerIP { get; }
@@ -77,7 +78,7 @@ namespace NetworkTables
 
         private readonly List<PendingUpdateIds> m_pendingUpdate = new List<PendingUpdateIds>();
 
-        public NetworkConnection(IClient client, Notifier notifier, HandshakeFunc handshake,
+        public NetworkConnection(TcpClient client, Notifier notifier, HandshakeFunc handshake,
             Message.GetEntryTypeFunc getEntryType)
         {
             Uid = (uint)Interlocked.Increment(ref s_uid) - 1;
@@ -92,7 +93,7 @@ namespace NetworkTables
             m_state = State.Created;
             LastUpdate = 0;
 
-            IPEndPoint ipEp = m_client.RemoteEndPoint as IPEndPoint;
+            IPEndPoint ipEp = m_client.Client.RemoteEndPoint as IPEndPoint;
             if (ipEp != null)
             {
                 PeerIP = ipEp.Address.ToString();
@@ -153,7 +154,7 @@ namespace NetworkTables
             Active = false;
             //Closing stream to terminate read thread
             m_stream?.Dispose();
-            m_client?.Dispose();
+            ((IDisposable) m_client)?.Dispose();
             //Send an empty message to terminate the write thread
             m_outgoing.Add(new List<Message>());
 

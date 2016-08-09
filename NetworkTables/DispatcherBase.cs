@@ -5,12 +5,13 @@ using NetworkTables.TcpSockets;
 using static NetworkTables.Logging.Logger;
 using NetworkTables.Extensions;
 using System.Net;
+using System.Net.Sockets;
 
 namespace NetworkTables
 {
     internal class DispatcherBase : IDisposable
     {
-        public delegate NtTcpClient Connector();
+        public delegate TcpClient Connector(CancellationToken token);
 
         public const double MinimumUpdateTime = 0.1; //100ms
         public const double MaximumUpdateTime = 1.0; //1 second
@@ -36,6 +37,8 @@ namespace NetworkTables
         private string m_identity = "";
 
         private IList<Connector> m_clientConnectors = new List<Connector>(); 
+
+        private CancellationTokenSource m_cancellationTokenSource = new CancellationTokenSource();
 
         private DateTime m_lastFlush;
 
@@ -184,6 +187,8 @@ namespace NetworkTables
 
             // Wake up dispatch thread with a flush
             m_flushCv.Set();
+
+            m_cancellationTokenSource?.Cancel();
 
             //Wake up client thread with a reconnect
             lock (m_userMutex)
@@ -355,7 +360,7 @@ namespace NetworkTables
                 }
                 if (!m_active) return;
 
-                IPEndPoint ipEp = stream.RemoteEndPoint as IPEndPoint;
+                IPEndPoint ipEp = stream.Client.RemoteEndPoint as IPEndPoint;
                 if (ipEp != null)
                 {
                     Debug($"server: client connection from {ipEp.Address} port {ipEp.Port}");
@@ -408,7 +413,7 @@ namespace NetworkTables
                 }
 
                 Debug("client trying to connect");
-                var stream = connect();
+                var stream = connect(m_cancellationTokenSource.Token);
                 if (stream == null) continue; //keep retrying
                 Debug("client connected");
 
