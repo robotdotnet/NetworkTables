@@ -1,0 +1,71 @@
+{
+  "version": "2017.0.1-beta-*",
+  "title": "FRC NetworkTables.Core",
+  "description": "NetworkTables using the ntcore library.",
+  "copyright": "Copyright 2016 RobotDotNet",
+  "authors": [
+    "RobotDotNet"
+  ],
+  "packOptions": {
+    "owners": [
+      "RobotDotNet"
+    ],
+    "authors": [
+      "RobotDotNet"
+    ],
+    "id": "FRC.NetworkTables.Core",
+    "tags": [ "WPILib", "FRC", "FIRST", "RoboRio" ],
+    "title": "FRC NetworkTables.Core",
+    "requireLicenseAcceptance": false,
+    "projectUrl": "https://github.com/robotdotnet/NetworkTables",
+    "summary": "A Managed version of the NetworkTables3 Protocol.",
+    "licenseUrl": "https://github.com/robotdotnet/NetworkTables/blob/master/LICENSE.txt",
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/robotdotnet/NetworkTables"
+    }
+  },
+  "buildOptions": {
+    "embed": [
+      "NativeLibraries/roborio/libntcore.so",
+      "NativeLibraries/amd64/libntcore.dylib",
+      "NativeLibraries/amd64/libntcore.so",
+      "NativeLibraries/amd64/ntcore.dll",
+      "NativeLibraries/x86/libntcore.dylib",
+      "NativeLibraries/x86/libntcore.so",
+      "NativeLibraries/x86/ntcore.dll"
+    ],
+    "compile": {
+      "exclude": [
+        "Output/",
+        "Exceptions/",
+        "Tables/",
+        "Wire/"
+      ],
+      "include": [
+        "../Shared/*.cs",
+        "../Shared/Tables/*.cs",
+        "../Shared/Wire/*.cs",
+        "../Shared/Exceptions/*.cs"
+      ]
+    },
+    "define": [ "CORE" ],
+    "xmlDoc": true
+  },
+  "frameworks": {
+    "net451": {},
+    "netstandard1.5": {
+      "buildOptions": {
+        "define": [ "NETSTANDARD" ]
+      },
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
+      }
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "define": [ "DEBUG" ]
+    }
+  }
+}

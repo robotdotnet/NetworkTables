@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6711EFB4-3FD9-45E5-B98E-BE6D5A480245}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NetworkTables</RootNamespace>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <AssemblyName>NetworkTables.Managed</AssemblyName>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Output\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <AssemblyName>NetworkTables.Managed</AssemblyName>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Output\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>Output\NetworkTables.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+    <NoWarn>
+    </NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'CI|AnyCPU'">
+    <AssemblyName>NetworkTables.Managed</AssemblyName>
+    <OutputPath>Output\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>Output\NetworkTables.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyName>NetworkTables</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Shared\ConnectionInfo.cs">
+      <Link>ConnectionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Delegates.cs">
+      <Link>Delegates.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\EntryInfo.cs">
+      <Link>EntryInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Enumerations.cs">
+      <Link>Enumerations.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Exceptions\PersistentException.cs">
+      <Link>Exceptions\PersistentException.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Exceptions\TableKeyDifferentTypeException.cs">
+      <Link>Exceptions\TableKeyDifferentTypeException.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Exceptions\TableKeyNotDefinedException.cs">
+      <Link>Exceptions\TableKeyNotDefinedException.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NetworkTable.cs">
+      <Link>NetworkTable.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NtCore.cs">
+      <Link>NtCore.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NtIPAddress.cs">
+      <Link>NtIPAddress.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NtType.cs">
+      <Link>NtType.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\RemoteProcedureCall.cs">
+      <Link>RemoteProcedureCall.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\RpcStructs.cs">
+      <Link>RpcStructs.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Tables\IRemote.cs">
+      <Link>Tables\IRemote.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Tables\IRemoteConnectionListener.cs">
+      <Link>Tables\IRemoteConnectionListener.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Tables\ITable.cs">
+      <Link>Tables\ITable.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Tables\ITableListener.cs">
+      <Link>Tables\ITableListener.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Value.cs">
+      <Link>Value.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Wire\Leb128.cs">
+      <Link>Wire\Leb128.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Wire\WireDecoder.cs">
+      <Link>Wire\WireDecoder.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Wire\WireEncoder.cs">
+      <Link>Wire\WireEncoder.cs</Link>
+    </Compile>
+    <Compile Include="AsyncEx\AsyncAutoResetEvent.cs" />
+    <Compile Include="AsyncEx\AsyncWaitQueue.cs" />
+    <Compile Include="AsyncEx\Deque.cs" />
+    <Compile Include="AsyncEx\Enlightenment.cs" />
+    <Compile Include="AsyncEx\ExceptionEnlightenment.cs" />
+    <Compile Include="AsyncEx\ExceptionHelpers.cs" />
+    <Compile Include="AsyncEx\IdManager.cs" />
+    <Compile Include="AsyncEx\TaskConstants.cs" />
+    <Compile Include="AsyncEx\TaskExceptions.cs" />
+    <Compile Include="AsyncEx\TaskShim.cs" />
+    <Compile Include="Dispatcher.cs" />
+    <Compile Include="DispatcherBase.cs" />
+    <Compile Include="Extensions\AutoResetEventExtensions.cs" />
+    <Compile Include="ImmutablePair.cs" />
+    <Compile Include="Logging\Logger.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="NetworkConnection.cs" />
+    <Compile Include="Notifier.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RpcServer.cs" />
+    <Compile Include="SequenceNumber.cs" />
+    <Compile Include="Independent\IndependentNetworkTable.cs" />
+    <Compile Include="Independent\IndependentNtCore.cs" />
+    <Compile Include="Independent\IndependentRemoteProcedureCall.cs" />
+    <Compile Include="Storage.cs" />
+    <Compile Include="StorageSaving.cs" />
+    <Compile Include="Streams\StreamExtensions.cs" />
+    <Compile Include="Support\Timestamp.cs" />
+    <Compile Include="TcpSockets\IClient.cs" />
+    <Compile Include="TcpSockets\INetworkAcceptor.cs" />
+    <Compile Include="TcpSockets\RuntimeDetector.cs" />
+    <Compile Include="TcpSockets\NtTcpClient.cs" />
+    <Compile Include="TcpSockets\TcpAcceptor.cs" />
+    <Compile Include="TcpSockets\TcpConnector.cs" />
+    <Compile Include="TcpSockets\NtTcpListener.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NetworkTables.project.json" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

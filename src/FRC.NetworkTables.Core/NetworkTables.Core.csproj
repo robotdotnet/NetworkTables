@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7BD949DB-C15F-436B-BDD4-2A47AE80A832}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NetworkTables</RootNamespace>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <AssemblyName>NetworkTables.Core</AssemblyName>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Output\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;CORE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <AssemblyName>NetworkTables.Core</AssemblyName>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Output\</OutputPath>
+    <DefineConstants>TRACE;CORE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>Output\NetworkTables.Core.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Shared\ConnectionInfo.cs">
+      <Link>ConnectionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Delegates.cs">
+      <Link>Delegates.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\EntryInfo.cs">
+      <Link>EntryInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Enumerations.cs">
+      <Link>Enumerations.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Exceptions\PersistentException.cs">
+      <Link>Exceptions\PersistentException.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Exceptions\TableKeyDifferentTypeException.cs">
+      <Link>Exceptions\TableKeyDifferentTypeException.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Exceptions\TableKeyNotDefinedException.cs">
+      <Link>Exceptions\TableKeyNotDefinedException.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NetworkTable.cs">
+      <Link>NetworkTable.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NtCore.cs">
+      <Link>NtCore.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NtIPAddress.cs">
+      <Link>NtIPAddress.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NtType.cs">
+      <Link>NtType.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\RemoteProcedureCall.cs">
+      <Link>RemoteProcedureCall.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\RpcStructs.cs">
+      <Link>RpcStructs.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Tables\IRemote.cs">
+      <Link>Tables\IRemote.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Tables\IRemoteConnectionListener.cs">
+      <Link>Tables\IRemoteConnectionListener.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Tables\ITable.cs">
+      <Link>Tables\ITable.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Tables\ITableListener.cs">
+      <Link>Tables\ITableListener.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Value.cs">
+      <Link>Value.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Wire\Leb128.cs">
+      <Link>Wire\Leb128.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Wire\WireDecoder.cs">
+      <Link>Wire\WireDecoder.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Wire\WireEncoder.cs">
+      <Link>Wire\WireEncoder.cs</Link>
+    </Compile>
+    <Compile Include="Native\CoreMethods.cs" />
+    <Compile Include="Native\LibraryLoader.cs" />
+    <Compile Include="Native\Interop.cs" />
+    <Compile Include="Native\LoaderUtilities.cs" />
+    <Compile Include="Native\Structs.cs" />
+    <Compile Include="Native\Uname.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Support\Timestamp.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="NativeLibraries\roborio\libntcore.so" />
+    <EmbeddedResource Include="NativeLibraries\x86\libntcore.so" />
+    <EmbeddedResource Include="NativeLibraries\amd64\libntcore.so" />
+    <EmbeddedResource Include="NativeLibraries\x86\ntcore.dll" />
+    <EmbeddedResource Include="NativeLibraries\amd64\ntcore.dll" />
+    <EmbeddedResource Include="NativeLibraries\amd64\libntcore.dylib" />
+    <EmbeddedResource Include="NativeLibraries\x86\libntcore.dylib" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
