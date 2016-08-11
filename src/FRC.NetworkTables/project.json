@@ -1,0 +1,60 @@
+{
+  "version": "2017.0.1-beta-*",
+  "title": "FRC NetworkTables",
+  "description": "A Managed version of the NetworkTables3 Protocol.",
+  "copyright": "Copyright 2016 RobotDotNet",
+  "authors": [
+    "RobotDotNet"
+  ],
+  "packOptions": {
+    "owners": [
+      "RobotDotNet"
+    ],
+    "authors": [
+      "RobotDotNet"
+    ],
+    "id":  "FRC.NetworkTables", 
+    "title": "FRC NetworkTables",
+    "tags": [ "WPILib", "FRC", "FIRST", "RoboRio" ],
+    "requireLicenseAcceptance": false,
+    "projectUrl": "https://github.com/robotdotnet/NetworkTables",
+    "summary": "A Managed version of the NetworkTables3 Protocol.",
+    "licenseUrl": "https://github.com/robotdotnet/NetworkTables/blob/master/LICENSE.txt",
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/robotdotnet/NetworkTables"
+    }
+  },
+  "buildOptions": {
+    "compile": {
+      "exclude": [
+        "Output/",
+        "Exceptions/",
+        "Tables/",
+        "Wire/"
+      ],
+      "include": [
+        "../Shared/*.cs",
+        "../Shared/Tables/*.cs",
+        "../Shared/Wire/*.cs",
+        "../Shared/Exceptions/*.cs"
+      ]
+    },
+    "xmlDoc": true
+
+  },
+  "frameworks": {
+    "net451": {},
+    "netstandard1.3": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "System.Net.NameResolution": "4.0.0"
+      }
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "define": [ "DEBUG" ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+﻿{
+  "frameworks": {
+    "net451": {}
+  },
+  "runtimes": {
+    "win": {}
+  },
+  "dependencies": {
+    "Microsoft.CodeAnalysis.CSharp": "1.3.2",
+    "NUnit": "3.4.1"
+  }
+}
