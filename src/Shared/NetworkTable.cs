@@ -1017,6 +1017,47 @@ namespace NetworkTables
             return NtCore.GetConnections();
         }
 
+        /// <inheritdoc/>
+        public bool SetDefaultValue(string key, Value defaultValue)
+        {
+            return NtCore.SetDefaultEntryValue(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultNumber(string key, double defaultValue)
+        {
+            return NtCore.SetDefaultEntryDouble(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultBoolean(string key, bool defaultValue)
+        {
+            return NtCore.SetDefaultEntryBoolean(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultString(string key, string defaultValue)
+        {
+            return NtCore.SetDefaultEntryString(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultRaw(string key, byte[] defaultValue)
+        {
+            return NtCore.SetDefaultEntryRaw(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultBooleanArray(string key, bool[] defaultValue)
+        {
+            return NtCore.SetDefaultEntryBooleanArray(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultNumberArray(string key, double[] defaultValue)
+        {
+            return NtCore.SetDefaultEntryDoubleArray(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultStringArray(string key, string[] defaultValue)
+        {
+            return NtCore.SetDefaultEntryStringArray(m_path + PathSeperatorChar + key, defaultValue);
+        }
+
         /// <summary>
         /// Gets if the NetworkTables instance is a Server.
         /// </summary>

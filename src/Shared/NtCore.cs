@@ -12,11 +12,82 @@ namespace NetworkTables
 {
     public static class NtCore
     {
+        public static bool SetDefaultEntryBoolean(string name, bool value)
+        {
+#if CORE
+            return CoreMethods.SetDefaultEntryBoolean(name, value);
+#else
+            return Storage.Instance.SetDefaultEntryValue(name, Value.MakeBoolean(value));
+#endif
+        }
+
+        public static bool SetDefaultEntryDouble(string name, double value)
+        {
+#if CORE
+            return CoreMethods.SetDefaultEntryDouble(name, value);
+#else
+            return Storage.Instance.SetDefaultEntryValue(name, Value.MakeDouble(value));
+#endif
+        }
+
+        public static bool SetDefaultEntryString(string name, string value)
+        {
+#if CORE
+            return CoreMethods.SetDefaultEntryString(name, value);
+#else
+            return Storage.Instance.SetDefaultEntryValue(name, Value.MakeString(value));
+#endif
+        }
+
+        public static bool SetDefaultEntryBooleanArray(string name, bool[] value)
+        {
+#if CORE
+            return CoreMethods.SetDefaultEntryBooleanArray(name, value);
+#else
+            return Storage.Instance.SetDefaultEntryValue(name, Value.MakeBooleanArray(value));
+#endif
+        }
+
+        public static bool SetDefaultEntryDoubleArray(string name, double[] value)
+        {
+#if CORE
+            return CoreMethods.SetDefaultEntryDoubleArray(name, value);
+#else
+            return Storage.Instance.SetDefaultEntryValue(name, Value.MakeDoubleArray(value));
+#endif
+        }
+
+        public static bool SetDefaultEntryStringArray(string name, string[] value)
+        {
+#if CORE
+            return CoreMethods.SetDefaultEntryStringArray(name, value);
+#else
+            return Storage.Instance.SetDefaultEntryValue(name, Value.MakeStringArray(value));
+#endif
+        }
+
+        public static bool SetDefaultEntryRaw(string name, byte[] value)
+        {
+#if CORE
+            return CoreMethods.SetDefaultEntryRaw(name, value);
+#else
+            return Storage.Instance.SetDefaultEntryValue(name, Value.MakeRaw(value));
+#endif
+        }
+
+
+
+
         public static bool SetEntryBoolean(string name, bool value, bool force = false)
         {
 #if CORE
             return CoreMethods.SetEntryBoolean(name, value, force);
 #else
+            if (force)
+            {
+                Storage.Instance.SetEntryTypeValue(name, Value.MakeBoolean(value));
+                return true;
+            }
             return Storage.Instance.SetEntryValue(name, Value.MakeBoolean(value));
 #endif
         }
@@ -26,6 +97,11 @@ namespace NetworkTables
 #if CORE
             return CoreMethods.SetEntryDouble(name, value, force);
 #else
+            if (force)
+            {
+                Storage.Instance.SetEntryTypeValue(name, Value.MakeDouble(value));
+                return true;
+            }
             return Storage.Instance.SetEntryValue(name, Value.MakeDouble(value));
 #endif
         }
@@ -35,6 +111,11 @@ namespace NetworkTables
 #if CORE
             return CoreMethods.SetEntryString(name, value, force);
 #else
+            if (force)
+            {
+                Storage.Instance.SetEntryTypeValue(name, Value.MakeString(value));
+                return true;
+            }
             return Storage.Instance.SetEntryValue(name, Value.MakeString(value));
 #endif
         }
@@ -44,6 +125,11 @@ namespace NetworkTables
 #if CORE
             return CoreMethods.SetEntryBooleanArray(name, value, force);
 #else
+            if (force)
+            {
+                Storage.Instance.SetEntryTypeValue(name, Value.MakeBooleanArray(value));
+                return true;
+            }
             return Storage.Instance.SetEntryValue(name, Value.MakeBooleanArray(value));
 #endif
         }
@@ -53,6 +139,11 @@ namespace NetworkTables
 #if CORE
             return CoreMethods.SetEntryDoubleArray(name, value, force);
 #else
+            if (force)
+            {
+                Storage.Instance.SetEntryTypeValue(name, Value.MakeDoubleArray(value));
+                return true;
+            }
             return Storage.Instance.SetEntryValue(name, Value.MakeDoubleArray(value));
 #endif
         }
@@ -62,6 +153,11 @@ namespace NetworkTables
 #if CORE
             return CoreMethods.SetEntryStringArray(name, value, force);
 #else
+            if (force)
+            {
+                Storage.Instance.SetEntryTypeValue(name, Value.MakeStringArray(value));
+                return true;
+            }
             return Storage.Instance.SetEntryValue(name, Value.MakeStringArray(value));
 #endif
         }
@@ -71,6 +167,11 @@ namespace NetworkTables
 #if CORE
             return CoreMethods.SetEntryRaw(name, value, force);
 #else
+            if (force)
+            {
+                Storage.Instance.SetEntryTypeValue(name, Value.MakeRaw(value));
+                return true;
+            }
             return Storage.Instance.SetEntryValue(name, Value.MakeRaw(value));
 #endif
         }
@@ -273,7 +374,7 @@ namespace NetworkTables
         public static bool SetDefaultEntryValue(string name, Value value)
         {
 #if CORE
-            throw new NotImplementedException("Not implemented in NetworkTablesCore yet");
+            return CoreMethods.SetDefaultEntryValue(name, value);
 #else
             return Storage.Instance.SetDefaultEntryValue(name, value);
 #endif

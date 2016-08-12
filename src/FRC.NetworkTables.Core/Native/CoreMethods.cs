@@ -17,6 +17,113 @@ namespace NetworkTables.Core.Native
     /// </remarks>
     internal static class CoreMethods
     {
+        #region SetDefault
+
+        internal static bool SetDefaultEntryValue(string name, Value value)
+        {
+            switch (value.Type)
+            {
+                case NtType.Boolean:
+                    return SetDefaultEntryBoolean(name, value.GetBoolean());
+                case NtType.Double:
+                    return SetDefaultEntryDouble(name, value.GetDouble());
+                case NtType.String:
+                    return SetDefaultEntryString(name, value.GetString());
+                case NtType.Raw:
+                    return SetDefaultEntryRaw(name, value.GetRpc());
+                case NtType.BooleanArray:
+                    return SetDefaultEntryBooleanArray(name, value.GetBooleanArray());
+                case NtType.DoubleArray:
+                    return SetDefaultEntryDoubleArray(name, value.GetDoubleArray());
+                case NtType.StringArray:
+                    return SetDefaultEntryStringArray(name, value.GetStringArray());
+                default:
+                    return false;
+            }
+        }
+
+        internal static bool SetDefaultEntryBoolean(string name, bool value)
+        {
+            UIntPtr size;
+            byte[] namePtr = CreateUTF8String(name, out size);
+            int retVal = Interop.NT_SetDefaultEntryBoolean(namePtr, size, value ? 1 : 0);
+            return retVal != 0;
+        }
+
+        internal static bool SetDefaultEntryDouble(string name, double value)
+        {
+            UIntPtr size;
+            byte[] namePtr = CreateUTF8String(name, out size);
+            int retVal = Interop.NT_SetDefaultEntryDouble(namePtr, size, value);
+            return retVal != 0;
+        }
+
+        internal static bool SetDefaultEntryString(string name, string value)
+        {
+            UIntPtr size;
+            byte[] namePtr = CreateUTF8String(name, out size);
+            UIntPtr stringSize;
+            byte[] stringPtr = CreateUTF8String(value, out stringSize);
+            int retVal = Interop.NT_SetDefaultEntryString(namePtr, size, stringPtr, stringSize);
+            return retVal != 0;
+        }
+
+        internal static bool SetDefaultEntryRaw(string name, byte[] value)
+        {
+            UIntPtr size;
+            byte[] namePtr = CreateUTF8String(name, out size);
+            int retVal = Interop.NT_SetDefaultEntryRaw(namePtr, size, value, (UIntPtr)value.Length);
+            return retVal != 0;
+        }
+
+        internal static bool SetDefaultEntryBooleanArray(string name, bool[] value)
+        {
+            UIntPtr size;
+            byte[] namePtr = CreateUTF8String(name, out size);
+
+            int[] valueIntArr = new int[value.Length];
+            for (int i = 0; i < value.Length; i++)
+            {
+                valueIntArr[i] = value[i] ? 1 : 0;
+            }
+
+            int retVal = Interop.NT_SetDefaultEntryBooleanArray(namePtr, size, valueIntArr, (UIntPtr)valueIntArr.Length);
+
+            return retVal != 0;
+        }
+
+        internal static bool SetDefaultEntryDoubleArray(string name, double[] value)
+        {
+            UIntPtr size;
+            byte[] namePtr = CreateUTF8String(name, out size);
+
+            int retVal = Interop.NT_SetDefaultEntryDoubleArray(namePtr, size, value, (UIntPtr)value.Length);
+
+            return retVal != 0;
+        }
+
+        internal static bool SetDefaultEntryStringArray(string name, string[] value)
+        {
+            UIntPtr size;
+            byte[] namePtr = CreateUTF8String(name, out size);
+
+            NtStringWrite[] ntStrings = new NtStringWrite[value.Length];
+            for (int i = 0; i < value.Length; i++)
+            {
+                ntStrings[i] = new NtStringWrite(value[i]);
+            }
+
+            int retVal = Interop.NT_SetDefaultEntryStringArray(namePtr, size, ntStrings, (UIntPtr)ntStrings.Length);
+
+            foreach (var ntString in ntStrings)
+            {
+                ntString.Dispose();
+            }
+
+            return retVal != 0;
+        }
+
+        #endregion
 
         #region Setters
 

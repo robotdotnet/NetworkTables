@@ -440,5 +440,69 @@ namespace NetworkTables.Tables
         /// </summary>
         /// <param name="listenerDelegate">The Table Listener Delegate to remove.</param>
         void RemoveTableListener(Action<ITable, string, Value, NotifyFlags> listenerDelegate);
+
+        /// <summary>
+        /// Sets the value in the table at the specified key if it does not exist.
+        /// </summary>
+        /// <param name="key">The key to set</param>
+        /// <param name="defaultValue">The value to set if the key does not exits</param>
+        /// <returns>False if the key exists with a different type, otherwise true</returns>
+        bool SetDefaultValue(string key, Value defaultValue);
+
+        /// <summary>
+        /// Sets the value in the table at the specified key if it does not exist.
+        /// </summary>
+        /// <param name="key">The key to set</param>
+        /// <param name="defaultValue">The value to set if the key does not exits</param>
+        /// <returns>False if the key exists with a different type, otherwise true</returns>
+        bool SetDefaultNumber(string key, double defaultValue);
+
+        /// <summary>
+        /// Sets the value in the table at the specified key if it does not exist.
+        /// </summary>
+        /// <param name="key">The key to set</param>
+        /// <param name="defaultValue">The value to set if the key does not exits</param>
+        /// <returns>False if the key exists with a different type, otherwise true</returns>
+        bool SetDefaultBoolean(string key, bool defaultValue);
+
+        /// <summary>
+        /// Sets the value in the table at the specified key if it does not exist.
+        /// </summary>
+        /// <param name="key">The key to set</param>
+        /// <param name="defaultValue">The value to set if the key does not exits</param>
+        /// <returns>False if the key exists with a different type, otherwise true</returns>
+        bool SetDefaultString(string key, string defaultValue);
+
+        /// <summary>
+        /// Sets the value in the table at the specified key if it does not exist.
+        /// </summary>
+        /// <param name="key">The key to set</param>
+        /// <param name="defaultValue">The value to set if the key does not exits</param>
+        /// <returns>False if the key exists with a different type, otherwise true</returns>
+        bool SetDefaultRaw(string key, byte[] defaultValue);
+
+        /// <summary>
+        /// Sets the value in the table at the specified key if it does not exist.
+        /// </summary>
+        /// <param name="key">The key to set</param>
+        /// <param name="defaultValue">The value to set if the key does not exits</param>
+        /// <returns>False if the key exists with a different type, otherwise true</returns>
+        bool SetDefaultBooleanArray(string key, bool[] defaultValue);
+
+        /// <summary>
+        /// Sets the value in the table at the specified key if it does not exist.
+        /// </summary>
+        /// <param name="key">The key to set</param>
+        /// <param name="defaultValue">The value to set if the key does not exits</param>
+        /// <returns>False if the key exists with a different type, otherwise true</returns>
+        bool SetDefaultNumberArray(string key, double[] defaultValue);
+
+        /// <summary>
+        /// Sets the value in the table at the specified key if it does not exist.
+        /// </summary>
+        /// <param name="key">The key to set</param>
+        /// <param name="defaultValue">The value to set if the key does not exits</param>
+        /// <returns>False if the key exists with a different type, otherwise true</returns>
+        bool SetDefaultStringArray(string key, string[] defaultValue);
     }
 }

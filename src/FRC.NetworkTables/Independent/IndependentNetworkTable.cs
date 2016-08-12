@@ -695,6 +695,47 @@ namespace NetworkTables.Independent
             }
         }
 
+        /// <inheritdoc/>
+        public bool SetDefaultValue(string key, Value defaultValue)
+        {
+            return m_ntCore.SetDefaultEntryValue(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultNumber(string key, double defaultValue)
+        {
+            return m_ntCore.SetDefaultEntryDouble(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultBoolean(string key, bool defaultValue)
+        {
+            return m_ntCore.SetDefaultEntryBoolean(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultString(string key, string defaultValue)
+        {
+            return m_ntCore.SetDefaultEntryString(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultRaw(string key, byte[] defaultValue)
+        {
+            return m_ntCore.SetDefaultEntryRaw(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultBooleanArray(string key, bool[] defaultValue)
+        {
+            return m_ntCore.SetDefaultEntryBooleanArray(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultNumberArray(string key, double[] defaultValue)
+        {
+            return m_ntCore.SetDefaultEntryDoubleArray(m_path + PathSeperatorChar + key, defaultValue);
+        }
+        /// <inheritdoc/>
+        public bool SetDefaultStringArray(string key, string[] defaultValue)
+        {
+            return m_ntCore.SetDefaultEntryStringArray(m_path + PathSeperatorChar + key, defaultValue);
+        }
+
         public bool IsServer => !m_ntCore.Client;
     }
 }

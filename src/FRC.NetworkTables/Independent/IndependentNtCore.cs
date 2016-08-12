@@ -39,45 +39,113 @@ namespace NetworkTables.Independent
             m_notifier.Dispose();
         }
 
+        public bool SetDefaultEntryBoolean(string name, bool value)
+        {
+            return m_storage.SetDefaultEntryValue(name, Value.MakeBoolean(value));
+        }
+
+        public bool SetDefaultEntryDouble(string name, double value)
+        {
+            return m_storage.SetDefaultEntryValue(name, Value.MakeDouble(value));
+        }
+
+        public bool SetDefaultEntryString(string name, string value)
+        {
+            return m_storage.SetDefaultEntryValue(name, Value.MakeString(value));
+        }
+
+        public bool SetDefaultEntryBooleanArray(string name, bool[] value)
+        {
+            return m_storage.SetDefaultEntryValue(name, Value.MakeBooleanArray(value));
+        }
+
+        public bool SetDefaultEntryDoubleArray(string name, double[] value)
+        {
+            return m_storage.SetDefaultEntryValue(name, Value.MakeDoubleArray(value));
+        }
+
+        public bool SetDefaultEntryStringArray(string name, string[] value)
+        {
+            return m_storage.SetDefaultEntryValue(name, Value.MakeStringArray(value));
+        }
+
+        public bool SetDefaultEntryRaw(string name, byte[] value)
+        {
+            return m_storage.SetDefaultEntryValue(name, Value.MakeRaw(value));
+        }
+
         public bool SetEntryBoolean(string name, bool value, bool force = false)
         {
+            if (force)
+            {
+                m_storage.SetEntryTypeValue(name, Value.MakeBoolean(value));
+                return true;
+            }
             return m_storage.SetEntryValue(name, Value.MakeBoolean(value));
-
         }
 
         public bool SetEntryDouble(string name, double value, bool force = false)
         {
+            if (force)
+            {
+                m_storage.SetEntryTypeValue(name, Value.MakeDouble(value));
+                return true;
+            }
             return m_storage.SetEntryValue(name, Value.MakeDouble(value));
 
         }
 
         public bool SetEntryString(string name, string value, bool force = false)
         {
+            if (force)
+            {
+                m_storage.SetEntryTypeValue(name, Value.MakeString(value));
+                return true;
+            }
             return m_storage.SetEntryValue(name, Value.MakeString(value));
 
         }
 
         public bool SetEntryBooleanArray(string name, bool[] value, bool force = false)
         {
+            if (force)
+            {
+                m_storage.SetEntryTypeValue(name, Value.MakeBooleanArray(value));
+                return true;
+            }
             return m_storage.SetEntryValue(name, Value.MakeBooleanArray(value));
 
         }
 
         public bool SetEntryDoubleArray(string name, double[] value, bool force = false)
         {
-
+            if (force)
+            {
+                m_storage.SetEntryTypeValue(name, Value.MakeDoubleArray(value));
+                return true;
+            }
             return m_storage.SetEntryValue(name, Value.MakeDoubleArray(value));
 
         }
 
         public bool SetEntryStringArray(string name, string[] value, bool force = false)
         {
+            if (force)
+            {
+                m_storage.SetEntryTypeValue(name, Value.MakeStringArray(value));
+                return true;
+            }
             return m_storage.SetEntryValue(name, Value.MakeStringArray(value));
 
         }
 
         public bool SetEntryRaw(string name, byte[] value, bool force = false)
         {
+            if (force)
+            {
+                m_storage.SetEntryTypeValue(name, Value.MakeRaw(value));
+                return true;
+            }
             return m_storage.SetEntryValue(name, Value.MakeRaw(value));
 
         }

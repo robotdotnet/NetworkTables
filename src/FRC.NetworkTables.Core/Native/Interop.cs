@@ -205,6 +205,13 @@ namespace NetworkTables.Core.Native
             NT_SetEntryBooleanArray = (NT_SetEntryBooleanArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryBooleanArray"), typeof(NT_SetEntryBooleanArrayDelegate));
             NT_SetEntryDoubleArray = (NT_SetEntryDoubleArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryDoubleArray"), typeof(NT_SetEntryDoubleArrayDelegate));
             NT_SetEntryStringArray = (NT_SetEntryStringArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryStringArray"), typeof(NT_SetEntryStringArrayDelegate));
+            NT_SetDefaultEntryBoolean = (NT_SetDefaultEntryBooleanDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryBoolean"), typeof(NT_SetDefaultEntryBooleanDelegate));
+            NT_SetDefaultEntryDouble = (NT_SetDefaultEntryDoubleDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryDouble"), typeof(NT_SetDefaultEntryDoubleDelegate));
+            NT_SetDefaultEntryString = (NT_SetDefaultEntryStringDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryString"), typeof(NT_SetDefaultEntryStringDelegate));
+            NT_SetDefaultEntryRaw = (NT_SetDefaultEntryRawDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryRaw"), typeof(NT_SetDefaultEntryRawDelegate));
+            NT_SetDefaultEntryBooleanArray = (NT_SetDefaultEntryBooleanArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryBooleanArray"), typeof(NT_SetDefaultEntryBooleanArrayDelegate));
+            NT_SetDefaultEntryDoubleArray = (NT_SetDefaultEntryDoubleArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryDoubleArray"), typeof(NT_SetDefaultEntryDoubleArrayDelegate));
+            NT_SetDefaultEntryStringArray = (NT_SetDefaultEntryStringArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryStringArray"), typeof(NT_SetDefaultEntryStringArrayDelegate));
             NT_CreateRpc = (NT_CreateRpcDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_CreateRpc"), typeof(NT_CreateRpcDelegate));
             NT_CreatePolledRpc = (NT_CreatePolledRpcDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_CreatePolledRpc"), typeof(NT_CreatePolledRpcDelegate));
             NT_PollRpc = (NT_PollRpcDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_PollRpc"), typeof(NT_PollRpcDelegate));
@@ -350,6 +357,22 @@ namespace NetworkTables.Core.Native
         internal delegate int NT_SetEntryDoubleArrayDelegate(byte[] name, UIntPtr name_len, double[] arr, UIntPtr size, int force);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int NT_SetEntryStringArrayDelegate(byte[] name, UIntPtr name_len, NtStringWrite[] arr, UIntPtr size, int force);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int NT_SetDefaultEntryBooleanDelegate(byte[] name, UIntPtr name_len, int v_boolean);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int NT_SetDefaultEntryDoubleDelegate(byte[] name, UIntPtr name_len, double v_double);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int NT_SetDefaultEntryStringDelegate(byte[] name, UIntPtr name_len, byte[] v_string, UIntPtr string_len);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int NT_SetDefaultEntryRawDelegate(byte[] name, UIntPtr name_len, byte[] raw, UIntPtr raw_len);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int NT_SetDefaultEntryBooleanArrayDelegate(byte[] name, UIntPtr name_len, int[] arr, UIntPtr size);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int NT_SetDefaultEntryDoubleArrayDelegate(byte[] name, UIntPtr name_len, double[] arr, UIntPtr size);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int NT_SetDefaultEntryStringArrayDelegate(byte[] name, UIntPtr name_len, NtStringWrite[] arr, UIntPtr size);
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_CreateRpcDelegate(byte[] name, UIntPtr name_len, byte[] def, UIntPtr def_len, IntPtr data, NT_RPCCallback callback);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -421,6 +444,15 @@ namespace NetworkTables.Core.Native
         internal static NT_SetEntryBooleanArrayDelegate NT_SetEntryBooleanArray;
         internal static NT_SetEntryDoubleArrayDelegate NT_SetEntryDoubleArray;
         internal static NT_SetEntryStringArrayDelegate NT_SetEntryStringArray;
+
+        internal static NT_SetDefaultEntryBooleanDelegate NT_SetDefaultEntryBoolean;
+        internal static NT_SetDefaultEntryDoubleDelegate NT_SetDefaultEntryDouble;
+        internal static NT_SetDefaultEntryStringDelegate NT_SetDefaultEntryString;
+        internal static NT_SetDefaultEntryRawDelegate NT_SetDefaultEntryRaw;
+        internal static NT_SetDefaultEntryBooleanArrayDelegate NT_SetDefaultEntryBooleanArray;
+        internal static NT_SetDefaultEntryDoubleArrayDelegate NT_SetDefaultEntryDoubleArray;
+        internal static NT_SetDefaultEntryStringArrayDelegate NT_SetDefaultEntryStringArray;
+
         internal static NT_CreateRpcDelegate NT_CreateRpc;
         internal static NT_CreatePolledRpcDelegate NT_CreatePolledRpc;
         internal static NT_PollRpcDelegate NT_PollRpc;
