@@ -219,3 +219,4 @@ networktables.ini
 networktables.ini.bak
 coverage.xml
 *.project.lock.json
+src/FRC.NetworkTables.Core/NativeLibraries/temp/
