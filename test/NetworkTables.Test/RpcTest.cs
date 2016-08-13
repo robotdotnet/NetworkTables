@@ -32,8 +32,6 @@ namespace NetworkTables.Test
             bool polled = RemoteProcedureCall.PollRpc(true, TimeSpan.FromSeconds(1), out info);
             Assert.That(polled, Is.True);
 
-            Assert.That(info.CallUid, Is.EqualTo(call1Uid));
-
             byte[] toSendBack = Callback1(info.Name, info.Params);
             Assert.That(toSendBack.Length, Is.Not.EqualTo(0));
 
@@ -67,8 +65,6 @@ namespace NetworkTables.Test
             Assert.That(task.IsCompleted, Is.True);
             Assert.That(task.Result, Is.Not.Null);
             Assert.That(task.Result.HasValue);
-
-            Assert.That(task.Result.Value.CallUid, Is.EqualTo(call1Uid));
 
             byte[] toSendBack = Callback1(task.Result.Value.Name, task.Result.Value.Params);
             Assert.That(toSendBack.Length, Is.Not.EqualTo(0));

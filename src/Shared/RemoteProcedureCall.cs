@@ -184,6 +184,11 @@ namespace NetworkTables
 #if CORE
             NtRpcCallInfo nativeInfo;
             int retVal = Interop.NT_PollRpc(blocking ? 1 : 0, out nativeInfo);
+            if (retVal == 0) 
+            {
+                callInfo = new RpcCallInfo();
+                return false;
+            }
             callInfo = nativeInfo.ToManaged();
             return retVal != 0;
 #else
