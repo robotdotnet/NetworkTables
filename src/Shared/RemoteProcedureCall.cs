@@ -239,6 +239,32 @@ namespace NetworkTables
         }
 
         /// <summary>
+        /// Calls a procedure on a remote server, and awaits a response asynchronously
+        /// </summary>
+        /// <param name="name">The name of the Rpc</param>
+        /// <param name="token">The token to cancel the response request</param>
+        /// <param name="param">The data to send for the request</param>
+        /// <returns>The results received from the server for the request</returns>
+        public static async Task<byte[]> CallRpcWithResultAsync(string name, CancellationToken token, params byte[] param)
+        {
+            long id = CallRpc(name, param);
+            return await GetRpcResultAsync(id, token);
+        }
+
+        /// <summary>
+        /// Calls a procedure on a remote server, and awaits a response asynchronously
+        /// </summary>
+        /// <param name="name">The name of the Rpc</param>
+        /// <param name="token">The token to cancel the response request</param>
+        /// <param name="param">The data to send for the request</param>
+        /// <returns>The results received from the server for the request</returns>
+        public static async Task<byte[]> CallRpcWithResultAsync(string name, CancellationToken token, params Value[] param)
+        {
+            long id = CallRpc(name, param);
+            return await GetRpcResultAsync(id, token);
+        }
+
+        /// <summary>
         /// Gets the result of an Rpc request asynchronously
         /// </summary>
         /// <param name="callUid">The Rpc call id</param>

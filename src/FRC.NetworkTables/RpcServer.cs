@@ -168,7 +168,6 @@ namespace NetworkTables
                 }
                 callInfo = new RpcCallInfo(item.Msg.Id, callUid, item.Name, item.Msg.Val.GetRpc());
                 m_responseMap.Add(new ImmutablePair<uint, uint>(item.Msg.Id, callUid), item.SendResponse);
-                m_pollQueue.Dequeue();
                 return true;
             }
             finally
