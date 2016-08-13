@@ -11,6 +11,9 @@ using System.Runtime.InteropServices;
 
 namespace NetworkTables
 {
+    /// <summary>
+    /// NetworkTables client to server remote procedure calls
+    /// </summary>
     public static class RemoteProcedureCall
     {
 #if CORE
@@ -19,6 +22,15 @@ namespace NetworkTables
         internal static readonly List<Interop.NT_RPCCallback> s_rpcCallbacks = new List<Interop.NT_RPCCallback>();
 #endif
 
+        /// <summary>
+        /// Creates an procedure that can be called by a remote client
+        /// </summary>
+        /// <remarks>
+        /// Note that this can only be called by a server.
+        /// </remarks>
+        /// <param name="name">The name for this Rpc</param>
+        /// <param name="def">The definition for this Rpc</param>
+        /// <param name="callback">The callback to use the the procedure is called from a remote</param>
         public static void CreateRpc(string name, byte[] def, RpcCallback callback)
         {
 #if CORE
@@ -42,6 +54,15 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Creates an procedure that can be called by a remote client
+        /// </summary>
+        /// <remarks>
+        /// Note that this can only be called by a server.
+        /// </remarks>
+        /// <param name="name">The name for this Rpc</param>
+        /// <param name="def">The definition for this Rpc</param>
+        /// <param name="callback">The callback to use the the procedure is called from a remote</param>
         public static void CreateRpc(string name, RpcDefinition def, RpcCallback callback)
         {
 #if CORE
@@ -51,6 +72,14 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Creates an procedure called by a remote client that can be polled by the server
+        /// </summary>
+        /// <remarks>
+        /// Note that this can only be called by a server.
+        /// </remarks>
+        /// <param name="name">The name for this Rpc</param>
+        /// <param name="def">The definition for this Rpc</param>
         public static void CreatePolledRpc(string name, byte[] def)
         {
 #if CORE
@@ -62,6 +91,14 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Creates an procedure called by a remote client that can be polled by the server
+        /// </summary>
+        /// <remarks>
+        /// Note that this can only be called by a server.
+        /// </remarks>
+        /// <param name="name">The name for this Rpc</param>
+        /// <param name="def">The definition for this Rpc</param>
         public static void CreatePolledRpc(string name, RpcDefinition def)
         {
 #if CORE
@@ -71,6 +108,13 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Polls for an Rpc request from a client
+        /// </summary>
+        /// <param name="blocking">True to block waiting for a request</param>
+        /// <param name="timeout">Timeout to wait for if blocking</param>
+        /// <param name="callInfo">The info for the call request</param>
+        /// <returns>True if an Rpc call has been requested, otherwise false</returns>
         public static bool PollRpc(bool blocking, TimeSpan timeout, out RpcCallInfo callInfo)
         {
 #if CORE
@@ -99,6 +143,11 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Polls for an Rpc request from a client asynchronously
+        /// </summary>
+        /// <param name="token">Token to cancel the polling on</param>
+        /// <returns>The info for the call request, or null if canceled.</returns>
         public static async Task<RpcCallInfo?> PollRpcAsync(CancellationToken token)
         {
 #if CORE
@@ -124,6 +173,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Polls for an Rpc request from a client
+        /// </summary>
+        /// <param name="blocking">True to block waiting for a request</param>
+        /// <param name="callInfo">The info for the call request</param>
+        /// <returns>True if an Rpc call has been requested, otherwise false</returns>
         public static bool PollRpc(bool blocking, out RpcCallInfo callInfo)
         {
 #if CORE
@@ -136,6 +191,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Posts an Rpc response to a polled Rpc request
+        /// </summary>
+        /// <param name="rpcId">The id of the rpc to respond to</param>
+        /// <param name="callUid">The id of the request to respond to</param>
+        /// <param name="result">The result to send as a response</param>
         public static void PostRpcResponse(long rpcId, long callUid, params byte[] result)
         {
 #if CORE
@@ -145,6 +206,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Calls a procedure on a remote server
+        /// </summary>
+        /// <param name="name">The name of the Rpc</param>
+        /// <param name="param">The data to send for the request</param>
+        /// <returns>The Rpc call id</returns>
         public static long CallRpc(string name, params byte[] param)
         {
 #if CORE
@@ -156,6 +223,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Calls a procedure on a remote server
+        /// </summary>
+        /// <param name="name">The name of the Rpc</param>
+        /// <param name="param">The data to send for the request</param>
+        /// <returns>The Rpc call id</returns>
         public static long CallRpc(string name, params Value[] param)
         {
 #if CORE
@@ -165,6 +238,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets the result of an Rpc request asynchronously
+        /// </summary>
+        /// <param name="callUid">The Rpc call id</param>
+        /// <param name="token">Token to cancel the request on</param>
+        /// <returns>Array of results sent back from the server from the request</returns>
         public static async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
         {
 #if CORE
@@ -188,6 +267,14 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets the result of an Rpc request
+        /// </summary>
+        /// <param name="blocking">True if the call should block until the request is received</param>
+        /// <param name="callUid">The Rpc call id</param>
+        /// <param name="timeout">Timeout to wait for if blocking</param>
+        /// <param name="result">Array of results sent back from the server from the request</param>
+        /// <returns>True if a result was received, otherwise false</returns>
         public static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
         {
 #if CORE
@@ -211,7 +298,13 @@ namespace NetworkTables
 #endif
         }
 
-
+        /// <summary>
+        /// Gets the result of an Rpc request
+        /// </summary>
+        /// <param name="blocking">True if the call should block until the request is received</param>
+        /// <param name="callUid">The Rpc call id</param>
+        /// <param name="result">Array of results sent back from the server from the request</param>
+        /// <returns>True if a result was received, otherwise false</returns>
         public static bool GetRpcResult(bool blocking, long callUid, out byte[] result)
         {
 #if CORE
@@ -229,6 +322,11 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Pack an Rpc defintion in to a byte array
+        /// </summary>
+        /// <param name="def">The definition to pack</param>
+        /// <returns>The packed data</returns>
         public static byte[] PackRpcDefinition(RpcDefinition def)
         {
             WireEncoder enc = new WireEncoder(0x0300);
@@ -256,6 +354,12 @@ namespace NetworkTables
             return enc.Buffer;
         }
 
+        /// <summary>
+        /// Unpack an Rpc definition from a byte array
+        /// </summary>
+        /// <param name="packed">The data array</param>
+        /// <param name="def">The definition to unpack to</param>
+        /// <returns>True if the data was unpacked successfully</returns>
         public static bool UnpackRpcDefinition(byte[] packed, ref RpcDefinition def)
         {
             MemoryStream iStream = new MemoryStream(packed);
@@ -296,6 +400,11 @@ namespace NetworkTables
             return true;
         }
 
+        /// <summary>
+        /// Pack a list of values
+        /// </summary>
+        /// <param name="values">The values to pack</param>
+        /// <returns>The packed values</returns>
         public static byte[] PackRpcValues(params Value[] values)
         {
             WireEncoder enc = new WireEncoder(0x0300);
@@ -306,6 +415,11 @@ namespace NetworkTables
             return enc.Buffer;
         }
 
+        /// <summary>
+        /// Pack a list of values
+        /// </summary>
+        /// <param name="values">The values to pack</param>
+        /// <returns>The packed values</returns>
         public static byte[] PackRpcValues(List<Value> values)
         {
             WireEncoder enc = new WireEncoder(0x0300);
@@ -316,6 +430,12 @@ namespace NetworkTables
             return enc.Buffer;
         }
 
+        /// <summary>
+        /// Unpack a list of values
+        /// </summary>
+        /// <param name="packed">The packed data</param>
+        /// <param name="types">The types the packed data should be</param>
+        /// <returns>A list of the unpacked values</returns>
         public static List<Value> UnpackRpcValues(byte[] packed, params NtType[] types)
         {
             MemoryStream iStream = new MemoryStream(packed);
@@ -330,6 +450,12 @@ namespace NetworkTables
             return vec;
         }
 
+        /// <summary>
+        /// Unpack a list of values
+        /// </summary>
+        /// <param name="packed">The packed data</param>
+        /// <param name="types">The types the packed data should be</param>
+        /// <returns>A list of the unpacked values</returns>
         public static List<Value> UnpackRpcValues(byte[] packed, List<NtType> types)
         {
             MemoryStream iStream = new MemoryStream(packed);

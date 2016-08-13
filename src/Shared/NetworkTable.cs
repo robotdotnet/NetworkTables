@@ -320,7 +320,7 @@ namespace NetworkTables
         /// <returns>True if the table contains the key, otherwise false.</returns>
         public bool ContainsKey(string key)
         {
-            return NtCore.ContainsKey(m_path + PathSeperatorChar + key);
+            return NtCore.ContainsEntry(m_path + PathSeperatorChar + key);
         }
 
         /// <summary>

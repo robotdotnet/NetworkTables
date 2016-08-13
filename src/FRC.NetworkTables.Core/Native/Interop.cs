@@ -166,6 +166,7 @@ namespace NetworkTables.Core.Native
             NT_StopClient = (NT_StopClientDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StopClient"), typeof(NT_StopClientDelegate));
             NT_StopRpcServer = (NT_StopRpcServerDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StopRpcServer"), typeof(NT_StopRpcServerDelegate));
             NT_StopNotifier = (NT_StopNotifierDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StopNotifier"), typeof(NT_StopNotifierDelegate));
+            NT_NotifierDestroyed = (NT_NotifierDestroyedDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_NotifierDestroyed"), typeof(NT_NotifierDestroyedDelegate));
             NT_SetUpdateRate = (NT_SetUpdateRateDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetUpdateRate"), typeof(NT_SetUpdateRateDelegate));
             NT_GetConnections = (NT_GetConnectionsDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetConnections"), typeof(NT_GetConnectionsDelegate));
             NT_SavePersistent = (NT_SavePersistentDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SavePersistent"), typeof(NT_SavePersistentDelegate));
@@ -280,6 +281,8 @@ namespace NetworkTables.Core.Native
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate IntPtr NT_StopNotifierDelegate();
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int NT_NotifierDestroyedDelegate();
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_SetUpdateRateDelegate(double interval);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate IntPtr NT_GetConnectionsDelegate(ref UIntPtr count);
@@ -357,7 +360,6 @@ namespace NetworkTables.Core.Native
         internal delegate int NT_SetEntryDoubleArrayDelegate(byte[] name, UIntPtr name_len, double[] arr, UIntPtr size, int force);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int NT_SetEntryStringArrayDelegate(byte[] name, UIntPtr name_len, NtStringWrite[] arr, UIntPtr size, int force);
-
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int NT_SetDefaultEntryBooleanDelegate(byte[] name, UIntPtr name_len, int v_boolean);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -405,6 +407,7 @@ namespace NetworkTables.Core.Native
         internal static NT_StopClientDelegate NT_StopClient;
         internal static NT_StopRpcServerDelegate NT_StopRpcServer;
         internal static NT_StopNotifierDelegate NT_StopNotifier;
+        internal static NT_NotifierDestroyedDelegate NT_NotifierDestroyed;
         internal static NT_SetUpdateRateDelegate NT_SetUpdateRate;
         internal static NT_GetConnectionsDelegate NT_GetConnections;
         internal static NT_SavePersistentDelegate NT_SavePersistent;

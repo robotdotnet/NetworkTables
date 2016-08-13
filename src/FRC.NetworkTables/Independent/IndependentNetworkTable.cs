@@ -5,18 +5,38 @@ using NetworkTables.Tables;
 
 namespace NetworkTables.Independent
 {
+    /// <summary>
+    /// This class is the Main Class for interfacing with NetworkTables.
+    /// </summary>
+    /// <remarks>For most users, this will be the only class that will be needed.
+    /// Any interfaces needed to work with this can be found in the <see cref="NetworkTables.Tables"/> 
+    /// namespace. 
+    /// <para></para>
+    /// The static <see cref="NtCore"/>, <see cref="NetworkTable"/> and <see cref="RemoteProcedureCall"/>
+    /// all run using the same backend library. This means you cannot have both a client and a server running
+    /// in the same user program. The 
+    /// <see cref="IndependentNtCore"/>, <see cref="IndependentNetworkTable"/> and <see cref="IndependentRemoteProcedureCall"/>
+    /// get around this restriction, and allow multiple clients and servers in the same user program. Note that this is
+    /// not supported by NetworkTables.Core.</remarks>
     public class IndependentNetworkTable : ITable, IRemote
     {
         private readonly IndependentNtCore m_ntCore;
+        /// <inheritdoc cref="NetworkTable.PathSeperatorChar"/>
         public const char PathSeperatorChar = NetworkTable.PathSeperatorChar;
         private readonly string m_path;
 
+        /// <summary>
+        /// Creates a new NetworkTable object from an NtCore object
+        /// </summary>
+        /// <param name="ntCore">The NtCore object to use</param>
+        /// <param name="path">The root path for this table</param>
         public IndependentNetworkTable(IndependentNtCore ntCore, string path)
         {
             m_ntCore = ntCore;
             m_path = path;
         }
 
+        /// <inheritdoc cref="NetworkTable.ToString"/>
         public override string ToString()
         {
             return $"NetworkTable: {m_path}";
@@ -29,7 +49,7 @@ namespace NetworkTables.Independent
         /// <returns>True if the table contains the key, otherwise false.</returns>
         public bool ContainsKey(string key)
         {
-            return m_ntCore.ContainsKey(m_path + PathSeperatorChar + key);
+            return m_ntCore.ContainsEntry(m_path + PathSeperatorChar + key);
         }
 
         /// <summary>
@@ -207,7 +227,7 @@ namespace NetworkTables.Independent
         public Value GetValue(string key)
         {
             string localPath = m_path + PathSeperatorChar + key;
-            var v = NtCore.GetEntryValue(localPath);
+            var v = m_ntCore.GetEntryValue(localPath);
             if (v == null) throw new TableKeyNotDefinedException(localPath);
             return v;
         }
@@ -736,6 +756,7 @@ namespace NetworkTables.Independent
             return m_ntCore.SetDefaultEntryStringArray(m_path + PathSeperatorChar + key, defaultValue);
         }
 
+        /// <inheritdoc/>
         public bool IsServer => !m_ntCore.Client;
     }
 }

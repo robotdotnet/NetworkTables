@@ -741,11 +741,16 @@ namespace NetworkTables.Core.Native
         internal static void StopNotifier()
         {
             Interop.NT_StopNotifier();
+            //Clear callback dictionaries
+            s_entryCallbacks.Clear();
+            s_connectionCallbacks.Clear();
         }
 
         internal static void StopRpcServer()
         {
             Interop.NT_StopRpcServer();
+            // Clear callback dictionaries
+            RemoteProcedureCall.s_rpcCallbacks.Clear();
         }
 
         internal static void SetUpdateRate(double interval)
@@ -827,6 +832,11 @@ namespace NetworkTables.Core.Native
             Interop.NT_Flush();
         }
 
+        internal static bool NotifierDestroyed()
+        {
+            return Interop.NT_NotifierDestroyed() != 0;
+        }
+
         internal static NtType GetType(string name)
         {
             UIntPtr size;
@@ -835,9 +845,9 @@ namespace NetworkTables.Core.Native
             return retVal;
         }
 
-        internal static bool ContainsKey(string key)
+        internal static bool ContainsEntry(string name)
         {
-            NtType val = GetType(key);
+            NtType val = GetType(name);
             return val != NtType.Unassigned;
         }
 

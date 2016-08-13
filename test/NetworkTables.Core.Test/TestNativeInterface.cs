@@ -240,13 +240,13 @@ namespace NetworkTables.Core.Test
             string toWrite1 = "written";
             CoreMethods.SetEntryString(key1, toWrite1);
 
-            Assert.That(CoreMethods.ContainsKey(key1));
+            Assert.That(CoreMethods.ContainsEntry(key1));
         }
 
         [Test]
         public void TestContainsKeyNonExistentKey()
         {
-            Assert.That(!CoreMethods.ContainsKey("testKey"));
+            Assert.That(!CoreMethods.ContainsEntry("testKey"));
         }
 
         [Test]

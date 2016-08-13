@@ -237,13 +237,13 @@ namespace NetworkTables.Test.NtCoreTests
             string toWrite1 = "written";
             NtCore.SetEntryValue(key1, Value.MakeString(toWrite1));
 
-            Assert.That(NtCore.ContainsKey(key1));
+            Assert.That(NtCore.ContainsEntry(key1));
         }
 
         [Test]
         public void TestContainsKeyNonExistentKey()
         {
-            Assert.That(!NtCore.ContainsKey("testKey"));
+            Assert.That(!NtCore.ContainsEntry("testKey"));
         }
 
         [Test]

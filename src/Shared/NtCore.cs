@@ -10,8 +10,19 @@ using NetworkTables.Core.Native;
 
 namespace NetworkTables
 {
+    /// <summary>
+    /// This class contains all NtCore methods exposed by the underlying library.
+    /// </summary>
+    /// <remarks>All keys in this method start from the root of the table</remarks>
+    /// <seealso cref="NetworkTable"/>
     public static class NtCore
     {
+        /// <summary>
+        /// Sets an entry value in the table if it does not exist.
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <returns>False if the type does not match existing value</returns>
         public static bool SetDefaultEntryBoolean(string name, bool value)
         {
 #if CORE
@@ -21,6 +32,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets an entry value in the table if it does not exist.
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <returns>False if the type does not match existing value</returns>
         public static bool SetDefaultEntryDouble(string name, double value)
         {
 #if CORE
@@ -30,6 +47,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets an entry value in the table if it does not exist.
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <returns>False if the type does not match existing value</returns>
         public static bool SetDefaultEntryString(string name, string value)
         {
 #if CORE
@@ -39,6 +62,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets an entry value in the table if it does not exist.
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <returns>False if the type does not match existing value</returns>
         public static bool SetDefaultEntryBooleanArray(string name, bool[] value)
         {
 #if CORE
@@ -48,6 +77,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets an entry value in the table if it does not exist.
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <returns>False if the type does not match existing value</returns>
         public static bool SetDefaultEntryDoubleArray(string name, double[] value)
         {
 #if CORE
@@ -57,6 +92,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets an entry value in the table if it does not exist.
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <returns>False if the type does not match existing value</returns>
         public static bool SetDefaultEntryStringArray(string name, string[] value)
         {
 #if CORE
@@ -66,6 +107,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets an entry value in the table if it does not exist.
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <returns>False if the type does not match existing value</returns>
         public static bool SetDefaultEntryRaw(string name, byte[] value)
         {
 #if CORE
@@ -75,9 +122,17 @@ namespace NetworkTables
 #endif
         }
 
-
-
-
+        /// <summary>
+        /// Sets an entry value
+        /// </summary>
+        /// <remarks>If the type of the new value differs from the type currently
+        /// stored and the force parameter is false (default), returns error and
+        /// does not update value. If force is true, the value type in the
+        /// table is changed</remarks>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <param name="force">True to force an update even if types are different</param>
+        /// <returns>True on success, otherwise false</returns>
         public static bool SetEntryBoolean(string name, bool value, bool force = false)
         {
 #if CORE
@@ -92,6 +147,17 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets an entry value
+        /// </summary>
+        /// <remarks>If the type of the new value differs from the type currently
+        /// stored and the force parameter is false (default), returns error and
+        /// does not update value. If force is true, the value type in the
+        /// table is changed</remarks>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <param name="force">True to force an update even if types are different</param>
+        /// <returns>True on success, otherwise false</returns>
         public static bool SetEntryDouble(string name, double value, bool force = false)
         {
 #if CORE
@@ -106,6 +172,17 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets an entry value
+        /// </summary>
+        /// <remarks>If the type of the new value differs from the type currently
+        /// stored and the force parameter is false (default), returns error and
+        /// does not update value. If force is true, the value type in the
+        /// table is changed</remarks>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <param name="force">True to force an update even if types are different</param>
+        /// <returns>True on success, otherwise false</returns>
         public static bool SetEntryString(string name, string value, bool force = false)
         {
 #if CORE
@@ -120,6 +197,17 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets an entry value
+        /// </summary>
+        /// <remarks>If the type of the new value differs from the type currently
+        /// stored and the force parameter is false (default), returns error and
+        /// does not update value. If force is true, the value type in the
+        /// table is changed</remarks>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <param name="force">True to force an update even if types are different</param>
+        /// <returns>True on success, otherwise false</returns>
         public static bool SetEntryBooleanArray(string name, bool[] value, bool force = false)
         {
 #if CORE
@@ -134,6 +222,17 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets an entry value
+        /// </summary>
+        /// <remarks>If the type of the new value differs from the type currently
+        /// stored and the force parameter is false (default), returns error and
+        /// does not update value. If force is true, the value type in the
+        /// table is changed</remarks>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <param name="force">True to force an update even if types are different</param>
+        /// <returns>True on success, otherwise false</returns>
         public static bool SetEntryDoubleArray(string name, double[] value, bool force = false)
         {
 #if CORE
@@ -148,6 +247,17 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets an entry value
+        /// </summary>
+        /// <remarks>If the type of the new value differs from the type currently
+        /// stored and the force parameter is false (default), returns error and
+        /// does not update value. If force is true, the value type in the
+        /// table is changed</remarks>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <param name="force">True to force an update even if types are different</param>
+        /// <returns>True on success, otherwise false</returns>
         public static bool SetEntryStringArray(string name, string[] value, bool force = false)
         {
 #if CORE
@@ -162,6 +272,17 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets an entry value
+        /// </summary>
+        /// <remarks>If the type of the new value differs from the type currently
+        /// stored and the force parameter is false (default), returns error and
+        /// does not update value. If force is true, the value type in the
+        /// table is changed</remarks>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <param name="force">True to force an update even if types are different</param>
+        /// <returns>True on success, otherwise false</returns>
         public static bool SetEntryRaw(string name, byte[] value, bool force = false)
         {
 #if CORE
@@ -194,6 +315,15 @@ namespace NetworkTables
         }
 #endif
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <returns>The value in the table</returns>
+        /// <exception cref="TableKeyNotDefinedException">Thrown if the key does
+        /// not exist in the table</exception>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if the type
+        /// requested does not match the type in the table</exception>
         public static bool GetEntryBoolean(string name)
         {
 #if CORE
@@ -205,6 +335,15 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <returns>The value in the table</returns>
+        /// <exception cref="TableKeyNotDefinedException">Thrown if the key does
+        /// not exist in the table</exception>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if the type
+        /// requested does not match the type in the table</exception>
         public static double GetEntryDouble(string name)
         {
 #if CORE
@@ -216,6 +355,15 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <returns>The value in the table</returns>
+        /// <exception cref="TableKeyNotDefinedException">Thrown if the key does
+        /// not exist in the table</exception>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if the type
+        /// requested does not match the type in the table</exception>
         public static string GetEntryString(string name)
         {
 #if CORE
@@ -227,6 +375,15 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <returns>The value in the table</returns>
+        /// <exception cref="TableKeyNotDefinedException">Thrown if the key does
+        /// not exist in the table</exception>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if the type
+        /// requested does not match the type in the table</exception>
         public static bool[] GetEntryBooleanArray(string name)
         {
 #if CORE
@@ -238,6 +395,15 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <returns>The value in the table</returns>
+        /// <exception cref="TableKeyNotDefinedException">Thrown if the key does
+        /// not exist in the table</exception>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if the type
+        /// requested does not match the type in the table</exception>
         public static double[] GetEntryDoubleArray(string name)
         {
 #if CORE
@@ -249,6 +415,15 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <returns>The value in the table</returns>
+        /// <exception cref="TableKeyNotDefinedException">Thrown if the key does
+        /// not exist in the table</exception>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if the type
+        /// requested does not match the type in the table</exception>
         public static string[] GetEntryStringArray(string name)
         {
 #if CORE
@@ -260,6 +435,15 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <returns>The value in the table</returns>
+        /// <exception cref="TableKeyNotDefinedException">Thrown if the key does
+        /// not exist in the table</exception>
+        /// <exception cref="TableKeyDifferentTypeException">Thrown if the type
+        /// requested does not match the type in the table</exception>
         public static byte[] GetEntryRaw(string name)
         {
 #if CORE
@@ -274,6 +458,13 @@ namespace NetworkTables
         #endregion
 
         #region DefaultGetters
+
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
+        /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
         public static bool GetEntryBoolean(string name, bool defaultValue)
         {
 #if CORE
@@ -285,6 +476,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
+        /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
         public static double GetEntryDouble(string name, double defaultValue)
         {
 #if CORE
@@ -296,6 +493,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
+        /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
         public static string GetEntryString(string name, string defaultValue)
         {
 #if CORE
@@ -307,6 +510,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
+        /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
         public static bool[] GetEntryBooleanArray(string name, bool[] defaultValue)
         {
 #if CORE
@@ -318,6 +527,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
+        /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
         public static double[] GetEntryDoubleArray(string name, double[] defaultValue)
         {
 #if CORE
@@ -329,6 +544,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
+        /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
         public static string[] GetEntryStringArray(string name, string[] defaultValue)
         {
 #if CORE
@@ -340,6 +561,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
+        /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
         public static byte[] GetEntryRaw(string name, byte[] defaultValue)
         {
 #if CORE
@@ -352,6 +579,13 @@ namespace NetworkTables
         }
 #endregion
 
+        /// <summary>
+        /// Returns a copy of the current entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <returns>The value in the table</returns>
+        /// <remarks>Note if the value does not exist in the table, returns null.
+        /// In addition, <see cref="NtType.Unassigned"/> is a possible type</remarks>
         public static Value GetEntryValue(string name)
         {
 #if CORE
@@ -361,6 +595,14 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets a new entry value
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <returns>True on successful set, false on error</returns>
+        /// <remarks>If type of new value differs from the type of the
+        /// currently stored entry, returns false and does not update value</remarks>
         public static bool SetEntryValue(string name, Value value)
         {
 #if CORE
@@ -370,7 +612,12 @@ namespace NetworkTables
 #endif
         }
 
-
+        /// <summary>
+        /// Sets an entry value in the table if it does not exist.
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <returns>False if the type does not match existing value</returns>
         public static bool SetDefaultEntryValue(string name, Value value)
         {
 #if CORE
@@ -380,6 +627,13 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets a new entry value, forcing an update on a type mismatch
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="value">The value to set</param>
+        /// <remarks>If type of new value differs from the type of the
+        /// currently stored entry, the value will be force updated</remarks>
         public static void SetEntryTypeValue(string name, Value value)
         {
 #if CORE
@@ -389,6 +643,11 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets flags associated with an entry
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <param name="flags">The bitmask of the flags to set</param>
         public static void SetEntryFlags(string name, EntryFlags flags)
         {
 #if CORE
@@ -398,6 +657,11 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets flags associated with an entry
+        /// </summary>
+        /// <param name="name">The entry names</param>
+        /// <returns>Bitmask of the flags contained in the entry</returns>
         public static EntryFlags GetEntryFlags(string name)
         {
 #if CORE
@@ -407,6 +671,10 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Deletes an entry from the table
+        /// </summary>
+        /// <param name="name">The entry name</param>
         public static void DeleteEntry(string name)
         {
 #if CORE
@@ -416,6 +684,9 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        ///Deletes all non-persistent entries from the table
+        /// </summary>
         public static void DeleteAllEntries()
         {
 #if CORE
@@ -425,6 +696,16 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an array of entry information
+        /// </summary>
+        /// <remarks>
+        /// The results are optionally filtered by a string prefix and entry type to only
+        /// return a subset of all entries
+        /// </remarks>
+        /// <param name="prefix">A required entry prefix. Only entries with this prefix will be returned</param>
+        /// <param name="types">Bitmask of <see cref="NtType"/> values, 0 is "don't care"</param>
+        /// <returns>Array of entry information</returns>
         public static List<EntryInfo> GetEntryInfo(string prefix, NtType types)
         {
 #if CORE
@@ -434,26 +715,42 @@ namespace NetworkTables
 #endif
         }
 
-        public static NtType GetType(string key)
+        /// <summary>
+        /// Gets the type of a specified entry
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <returns>The type of the entry. <see cref="NtType.Unassigned"/> if the entry does not exist</returns>
+        public static NtType GetType(string name)
         {
 #if CORE
-            return CoreMethods.GetType(key);
+            return CoreMethods.GetType(name);
 #else
-            var v = GetEntryValue(key);
+            var v = GetEntryValue(name);
             if (v == null) return NtType.Unassigned;
-            return GetEntryValue(key).Type;
+            return v.Type;
 #endif
         }
 
-        public static bool ContainsKey(string key)
+        /// <summary>
+        /// Gets if the table contains a specific entry
+        /// </summary>
+        /// <param name="name">The entry name</param>
+        /// <returns>True if the entry exists, otherwise false</returns>
+        public static bool ContainsEntry(string name)
         {
 #if CORE
-            return CoreMethods.ContainsKey(key);
+            return CoreMethods.ContainsEntry(name);
 #else
-            return GetType(key) != NtType.Unassigned;
+            return GetType(name) != NtType.Unassigned;
 #endif
         }
 
+        /// <summary>
+        /// Forces an immediate update of all entry changes to the network
+        /// </summary>
+        /// <remarks>This is done on a regularly scheduled interval set by
+        /// <see cref="SetUpdateRate"/>. Fluses are rate limited to avoid
+        /// excessive network trafic</remarks>
         public static void Flush()
         {
 #if CORE
@@ -463,6 +760,13 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Adds a listener for a specified prefix in the table
+        /// </summary>
+        /// <param name="prefix">The prefix to listen for in the table</param>
+        /// <param name="callback">The callback to call when any entry with the specified prefix is updated</param>
+        /// <param name="flags">The flags to use for notifying</param>
+        /// <returns>The id of the entry listener</returns>
         public static int AddEntryListener(string prefix, EntryListenerCallback callback, NotifyFlags flags)
         {
 #if CORE
@@ -477,6 +781,10 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Removed an entry listener from the table
+        /// </summary>
+        /// <param name="uid">The entry listener id</param>
         public static void RemoveEntryListener(int uid)
         {
 #if CORE
@@ -486,6 +794,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Adds a connection listener to the table
+        /// </summary>
+        /// <param name="callback">The callback to call when a new remote connects or disconnects</param>
+        /// <param name="immediateNotify">True to notify immediately with all connected remotes</param>
+        /// <returns>The id of the connection listener</returns>
         public static int AddConnectionListener(ConnectionListenerCallback callback, bool immediateNotify)
         {
 #if CORE
@@ -499,6 +813,10 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Removes a connection listener from the table
+        /// </summary>
+        /// <param name="uid">The connection listener id</param>
         public static void RemoveConnectionListener(int uid)
         {
 #if CORE
@@ -508,15 +826,25 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets if the notifier thread for callbacks has been destroyed
+        /// </summary>
+        /// <returns>True if the notifier has been destroyed</returns>
         public static bool NotifierDestroyed()
         {
 #if CORE
-            return false; //Not implemented in C interface, TODO
+            return CoreMethods.NotifierDestroyed();
 #else
             return Notifier.Instance.Destroyed();
 #endif
         }
 
+        /// <summary>
+        /// Sets the remote identity for this table
+        /// </summary>
+        /// <remarks>This is the id that will be seen by
+        /// the remotes</remarks>
+        /// <param name="name">The id</param>
         public static void SetNetworkIdentity(string name)
         {
 #if CORE
@@ -526,6 +854,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Starts this table in server mode
+        /// </summary>
+        /// <param name="persistFilename">The filename to use for the persistent file</param>
+        /// <param name="listenAddress">The specific ip address to listen on</param>
+        /// <param name="port">The port to listen on</param>
         public static void StartServer(string persistFilename, string listenAddress, int port)
         {
 #if CORE
@@ -535,6 +869,9 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Stops the server if it is running
+        /// </summary>
         public static void StopServer()
         {
 #if CORE
@@ -544,6 +881,11 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Starts this table in client mode
+        /// </summary>
+        /// <param name="serverName">The server name</param>
+        /// <param name="port">The server port</param>
         public static void StartClient(string serverName, int port)
         {
 #if CORE
@@ -553,6 +895,11 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Starts this table in client mode attempting to connect to multiple servers
+        /// in round robin fashion
+        /// </summary>
+        /// <param name="servers">The servers to try and connect to</param>
         public static void StartClient(IList<NtIPAddress> servers)
         {
 #if CORE
@@ -562,6 +909,9 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Stops the client if it is running
+        /// </summary>
         public static void StopClient()
         {
 #if CORE
@@ -571,16 +921,21 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Stops the Rpc server if it is running
+        /// </summary>
         public static void StopRpcServer()
         {
 #if CORE
             CoreMethods.StopRpcServer();
-            RemoteProcedureCall.s_rpcCallbacks.Clear();
 #else
             RpcServer.Instance.Stop();
 #endif
         }
 
+        /// <summary>
+        /// Stops the notifier listener thread if it is running
+        /// </summary>
         public static void StopNotifier()
         {
 #if CORE
@@ -590,6 +945,10 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets the update rate for the table
+        /// </summary>
+        /// <param name="interval">The interval to update the table at (seconds)</param>
         public static void SetUpdateRate(double interval)
         {
 #if CORE
@@ -599,6 +958,10 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets an array of all the connections in the table.
+        /// </summary>
+        /// <returns>The table's remote connections</returns>
         public static List<ConnectionInfo> GetConnections()
         {
 #if CORE
@@ -608,6 +971,11 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Saves all persistent variables to the files specified
+        /// </summary>
+        /// <param name="filename">The file to save to</param>
+        /// <returns>Error string, or null on success</returns>
         public static string SavePersistent(string filename)
         {
 #if CORE
@@ -617,6 +985,12 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Loads persistent variables from a specified file
+        /// </summary>
+        /// <param name="filename">The file to load from</param>
+        /// <param name="warn">Function called whenever an error is seen during loading. Int is line number, string is message.</param>
+        /// <returns>Error string, or null on success</returns>
         public static string LoadPersistent(string filename, Action<int, string> warn)
         {
 #if CORE
@@ -626,11 +1000,20 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Gets the current timestamp of the library to be used for value time comparisons 
+        /// </summary>
+        /// <returns>The current time in milliseconds</returns>
         public static long Now()
         {
             return Support.Timestamp.Now();
         }
 
+        /// <summary>
+        /// Sets the logger to be used when an error is encountered by NetworkTables
+        /// </summary>
+        /// <param name="func">The function to use to log</param>
+        /// <param name="minLevel">The minimum level required to log</param>
         public static void SetLogger(LogFunc func, LogLevel minLevel)
         {
 #if CORE
@@ -642,6 +1025,11 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Loads persistent variables from a specified file
+        /// </summary>
+        /// <param name="filename">The file to load from</param>
+        /// <returns>An array of all errors reported during loading</returns>
         public static string[] LoadPersistent(string filename)
         {
             List<string> warns = new List<string>();
