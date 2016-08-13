@@ -210,24 +210,6 @@ function UpdateXml {
    Copy-Item Sandcastle\Help\FRC.NetworkTables.Core.xml src\FRC.NetworkTables.Core\$libLoc\netstandard1.5\FRC.NetworkTables.Core.xml
 }
 
-if ($env:APPVEYOR) {
-
- #Supress compiler xml warnings
-  $netTablesJson = Get-Content 'src\FRC.NetworkTables\project.json' -raw | ConvertFrom-Json
-  try{
-  $netTablesJson.buildOptions | Add-Member -Name "nowarn" -value @("CS1591") -MemberType NoteProperty
-    }
-  catch {}
-  $netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.NetworkTables\project.json'
-  
-  $netTablesJson = Get-Content 'src\FRC.NetworkTables.Core\project.json' -raw | ConvertFrom-Json
-  try{
-  $netTablesJson.buildOptions | Add-Member -Name "nowarn" -value @("CS1591") -MemberType NoteProperty
-  }
-  catch {}
-  $netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.NetworkTables.Core\project.json'
-}
-
 if ($release) {
  if ((Test-Path .\buildTemp) -eq $false) {
   md .\buildTemp
