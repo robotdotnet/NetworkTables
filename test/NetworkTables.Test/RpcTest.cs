@@ -21,6 +21,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestPolledRpc()
         {
+            Console.WriteLine("TestPolledRpc");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
             RemoteProcedureCall.CreatePolledRpc("func1", def);
 
@@ -50,6 +51,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestPolledRpcAsync()
         {
+            Console.WriteLine("TestPolledRpcAsync");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
             RemoteProcedureCall.CreatePolledRpc("func1", def);
 
@@ -84,6 +86,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestPolledRpcTimeout()
         {
+            Console.WriteLine("TestPolledRpcTimeout");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
             RemoteProcedureCall.CreatePolledRpc("func1", def);
 
@@ -97,6 +100,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestPolledRpcNonBlocking()
         {
+            Console.WriteLine("TestPolledRpcNonBlocking");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
             RemoteProcedureCall.CreatePolledRpc("func1", def);
 
@@ -110,6 +114,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestPolledRpcNonBlockingWithTimeout()
         {
+            Console.WriteLine("TestPolledRpcNonBlockingWithTimeout");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
             RemoteProcedureCall.CreatePolledRpc("func1", def);
 
@@ -137,6 +142,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestRpcLocal()
         {
+            Console.WriteLine("TestRpcLocal");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
             RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
 
@@ -156,7 +162,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestRpcSpeed()
         {
-
+            Console.WriteLine("TestRpcSpeed");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
 
             RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
@@ -178,6 +184,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestRpcLocalTimeoutFailure()
         {
+            Console.WriteLine("LocalTimeoutFailure");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
             RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
 
@@ -195,6 +202,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestRpcLocalNonBlocking()
         {
+            Console.WriteLine("LoclaNonBlocking");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
             RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
 
@@ -212,6 +220,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestRpcLocalNonBlockingWithTimeout()
         {
+            Console.WriteLine("LocalNonBlockingWithTimeout");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
             RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
 
@@ -229,6 +238,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestRpcLocalTimeoutSuccess()
         {
+            Console.WriteLine("LocalTimeoutSuccess");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
             RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
 
@@ -249,7 +259,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestRpcSpeedTimeoutSuccess()
         {
-
+            Console.WriteLine("SpeedTimeoutSuccess");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
 
             RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
@@ -272,6 +282,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestRpcLocalAsync()
         {
+            Console.WriteLine("LocalAsync");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
             RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
 
@@ -295,7 +306,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestRpcSpeedAsync()
         {
-
+            Console.WriteLine("SpeedAsync");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
 
             RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
@@ -320,6 +331,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestRpcLocalAsyncSingleCall()
         {
+            Console.WriteLine("LocalAsyncSingleCall");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
             RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
 
@@ -340,7 +352,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestRpcSpeedAsyncSingleCall()
         {
-
+            Console.WriteLine("SpeedAsyncSingleCall");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
 
             RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
@@ -378,7 +390,7 @@ namespace NetworkTables.Test
         [Test]
         public void TestRpcAllTypes()
         {
-
+            Console.WriteLine("AllTypes");
             var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef>
             {
                 new RpcParamDef("param1", Value.MakeBoolean(true)),
