@@ -23,7 +23,7 @@ test_script:
 deploy:
 - provider: NuGet
   api_key:
-    secure: Sd5YqTAynv1NxMSJqSw16bmA7dUO0nroLzp4zr050H0sad+8eifLB/Z8fy9sIhDU
+    secure: f4XB8xaNhhhgmXZrsv5Yh+JjxgnAXOfBJtbUgPB623n4Z2t/gXcC7fCUg36DK69k
   on:
     branch: master
     appveyor_repo_tag: true
