@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkTables.Extensions;
-using Nito.AsyncEx;
 
 namespace NetworkTables
 {
@@ -175,16 +174,15 @@ namespace NetworkTables
 
         private void ThreadMain()
         {
-            IDisposable monitor = null;
+            bool lockEntered = false;
             try
             {
-                monitor = m_monitor.Enter();
-                IDisposable monitorToUnlock = null;
+                Monitor.Enter(m_mutex, ref lockEntered);
                 while (m_active)
                 {
                     while (m_entryNotifications.Count == 0 && m_connNotifications.Count == 0)
                     {
-                        m_monitor.Wait();
+                        m_cond.Wait(m_mutex, ref lockEntered);
                         if (!m_active) return;
                     }
 
@@ -199,10 +197,10 @@ namespace NetworkTables
                         if (item.Only != null)
                         {
                             // Don't hold mutex during callback execution
-                            monitorToUnlock = Interlocked.Exchange(ref monitor, null);
-                            monitorToUnlock.Dispose();
+                            Monitor.Exit(m_mutex);
+                            lockEntered = false;
                             item.Only(0, name, item.Value, item.Flags);
-                            Interlocked.Exchange(ref monitor, m_monitor.Enter());
+                            Monitor.Enter(m_mutex, ref lockEntered);
                             continue;
                         }
 
@@ -232,10 +230,10 @@ namespace NetworkTables
                             // make a copy of the callback so wwe can release the mutex
                             var callback = m_entryListeners[i].Callback;
 
-                            monitorToUnlock = Interlocked.Exchange(ref monitor, null);
-                            monitorToUnlock.Dispose();
+                            Monitor.Exit(m_mutex);
+                            lockEntered = false;
                             callback(i + 1, name, item.Value, item.Flags);
-                            Interlocked.Exchange(ref monitor, m_monitor.Enter());
+                            Monitor.Enter(m_mutex, ref lockEntered);
                         }
 
                     }
@@ -248,10 +246,10 @@ namespace NetworkTables
 
                         if (item.Only != null)
                         {
-                            monitorToUnlock = Interlocked.Exchange(ref monitor, null);
-                            monitorToUnlock.Dispose();
+                            Monitor.Exit(m_mutex);
+                            lockEntered = false;
                             item.Only(0, item.Connected, item.ConnInfo);
-                            Interlocked.Exchange(ref monitor, m_monitor.Enter());
+                            Monitor.Enter(m_mutex, ref lockEntered);
                             continue;
                         }
 
@@ -262,29 +260,27 @@ namespace NetworkTables
                             if (m_connListeners[i] == null) continue;
                             var callback = m_connListeners[i];
 
-                            monitorToUnlock = Interlocked.Exchange(ref monitor, null);
-                            monitorToUnlock.Dispose();
+                            Monitor.Exit(m_mutex);
+                            lockEntered = false;
                             callback(i + 1, item.Connected, item.ConnInfo);
-                            Interlocked.Exchange(ref monitor, m_monitor.Enter());
+                            Monitor.Enter(m_mutex, ref lockEntered);
                         }
                     }
                 }
             }
             finally
             {
-                monitor?.Dispose();
+                if (lockEntered) Monitor.Exit(m_mutex);
             }
         }
 
         private bool m_active;
-        //private readonly object m_mutex = new object();
-        //private readonly AutoResetEvent m_cond = new AutoResetEvent(false);
-
-        private readonly AsyncMonitor m_monitor = new AsyncMonitor();
+        private readonly object m_mutex = new object();
+        private readonly AutoResetEvent m_cond = new AutoResetEvent(false);
 
         public void Start()
         {
-            using (m_monitor.Enter())
+            lock (m_mutex)
             {
                 if (m_active) return;
                 m_active = true;
@@ -298,10 +294,7 @@ namespace NetworkTables
         {
             m_active = false;
             //Notify condition so thread terminates.
-            using (m_monitor.Enter())
-            {
-                m_monitor.PulseAll();
-            }
+            m_cond.Set();
             m_thread?.Wait();
         }
 
@@ -317,7 +310,7 @@ namespace NetworkTables
 
         public int AddEntryListener(string prefix, EntryListenerCallback callback, NotifyFlags flags)
         {
-            using (m_monitor.Enter())
+            lock (m_mutex)
             {
                 if ((flags & NotifyFlags.NotifyLocal) != 0) m_localNotifiers = true;
                 return m_entryListeners.Add(prefix, callback, flags);
@@ -326,7 +319,7 @@ namespace NetworkTables
 
         public void RemoveEntryListener(int entryListenerUid)
         {
-            using (m_monitor.Enter())
+            lock (m_mutex)
             {
                 m_entryListeners.Erase(entryListenerUid);
             }
@@ -338,16 +331,16 @@ namespace NetworkTables
             // optimization: don't generate needless local queue entries if we have
             // no local listeners (as this is a common case on the server side)
             if ((flags & NotifyFlags.NotifyLocal) != 0 && !m_localNotifiers) return;
-            using (m_monitor.Enter())
+            lock (m_mutex)
             {
                 m_entryNotifications.Enqueue(new EntryNotification(name, value, flags, only));
-                m_monitor.PulseAll();
             }
+            m_cond.Set();
         }
 
         public int AddConnectionListener(ConnectionListenerCallback callback)
         {
-            using(m_monitor.Enter())
+            lock (m_mutex)
             {
                 return m_connListeners.Add(callback);
             }
@@ -355,7 +348,7 @@ namespace NetworkTables
 
         public void RemoveConnectionListener(int connListenerUid)
         {
-            using (m_monitor.Enter())
+            lock (m_mutex)
             {
                 m_connListeners.Erase(connListenerUid);
             }
@@ -364,11 +357,11 @@ namespace NetworkTables
         public void NotifyConnection(bool connected, ConnectionInfo connInfo, ConnectionListenerCallback only = null)
         {
             if (!m_active) return;
-            using (m_monitor.Enter())
+            lock (m_mutex)
             {
                 m_connNotifications.Enqueue(new ConnectionNotification(connected, connInfo, only));
-                m_monitor.PulseAll();
             }
+            m_cond.Set();
         }
     }
 }
