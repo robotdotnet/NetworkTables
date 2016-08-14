@@ -11,7 +11,7 @@ namespace NetworkTables
     {
         private bool GetPersistentEntries(bool periodic, List<StoragePair> entries)
         {
-            lock (m_mutex)
+            using (m_monitor.Enter())
             {
                 if (periodic && !m_persistentDirty) return false;
                 m_persistentDirty = false;
@@ -549,10 +549,11 @@ namespace NetworkTables
 
                 List<Message> msgs = new List<Message>();
 
-                bool lockTaken = false;
+                IDisposable monitor = null;
                 try
                 {
-                    Monitor.Enter(m_mutex, ref lockTaken);
+                    monitor = m_monitor.Enter();
+                    IDisposable monitorToUnlock = null;
                     foreach (var i in entries)
                     {
                         Entry entry;
@@ -608,14 +609,14 @@ namespace NetworkTables
                     if (m_queueOutgoing != null)
                     {
                         var queuOutgoing = m_queueOutgoing;
-                        Monitor.Exit(m_mutex);
-                        lockTaken = false;
+                        monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                        monitorToUnlock.Dispose();
                         foreach (var msg in msgs) queuOutgoing(msg, null, null);
                     }
                 }
                 finally
                 {
-                    if (lockTaken) Monitor.Exit(m_mutex);
+                    monitor?.Dispose();
                 }
             }
             return true;

@@ -59,8 +59,10 @@ namespace NetworkTables
         {
             Logger.Instance.SetDefaultLogger();
             m_terminating = true;
-            m_rpcResultsCond.Set();
-            m_rpcResultsCondAsync.Set();
+            using (m_monitor.Enter())
+            {
+                m_monitor.PulseAll();
+            }
         }
 
         internal Storage(Notifier notifier, RpcServer rpcServer)
@@ -101,10 +103,14 @@ namespace NetworkTables
         internal readonly Dictionary<ImmutablePair<uint, uint>, byte[]> m_rpcResults = new Dictionary<ImmutablePair<uint, uint>, byte[]>();
 
         private bool m_terminating;
-        private readonly AutoResetEvent m_rpcResultsCond = new AutoResetEvent(false);
-        private readonly AsyncAutoResetEvent m_rpcResultsCondAsync = new AsyncAutoResetEvent(false);
 
-        private readonly object m_mutex = new object();
+        //private readonly AutoResetEvent m_rpcResultsCond = new AutoResetEvent(false);
+        //private readonly AsyncAutoResetEvent m_rpcResultsCondAsync = new AsyncAutoResetEvent(false);
+        private readonly AsyncMonitor m_monitor = new AsyncMonitor();
+
+        
+
+        //private readonly object m_mutex = new object();
 
         QueueOutgoingFunc m_queueOutgoing;
         bool m_server = true;
@@ -121,7 +127,7 @@ namespace NetworkTables
 
         public void SetOutgoing(QueueOutgoingFunc queueOutgoing, bool server)
         {
-            lock (m_mutex)
+            using (m_monitor.Enter())
             {
                 m_queueOutgoing = queueOutgoing;
                 m_server = server;
@@ -135,7 +141,7 @@ namespace NetworkTables
 
         public NtType GetEntryType(uint id)
         {
-            lock (m_mutex)
+            using (m_monitor.Enter())
             {
                 if (id >= m_idMap.Count) return NtType.Unassigned;
                 Entry entry = m_idMap[(int)id];
@@ -146,14 +152,16 @@ namespace NetworkTables
 
         public void ProcessIncoming(Message msg, NetworkConnection conn, WeakReference<NetworkConnection> connWeak)
         {
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
+                IDisposable monitorToUnlock = null;
                 Message.MsgType type = msg.Type;
                 SequenceNumber seqNum;
                 Entry entry;
                 uint id;
+                
                 switch (type)
                 {
                     case KeepAlive:
@@ -195,8 +203,8 @@ namespace NetworkTables
                                     {
                                         var queueOutgoing = m_queueOutgoing;
                                         var outMsg = Message.EntryAssign(name, id, entry.SeqNum.Value, msg.Val, (EntryFlags)msg.Flags);
-                                        Monitor.Exit(m_mutex);
-                                        lockEntered = false;
+                                        monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                                        monitorToUnlock.Dispose();
                                         queueOutgoing(outMsg, null, null);
                                     }
 
@@ -204,8 +212,8 @@ namespace NetworkTables
                                 }
                                 if (id >= m_idMap.Count || m_idMap[(int)id] == null)
                                 {
-                                    Monitor.Exit(m_mutex);
-                                    lockEntered = false;
+                                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                                    monitorToUnlock.Dispose();
                                     Debug("server: received assignment to unknown entry");
                                     return;
                                 }
@@ -215,8 +223,8 @@ namespace NetworkTables
                             {
                                 if (id == 0xffff)
                                 {
-                                    Monitor.Exit(m_mutex);
-                                    lockEntered = false;
+                                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                                    monitorToUnlock.Dispose();
                                     Debug("client: received entry assignment request?");
                                     return;
                                 }
@@ -253,10 +261,10 @@ namespace NetworkTables
                                     {
                                         var queueOutgoing = m_queueOutgoing;
                                         var outmsg = Message.FlagsUpdate(id, entry.Flags);
-                                        Monitor.Exit(m_mutex);
-                                        lockEntered = false;
+                                        monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                                        monitorToUnlock.Dispose();
                                         queueOutgoing(outmsg, null, null);
-                                        Monitor.Enter(m_mutex, ref lockEntered);
+                                        Interlocked.Exchange(ref monitor, m_monitor.Enter());
                                     }
                                 }
                             }
@@ -268,8 +276,8 @@ namespace NetworkTables
                                 {
                                     var queueOutgoing = m_queueOutgoing;
                                     var outmsg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value, entry.Value);
-                                    Monitor.Exit(m_mutex);
-                                    lockEntered = false;
+                                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                                    monitorToUnlock.Dispose();
                                     queueOutgoing(outmsg, null, null);
                                 }
                                 return;
@@ -277,8 +285,8 @@ namespace NetworkTables
                             //Sanity check. Name should match id
                             if (msg.Str != entry.Name)
                             {
-                                Monitor.Exit(m_mutex);
-                                lockEntered = false;
+                                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                                monitorToUnlock.Dispose();
                                 Debug("entry assignment for same id with different name?");
                                 return;
                             }
@@ -312,8 +320,8 @@ namespace NetworkTables
                             {
                                 var queueOutgoing = m_queueOutgoing;
                                 var outmsg = Message.EntryAssign(entry.Name, id, msg.SeqNumUid, msg.Val, entry.Flags);
-                                Monitor.Exit(m_mutex);
-                                lockEntered = false;
+                                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                                monitorToUnlock.Dispose();
                                 queueOutgoing(outmsg, null, conn);
                             }
                             break;
@@ -322,8 +330,8 @@ namespace NetworkTables
                         id = msg.Id;
                         if (id >= m_idMap.Count || m_idMap[(int)id] == null)
                         {
-                            Monitor.Exit(m_mutex);
-                            lockEntered = false;
+                            monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                            monitorToUnlock.Dispose();
                             Debug("received update to unknown entyr");
                             return;
                         }
@@ -343,8 +351,8 @@ namespace NetworkTables
                         if (m_server && m_queueOutgoing != null)
                         {
                             var queueOutgoing = m_queueOutgoing;
-                            Monitor.Exit(m_mutex);
-                            lockEntered = false;
+                            monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                            monitorToUnlock.Dispose();
                             queueOutgoing(msg, null, conn);
                         }
                         break;
@@ -353,8 +361,8 @@ namespace NetworkTables
                             id = msg.Id;
                             if (id >= m_idMap.Count || m_idMap[(int)id] == null)
                             {
-                                Monitor.Exit(m_mutex);
-                                lockEntered = false;
+                                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                                monitorToUnlock.Dispose();
                                 Debug("reeived flags update to unknown entry");
                                 return;
                             }
@@ -373,8 +381,8 @@ namespace NetworkTables
                             if (m_server && m_queueOutgoing != null)
                             {
                                 var queueOutgoing = m_queueOutgoing;
-                                Monitor.Exit(m_mutex);
-                                lockEntered = false;
+                                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                                monitorToUnlock.Dispose();
                                 queueOutgoing(msg, null, conn);
                             }
                             break;
@@ -384,8 +392,8 @@ namespace NetworkTables
                             id = msg.Id;
                             if (id >= m_idMap.Count || m_idMap[(int)id] == null)
                             {
-                                Monitor.Exit(m_mutex);
-                                lockEntered = false;
+                                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                                monitorToUnlock.Dispose();
                                 Debug("received delete to unknown entry");
                                 return;
                             }
@@ -407,8 +415,8 @@ namespace NetworkTables
                             if (m_server && m_queueOutgoing != null)
                             {
                                 var queueOutgoing = m_queueOutgoing;
-                                Monitor.Exit(m_mutex);
-                                lockEntered = false;
+                                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                                monitorToUnlock.Dispose();
                                 queueOutgoing(msg, null, conn);
                             }
                             break;
@@ -420,8 +428,8 @@ namespace NetworkTables
                             if (m_server && m_queueOutgoing != null)
                             {
                                 var queueOutgoing = m_queueOutgoing;
-                                Monitor.Exit(m_mutex);
-                                lockEntered = false;
+                                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                                monitorToUnlock.Dispose();
                                 queueOutgoing(msg, null, conn);
                             }
                             break;
@@ -431,16 +439,16 @@ namespace NetworkTables
                         id = msg.Id;
                         if (id >= m_idMap.Count || m_idMap[(int)id] == null)
                         {
-                            Monitor.Exit(m_mutex);
-                            lockEntered = false;
+                            monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                            monitorToUnlock.Dispose();
                             Debug("received RPC call to unknown entry");
                             return;
                         }
                         entry = m_idMap[(int)id];
                         if (!entry.Value.IsRpc())
                         {
-                            Monitor.Exit(m_mutex);
-                            lockEntered = false;
+                            monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                            monitorToUnlock.Dispose();
                             Debug("received RPC call to non-RPC entry");
                             return;
                         }
@@ -456,20 +464,19 @@ namespace NetworkTables
                         if (m_server) return;
                         if (!msg.Val.IsRpc()) return; //Not an RPC message
                         m_rpcResults.Add(new ImmutablePair<uint, uint>(msg.Id, msg.SeqNumUid), msg.Val.GetRpc());
-                        m_rpcResultsCond.Set();
-                        m_rpcResultsCondAsync.Set();
+                        m_monitor.PulseAll();
                         break;
                 }
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
         public void GetInitialAssignments(NetworkConnection conn, List<Message> msgs)
         {
-            lock (m_mutex)
+            using(m_monitor.Enter())
             {
                 conn.SetState(NetworkConnection.State.Synchronized);
                 foreach (var i in m_entries)
@@ -494,10 +501,11 @@ namespace NetworkTables
 
         public void ApplyInitialAssignments(NetworkConnection conn, Message[] msgs, bool newServer, List<Message> outMsgs)
         {
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
+                IDisposable monitorToUnlock = null;
                 if (m_server) return;
 
                 conn.SetState(NetworkConnection.State.Synchronized);
@@ -575,19 +583,19 @@ namespace NetworkTables
                 }
 
                 var queueOutgoing = m_queueOutgoing;
-                Monitor.Exit(m_mutex);
-                lockEntered = false;
+                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                monitorToUnlock.Dispose();
                 foreach (var msg in updateMsgs) queueOutgoing(msg, null, null);
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
         public Value GetEntryValue(string name)
         {
-            lock (m_mutex)
+            using(m_monitor.Enter())
             {
                 Entry entry;
                 if (m_entries.TryGetValue(name, out entry))
@@ -606,10 +614,11 @@ namespace NetworkTables
         {
             if (value == null) return false; // can't compare to a null value
             if (string.IsNullOrEmpty(name)) return false; // can't compare enpty name
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
+                IDisposable monitorToUnlock = null;
                 Entry newEntry;
                 if (m_entries.TryGetValue(name, out newEntry)) // entry already exists
                 {
@@ -646,14 +655,14 @@ namespace NetworkTables
                 var queueOutgoing = m_queueOutgoing;
                 var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value, value, entry.Flags);
 
-                Monitor.Exit(m_mutex);
-                lockEntered = false;
+                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                monitorToUnlock.Dispose();
                 queueOutgoing(msg, null, null);
                 return true;
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
@@ -661,10 +670,11 @@ namespace NetworkTables
         {
             if (string.IsNullOrEmpty(name)) return true;
             if (value == null) return true;
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
+                IDisposable monitorToUnlock = null;
                 Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {
@@ -704,8 +714,8 @@ namespace NetworkTables
                 if (oldValue == null)
                 {
                     var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value, value, entry.Flags);
-                    Monitor.Exit(m_mutex);
-                    lockEntered = false;
+                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                    monitorToUnlock.Dispose();
                     queueOutgoing(msg, null, null);
                 }
                 else if (oldValue != value)
@@ -714,8 +724,8 @@ namespace NetworkTables
                     if (entry.Id != 0xffff)
                     {
                         var msg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value, value);
-                        Monitor.Exit(m_mutex);
-                        lockEntered = false;
+                        monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                        monitorToUnlock.Dispose();
                         queueOutgoing(msg, null, null);
                     }
                 }
@@ -723,7 +733,7 @@ namespace NetworkTables
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
@@ -731,10 +741,11 @@ namespace NetworkTables
         {
             if (string.IsNullOrEmpty(name)) return;
             if (value == null) return;
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
+                IDisposable monitorToUnlock = null;
                 Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {
@@ -772,8 +783,8 @@ namespace NetworkTables
                 {
                     ++entry.SeqNum;
                     var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value, value, entry.Flags);
-                    Monitor.Exit(m_mutex);
-                    lockEntered = false;
+                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                    monitorToUnlock.Dispose();
                     queueOutgoing(msg, null, null);
                 }
                 else
@@ -782,25 +793,26 @@ namespace NetworkTables
                     if (entry.Id != 0xffff)
                     {
                         var msg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value, value);
-                        Monitor.Exit(m_mutex);
-                        lockEntered = false;
+                        monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                        monitorToUnlock.Dispose();
                         queueOutgoing(msg, null, null);
                     }
                 }
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
         public void SetEntryFlags(string name, EntryFlags flags)
         {
             if (string.IsNullOrEmpty(name)) return;
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
+                IDisposable monitorToUnlock = null;
                 Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {
@@ -821,20 +833,20 @@ namespace NetworkTables
                 uint id = entry.Id;
                 if (id != 0xffff)
                 {
-                    Monitor.Exit(m_mutex);
-                    lockEntered = false;
+                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                    monitorToUnlock.Dispose();
                     queueOutgoing(Message.FlagsUpdate(id, flags), null, null);
                 }
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
         public EntryFlags GetEntryFlags(string name)
         {
-            lock (m_mutex)
+            using(m_monitor.Enter())
             {
                 Entry entry;
                 if (m_entries.TryGetValue(name, out entry))
@@ -851,10 +863,11 @@ namespace NetworkTables
 
         public void DeleteEntry(string name)
         {
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
+                IDisposable monitorToUnlock = null;
                 Entry entry;
                 if (!m_entries.TryGetValue(name, out entry)) return;
                 uint id = entry.Id;
@@ -872,14 +885,14 @@ namespace NetworkTables
                 {
                     if (m_queueOutgoing == null) return;
                     var queueOutgoing = m_queueOutgoing;
-                    Monitor.Exit(m_mutex);
-                    lockEntered = false;
+                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                    monitorToUnlock.Dispose();
                     queueOutgoing(Message.EntryDelete(id), null, null);
                 }
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
@@ -916,30 +929,31 @@ namespace NetworkTables
 
         public void DeleteAllEntries()
         {
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
+                IDisposable monitorToUnlock = null;
                 if (m_entries.Count == 0) return;
 
                 DeleteAllEntriesImpl();
 
                 if (m_queueOutgoing == null) return;
                 var queueOutgoing = m_queueOutgoing;
-                Monitor.Exit(m_mutex);
-                lockEntered = false;
+                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                monitorToUnlock.Dispose();
                 queueOutgoing(Message.ClearEntries(), null, null);
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
         public List<EntryInfo> GetEntryInfo(string prefix, NtType types)
         {
             if (prefix == null) prefix = string.Empty;
-            lock (m_mutex)
+            using(m_monitor.Enter())
             {
                 List<EntryInfo> infos = new List<EntryInfo>();
                 foreach (var i in m_entries)
@@ -958,7 +972,7 @@ namespace NetworkTables
 
         public void NotifyEntries(string prefix, EntryListenerCallback only = null)
         {
-            lock (m_mutex)
+            using(m_monitor.Enter())
             {
                 foreach (var i in m_entries)
                 {
@@ -973,10 +987,11 @@ namespace NetworkTables
         public void CreateRpc(string name, byte[] def, RpcCallback callback)
         {
             if (string.IsNullOrEmpty(name) || def == null || def.Length == 0 || callback == null) return;
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
+                IDisposable monitorToUnlock = null;
                 if (!m_server) return;
 
                 Entry entry;
@@ -1007,33 +1022,34 @@ namespace NetworkTables
                 {
                     ++entry.SeqNum;
                     var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value, value, entry.Flags);
-                    Monitor.Exit(m_mutex);
-                    lockEntered = false;
+                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                    monitorToUnlock.Dispose();
                     queueOutgoing(msg, null, null);
                 }
                 else
                 {
                     ++entry.SeqNum;
                     var msg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value, value);
-                    Monitor.Exit(m_mutex);
-                    lockEntered = false;
+                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                    monitorToUnlock.Dispose();
                     queueOutgoing(msg, null, null);
                 }
 
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
         public void CreatePolledRpc(string name, byte[] def)
         {
             if (string.IsNullOrEmpty(name) || def == null || def.Length == 0) return;
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
+                IDisposable monitorToUnlock = null;
                 if (!m_server) return;
 
                 Entry entry;
@@ -1063,32 +1079,33 @@ namespace NetworkTables
                 {
                     ++entry.SeqNum;
                     var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value, value, entry.Flags);
-                    Monitor.Exit(m_mutex);
-                    lockEntered = false;
+                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                    monitorToUnlock.Dispose();
                     queueOutgoing(msg, null, null);
                 }
                 else
                 {
                     ++entry.SeqNum;
                     var msg = Message.EntryUpdate(entry.Id, entry.SeqNum.Value, value);
-                    Monitor.Exit(m_mutex);
-                    lockEntered = false;
+                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                    monitorToUnlock.Dispose();
                     queueOutgoing(msg, null, null);
                 }
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
         public long CallRpc(string name, byte[] param)
         {
             if (string.IsNullOrEmpty(name)) return 0;
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
+                IDisposable monitorToUnlock = null;
                 Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {
@@ -1104,23 +1121,22 @@ namespace NetworkTables
                 if (m_server)
                 {
                     var rpcCallback = entry.RpcCallback;
-                    Monitor.Exit(m_mutex);
-                    lockEntered = false;
+                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                    monitorToUnlock.Dispose();
                     m_rpcServer.ProcessRpc(name, msg, rpcCallback, 0xffff, message =>
                     {
-                        lock (m_mutex)
+                        using(m_monitor.Enter())
                         {
                             m_rpcResults.Add(new ImmutablePair<uint, uint>(msg.Id, msg.SeqNumUid), msg.Val.GetRpc());
-                            m_rpcResultsCond.Set();
-                            m_rpcResultsCondAsync.Set();
+                            m_monitor.PulseAll();
                         }
                     });
                 }
                 else
                 {
                     var queueOutgoing = m_queueOutgoing;
-                    Monitor.Exit(m_mutex);
-                    lockEntered = false;
+                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                    monitorToUnlock.Dispose();
                     queueOutgoing(msg, null, null);
                 }
                 return combinedUid;
@@ -1128,16 +1144,16 @@ namespace NetworkTables
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
         public async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
         {
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
                 for (;;)
                 {
                     var pair = new ImmutablePair<uint, uint>((uint)callUid >> 16, (uint)callUid & 0xffff);
@@ -1145,10 +1161,7 @@ namespace NetworkTables
                     if (!m_rpcResults.TryGetValue(pair, out str))
                     {
                         if (m_terminating) return null;
-                        Monitor.Exit(m_mutex);
-                        lockEntered = false;
-                        await m_rpcResultsCondAsync.WaitAsync(token);
-                        Monitor.Enter(m_mutex, ref lockEntered);
+                        await m_monitor.WaitAsync(token);
                         if (token.IsCancellationRequested) return null;
                         if (m_terminating) return null;
                         continue;
@@ -1165,7 +1178,7 @@ namespace NetworkTables
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
@@ -1176,10 +1189,10 @@ namespace NetworkTables
 
         public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
         {
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_monitor.Enter();
                 for (;;)
                 {
                     var pair = new ImmutablePair<uint, uint>((uint)callUid >> 16, (uint)callUid & 0xffff);
@@ -1191,9 +1204,12 @@ namespace NetworkTables
                             result = null;
                             return false;
                         }
-                        bool notTimedOut = m_rpcResultsCond.WaitTimeout(m_mutex, ref lockEntered, timeout);
-                        if (!notTimedOut || m_terminating)
+                        CancellationTokenSource source = new CancellationTokenSource();
+                        var task = m_monitor.WaitAsync(source.Token);
+                        bool success = task.Wait(timeout);
+                        if (!success || m_terminating)
                         {
+                            source.Cancel();
                             result = null;
                             return false;
                         }
@@ -1206,7 +1222,7 @@ namespace NetworkTables
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
     }

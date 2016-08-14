@@ -6,6 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx.Synchronous;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable All
+
+// Original idea by Stephen Toub: http://blogs.msdn.com/b/pfxteam/archive/2012/02/11/10266923.aspx
+// https://github.com/StephenCleary/AsyncEx/blob/master/Source/Nito.AsyncEx%20(NET45%2C%20Win8%2C%20WP8%2C%20WPA81)/AsyncAutoResetEvent.cs
+// ReSharper disable once CheckNamespace
 namespace Nito.AsyncEx
 {
     /// <summary>
