@@ -8,143 +8,29 @@ namespace NetworkTables
 {
     internal class Notifier : IDisposable
     {
-        private static Notifier s_instance;
+        private readonly AutoResetEvent m_cond = new AutoResetEvent(false);
+        private readonly UidListConnectionListenerCallback m_connListeners = new UidListConnectionListenerCallback();
+
+        private readonly Queue<ConnectionNotification> m_connNotifications = new Queue<ConnectionNotification>();
+
+        private readonly UidListEntryListener m_entryListeners = new UidListEntryListener();
+
+        private readonly Queue<EntryNotification> m_entryNotifications = new Queue<EntryNotification>();
+        private readonly object m_mutex = new object();
+
+        private bool m_active;
         private bool m_destroyed;
         private bool m_localNotifiers;
 
         private Task m_thread;
+        private static Notifier s_instance;
 
-        // Special class for Entry Listeners
-        private class UidListEntryListener
+        internal Notifier()
         {
-            private readonly List<EntryListener> m_list = new List<EntryListener>();
-            private readonly Queue<int> m_free = new Queue<int>();
-
-            public int Count => m_list.Count;
-
-            public EntryListener this[int i] => m_list[i];
-
-            public int Add(string prefix, EntryListenerCallback callback, NotifyFlags flags)
-            {
-                int uid;
-                var listener = new EntryListener(prefix, callback, flags);
-                if (m_free.Count == 0)
-                {
-                    uid = m_list.Count;
-                    m_list.Add(listener);
-                }
-                else
-                {
-                    uid = m_free.Dequeue();
-                    m_list[uid] = listener;
-                }
-                return uid + 1;
-            }
-
-            public void Erase(int uid)
-            {
-                --uid;
-                if (uid >= m_list.Count || m_list[uid].IsNull()) return;
-                m_free.Enqueue(uid);
-                m_list[uid].SetNull();
-            }
+            m_active = false;
+            m_localNotifiers = false;
+            m_destroyed = false;
         }
-
-        // Special class for Connection Listeners
-        private class UidListConnectionListenerCallback
-        {
-            private readonly List<ConnectionListenerCallback> m_list = new List<ConnectionListenerCallback>();
-            private readonly Queue<int> m_free = new Queue<int>();
-
-            public int Count => m_list.Count;
-
-            public ConnectionListenerCallback this[int i] => m_list[i];
-
-            public int Add(ConnectionListenerCallback args)
-            {
-                int uid;
-                if (m_free.Count == 0)
-                {
-                    uid = m_list.Count;
-                    m_list.Add(args);
-                }
-                else
-                {
-                    uid = m_free.Dequeue();
-                    m_list[uid] = args;
-                }
-                return uid + 1;
-            }
-
-            public void Erase(int uid)
-            {
-                --uid;
-                if (uid >= m_list.Count || m_list[uid] == null) return;
-                m_free.Enqueue(uid);
-                m_list[uid] = null;
-            }
-        }
-
-        private struct EntryListener
-        {
-            public EntryListener(string prefix, EntryListenerCallback callback, NotifyFlags flags)
-            {
-                Prefix = prefix;
-                Callback = callback;
-                Flags = flags;
-            }
-
-            public string Prefix { get; }
-            public EntryListenerCallback Callback { get; private set; }
-            public NotifyFlags Flags { get; }
-
-            public void SetNull()
-            {
-                Callback = null;
-            }
-
-            public bool IsNull()
-            {
-                return Callback == null;
-            }
-        }
-
-        private readonly UidListEntryListener m_entryListeners = new UidListEntryListener();
-        private readonly UidListConnectionListenerCallback m_connListeners = new UidListConnectionListenerCallback();
-
-        private struct EntryNotification
-        {
-            public EntryNotification(string name, Value value, NotifyFlags flags,
-                EntryListenerCallback only)
-            {
-                Name = name;
-                Value = value;
-                Flags = flags;
-                Only = only;
-            }
-
-            public string Name { get; }
-            public Value Value { get; }
-            public NotifyFlags Flags { get; }
-            public EntryListenerCallback Only { get; }
-        }
-
-        private readonly Queue<EntryNotification> m_entryNotifications = new Queue<EntryNotification>();
-
-        private struct ConnectionNotification
-        {
-            public ConnectionNotification(bool connected, ConnectionInfo connInfo, ConnectionListenerCallback only)
-            {
-                Connected = connected;
-                ConnInfo = connInfo;
-                Only = only;
-            }
-            public bool Connected { get; }
-            public ConnectionInfo ConnInfo { get; }
-            public ConnectionListenerCallback Only { get; }
-        }
-
-        private readonly Queue<ConnectionNotification> m_connNotifications = new Queue<ConnectionNotification>();
 
         public static Notifier Instance
         {
@@ -157,13 +43,6 @@ namespace NetworkTables
                 }
                 return s_instance;
             }
-        }
-
-        internal Notifier()
-        {
-            m_active = false;
-            m_localNotifiers = false;
-            m_destroyed = false;
         }
 
         public void Dispose()
@@ -235,7 +114,6 @@ namespace NetworkTables
                             callback(i + 1, name, item.Value, item.Flags);
                             Monitor.Enter(m_mutex, ref lockEntered);
                         }
-
                     }
 
                     //Connection notifications
@@ -274,10 +152,6 @@ namespace NetworkTables
             }
         }
 
-        private bool m_active;
-        private readonly object m_mutex = new object();
-        private readonly AutoResetEvent m_cond = new AutoResetEvent(false);
-
         public void Start()
         {
             lock (m_mutex)
@@ -285,14 +159,7 @@ namespace NetworkTables
                 if (m_active) return;
                 m_active = true;
             }
-            /*
-            m_thread = new Thread(ThreadMain)
-            {
-                IsBackground = true,
-                Name = "Notifier Thread"
-            };
-            m_thread.Start();
-            */
+
             m_thread = Task.Factory.StartNew(ThreadMain, TaskCreationOptions.LongRunning);
         }
 
@@ -368,6 +235,132 @@ namespace NetworkTables
                 m_connNotifications.Enqueue(new ConnectionNotification(connected, connInfo, only));
             }
             m_cond.Set();
+        }
+
+        // Special class for Entry Listeners
+        private class UidListEntryListener
+        {
+            private readonly Queue<int> m_free = new Queue<int>();
+            private readonly List<EntryListener> m_list = new List<EntryListener>();
+
+            public int Count => m_list.Count;
+
+            public EntryListener this[int i] => m_list[i];
+
+            public int Add(string prefix, EntryListenerCallback callback, NotifyFlags flags)
+            {
+                int uid;
+                var listener = new EntryListener(prefix, callback, flags);
+                if (m_free.Count == 0)
+                {
+                    uid = m_list.Count;
+                    m_list.Add(listener);
+                }
+                else
+                {
+                    uid = m_free.Dequeue();
+                    m_list[uid] = listener;
+                }
+                return uid + 1;
+            }
+
+            public void Erase(int uid)
+            {
+                --uid;
+                if (uid >= m_list.Count || m_list[uid].IsNull()) return;
+                m_free.Enqueue(uid);
+                m_list[uid].SetNull();
+            }
+        }
+
+        // Special class for Connection Listeners
+        private class UidListConnectionListenerCallback
+        {
+            private readonly Queue<int> m_free = new Queue<int>();
+            private readonly List<ConnectionListenerCallback> m_list = new List<ConnectionListenerCallback>();
+
+            public int Count => m_list.Count;
+
+            public ConnectionListenerCallback this[int i] => m_list[i];
+
+            public int Add(ConnectionListenerCallback args)
+            {
+                int uid;
+                if (m_free.Count == 0)
+                {
+                    uid = m_list.Count;
+                    m_list.Add(args);
+                }
+                else
+                {
+                    uid = m_free.Dequeue();
+                    m_list[uid] = args;
+                }
+                return uid + 1;
+            }
+
+            public void Erase(int uid)
+            {
+                --uid;
+                if (uid >= m_list.Count || m_list[uid] == null) return;
+                m_free.Enqueue(uid);
+                m_list[uid] = null;
+            }
+        }
+
+        private struct EntryListener
+        {
+            public EntryListener(string prefix, EntryListenerCallback callback, NotifyFlags flags)
+            {
+                Prefix = prefix;
+                Callback = callback;
+                Flags = flags;
+            }
+
+            public string Prefix { get; }
+            public EntryListenerCallback Callback { get; private set; }
+            public NotifyFlags Flags { get; }
+
+            public void SetNull()
+            {
+                Callback = null;
+            }
+
+            public bool IsNull()
+            {
+                return Callback == null;
+            }
+        }
+
+        private struct EntryNotification
+        {
+            public EntryNotification(string name, Value value, NotifyFlags flags,
+                EntryListenerCallback only)
+            {
+                Name = name;
+                Value = value;
+                Flags = flags;
+                Only = only;
+            }
+
+            public string Name { get; }
+            public Value Value { get; }
+            public NotifyFlags Flags { get; }
+            public EntryListenerCallback Only { get; }
+        }
+
+        private struct ConnectionNotification
+        {
+            public ConnectionNotification(bool connected, ConnectionInfo connInfo, ConnectionListenerCallback only)
+            {
+                Connected = connected;
+                ConnInfo = connInfo;
+                Only = only;
+            }
+
+            public bool Connected { get; }
+            public ConnectionInfo ConnInfo { get; }
+            public ConnectionListenerCallback Only { get; }
         }
     }
 }
