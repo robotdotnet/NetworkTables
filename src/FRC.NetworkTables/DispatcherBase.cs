@@ -13,7 +13,7 @@ namespace NetworkTables
     {
         public delegate NtTcpClient Connector();
 
-        public const double MinimumUpdateTime = 0.1; //100ms
+        public const double MinimumUpdateTime = 0.01; //100ms
         public const double MaximumUpdateTime = 1.0; //1 second
 
         private static readonly TimeSpan s_saveDeltaTime = TimeSpan.FromSeconds(1);
@@ -46,14 +46,14 @@ namespace NetworkTables
         private bool m_server;
 
         private INetworkAcceptor m_serverAccepter;
-        private uint m_updateRate;
+        private double m_updateRate;
 
         protected DispatcherBase(Storage storage, Notifier notifier)
         {
             m_storage = storage;
             m_notifier = notifier;
             m_active = false;
-            m_updateRate = 100;
+            m_updateRate = MinimumUpdateTime;
         }
 
         public bool Active => m_active;
@@ -68,7 +68,7 @@ namespace NetworkTables
                     value = MinimumUpdateTime;
                 else if (value > MaximumUpdateTime)
                     value = MaximumUpdateTime;
-                m_updateRate = (uint)(value * 1000);
+                m_updateRate = value;
             }
         }
 
@@ -231,7 +231,7 @@ namespace NetworkTables
             var now = DateTime.UtcNow;
             lock (m_flushMutex)
             {
-                if (now - m_lastFlush < TimeSpan.FromMilliseconds(100))
+                if (now - m_lastFlush < TimeSpan.FromSeconds(MinimumUpdateTime))
                 {
                     return;
                 }
@@ -290,7 +290,7 @@ namespace NetworkTables
                     if (start > timeoutTime)
                         timeoutTime = start;
                     //Wait for periodic or when flushed
-                    timeoutTime += TimeSpan.FromMilliseconds(m_updateRate);
+                    timeoutTime += TimeSpan.FromSeconds(m_updateRate);
                     TimeSpan waitTime = timeoutTime - start;
                     m_flushCv.WaitTimeout(m_flushMutex, ref lockEntered, waitTime,
                         () => !m_active || m_doFlush);
