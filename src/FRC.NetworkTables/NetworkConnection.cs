@@ -130,23 +130,7 @@ namespace NetworkTables
             // clear queue
             while (m_outgoing.Count != 0) m_outgoing.Take();
 
-            /*
-            //Start Threads
-            m_writeThread = new Thread(WriteThreadMain)
-            {
-                IsBackground = true,
-                Name = "Connection Write Thread"
-            };
-            m_writeThread.Start();
-
-            m_readThread = new Thread(ReadThreadMain)
-            {
-                IsBackground = true,
-                Name = "Connection Read Thread"
-            };
-
-            m_readThread.Start();
-            */
+            //Start our tasks
             m_writeThread = Task.Factory.StartNew(WriteThreadMain, TaskCreationOptions.LongRunning);
             m_readThread = Task.Factory.StartNew(ReadThreadMain, TaskCreationOptions.LongRunning);
         }

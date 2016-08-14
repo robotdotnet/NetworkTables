@@ -126,22 +126,7 @@ namespace NetworkTables
             //Bind SetOutgoing
             m_storage.SetOutgoing(QueueOutgoing, m_server);
 
-            /*
-            //Start our threads
-            m_dispatchThread = new Thread(DispatchThreadMain)
-            {
-                IsBackground = true,
-                Name = "Dispatch Thread"
-            };
-            m_dispatchThread.Start();
-
-            m_clientServerThread = new Thread(ServerThreadMain)
-            {
-                IsBackground = true,
-                Name = "Client Server Thread"
-            };
-            m_clientServerThread.Start();
-            */
+            //Start our tasks
             m_dispatchThread = Task.Factory.StartNew(DispatchThreadMain, TaskCreationOptions.LongRunning);
             m_clientServerThread = Task.Factory.StartNew(ServerThreadMain, TaskCreationOptions.LongRunning);
         }
@@ -166,22 +151,7 @@ namespace NetworkTables
             //Bind SetOutgoing
             m_storage.SetOutgoing(QueueOutgoing, m_server);
 
-            /*
-            //Start our threads
-            m_dispatchThread = new Thread(DispatchThreadMain)
-            {
-                IsBackground = true,
-                Name = "Dispatch Thread"
-            };
-            m_dispatchThread.Start();
-
-            m_clientServerThread = new Thread(ClientThreadMain)
-            {
-                IsBackground = true,
-                Name = "Client Server Thread"
-            };
-            m_clientServerThread.Start();
-            */
+            //Start our tasks
             m_dispatchThread = Task.Factory.StartNew(DispatchThreadMain, TaskCreationOptions.LongRunning);
             m_clientServerThread = Task.Factory.StartNew(ClientThreadMain, TaskCreationOptions.LongRunning);
         }

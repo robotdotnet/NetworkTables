@@ -51,14 +51,8 @@ namespace NetworkTables
                 if (Active) return;
                 Active = true;
             }
-            /*
-            m_thread = new Thread(ThreadMain)
-            {
-                Name = "Rpc Thread",
-                IsBackground = true
-            };
-            m_thread.Start();
-            */
+
+            //Start our task
             m_thread = Task.Factory.StartNew(ThreadMain, TaskCreationOptions.LongRunning);
         }
 

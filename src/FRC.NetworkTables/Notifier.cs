@@ -285,14 +285,8 @@ namespace NetworkTables
                 if (m_active) return;
                 m_active = true;
             }
-            /*
-            m_thread = new Thread(ThreadMain)
-            {
-                IsBackground = true,
-                Name = "Notifier Thread"
-            };
-            m_thread.Start();
-            */
+
+            //Start our tasks
             m_thread = Task.Factory.StartNew(ThreadMain, TaskCreationOptions.LongRunning);
         }
 
