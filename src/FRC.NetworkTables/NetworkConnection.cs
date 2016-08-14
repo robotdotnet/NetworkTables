@@ -16,26 +16,48 @@ namespace NetworkTables
 {
     internal class NetworkConnection : IDisposable
     {
-        private struct PendingUpdateIds
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+        private readonly IClient m_client;
+
+        private readonly Message.GetEntryTypeFunc m_getEntryType;
+
+        private readonly HandshakeFunc m_handshake;
+
+        private readonly Notifier m_notifier;
+
+        private readonly BlockingCollection<List<Message>> m_outgoing = new BlockingCollection<List<Message>>();
+
+        private readonly object m_pendingMutex = new object();
+
+        private readonly List<Message> m_pendingOutgoing = new List<Message>();
+
+        private readonly List<PendingUpdateIds> m_pendingUpdate = new List<PendingUpdateIds>();
+
+        private readonly object m_remoteIdMutex = new object();
+
+        private readonly Stream m_stream;
+
+        private DateTime m_lastPost = DateTime.UtcNow;
+
+        private ProcessIncomingFunc m_processIncoming;
+
+        private Task m_readThread;
+
+        private string m_remoteId;
+
+        private State m_state;
+        private Task m_writeThread;
+
+
+        public enum State
         {
-            public int First { get; private set; }
-            public int Second { get; private set; }
-
-            public void SetFirst(int first)
-            {
-                First = first;
-            }
-
-            public void SetSecond(int second)
-            {
-                Second = second;
-            }
-        }
-
-        public int ProtoRev { get; set; }
-
-
-        public enum State { Created, Init, Handshake, Synchronized, Active, Dead };
+            Created,
+            Init,
+            Handshake,
+            Synchronized,
+            Active,
+            Dead
+        };
 
         public delegate bool HandshakeFunc(NetworkConnection conn, Func<Message> getMsg, Action<List<Message>> sendMsgs);
 
@@ -43,45 +65,10 @@ namespace NetworkTables
 
         private static long s_uid;
 
-        private readonly Stream m_stream;
-
-        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-        private readonly IClient m_client;
-
-        public int PeerPort { get; }
-        public string PeerIP { get; }
-
-        private readonly Notifier m_notifier;
-
-        private readonly BlockingCollection<List<Message>> m_outgoing = new BlockingCollection<List<Message>>();
-
-        private readonly HandshakeFunc m_handshake;
-
-        private readonly Message.GetEntryTypeFunc m_getEntryType;
-
-        private ProcessIncomingFunc m_processIncoming;
-
-        private Task m_readThread;
-        private Task m_writeThread;
-
-        private State m_state;
-
-        private string m_remoteId;
-
-        private DateTime m_lastPost = DateTime.UtcNow;
-
-        private readonly object m_pendingMutex = new object();
-
-        private readonly object m_remoteIdMutex = new object();
-
-        private readonly List<Message> m_pendingOutgoing = new List<Message>();
-
-        private readonly List<PendingUpdateIds> m_pendingUpdate = new List<PendingUpdateIds>();
-
         public NetworkConnection(IClient client, Notifier notifier, HandshakeFunc handshake,
             Message.GetEntryTypeFunc getEntryType)
         {
-            Uid = (uint)Interlocked.Increment(ref s_uid) - 1;
+            Uid = (uint) Interlocked.Increment(ref s_uid) - 1;
             m_client = client;
             m_stream = client.GetStream();
             m_notifier = notifier;
@@ -109,7 +96,36 @@ namespace NetworkTables
             m_client.NoDelay = true;
         }
 
+        public int ProtoRev { get; set; }
+
+        public int PeerPort { get; }
+        public string PeerIP { get; }
+
         public bool Disposed { get; private set; }
+
+        public bool Active { get; private set; }
+
+        public uint Uid { get; }
+
+        public string RemoteId
+        {
+            get
+            {
+                lock (m_remoteIdMutex)
+                {
+                    return m_remoteId;
+                }
+            }
+            set
+            {
+                lock (m_remoteIdMutex)
+                {
+                    m_remoteId = value;
+                }
+            }
+        }
+
+        public long LastUpdate { get; private set; }
 
         public void Dispose()
         {
@@ -130,23 +146,6 @@ namespace NetworkTables
             // clear queue
             while (m_outgoing.Count != 0) m_outgoing.Take();
 
-            /*
-            //Start Threads
-            m_writeThread = new Thread(WriteThreadMain)
-            {
-                IsBackground = true,
-                Name = "Connection Write Thread"
-            };
-            m_writeThread.Start();
-
-            m_readThread = new Thread(ReadThreadMain)
-            {
-                IsBackground = true,
-                Name = "Connection Read Thread"
-            };
-
-            m_readThread.Start();
-            */
             m_writeThread = Task.Factory.StartNew(WriteThreadMain, TaskCreationOptions.LongRunning);
             m_readThread = Task.Factory.StartNew(ReadThreadMain, TaskCreationOptions.LongRunning);
         }
@@ -176,8 +175,6 @@ namespace NetworkTables
             return new ConnectionInfo(RemoteId, PeerIP, PeerPort, LastUpdate, ProtoRev);
         }
 
-        public bool Active { get; private set; }
-
         public Stream GetStream()
         {
             return m_stream;
@@ -205,112 +202,111 @@ namespace NetworkTables
                 {
                     case Message.MsgType.EntryAssign:
                     case Message.MsgType.EntryUpdate:
+                    {
+                        // don't do this for unassigned id's
+                        int id = (int) msg.Id;
+                        if (id == 0xffff)
                         {
-                            // don't do this for unassigned id's
-                            int id = (int)msg.Id;
-                            if (id == 0xffff)
+                            m_pendingOutgoing.Add(msg);
+                            break;
+                        }
+                        if (id < m_pendingUpdate.Count && m_pendingUpdate[id].First != 0)
+                        {
+                            var oldmsg = m_pendingOutgoing[m_pendingUpdate[id].First - 1];
+                            if (oldmsg != null && oldmsg.Is(Message.MsgType.EntryAssign) &&
+                                msg.Is(Message.MsgType.EntryUpdate))
                             {
-                                m_pendingOutgoing.Add(msg);
-                                break;
-                            }
-                            if (id < m_pendingUpdate.Count && m_pendingUpdate[id].First != 0)
-                            {
-                                var oldmsg = m_pendingOutgoing[m_pendingUpdate[id].First - 1];
-                                if (oldmsg != null && oldmsg.Is(Message.MsgType.EntryAssign) &&
-                                    msg.Is(Message.MsgType.EntryUpdate))
-                                {
-                                    // need to update assignement
-                                    m_pendingOutgoing[m_pendingUpdate[id].First] = Message.EntryAssign(oldmsg.Str, (uint)id, msg.SeqNumUid, msg.Val,
-                                        (EntryFlags)oldmsg.Flags);
-
-                                }
-                                else
-                                {
-                                    // new but remember it
-                                    m_pendingOutgoing[m_pendingUpdate[id].First] = msg;
-                                }
+                                // need to update assignement
+                                m_pendingOutgoing[m_pendingUpdate[id].First] = Message.EntryAssign(oldmsg.Str, (uint) id,
+                                    msg.SeqNumUid, msg.Val,
+                                    (EntryFlags) oldmsg.Flags);
                             }
                             else
                             {
-                                // new but don't remember it
-                                int pos = m_pendingOutgoing.Count;
-                                m_pendingOutgoing.Add(msg);
-                                if (id >= m_pendingUpdate.Count) ResizePendingUpdate(id + 1);
-                                m_pendingUpdate[id].SetFirst(pos + 1);
+                                // new but remember it
+                                m_pendingOutgoing[m_pendingUpdate[id].First] = msg;
                             }
-                            break;
                         }
+                        else
+                        {
+                            // new but don't remember it
+                            int pos = m_pendingOutgoing.Count;
+                            m_pendingOutgoing.Add(msg);
+                            if (id >= m_pendingUpdate.Count) ResizePendingUpdate(id + 1);
+                            m_pendingUpdate[id].SetFirst(pos + 1);
+                        }
+                        break;
+                    }
                     case Message.MsgType.EntryDelete:
+                    {
+                        //Don't do this for unnasigned uid's
+                        int id = (int) msg.Id;
+                        if (id == 0xffff)
                         {
-                            //Don't do this for unnasigned uid's
-                            int id = (int)msg.Id;
-                            if (id == 0xffff)
-                            {
-                                m_pendingOutgoing.Add(msg);
-                                break;
-                            }
-
-                            if (id < m_pendingUpdate.Count)
-                            {
-                                if (m_pendingUpdate[id].First != 0)
-                                {
-                                    m_pendingOutgoing[m_pendingUpdate[id].First - 1] = new Message();
-                                    m_pendingUpdate[id].SetFirst(0);
-                                }
-                                if (m_pendingUpdate[id].Second != 0)
-                                {
-                                    m_pendingOutgoing[m_pendingUpdate[id].Second - 1] = new Message();
-                                    m_pendingUpdate[id].SetSecond(0);
-                                }
-                            }
-                            //Add deletion
                             m_pendingOutgoing.Add(msg);
                             break;
                         }
+
+                        if (id < m_pendingUpdate.Count)
+                        {
+                            if (m_pendingUpdate[id].First != 0)
+                            {
+                                m_pendingOutgoing[m_pendingUpdate[id].First - 1] = new Message();
+                                m_pendingUpdate[id].SetFirst(0);
+                            }
+                            if (m_pendingUpdate[id].Second != 0)
+                            {
+                                m_pendingOutgoing[m_pendingUpdate[id].Second - 1] = new Message();
+                                m_pendingUpdate[id].SetSecond(0);
+                            }
+                        }
+                        //Add deletion
+                        m_pendingOutgoing.Add(msg);
+                        break;
+                    }
                     case Message.MsgType.FlagsUpdate:
+                    {
+                        //Don't do this for unassigned uids
+                        int id = (int) msg.Id;
+                        if (id == 0xffff)
                         {
-                            //Don't do this for unassigned uids
-                            int id = (int)msg.Id;
-                            if (id == 0xffff)
-                            {
-                                m_pendingOutgoing.Add(msg);
-                                break;
-                            }
-
-                            if (id < m_pendingUpdate.Count && m_pendingUpdate[id].Second != 0)
-                            {
-                                //Overwrite the previous one for this uid
-                                m_pendingOutgoing[m_pendingUpdate[id].Second - 1] = msg;
-                            }
-                            else
-                            {
-                                int pos = m_pendingOutgoing.Count;
-                                m_pendingOutgoing.Add(msg);
-                                if (id > m_pendingUpdate.Count) ResizePendingUpdate(id + 1);
-                                m_pendingUpdate[id].SetSecond(pos + 1);
-
-                            }
-                            break;
-                        }
-                    case Message.MsgType.ClearEntries:
-                        {
-                            //Knock out all previous assignes/updates
-                            for (int i = 0; i < m_pendingOutgoing.Count; i++)
-                            {
-                                var message = m_pendingOutgoing[i];
-                                if (message == null) continue;
-                                var t = message.Type;
-                                if (t == Message.MsgType.EntryAssign || t == Message.MsgType.EntryUpdate
-                                    || t == Message.MsgType.FlagsUpdate || t == Message.MsgType.EntryDelete
-                                    || t == Message.MsgType.ClearEntries)
-                                {
-                                    m_pendingOutgoing[i] = new Message();
-                                }
-                            }
-                            m_pendingUpdate.Clear();
                             m_pendingOutgoing.Add(msg);
                             break;
                         }
+
+                        if (id < m_pendingUpdate.Count && m_pendingUpdate[id].Second != 0)
+                        {
+                            //Overwrite the previous one for this uid
+                            m_pendingOutgoing[m_pendingUpdate[id].Second - 1] = msg;
+                        }
+                        else
+                        {
+                            int pos = m_pendingOutgoing.Count;
+                            m_pendingOutgoing.Add(msg);
+                            if (id > m_pendingUpdate.Count) ResizePendingUpdate(id + 1);
+                            m_pendingUpdate[id].SetSecond(pos + 1);
+                        }
+                        break;
+                    }
+                    case Message.MsgType.ClearEntries:
+                    {
+                        //Knock out all previous assignes/updates
+                        for (int i = 0; i < m_pendingOutgoing.Count; i++)
+                        {
+                            var message = m_pendingOutgoing[i];
+                            if (message == null) continue;
+                            var t = message.Type;
+                            if (t == Message.MsgType.EntryAssign || t == Message.MsgType.EntryUpdate
+                                || t == Message.MsgType.FlagsUpdate || t == Message.MsgType.EntryDelete
+                                || t == Message.MsgType.ClearEntries)
+                            {
+                                m_pendingOutgoing[i] = new Message();
+                            }
+                        }
+                        m_pendingUpdate.Clear();
+                        m_pendingOutgoing.Add(msg);
+                        break;
+                    }
                     default:
                         m_pendingOutgoing.Add(msg);
                         break;
@@ -328,20 +324,17 @@ namespace NetworkTables
                     if (!keepAlive) return;
                     // send keep-alives once a second (if no other messages have been sent)
                     if ((now - m_lastPost) < TimeSpan.FromSeconds(1)) return;
-                    m_outgoing.Add(new List<Message> { Message.KeepAlive() });
+                    m_outgoing.Add(new List<Message> {Message.KeepAlive()});
                 }
                 else
                 {
                     m_outgoing.Add(new List<Message>(m_pendingOutgoing));
                     m_pendingOutgoing.Clear();
                     m_pendingUpdate.Clear();
-
                 }
                 m_lastPost = now;
             }
         }
-
-        public uint Uid { get; }
 
         public State GetState()
         {
@@ -352,26 +345,6 @@ namespace NetworkTables
         {
             m_state = state;
         }
-
-        public string RemoteId
-        {
-            get
-            {
-                lock (m_remoteIdMutex)
-                {
-                    return m_remoteId;
-                }
-            }
-            set
-            {
-                lock (m_remoteIdMutex)
-                {
-                    m_remoteId = value;
-                }
-            }
-        }
-
-        public long LastUpdate { get; private set; }
 
 
         private void ReadThreadMain()
@@ -389,10 +362,7 @@ namespace NetworkTables
                     Debug($"error reading in handshake: {decoder.Error}");
                 }
                 return msg;
-            }, messages =>
-            {
-                m_outgoing.Add(messages);
-            }))
+            }, messages => { m_outgoing.Add(messages); }))
             {
                 m_state = State.Dead;
                 Active = false;
@@ -442,7 +412,8 @@ namespace NetworkTables
                 {
                     if (message != null)
                     {
-                        Debug3($"sending type={message.Type} with str={message.Str} id={message.Id} seqNum={message.SeqNumUid}");
+                        Debug3(
+                            $"sending type={message.Type} with str={message.Str} id={message.Id} seqNum={message.SeqNumUid}");
                         message.Write(encoder);
                     }
                 }
@@ -456,6 +427,22 @@ namespace NetworkTables
             m_state = State.Dead;
             Active = false;
             m_stream?.Dispose(); // Also kill read thread
+        }
+
+        private struct PendingUpdateIds
+        {
+            public int First { get; private set; }
+            public int Second { get; private set; }
+
+            public void SetFirst(int first)
+            {
+                First = first;
+            }
+
+            public void SetSecond(int second)
+            {
+                Second = second;
+            }
         }
     }
 }
