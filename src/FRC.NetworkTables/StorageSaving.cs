@@ -113,8 +113,8 @@ namespace NetworkTables
 
         private static char HexDigit(int x)
         {
-            const byte hexChar = (byte)'A';
-            return (char)(x < 10 ? (byte)'0' + x : hexChar + x - 10);
+            const byte hexChar = (byte) 'A';
+            return (char) (x < 10 ? (byte) '0' + x : hexChar + x - 10);
         }
 
         private static void WriteString(TextWriter os, string str)
@@ -309,7 +309,7 @@ namespace NetworkTables
                             ch <<= 4;
                             ch |= FromXDigit(source[++s]);
                         }
-                        builder.Append((char)ch);
+                        builder.Append((char) ch);
                         break;
                     default:
                         builder.Append(source[s - 1]);
@@ -383,7 +383,7 @@ namespace NetworkTables
                         continue;
                     }
 
-                    string[] split = line.Split(new[] { ' ' }, 2);
+                    string[] split = line.Split(new[] {' '}, 2);
                     var typeTok = split[0];
                     line = split[1];
                     NtType type = NtType.Unassigned;
@@ -393,7 +393,7 @@ namespace NetworkTables
                     else if (typeTok == "raw") type = NtType.Raw;
                     else if (typeTok == "array")
                     {
-                        split = line.Split(new[] { ' ' }, 2);
+                        split = line.Split(new[] {' '}, 2);
                         var arrayTok = split[0];
                         line = split[1];
                         if (arrayTok == "boolean") type = NtType.BooleanArray;
@@ -475,7 +475,7 @@ namespace NetworkTables
                             boolArray.Clear();
                             while (!string.IsNullOrEmpty(line))
                             {
-                                spl = line.Split(new[] { ',' }, 2);
+                                spl = line.Split(new[] {','}, 2);
                                 line = spl.Length < 2 ? string.Empty : spl[1];
                                 strTok = spl[0].Trim(' ', '\t');
                                 if (strTok == "true")
@@ -494,7 +494,7 @@ namespace NetworkTables
                             doubleArray.Clear();
                             while (!string.IsNullOrEmpty(line))
                             {
-                                spl = line.Split(new[] { ',' }, 2);
+                                spl = line.Split(new[] {','}, 2);
                                 line = spl.Length == 1 ? string.Empty : spl[1];
                                 strTok = spl[0].Trim(' ', '\t');
                                 tmpBoolean = double.TryParse(strTok, out tmpDouble);
@@ -568,7 +568,7 @@ namespace NetworkTables
 
                         if (m_server && entry.Id == 0xffff)
                         {
-                            uint id = (uint)m_idMap.Count;
+                            uint id = (uint) m_idMap.Count;
                             entry.Id = id;
                             m_idMap.Add(entry);
                         }
@@ -577,7 +577,8 @@ namespace NetworkTables
                         {
                             if (oldValue != null)
                             {
-                                m_notifier.NotifyEntry(i.First, i.Second, (NotifyFlags.NotifyNew | NotifyFlags.NotifyLocal));
+                                m_notifier.NotifyEntry(i.First, i.Second,
+                                    (NotifyFlags.NotifyNew | NotifyFlags.NotifyLocal));
                             }
                             else if (oldValue != i.Second)
                             {
