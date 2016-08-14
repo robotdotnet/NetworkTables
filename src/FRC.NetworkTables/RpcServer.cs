@@ -11,9 +11,33 @@ namespace NetworkTables
 {
     internal class RpcServer : IDisposable
     {
-        private readonly Dictionary<ImmutablePair<uint, uint>, SendMsgFunc> m_responseMap = new Dictionary<ImmutablePair<uint, uint>, SendMsgFunc>();
+        private readonly AutoResetEvent m_callCond = new AutoResetEvent(false);
+
+        private readonly Queue<RpcCall> m_callQueue = new Queue<RpcCall>();
+        private readonly CancellationTokenSource m_cancellationTokenSource = new CancellationTokenSource();
+
+
+        private readonly object m_mutex = new object();
+        private readonly AutoResetEvent m_pollCond = new AutoResetEvent(false);
+        private readonly AsyncAutoResetEvent m_pollCondAsync = new AsyncAutoResetEvent(false);
+        private readonly Queue<RpcCall> m_pollQueue = new Queue<RpcCall>();
+
+        private readonly Dictionary<ImmutablePair<uint, uint>, SendMsgFunc> m_responseMap =
+            new Dictionary<ImmutablePair<uint, uint>, SendMsgFunc>();
+
+        private bool m_terminating;
+
+        private Task m_thread;
+
+        public delegate void SendMsgFunc(Message msg);
 
         private static RpcServer s_instance;
+
+        internal RpcServer()
+        {
+            Active = false;
+            m_terminating = false;
+        }
 
         /// <summary>
         /// Gets the local instance of Dispatcher
@@ -42,8 +66,6 @@ namespace NetworkTables
             m_pollCondAsync.Set();
         }
 
-        public delegate void SendMsgFunc(Message msg);
-
         public void Start()
         {
             lock (m_mutex)
@@ -51,14 +73,7 @@ namespace NetworkTables
                 if (Active) return;
                 Active = true;
             }
-            /*
-            m_thread = new Thread(ThreadMain)
-            {
-                Name = "Rpc Thread",
-                IsBackground = true
-            };
-            m_thread.Start();
-            */
+            
             m_thread = Task.Factory.StartNew(ThreadMain, TaskCreationOptions.LongRunning);
         }
 
@@ -82,7 +97,7 @@ namespace NetworkTables
                 if (func != null)
                     m_callQueue.Enqueue(new RpcCall(name, msg, func, connId, sendResponse));
                 else
-                    // ReSharper disable once ExpressionIsAlwaysNull
+                // ReSharper disable once ExpressionIsAlwaysNull
                     m_pollQueue.Enqueue(new RpcCall(name, msg, func, connId, sendResponse));
             }
             finally
@@ -179,20 +194,14 @@ namespace NetworkTables
         public void PostRpcResponse(long rpcId, long callId, params byte[] result)
         {
             SendMsgFunc func;
-            var pair = new ImmutablePair<uint, uint>((uint)rpcId, (uint)callId);
+            var pair = new ImmutablePair<uint, uint>((uint) rpcId, (uint) callId);
             if (!m_responseMap.TryGetValue(pair, out func))
             {
                 Warning("posting PRC response to nonexistent call (or duplicate response)");
                 return;
             }
-            func(Message.RpcResponse((uint)rpcId, (uint)callId, result));
+            func(Message.RpcResponse((uint) rpcId, (uint) callId, result));
             m_responseMap.Remove(pair);
-        }
-
-        internal RpcServer()
-        {
-            Active = false;
-            m_terminating = false;
         }
 
         private void ThreadMain()
@@ -232,9 +241,6 @@ namespace NetworkTables
             }
         }
 
-        private bool m_terminating;
-        private readonly CancellationTokenSource m_cancellationTokenSource = new CancellationTokenSource();
-
         private struct RpcCall
         {
             public RpcCall(string name, Message msg, RpcCallback func, uint connId, SendMsgFunc sendResponse)
@@ -251,18 +257,6 @@ namespace NetworkTables
             public RpcCallback Func { get; }
             public uint ConnId { get; }
             public SendMsgFunc SendResponse { get; }
-
         }
-
-        private readonly Queue<RpcCall> m_callQueue = new Queue<RpcCall>();
-        private readonly Queue<RpcCall> m_pollQueue = new Queue<RpcCall>();
-
-        private Task m_thread;
-
-
-        private readonly object m_mutex = new object();
-        private readonly AutoResetEvent m_callCond = new AutoResetEvent(false);
-        private readonly AutoResetEvent m_pollCond = new AutoResetEvent(false);
-        private readonly AsyncAutoResetEvent m_pollCondAsync = new AsyncAutoResetEvent(false);
     }
 }
