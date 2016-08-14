@@ -11,13 +11,14 @@
         {
             if (ReferenceEquals(null, obj)) return false;
             if (obj.GetType() != GetType()) return false;
-            return Equals((SequenceNumber)obj);
+            return Equals((SequenceNumber) obj);
         }
 
         public override int GetHashCode()
         {
-            //No good hash code here, so just have to be careful
-            return 0;
+            // The has code here needs to be the one for our value
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
+            return Value.GetHashCode();
         }
 
         public SequenceNumber(uint value)
@@ -30,10 +31,7 @@
             Value = old.Value;
         }
 
-        public uint Value
-        {
-            get; private set;
-        }
+        public uint Value { get; private set; }
 
         public static SequenceNumber operator ++(SequenceNumber input)
         {
@@ -81,6 +79,5 @@
         {
             return lhs.Value != rhs.Value;
         }
-
     }
 }
