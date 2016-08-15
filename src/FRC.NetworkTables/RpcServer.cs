@@ -38,15 +38,18 @@ namespace NetworkTables
             Logger.Instance.SetDefaultLogger();
             m_terminating = true;
             m_cancellationTokenSource.Cancel();
-            m_pollCond.Set();
-            m_pollCondAsync.Set();
+            using (m_lockObject.Lock())
+            {
+                m_callCond.NotifyAll();
+                m_pollCond.NotifyAll();
+            }
         }
 
         public delegate void SendMsgFunc(Message msg);
 
         public void Start()
         {
-            lock (m_mutex)
+            using (m_lockObject.Lock())
             {
                 if (Active) return;
                 Active = true;
@@ -61,7 +64,11 @@ namespace NetworkTables
             Active = false;
             if (m_thread != null)
             {
-                m_callCond.Set();
+                using (m_lockObject.Lock())
+                {
+                    m_callCond.NotifyAll();
+                    m_pollCond.NotifyAll();
+                }
                 //Join our dispatch thread.
                 m_thread?.Wait();
             }
@@ -69,44 +76,36 @@ namespace NetworkTables
 
         public void ProcessRpc(string name, Message msg, RpcCallback func, uint connId, SendMsgFunc sendResponse)
         {
-            bool lockEntered = false;
-            try
+
+            using (m_lockObject.Lock())
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
                 if (func != null)
                     m_callQueue.Enqueue(new RpcCall(name, msg, func, connId, sendResponse));
                 else
-                    // ReSharper disable once ExpressionIsAlwaysNull
+                // ReSharper disable once ExpressionIsAlwaysNull
                     m_pollQueue.Enqueue(new RpcCall(name, msg, func, connId, sendResponse));
+                if (func != null)
+                {
+                    m_callCond.NotifyAll();
+                }
+                else
+                {
+                    m_pollCond.NotifyAll();
+                }
             }
-            finally
-            {
-                if (lockEntered) Monitor.Exit(m_mutex);
-            }
-            if (func != null)
-            {
-                m_callCond.Set();
-            }
-            else
-            {
-                m_pollCond.Set();
-                m_pollCondAsync.Set();
-            }
+            
         }
 
         public async Task<RpcCallInfo?> PollRpcAsync(CancellationToken token)
         {
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_lockObject.Lock();
                 while (m_pollQueue.Count == 0)
                 {
                     if (m_terminating) return null;
-                    Monitor.Exit(m_mutex);
-                    lockEntered = false;
-                    await m_pollCondAsync.WaitAsync(token);
-                    Monitor.Enter(m_mutex, ref lockEntered);
+                    await m_pollCond.WaitAsync(token);
                     if (token.IsCancellationRequested) return null;
                     if (m_terminating) return null;
                 }
@@ -124,7 +123,7 @@ namespace NetworkTables
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
@@ -135,10 +134,10 @@ namespace NetworkTables
 
         public bool PollRpc(bool blocking, TimeSpan timeout, out RpcCallInfo callInfo)
         {
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_lockObject.Lock();
                 while (m_pollQueue.Count == 0)
                 {
                     if (!blocking || m_terminating)
@@ -146,9 +145,12 @@ namespace NetworkTables
                         callInfo = default(RpcCallInfo);
                         return false;
                     }
-                    bool notTimedOut = m_pollCond.WaitTimeout(m_mutex, ref lockEntered, timeout);
-                    if (!notTimedOut || m_terminating)
+                    CancellationTokenSource source = new CancellationTokenSource();
+                    var task = m_pollCond.WaitAsync(source.Token);
+                    bool success = task.Wait(timeout);
+                    if (!success || m_terminating)
                     {
+                        source.Cancel();
                         callInfo = default(RpcCallInfo);
                         return false;
                     }
@@ -166,7 +168,7 @@ namespace NetworkTables
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
@@ -187,19 +189,22 @@ namespace NetworkTables
         {
             Active = false;
             m_terminating = false;
+            m_lockObject = new AsyncLock();
+            m_callCond = new AsyncConditionVariable(m_lockObject);
+            m_pollCond = new AsyncConditionVariable(m_lockObject);
         }
 
         private void ThreadMain()
         {
-            bool lockEntered = false;
+            IDisposable monitor = null;
             try
             {
-                Monitor.Enter(m_mutex, ref lockEntered);
+                monitor = m_lockObject.Lock();
                 while (Active)
                 {
                     while (m_callQueue.Count == 0)
                     {
-                        m_callCond.Wait(m_mutex, ref lockEntered);
+                        m_callCond.Wait();
                         if (!Active) return;
                     }
                     while (m_callQueue.Count != 0)
@@ -211,18 +216,18 @@ namespace NetworkTables
                         if (string.IsNullOrEmpty(item.Name) || item.Msg == null | item.Func == null ||
                             item.SendResponse == null)
                             continue;
-                        Monitor.Exit(m_mutex);
-                        lockEntered = false;
+                        IDisposable monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                        monitorToUnlock.Dispose();
                         var result = item.Func(item.Name, item.Msg.Val.GetRpc());
                         var response = Message.RpcResponse(item.Msg.Id, item.Msg.SeqNumUid, result);
                         item.SendResponse(response);
-                        Monitor.Enter(m_mutex, ref lockEntered);
+                        Interlocked.Exchange(ref monitor, m_lockObject.Lock());
                     }
                 }
             }
             finally
             {
-                if (lockEntered) Monitor.Exit(m_mutex);
+                monitor?.Dispose();
             }
         }
 
@@ -253,10 +258,8 @@ namespace NetworkTables
 
         private Task m_thread;
 
-
-        private readonly object m_mutex = new object();
-        private readonly AutoResetEvent m_callCond = new AutoResetEvent(false);
-        private readonly AutoResetEvent m_pollCond = new AutoResetEvent(false);
-        private readonly AsyncAutoResetEvent m_pollCondAsync = new AsyncAutoResetEvent(false);
+        private readonly AsyncLock m_lockObject;
+        private readonly AsyncConditionVariable m_callCond;
+        private readonly AsyncConditionVariable m_pollCond;
     }
 }
