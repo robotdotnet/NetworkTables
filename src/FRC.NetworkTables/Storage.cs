@@ -101,6 +101,7 @@ namespace NetworkTables
         private Dictionary<string, Entry> m_entries = new Dictionary<string, Entry>();
         private readonly List<Entry> m_idMap = new List<Entry>();
         internal readonly Dictionary<ImmutablePair<uint, uint>, byte[]> m_rpcResults = new Dictionary<ImmutablePair<uint, uint>, byte[]>();
+        private readonly HashSet<long> m_blockingRpcCalls = new HashSet<long>();
 
         private bool m_terminating;
 
@@ -1161,8 +1162,12 @@ namespace NetworkTables
                     if (!m_rpcResults.TryGetValue(pair, out str))
                     {
                         if (m_terminating) return null;
+                        if (!m_blockingRpcCalls.Add(callUid)) return null;
                         await m_monitor.WaitAsync(token);
-                        if (token.IsCancellationRequested) return null;
+                        if (token.IsCancellationRequested)
+                        {
+                            return null;
+                        }
                         if (m_terminating) return null;
                         continue;
                     }
@@ -1178,6 +1183,7 @@ namespace NetworkTables
             }
             finally
             {
+                m_blockingRpcCalls.Remove(callUid);
                 monitor?.Dispose();
             }
         }
@@ -1199,7 +1205,7 @@ namespace NetworkTables
                     byte[] str;
                     if (!m_rpcResults.TryGetValue(pair, out str))
                     {
-                        if (!blocking || m_terminating)
+                        if (!blocking || m_terminating || !m_blockingRpcCalls.Add(callUid))
                         {
                             result = null;
                             return false;
@@ -1222,6 +1228,7 @@ namespace NetworkTables
             }
             finally
             {
+                m_blockingRpcCalls.Remove(callUid);
                 monitor?.Dispose();
             }
         }
