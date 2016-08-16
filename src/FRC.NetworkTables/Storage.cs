@@ -1155,24 +1155,35 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
+                if (!m_blockingRpcCalls.Add(callUid)) return null;
                 for (;;)
                 {
                     var pair = new ImmutablePair<uint, uint>((uint)callUid >> 16, (uint)callUid & 0xffff);
                     byte[] str;
                     if (!m_rpcResults.TryGetValue(pair, out str))
                     {
-                        if (m_terminating) return null;
-                        if (!m_blockingRpcCalls.Add(callUid)) return null;
+                        if (m_terminating)
+                        {
+                            m_blockingRpcCalls.Remove(callUid);
+                            return null;
+                        }
+                        
                         await m_monitor.WaitAsync(token);
                         if (token.IsCancellationRequested)
                         {
+                            m_blockingRpcCalls.Remove(callUid);
                             return null;
                         }
-                        if (m_terminating) return null;
+                        if (m_terminating)
+                        {
+                            m_blockingRpcCalls.Remove(callUid);
+                            return null;
+                        }
                         continue;
                     }
                     byte[] result = new byte[str.Length];
                     Array.Copy(str, result, result.Length);
+                    m_blockingRpcCalls.Remove(callUid);
                     return result;
                 }
             }
@@ -1183,7 +1194,7 @@ namespace NetworkTables
             }
             finally
             {
-                m_blockingRpcCalls.Remove(callUid);
+
                 monitor?.Dispose();
             }
         }
@@ -1199,6 +1210,11 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
+                if (!m_blockingRpcCalls.Add(callUid))
+                {
+                    result = null;
+                    return false;
+                }
                 for (;;)
                 {
                     var pair = new ImmutablePair<uint, uint>((uint)callUid >> 16, (uint)callUid & 0xffff);
@@ -1208,6 +1224,7 @@ namespace NetworkTables
                         if (!blocking || m_terminating || !m_blockingRpcCalls.Add(callUid))
                         {
                             result = null;
+                            m_blockingRpcCalls.Remove(callUid);
                             return false;
                         }
                         CancellationTokenSource source = new CancellationTokenSource();
@@ -1216,6 +1233,7 @@ namespace NetworkTables
                         if (!success || m_terminating)
                         {
                             source.Cancel();
+                            m_blockingRpcCalls.Remove(callUid);
                             result = null;
                             return false;
                         }
@@ -1223,12 +1241,12 @@ namespace NetworkTables
                     }
                     result = new byte[str.Length];
                     Array.Copy(str, result, result.Length);
+                    m_blockingRpcCalls.Remove(callUid);
                     return true;
                 }
             }
             finally
             {
-                m_blockingRpcCalls.Remove(callUid);
                 monitor?.Dispose();
             }
         }
