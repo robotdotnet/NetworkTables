@@ -1221,7 +1221,7 @@ namespace NetworkTables
                     byte[] str;
                     if (!m_rpcResults.TryGetValue(pair, out str))
                     {
-                        if (!blocking || m_terminating || !m_blockingRpcCalls.Add(callUid))
+                        if (!blocking || m_terminating)
                         {
                             result = null;
                             m_blockingRpcCalls.Remove(callUid);
