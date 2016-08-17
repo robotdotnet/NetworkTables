@@ -110,7 +110,11 @@ namespace NetworkTables
                     if (m_terminating) return null;
                 }
                 var item = m_pollQueue.Dequeue();
-                uint callUid = (item.ConnId << 16) | item.Msg.SeqNumUid;
+                uint callUid;
+                if (item.ConnId != 0xffff)
+                    callUid = (item.ConnId << 16) | item.Msg.SeqNumUid;
+                else
+                    callUid = item.Msg.SeqNumUid;
                 if (!item.Msg.Val.IsRpc()) return null;
                 RpcCallInfo callInfo = new RpcCallInfo(item.Msg.Id, callUid, item.Name, item.Msg.Val.GetRpc());
                 m_responseMap.Add(new ImmutablePair<uint, uint>(item.Msg.Id, callUid), item.SendResponse);
@@ -156,7 +160,11 @@ namespace NetworkTables
                     }
                 }
                 var item = m_pollQueue.Dequeue();
-                uint callUid = (item.ConnId << 16) | item.Msg.SeqNumUid;
+                uint callUid;
+                if (item.ConnId != 0xffff)
+                    callUid = (item.ConnId << 16) | item.Msg.SeqNumUid;
+                else
+                    callUid = item.Msg.SeqNumUid;
                 if (!item.Msg.Val.IsRpc())
                 {
                     callInfo = default(RpcCallInfo);
