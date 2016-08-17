@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -45,7 +46,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetDefaultEntryBoolean(string name, bool value)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             int retVal = Interop.NT_SetDefaultEntryBoolean(namePtr, size, value ? 1 : 0);
             return retVal != 0;
         }
@@ -53,7 +54,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetDefaultEntryDouble(string name, double value)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             int retVal = Interop.NT_SetDefaultEntryDouble(namePtr, size, value);
             return retVal != 0;
         }
@@ -61,7 +62,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetDefaultEntryString(string name, string value)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             UIntPtr stringSize;
             byte[] stringPtr = CreateUTF8String(value, out stringSize);
             int retVal = Interop.NT_SetDefaultEntryString(namePtr, size, stringPtr, stringSize);
@@ -71,7 +72,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetDefaultEntryRaw(string name, byte[] value)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             int retVal = Interop.NT_SetDefaultEntryRaw(namePtr, size, value, (UIntPtr)value.Length);
             return retVal != 0;
         }
@@ -79,7 +80,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetDefaultEntryBooleanArray(string name, bool[] value)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
 
             int[] valueIntArr = new int[value.Length];
             for (int i = 0; i < value.Length; i++)
@@ -95,7 +96,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetDefaultEntryDoubleArray(string name, double[] value)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
 
             int retVal = Interop.NT_SetDefaultEntryDoubleArray(namePtr, size, value, (UIntPtr)value.Length);
 
@@ -105,7 +106,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetDefaultEntryStringArray(string name, string[] value)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
 
             NtStringWrite[] ntStrings = new NtStringWrite[value.Length];
             for (int i = 0; i < value.Length; i++)
@@ -153,7 +154,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetEntryBoolean(string name, bool value, bool force = false)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             int retVal = Interop.NT_SetEntryBoolean(namePtr, size, value ? 1 : 0, force ? 1 : 0);
             return retVal != 0;
         }
@@ -161,7 +162,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetEntryDouble(string name, double value, bool force = false)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             int retVal = Interop.NT_SetEntryDouble(namePtr, size, value, force ? 1 : 0);
             return retVal != 0;
         }
@@ -169,7 +170,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetEntryString(string name, string value, bool force = false)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             UIntPtr stringSize;
             byte[] stringPtr = CreateUTF8String(value, out stringSize);
             int retVal = Interop.NT_SetEntryString(namePtr, size, stringPtr, stringSize, force ? 1 : 0);
@@ -179,7 +180,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetEntryRaw(string name, byte[] value, bool force = false)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             int retVal = Interop.NT_SetEntryRaw(namePtr, size, value, (UIntPtr) value.Length, force ? 1 : 0);
             return retVal != 0;
         }
@@ -187,7 +188,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetEntryBooleanArray(string name, bool[] value, bool force = false)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
 
             int[] valueIntArr = new int[value.Length];
             for (int i = 0; i < value.Length; i++)
@@ -203,7 +204,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetEntryDoubleArray(string name, double[] value, bool force = false)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
 
             int retVal = Interop.NT_SetEntryDoubleArray(namePtr, size, value, (UIntPtr) value.Length, force ? 1 : 0);
 
@@ -213,7 +214,7 @@ namespace NetworkTables.Core.Native
         internal static bool SetEntryStringArray(string name, string[] value, bool force = false)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
 
             NtStringWrite[] ntStrings = new NtStringWrite[value.Length];
             for (int i = 0; i < value.Length; i++)
@@ -238,7 +239,7 @@ namespace NetworkTables.Core.Native
         internal static bool GetEntryBoolean(string name, bool defaultValue)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             int boolean = 0;
             ulong lc = 0;
             int status = Interop.NT_GetEntryBoolean(namePtr, size, ref lc, ref boolean);
@@ -252,7 +253,7 @@ namespace NetworkTables.Core.Native
         internal static double GetEntryDouble(string name, double defaultValue)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             double retVal = 0;
             ulong lastChange = 0;
             int status = Interop.NT_GetEntryDouble(namePtr, size, ref lastChange, ref retVal);
@@ -266,7 +267,7 @@ namespace NetworkTables.Core.Native
         internal static string GetEntryString(string name, string defaultValue)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             UIntPtr stringSize = UIntPtr.Zero;
             ulong lastChange = 0;
             IntPtr ret = Interop.NT_GetEntryString(namePtr, size, ref lastChange, ref stringSize);
@@ -285,7 +286,7 @@ namespace NetworkTables.Core.Native
         internal static byte[] GetEntryRaw(string name, byte[] defaultValue)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             UIntPtr stringSize = UIntPtr.Zero;
             ulong lastChange = 0;
             IntPtr ret = Interop.NT_GetEntryRaw(namePtr, size, ref lastChange, ref stringSize);
@@ -304,7 +305,7 @@ namespace NetworkTables.Core.Native
         internal static double[] GetEntryDoubleArray(string name, double[] defaultValue)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             UIntPtr arrSize = UIntPtr.Zero;
             ulong lastChange = 0;
             IntPtr arrPtr = Interop.NT_GetEntryDoubleArray(namePtr, size, ref lastChange, ref arrSize);
@@ -320,7 +321,7 @@ namespace NetworkTables.Core.Native
         internal static bool[] GetEntryBooleanArray(string name, bool[] defaultValue)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             UIntPtr arrSize = UIntPtr.Zero;
             ulong lastChange = 0;
             IntPtr arrPtr = Interop.NT_GetEntryBooleanArray(namePtr, size, ref lastChange, ref arrSize);
@@ -336,7 +337,7 @@ namespace NetworkTables.Core.Native
         internal static string[] GetEntryStringArray(string name, string[] defaultValue)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             UIntPtr arrSize = UIntPtr.Zero;
             ulong lastChange = 0;
             IntPtr arrPtr = Interop.NT_GetEntryStringArray(namePtr, size, ref lastChange, ref arrSize);
@@ -384,7 +385,7 @@ namespace NetworkTables.Core.Native
             }
         }
 
-        private static void ThrowException(string name, byte[] namePtr, UIntPtr size, NtType requestedType)
+        private static void ThrowException(string name, IntPtr namePtr, UIntPtr size, NtType requestedType)
         {
             NtType typeInTable = Interop.NT_GetType(namePtr, size);
             if (typeInTable == NtType.Unassigned)
@@ -400,7 +401,7 @@ namespace NetworkTables.Core.Native
         internal static bool GetEntryBoolean(string name)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             int boolean = 0;
             ulong lc = 0;
             int status = Interop.NT_GetEntryBoolean(namePtr, size, ref lc, ref boolean);
@@ -414,7 +415,7 @@ namespace NetworkTables.Core.Native
         internal static double GetEntryDouble(string name)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             double retVal = 0;
             ulong lastChange = 0;
             int status = Interop.NT_GetEntryDouble(namePtr, size, ref lastChange, ref retVal);
@@ -428,7 +429,7 @@ namespace NetworkTables.Core.Native
         internal static string GetEntryString(string name)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             UIntPtr stringSize = UIntPtr.Zero;
             ulong lastChange = 0;
             IntPtr ret = Interop.NT_GetEntryString(namePtr, size, ref lastChange, ref stringSize);
@@ -444,7 +445,7 @@ namespace NetworkTables.Core.Native
         internal static byte[] GetEntryRaw(string name)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             UIntPtr stringSize = UIntPtr.Zero;
             ulong lastChange = 0;
             IntPtr ret = Interop.NT_GetEntryRaw(namePtr, size, ref lastChange, ref stringSize);
@@ -460,7 +461,7 @@ namespace NetworkTables.Core.Native
         internal static double[] GetEntryDoubleArray(string name)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             UIntPtr arrSize = UIntPtr.Zero;
             ulong lastChange = 0;
             IntPtr arrPtr = Interop.NT_GetEntryDoubleArray(namePtr, size, ref lastChange, ref arrSize);
@@ -476,7 +477,7 @@ namespace NetworkTables.Core.Native
         internal static bool[] GetEntryBooleanArray(string name)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             UIntPtr arrSize = UIntPtr.Zero;
             ulong lastChange = 0;
             IntPtr arrPtr = Interop.NT_GetEntryBooleanArray(namePtr, size, ref lastChange, ref arrSize);
@@ -492,7 +493,7 @@ namespace NetworkTables.Core.Native
         internal static string[] GetEntryStringArray(string name)
         {
             UIntPtr size;
-            byte[] namePtr = CreateUTF8String(name, out size);
+            IntPtr namePtr = CreateCachedUTF8String(name, out size);
             UIntPtr arrSize = UIntPtr.Zero;
             ulong lastChange = 0;
             IntPtr arrPtr = Interop.NT_GetEntryStringArray(namePtr, size, ref lastChange, ref arrSize);
@@ -799,14 +800,14 @@ namespace NetworkTables.Core.Native
         internal static void SetEntryFlags(string name, EntryFlags flags)
         {
             UIntPtr size;
-            byte[] str = CreateUTF8String(name, out size);
+            IntPtr str = CreateCachedUTF8String(name, out size);
             Interop.NT_SetEntryFlags(str, size, (uint) flags);
         }
 
         internal static EntryFlags GetEntryFlags(string name)
         {
             UIntPtr size;
-            byte[] str = CreateUTF8String(name, out size);
+            IntPtr str = CreateCachedUTF8String(name, out size);
             uint flags = Interop.NT_GetEntryFlags(str, size);
             return (EntryFlags) flags;
         }
@@ -818,7 +819,7 @@ namespace NetworkTables.Core.Native
         internal static void DeleteEntry(string name)
         {
             UIntPtr size;
-            byte[] str = CreateUTF8String(name, out size);
+            IntPtr str = CreateCachedUTF8String(name, out size);
             Interop.NT_DeleteEntry(str, size);
         }
 
@@ -840,7 +841,7 @@ namespace NetworkTables.Core.Native
         internal static NtType GetType(string name)
         {
             UIntPtr size;
-            byte[] str = CreateUTF8String(name, out size);
+            IntPtr str = CreateCachedUTF8String(name, out size);
             NtType retVal = Interop.NT_GetType(str, size);
             return retVal;
         }
@@ -933,6 +934,15 @@ namespace NetworkTables.Core.Native
         #endregion
 
         #region IntPtrs To String Conversions
+
+        private static ConcurrentDictionary<string, NtStringWrite> s_keyCache = new ConcurrentDictionary<string, NtStringWrite>();
+
+        internal static IntPtr CreateCachedUTF8String(string str, out UIntPtr size)
+        {
+            NtStringWrite ntStr = s_keyCache.GetOrAdd(str, s => new NtStringWrite(s));
+            size = ntStr.len;
+            return ntStr.str;
+        }
 
         internal static byte[] CreateUTF8String(string str, out UIntPtr size)
         {

@@ -46,7 +46,7 @@ namespace NetworkTables
                     return retPtr;
                 };
             UIntPtr nameLen;
-            byte[] nameB = CoreMethods.CreateUTF8String(name, out nameLen);
+            IntPtr nameB = CoreMethods.CreateCachedUTF8String(name, out nameLen);
             Interop.NT_CreateRpc(nameB, nameLen, def, (UIntPtr)def.Length, IntPtr.Zero, modCallback);
             s_rpcCallbacks.Add(modCallback);
 #else
@@ -84,7 +84,7 @@ namespace NetworkTables
         {
 #if CORE
             UIntPtr nameLen;
-            byte[] nameB = CoreMethods.CreateUTF8String(name, out nameLen);
+            IntPtr nameB = CoreMethods.CreateCachedUTF8String(name, out nameLen);
             Interop.NT_CreatePolledRpc(nameB, nameLen, def, (UIntPtr)def.Length);
 #else
             Storage.Instance.CreatePolledRpc(name, def);
@@ -221,7 +221,7 @@ namespace NetworkTables
         {
 #if CORE
             UIntPtr size;
-            byte[] nameB = CoreMethods.CreateUTF8String(name, out size);
+            IntPtr nameB = CoreMethods.CreateCachedUTF8String(name, out size);
             return Interop.NT_CallRpc(nameB, size, param, (UIntPtr)param.Length);
 #else
             return Storage.Instance.CallRpc(name, param);

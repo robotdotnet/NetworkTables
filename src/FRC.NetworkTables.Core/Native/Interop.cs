@@ -245,11 +245,11 @@ namespace NetworkTables.Core.Native
 
         //Interup Functions
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate void NT_SetEntryFlagsDelegate(byte[] name, UIntPtr name_len, uint flags);
+        internal delegate void NT_SetEntryFlagsDelegate(IntPtr name, UIntPtr name_len, uint flags);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate uint NT_GetEntryFlagsDelegate(byte[] name, UIntPtr name_len);
+        internal delegate uint NT_GetEntryFlagsDelegate(IntPtr name, UIntPtr name_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate void NT_DeleteEntryDelegate(byte[] name, UIntPtr name_len);
+        internal delegate void NT_DeleteEntryDelegate(IntPtr name, UIntPtr name_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_DeleteAllEntriesDelegate();
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -297,7 +297,7 @@ namespace NetworkTables.Core.Native
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_DisposeStringDelegate(ref NtStringRead str);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate NtType NT_GetTypeDelegate(byte[] name, UIntPtr name_len);
+        internal delegate NtType NT_GetTypeDelegate(IntPtr name, UIntPtr name_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_DisposeConnectionInfoArrayDelegate(IntPtr arr, UIntPtr count);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -333,58 +333,58 @@ namespace NetworkTables.Core.Native
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate IntPtr NT_GetValueStringArrayDelegate(IntPtr value, ref ulong last_change, ref UIntPtr size);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_GetEntryBooleanDelegate(byte[] name, UIntPtr name_len, ref ulong last_change, ref int v_boolean);
+        internal delegate int NT_GetEntryBooleanDelegate(IntPtr name, UIntPtr name_len, ref ulong last_change, ref int v_boolean);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_GetEntryDoubleDelegate(byte[] name, UIntPtr name_len, ref ulong last_change, ref double v_double);
+        internal delegate int NT_GetEntryDoubleDelegate(IntPtr name, UIntPtr name_len, ref ulong last_change, ref double v_double);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate IntPtr NT_GetEntryStringDelegate(byte[] name, UIntPtr name_len, ref ulong last_change, ref UIntPtr string_len);
+        internal delegate IntPtr NT_GetEntryStringDelegate(IntPtr name, UIntPtr name_len, ref ulong last_change, ref UIntPtr string_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate IntPtr NT_GetEntryRawDelegate(byte[] name, UIntPtr name_len, ref ulong last_change, ref UIntPtr raw_len);
+        internal delegate IntPtr NT_GetEntryRawDelegate(IntPtr name, UIntPtr name_len, ref ulong last_change, ref UIntPtr raw_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate IntPtr NT_GetEntryBooleanArrayDelegate(byte[] name, UIntPtr name_len, ref ulong last_change, ref UIntPtr size);
+        internal delegate IntPtr NT_GetEntryBooleanArrayDelegate(IntPtr name, UIntPtr name_len, ref ulong last_change, ref UIntPtr size);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate IntPtr NT_GetEntryDoubleArrayDelegate(byte[] name, UIntPtr name_len, ref ulong last_change, ref UIntPtr size);
+        internal delegate IntPtr NT_GetEntryDoubleArrayDelegate(IntPtr name, UIntPtr name_len, ref ulong last_change, ref UIntPtr size);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate IntPtr NT_GetEntryStringArrayDelegate(byte[] name, UIntPtr name_len, ref ulong last_change, ref UIntPtr size);
+        internal delegate IntPtr NT_GetEntryStringArrayDelegate(IntPtr name, UIntPtr name_len, ref ulong last_change, ref UIntPtr size);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetEntryBooleanDelegate(byte[] name, UIntPtr name_len, int v_boolean, int force);
+        internal delegate int NT_SetEntryBooleanDelegate(IntPtr name, UIntPtr name_len, int v_boolean, int force);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetEntryDoubleDelegate(byte[] name, UIntPtr name_len, double v_double, int force);
+        internal delegate int NT_SetEntryDoubleDelegate(IntPtr name, UIntPtr name_len, double v_double, int force);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetEntryStringDelegate(byte[] name, UIntPtr name_len, byte[] v_string, UIntPtr string_len, int force);
+        internal delegate int NT_SetEntryStringDelegate(IntPtr name, UIntPtr name_len, byte[] v_string, UIntPtr string_len, int force);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetEntryRawDelegate(byte[] name, UIntPtr name_len, byte[] raw, UIntPtr raw_len, int force);
+        internal delegate int NT_SetEntryRawDelegate(IntPtr name, UIntPtr name_len, byte[] raw, UIntPtr raw_len, int force);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetEntryBooleanArrayDelegate(byte[] name, UIntPtr name_len, int[] arr, UIntPtr size, int force);
+        internal delegate int NT_SetEntryBooleanArrayDelegate(IntPtr name, UIntPtr name_len, int[] arr, UIntPtr size, int force);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetEntryDoubleArrayDelegate(byte[] name, UIntPtr name_len, double[] arr, UIntPtr size, int force);
+        internal delegate int NT_SetEntryDoubleArrayDelegate(IntPtr name, UIntPtr name_len, double[] arr, UIntPtr size, int force);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetEntryStringArrayDelegate(byte[] name, UIntPtr name_len, NtStringWrite[] arr, UIntPtr size, int force);
+        internal delegate int NT_SetEntryStringArrayDelegate(IntPtr name, UIntPtr name_len, NtStringWrite[] arr, UIntPtr size, int force);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetDefaultEntryBooleanDelegate(byte[] name, UIntPtr name_len, int v_boolean);
+        internal delegate int NT_SetDefaultEntryBooleanDelegate(IntPtr name, UIntPtr name_len, int v_boolean);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetDefaultEntryDoubleDelegate(byte[] name, UIntPtr name_len, double v_double);
+        internal delegate int NT_SetDefaultEntryDoubleDelegate(IntPtr name, UIntPtr name_len, double v_double);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetDefaultEntryStringDelegate(byte[] name, UIntPtr name_len, byte[] v_string, UIntPtr string_len);
+        internal delegate int NT_SetDefaultEntryStringDelegate(IntPtr name, UIntPtr name_len, byte[] v_string, UIntPtr string_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetDefaultEntryRawDelegate(byte[] name, UIntPtr name_len, byte[] raw, UIntPtr raw_len);
+        internal delegate int NT_SetDefaultEntryRawDelegate(IntPtr name, UIntPtr name_len, byte[] raw, UIntPtr raw_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetDefaultEntryBooleanArrayDelegate(byte[] name, UIntPtr name_len, int[] arr, UIntPtr size);
+        internal delegate int NT_SetDefaultEntryBooleanArrayDelegate(IntPtr name, UIntPtr name_len, int[] arr, UIntPtr size);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetDefaultEntryDoubleArrayDelegate(byte[] name, UIntPtr name_len, double[] arr, UIntPtr size);
+        internal delegate int NT_SetDefaultEntryDoubleArrayDelegate(IntPtr name, UIntPtr name_len, double[] arr, UIntPtr size);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetDefaultEntryStringArrayDelegate(byte[] name, UIntPtr name_len, NtStringWrite[] arr, UIntPtr size);
+        internal delegate int NT_SetDefaultEntryStringArrayDelegate(IntPtr name, UIntPtr name_len, NtStringWrite[] arr, UIntPtr size);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate void NT_CreateRpcDelegate(byte[] name, UIntPtr name_len, byte[] def, UIntPtr def_len, IntPtr data, NT_RPCCallback callback);
+        internal delegate void NT_CreateRpcDelegate(IntPtr name, UIntPtr name_len, byte[] def, UIntPtr def_len, IntPtr data, NT_RPCCallback callback);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate void NT_CreatePolledRpcDelegate(byte[] name, UIntPtr name_len, byte[] def, UIntPtr def_len);
+        internal delegate void NT_CreatePolledRpcDelegate(IntPtr name, UIntPtr name_len, byte[] def, UIntPtr def_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int NT_PollRpcDelegate(int blocking, out NtRpcCallInfo call_info);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_PostRpcResponseDelegate(uint rpc_id, uint call_uid, byte[] result, UIntPtr result_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate uint NT_CallRpcDelegate(byte[] name, UIntPtr name_len, byte[] param, UIntPtr params_len);
+        internal delegate uint NT_CallRpcDelegate(IntPtr name, UIntPtr name_len, byte[] param, UIntPtr params_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate IntPtr NT_GetRpcResultDelegate(int blocking, uint call_uid, ref UIntPtr result_len);
 
