@@ -15,8 +15,11 @@
 
 NetworkTables is a DotNet implementation of the NetworkTables protocol commonly used in FRC. Currently implements v3 of the NetworkTables spec.
 
-This repository contains two seperate release projects. The first is NetworkTables, which is a complete port of the ntcore library from C++ to DotNet. This library is recommended for any clients that you wish to create, as the dependancies are very low, and supported by most platforms.
-The second project is NetworkTables.Core. This is a wrapper around the official ntcore library. This means that the networking code has been tested more by the community, and is recommended for running on an FRC robot as the server. 
+This repository contains two seperate release projects. 
+
+  The first is NetworkTables, which is a complete port of the ntcore library from C++ to DotNet. This library is recommended for any clients that you wish to create, as the dependancies are very low, and supported by most platforms.
+
+  The second project is NetworkTables.Core. This is a wrapper around the official ntcore library. This means that the networking code has been tested more by the community, and is recommended for running on an FRC robot as the server. 
 
 
 
