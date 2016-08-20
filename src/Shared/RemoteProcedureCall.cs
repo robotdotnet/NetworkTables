@@ -118,26 +118,15 @@ namespace NetworkTables
         public static bool PollRpc(bool blocking, TimeSpan timeout, out RpcCallInfo callInfo)
         {
 #if CORE
-            Func<RpcCallInfo?> func = () =>
+            NtRpcCallInfo nativeInfo;
+            int retVal = Interop.NT_PollRpcTimeout(blocking ? 1 : 0, timeout.TotalSeconds, out nativeInfo);
+            if (retVal == 0)
             {
-                RpcCallInfo info;
-                bool success = PollRpc(true, out info);
-                if (success) return info;
-                return null;
-            };
-
-            var task = Task.Run(func);
-            var completed = task.Wait(timeout);
-            if (completed)
-            {
-                if (task.Result.HasValue)
-                {
-                    callInfo = task.Result.Value;
-                    return true;
-                }
+                callInfo = new RpcCallInfo();
+                return false;
             }
-            callInfo = new RpcCallInfo();
-            return false;
+            callInfo = nativeInfo.ToManaged();
+            return retVal != 0;
 #else
             return RpcServer.Instance.PollRpc(blocking, timeout, out callInfo);
 #endif
@@ -151,6 +140,8 @@ namespace NetworkTables
         public static async Task<RpcCallInfo?> PollRpcAsync(CancellationToken token)
         {
 #if CORE
+            throw new NotSupportedException("NetworkTables.Core does not support Async Polled Rpcs, as there is no way to cancel the call");
+            /*
             try
             {
                 Func<RpcCallInfo?> func = () =>
@@ -168,6 +159,7 @@ namespace NetworkTables
             {
                 return null;
             }
+            */
 #else
             return await RpcServer.Instance.PollRpcAsync(token).ConfigureAwait(false);
 #endif
@@ -278,12 +270,23 @@ namespace NetworkTables
         public static async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
         {
 #if CORE
+            int canceled = 0;
+            token.Register(() => {
+                // must use a delegate to cancel the call.
+                Interop.NT_CancelBlockingRpcResult((uint)callUid);
+                Console.WriteLine("Called Async Cancel");
+                Interlocked.Exchange(ref canceled, 1);
+            });
             try
             {
                 var result = await Task.Run(() =>
                 {
                     byte[] info;
                     bool success = GetRpcResult(true, callUid, out info);
+                    Interlocked.MemoryBarrier();
+                    if (canceled == 1) {
+                        Console.WriteLine("Operation Canceled");
+                    }
                     if (success) return info;
                     return null;
                 }, token).ConfigureAwait(false);
@@ -309,21 +312,15 @@ namespace NetworkTables
         public static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
         {
 #if CORE
-            var task = Task.Run(() =>
+            UIntPtr size = UIntPtr.Zero;
+            IntPtr retVal = Interop.NT_GetRpcResultTimeout(blocking ? 1 : 0, (uint)callUid, timeout.TotalSeconds, ref size);
+            if (retVal == IntPtr.Zero)
             {
-                byte[] info;
-                bool success = GetRpcResult(true, callUid, out info);
-                if (success) return info;
-                return null;
-            });
-            var completed = task.Wait(timeout);
-            if (completed)
-            {
-                result = task.Result;
-                return true;
+                result = null;
+                return false;
             }
-            result = null;
-            return false;
+            result = CoreMethods.GetRawDataFromPtr(retVal, size);
+            return true;
 #else
             return Storage.Instance.GetRpcResult(blocking, callUid, timeout, out result);
 #endif
