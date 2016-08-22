@@ -6,6 +6,7 @@ using static NetworkTables.Logging.Logger;
 using NetworkTables.Extensions;
 using System.Net;
 using System.Threading.Tasks;
+using Nito.AsyncEx.Synchronous;
 
 namespace NetworkTables
 {
@@ -175,9 +176,9 @@ namespace NetworkTables
             m_serverAccepter?.Shutdown();
 
             //Join our dispatch thread.
-            m_dispatchThread?.Wait();
+            m_dispatchThread?.WaitAndUnwrapException();
             //Join our Client Server Thread
-            m_clientServerThread?.Wait();
+            m_clientServerThread?.WaitAndUnwrapException();
 
             List<NetworkConnection> conns = new List<NetworkConnection>();
             lock (m_userMutex)

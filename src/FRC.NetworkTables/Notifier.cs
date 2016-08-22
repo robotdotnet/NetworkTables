@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkTables.Extensions;
+using Nito.AsyncEx.Synchronous;
 
 namespace NetworkTables
 {
@@ -295,7 +296,8 @@ namespace NetworkTables
             m_active = false;
             //Notify condition so thread terminates.
             m_cond.Set();
-            m_thread?.Wait();
+            // Use GetAwaiter to unwrap the exception
+            m_thread?.WaitAndUnwrapException();
         }
 
         public bool LocalNotifiers()
