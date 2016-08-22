@@ -87,6 +87,20 @@ namespace NetworkTables.Independent
             return await m_ntCore.m_storage.GetRpcResultAsync(callUid, token);
         }
 
+        /// <inheritdoc cref="RemoteProcedureCall.CallRpcWithResultAsync(string, CancellationToken, byte[])"/>
+        public async Task<byte[]> CallRpcWithResultAsync(string name, CancellationToken token, params byte[] param)
+        {
+            long id = CallRpc(name, param);
+            return await GetRpcResultAsync(id, token).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc cref="RemoteProcedureCall.CallRpcWithResultAsync(string, CancellationToken, Value[])"/>
+        public async Task<byte[]> CallRpcWithResultAsync(string name, CancellationToken token, params Value[] param)
+        {
+            long id = CallRpc(name, param);
+            return await GetRpcResultAsync(id, token).ConfigureAwait(false);
+        }
+
         /// <inheritdoc cref="RemoteProcedureCall.GetRpcResult(bool, long, TimeSpan, out byte[])"/>
         public bool GetRpcResult(bool blocking, long callUid, TimeSpan timout, out byte[] result)
         {
