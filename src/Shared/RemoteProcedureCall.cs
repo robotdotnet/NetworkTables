@@ -286,7 +286,7 @@ namespace NetworkTables
                     bool success = GetRpcResult(true, callUid, out info);
                     if (success) return info;
                     return null;
-                }, token).ConfigureAwait(false));
+                }, token).ConfigureAwait(false);
                 return result;
             }
             catch (OperationCanceledException)

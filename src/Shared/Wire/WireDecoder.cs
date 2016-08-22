@@ -210,9 +210,7 @@ namespace NetworkTables.Wire
         /// </summary>
         /// <param name="numBytesToCheck">The number of bytes to check</param>
         /// <returns>True if the number of requested bytes exists in the array</returns>
-#if (!CORE)
         /// <remarks>Note that using a <see cref="System.Net.Sockets.NetworkStream"/> will always result in false.</remarks>
-#endif
         public bool HasMoreBytes(int numBytesToCheck)
         {
             try
