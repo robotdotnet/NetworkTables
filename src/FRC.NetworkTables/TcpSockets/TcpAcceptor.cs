@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using static NetworkTables.Logging.Logger;
 
 namespace NetworkTables.TcpSockets

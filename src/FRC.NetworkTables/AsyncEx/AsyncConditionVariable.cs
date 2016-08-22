@@ -1,5 +1,4 @@
 ﻿using Nito.AsyncEx.Internal;
-using Nito.AsyncEx.Internal.PlatformEnlightenment;
 using System;
 using System.Diagnostics;
 using System.Threading;

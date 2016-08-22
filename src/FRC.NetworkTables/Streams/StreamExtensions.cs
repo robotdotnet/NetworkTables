@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Net.Sockets;
-using System.Threading;
 using static NetworkTables.Logging.Logger;
 
 namespace NetworkTables.Streams

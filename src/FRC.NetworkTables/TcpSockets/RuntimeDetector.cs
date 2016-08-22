@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 #if NETSTANDARD1_3
 using System.Runtime.InteropServices;
 #endif
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NetworkTables.TcpSockets
 {

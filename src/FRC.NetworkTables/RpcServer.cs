@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using NetworkTables.Extensions;
 using NetworkTables.Logging;
 using Nito.AsyncEx;
 using static NetworkTables.Logging.Logger;
