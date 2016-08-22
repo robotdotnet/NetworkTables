@@ -11,6 +11,7 @@ using static NetworkTables.Logging.Logger;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Nito.AsyncEx.Synchronous;
 
 namespace NetworkTables
 {
@@ -148,8 +149,8 @@ namespace NetworkTables
             m_outgoing.Add(new List<Message>());
 
             //Wait for our threads to detach from each.
-            m_writeThread?.Wait();
-            m_readThread?.Wait();
+            m_writeThread?.WaitAndUnwrapException();
+            m_readThread?.WaitAndUnwrapException();
 
             // clear the queue
             while (m_outgoing.Count != 0) m_outgoing.Take();

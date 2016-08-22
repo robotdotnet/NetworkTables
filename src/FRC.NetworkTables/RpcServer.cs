@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NetworkTables.Extensions;
 using NetworkTables.Logging;
 using Nito.AsyncEx;
+using Nito.AsyncEx.Synchronous;
 using static NetworkTables.Logging.Logger;
 
 namespace NetworkTables
@@ -43,6 +44,9 @@ namespace NetworkTables
                 m_callCond.NotifyAll();
                 m_pollCond.NotifyAll();
             }
+
+            //Join our dispatch thread.
+            m_thread?.WaitAndUnwrapException();
         }
 
         public delegate void SendMsgFunc(Message msg);
@@ -70,7 +74,7 @@ namespace NetworkTables
                     m_pollCond.NotifyAll();
                 }
                 //Join our dispatch thread.
-                m_thread?.Wait();
+                m_thread?.GetAwaiter().GetResult();
             }
         }
 
@@ -101,7 +105,7 @@ namespace NetworkTables
             IDisposable monitor = null;
             try
             {
-                monitor = m_lockObject.Lock();
+                monitor = await m_lockObject.LockAsync(token);
                 while (m_pollQueue.Count == 0)
                 {
                     if (m_terminating) return null;

@@ -104,14 +104,7 @@ namespace NetworkTables
         private readonly HashSet<long> m_blockingRpcCalls = new HashSet<long>();
 
         private bool m_terminating;
-
-        //private readonly AutoResetEvent m_rpcResultsCond = new AutoResetEvent(false);
-        //private readonly AsyncAutoResetEvent m_rpcResultsCondAsync = new AsyncAutoResetEvent(false);
         private readonly AsyncMonitor m_monitor = new AsyncMonitor();
-
-        
-
-        //private readonly object m_mutex = new object();
 
         QueueOutgoingFunc m_queueOutgoing;
         bool m_server = true;
@@ -1154,7 +1147,7 @@ namespace NetworkTables
             IDisposable monitor = null;
             try
             {
-                monitor = m_monitor.Enter();
+                monitor = await m_monitor.EnterAsync(token);
                 if (!m_blockingRpcCalls.Add(callUid)) return null;
                 for (;;)
                 {
