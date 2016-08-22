@@ -1146,7 +1146,7 @@ namespace NetworkTables
             IDisposable monitor = null;
             try
             {
-                monitor = await m_monitor.EnterAsync(token);
+                monitor = await m_monitor.EnterAsync(token).ConfigureAwait(false);
                 if (!m_blockingRpcCalls.Add(callUid)) return null;
                 for (;;)
                 {
@@ -1160,7 +1160,7 @@ namespace NetworkTables
                             return null;
                         }
                         
-                        await m_monitor.WaitAsync(token);
+                        await m_monitor.WaitAsync(token).ConfigureAwait(false);
                         if (token.IsCancellationRequested)
                         {
                             m_blockingRpcCalls.Remove(callUid);

@@ -139,7 +139,7 @@ namespace NetworkTables
             callInfo = new RpcCallInfo();
             return false;
 #else
-            return RpcServer.Instance.PollRpc(blocking, timeout, out callInfo);
+            return RpcServer.Instance.PollRpc(blocking, timeout, out callInfo).ConfigureAwait(false);
 #endif
         }
 
@@ -161,7 +161,7 @@ namespace NetworkTables
                     return null;
                 };
 
-                var result = await Task.Run(func, token);
+                var result = await Task.Run(func, token).ConfigureAwait(false);
                 return result;
             }
             catch (OperationCanceledException)
@@ -169,7 +169,7 @@ namespace NetworkTables
                 return null;
             }
 #else
-            return await RpcServer.Instance.PollRpcAsync(token);
+            return await RpcServer.Instance.PollRpcAsync(token).ConfigureAwait(false);
 #endif
         }
 
@@ -253,7 +253,7 @@ namespace NetworkTables
         public static async Task<byte[]> CallRpcWithResultAsync(string name, CancellationToken token, params byte[] param)
         {
             long id = CallRpc(name, param);
-            return await GetRpcResultAsync(id, token);
+            return await GetRpcResultAsync(id, token).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace NetworkTables
         public static async Task<byte[]> CallRpcWithResultAsync(string name, CancellationToken token, params Value[] param)
         {
             long id = CallRpc(name, param);
-            return await GetRpcResultAsync(id, token);
+            return await GetRpcResultAsync(id, token).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -286,7 +286,7 @@ namespace NetworkTables
                     bool success = GetRpcResult(true, callUid, out info);
                     if (success) return info;
                     return null;
-                }, token);
+                }, token).ConfigureAwait(false));
                 return result;
             }
             catch (OperationCanceledException)
@@ -294,7 +294,7 @@ namespace NetworkTables
                 return null;
             }
 #else
-            return await Storage.Instance.GetRpcResultAsync(callUid, token);
+            return await Storage.Instance.GetRpcResultAsync(callUid, token).ConfigureAwait(false);
 #endif
         }
 

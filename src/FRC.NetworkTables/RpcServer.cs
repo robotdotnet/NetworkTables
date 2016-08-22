@@ -104,11 +104,11 @@ namespace NetworkTables
             IDisposable monitor = null;
             try
             {
-                monitor = await m_lockObject.LockAsync(token);
+                monitor = await m_lockObject.LockAsync(token).ConfigureAwait(false);
                 while (m_pollQueue.Count == 0)
                 {
                     if (m_terminating) return null;
-                    await m_pollCond.WaitAsync(token);
+                    await m_pollCond.WaitAsync(token).ConfigureAwait(false);
                     if (token.IsCancellationRequested) return null;
                     if (m_terminating) return null;
                 }
