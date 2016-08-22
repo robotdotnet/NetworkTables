@@ -139,7 +139,7 @@ namespace NetworkTables
             callInfo = new RpcCallInfo();
             return false;
 #else
-            return RpcServer.Instance.PollRpc(blocking, timeout, out callInfo).ConfigureAwait(false);
+            return RpcServer.Instance.PollRpc(blocking, timeout, out callInfo);
 #endif
         }
 
