@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using Nito.AsyncEx.Synchronous;
 using static NetworkTables.Logging.Logger;
 
 namespace NetworkTables
@@ -26,9 +28,9 @@ namespace NetworkTables
             return true;
         }
 
-        private static void SavePersistentImpl(StreamWriter stream, IEnumerable<StoragePair> entries)
+        private static async Task SavePersistentImpl(StreamWriter stream, IEnumerable<StoragePair> entries)
         {
-            stream.Write("[NetworkTables Storage 3.0]\n");
+            await stream.WriteAsync("[NetworkTables Storage 3.0]\n");
             foreach (var i in entries)
             {
                 var v = i.Second;
@@ -36,47 +38,47 @@ namespace NetworkTables
                 switch (v.Type)
                 {
                     case NtType.Boolean:
-                        stream.Write("boolean ");
+                        await stream.WriteAsync("boolean ");
                         break;
                     case NtType.Double:
-                        stream.Write("double ");
+                        await stream.WriteAsync("double ");
                         break;
                     case NtType.String:
-                        stream.Write("string ");
+                        await stream.WriteAsync("string ");
                         break;
                     case NtType.Raw:
-                        stream.Write("raw ");
+                        await stream.WriteAsync("raw ");
                         break;
                     case NtType.BooleanArray:
-                        stream.Write("array boolean ");
+                        await stream.WriteAsync("array boolean ");
                         break;
                     case NtType.DoubleArray:
-                        stream.Write("array double ");
+                        await stream.WriteAsync("array double ");
                         break;
                     case NtType.StringArray:
-                        stream.Write("array string ");
+                        await stream.WriteAsync("array string ");
                         break;
                     default:
                         continue;
                 }
 
-                WriteString(stream, i.First);
+                await WriteStringAsync(stream, i.First);
 
-                stream.Write('=');
+                await stream.WriteAsync('=');
 
                 switch (v.Type)
                 {
                     case NtType.Boolean:
-                        stream.Write(v.GetBoolean() ? "true" : "false");
+                        await stream.WriteAsync(v.GetBoolean() ? "true" : "false");
                         break;
                     case NtType.Double:
-                        stream.Write(v.GetDouble());
+                        await stream.WriteAsync(v.GetDouble().ToString());
                         break;
                     case NtType.String:
-                        WriteString(stream, v.GetString());
+                        await WriteStringAsync(stream, v.GetString());
                         break;
                     case NtType.Raw:
-                        stream.Write(Convert.ToBase64String(v.GetRaw()));
+                        await stream.WriteAsync(Convert.ToBase64String(v.GetRaw()));
                         break;
                     case NtType.BooleanArray:
                         bool first = true;
@@ -84,7 +86,7 @@ namespace NetworkTables
                         {
                             if (!first) stream.Write(",");
                             first = false;
-                            stream.Write(b ? "true" : "false");
+                            await stream.WriteAsync(b ? "true" : "false");
                         }
                         break;
                     case NtType.DoubleArray:
@@ -93,7 +95,7 @@ namespace NetworkTables
                         {
                             if (!first) stream.Write(",");
                             first = false;
-                            stream.Write(b);
+                            await stream.WriteAsync(b.ToString());
                         }
                         break;
                     case NtType.StringArray:
@@ -102,12 +104,12 @@ namespace NetworkTables
                         {
                             if (!first) stream.Write(",");
                             first = false;
-                            WriteString(stream, b);
+                            await WriteStringAsync(stream, b);
                         }
                         break;
                 }
                 //eol
-                stream.Write('\n');
+                await stream.WriteAsync('\n');
             }
         }
 
@@ -117,113 +119,47 @@ namespace NetworkTables
             return (char)(x < 10 ? (byte)'0' + x : hexChar + x - 10);
         }
 
-        private static void WriteString(TextWriter os, string str)
+        private static async Task WriteStringAsync(StreamWriter stream, string str)
         {
-            os.Write('"');
+            await stream.WriteAsync('"');
             foreach (var c in str)
             {
                 switch (c)
                 {
                     case '\\':
-                        os.Write("\\\\");
+                        await stream.WriteAsync("\\\\");
                         break;
                     case '\t':
-                        os.Write("\\t");
+                        await stream.WriteAsync("\\t");
                         break;
                     case '\n':
-                        os.Write("\\n");
+                        await stream.WriteAsync("\\n");
                         break;
                     case '"':
-                        os.Write("\\\"");
+                        await stream.WriteAsync("\\\"");
                         break;
                     case '\0':
-                        os.Write("\\x00");
+                        await stream.WriteAsync("\\x00");
                         break;
                     default:
                         if (IsPrintable(c))
                         {
-                            os.Write(c);
+                            await stream.WriteAsync(c);
                             break;
                         }
 
-                        os.Write("\\x");
-                        os.Write(HexDigit((c >> 4) & 0xF));
-                        os.Write(HexDigit((c >> 0) & 0xF));
+                        await stream.WriteAsync("\\x");
+                        await stream.WriteAsync(HexDigit((c >> 4) & 0xF));
+                        await stream.WriteAsync(HexDigit((c >> 0) & 0xF));
                         break;
                 }
             }
-            os.Write('"');
+            await stream.WriteAsync('"');
         }
 
         private static bool IsPrintable(char c)
         {
             return c > 0x1f && c < 127;
-        }
-
-        public string SavePersistent(string filename, bool periodic)
-        {
-            string fn = filename;
-            string tmp = filename;
-
-            tmp += ".tmp";
-            string bak = filename;
-            bak += ".bak";
-
-            //Get entries before creating files
-            List<StoragePair> entries = new List<StoragePair>();
-            if (!GetPersistentEntries(periodic, entries)) return null;
-
-            string err = null;
-
-            //Start writing to a temp file
-            try
-            {
-                using (FileStream fStream = File.Open(tmp, FileMode.Create, FileAccess.Write, FileShare.Read))
-                using (StreamWriter writer = new StreamWriter(fStream))
-                {
-                    Debug($"saving persistent file '{filename}'");
-                    SavePersistentImpl(writer, entries);
-                    writer.Flush();
-                }
-            }
-            catch (IOException)
-            {
-                err = "could not open or save file";
-                goto done;
-            }
-
-            try
-            {
-                File.Delete(bak);
-                File.Move(fn, bak);
-            }
-            catch (IOException)
-            {
-                //Unable to delete or copy. Ignoring
-            }
-
-            try
-            {
-                File.Move(tmp, fn);
-            }
-            catch (IOException)
-            {
-                //Attempt to restore backup
-                try
-                {
-                    File.Move(bak, fn);
-                }
-                catch (IOException)
-                {
-                    //Do nothing if it fails
-                }
-                err = "could not rename temp file to real file";
-            }
-
-            done:
-
-            if (err != null && periodic) m_persistentDirty = true;
-            return err;
         }
 
         private static void ReadStringToken(out string first, out string second, string source)
@@ -319,13 +255,238 @@ namespace NetworkTables
             dest = builder.ToString();
         }
 
+        public void SavePersistent(Stream stream, bool periodic)
+        {
+            List<StoragePair> entries = new List<StoragePair>();
+            if (!GetPersistentEntries(periodic, entries)) return;
+            StreamWriter w = new StreamWriter(stream);
+            Task task = SavePersistentImpl(w, entries);
+            task.WaitAndUnwrapException();
+            w.Flush();
+        }
+
+        public string SavePersistent(string filename, bool periodic)
+        {
+            string err = null;
+            try
+            {
+                string fn = filename;
+                string tmp = filename;
+
+                tmp += ".tmp";
+                string bak = filename;
+                bak += ".bak";
+
+                //Get entries before creating files
+                List<StoragePair> entries = new List<StoragePair>();
+                if (!GetPersistentEntries(periodic, entries)) return null;
+
+
+
+                //Start writing to a temp file
+                try
+                {
+                    using (FileStream fStream = File.Open(tmp, FileMode.Create, FileAccess.Write, FileShare.Read))
+                    using (StreamWriter writer = new StreamWriter(fStream))
+                    {
+                        Debug($"saving persistent file '{filename}'");
+                        Task task = SavePersistentImpl(writer, entries);
+                        task.WaitAndUnwrapException();
+                        writer.Flush();
+                    }
+                }
+                catch (IOException)
+                {
+                    err = "could not open or save file";
+                    return err;
+                }
+
+                try
+                {
+                    File.Delete(bak);
+                    File.Move(fn, bak);
+                }
+                catch (IOException)
+                {
+                    //Unable to delete or copy. Ignoring
+                }
+
+                try
+                {
+                    File.Move(tmp, fn);
+                }
+                catch (IOException)
+                {
+                    //Attempt to restore backup
+                    try
+                    {
+                        File.Move(bak, fn);
+                    }
+                    catch (IOException)
+                    {
+                        //Do nothing if it fails
+                    }
+                    err = "could not rename temp file to real file";
+                }
+                return err;
+            }
+            finally
+            {
+                if (err != null && periodic) m_persistentDirty = true;
+            }
+        }
+
+        public async Task<string> SavePersistentAsync(string filename, bool periodic)
+        {
+            string fn = filename;
+            string tmp = filename;
+
+            tmp += ".tmp";
+            string bak = filename;
+            bak += ".bak";
+
+            //Get entries before creating files
+            List<StoragePair> entries = new List<StoragePair>();
+            if (!GetPersistentEntries(periodic, entries)) return null;
+
+            string err = null;
+
+            //Start writing to a temp file
+            try
+            {
+                using (FileStream fStream = File.Open(tmp, FileMode.Create, FileAccess.Write, FileShare.Read))
+                using (StreamWriter writer = new StreamWriter(fStream))
+                {
+                    Debug($"saving persistent file '{filename}'");
+                    await SavePersistentImpl(writer, entries);
+                    await writer.FlushAsync();
+                }
+            }
+            catch (IOException)
+            {
+                err = "could not open or save file";
+                m_persistentDirty = true;
+                return err;
+            }
+
+            try
+            {
+                File.Delete(bak);
+                File.Move(fn, bak);
+            }
+            catch (IOException)
+            {
+                //Unable to delete or copy. Ignoring
+            }
+
+            try
+            {
+                File.Move(tmp, fn);
+            }
+            catch (IOException)
+            {
+                //Attempt to restore backup
+                try
+                {
+                    File.Move(bak, fn);
+                }
+                catch (IOException)
+                {
+                    //Do nothing if it fails
+                }
+                err = "could not rename temp file to real file";
+            }
+
+            if (err != null && periodic) m_persistentDirty = true;
+            return err;
+        }
+
+        private static Value ReadStringArray(string line, int lineNum, string strTok, List<string> stringArray, Action<int, string> warn)
+        {
+            stringArray.Clear();
+            while (!string.IsNullOrEmpty(line))
+            {
+                string elemTok;
+                ReadStringToken(out elemTok, out line, line);
+                if (string.IsNullOrEmpty(elemTok))
+                {
+                    warn?.Invoke(lineNum, "missing string value");
+                    return null;
+                }
+                if (strTok[strTok.Length - 1] != '"')
+                {
+                    warn?.Invoke(lineNum, "unterminated string value");
+                    return null;
+                }
+                string str;
+                UnescapeString(elemTok, out str);
+                stringArray.Add(str);
+
+                line = line.TrimStart(' ', '\t');
+                if (string.IsNullOrEmpty(line)) break;
+                if (line[0] != ',')
+                {
+                    warn?.Invoke(lineNum, "expected comma between strings");
+                    return null;
+                }
+                line = line.Substring(1).TrimStart(' ', '\t');
+            }
+
+            return Value.MakeStringArray(stringArray.ToArray());
+        }
+
+        private static Value ReadDoubleArray(string line, int lineNum, List<double> doubleArray,
+            Action<int, string> warn)
+        {
+            doubleArray.Clear();
+            while (!string.IsNullOrEmpty(line))
+            {
+                string[] spl = line.Split(new[] { ',' }, 2);
+                line = spl.Length == 1 ? string.Empty : spl[1];
+                string strTok = spl[0].Trim(' ', '\t');
+                double tmpDouble;
+                bool tmpBoolean = double.TryParse(strTok, out tmpDouble);
+                if (!tmpBoolean)
+                {
+                    warn?.Invoke(lineNum, "invalid double value");
+                    return null;
+                }
+                doubleArray.Add(tmpDouble);
+            }
+            return Value.MakeDoubleArray(doubleArray.ToArray());
+        }
+
+        private static Value ReadBooleanArray(string line, int lineNum, List<bool> boolArray,
+            Action<int, string> warn)
+        {
+            boolArray.Clear();
+            while (!string.IsNullOrEmpty(line))
+            {
+                string[] spl = line.Split(new[] { ',' }, 2);
+                line = spl.Length < 2 ? string.Empty : spl[1];
+                string strTok = spl[0].Trim(' ', '\t');
+                if (strTok == "true")
+                    boolArray.Add(true);
+                else if (strTok == "false")
+                    boolArray.Add(false);
+                else
+                {
+                    warn?.Invoke(lineNum, "unrecognized boolean value, not 'true' or 'false'");
+                    return null;
+                }
+            }
+            return Value.MakeBooleanArray(boolArray.ToArray());
+        }
+
         public string LoadPersistent(string filename, Action<int, string> warn)
         {
             try
             {
                 using (Stream stream = new FileStream(filename, FileMode.Open))
                 {
-                    if (!LoadPersistent(stream, warn)) return "error reading file";
+                    Task<bool> task = LoadPersistentAsync(stream, warn);
+                    task.WaitAndUnwrapException();
+                    if (!task.Result) return "error reading file";
                     return null;
                 }
             }
@@ -335,16 +496,30 @@ namespace NetworkTables
             }
         }
 
-        public void SavePersistent(Stream stream, bool periodic)
+        public async Task<string> LoadPersistentAsync(string filename, Action<int, string> warn)
         {
-            List<StoragePair> entries = new List<StoragePair>();
-            if (!GetPersistentEntries(periodic, entries)) return;
-            StreamWriter w = new StreamWriter(stream);
-            SavePersistentImpl(w, entries);
-            w.Flush();
+            try
+            {
+                using (Stream stream = new FileStream(filename, FileMode.Open))
+                {
+                    if (!await LoadPersistentAsync(stream, warn)) return "error reading file";
+                    return null;
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                return "could not open file";
+            }
         }
 
         public bool LoadPersistent(Stream stream, Action<int, string> warn)
+        {
+            Task<bool> task = LoadPersistentAsync(stream, warn);
+            task.WaitAndUnwrapException();
+            return task.Result;
+        }
+
+        public async Task<bool> LoadPersistentAsync(Stream stream, Action<int, string> warn)
         {
             int lineNum = 1;
 
@@ -358,7 +533,7 @@ namespace NetworkTables
             using (StreamReader reader = new StreamReader(stream))
             {
                 string lineStr;
-                while ((lineStr = reader.ReadLine()) != null)
+                while ((lineStr = await reader.ReadLineAsync()) != null)
                 {
                     string line = lineStr.Trim();
                     if (line != string.Empty && line[0] != ';' && line[0] != '#')
@@ -373,7 +548,7 @@ namespace NetworkTables
                     return false;
                 }
 
-                while ((lineStr = reader.ReadLine()) != null)
+                while ((lineStr = await reader.ReadLineAsync()) != null)
                 {
                     string line = lineStr.Trim();
                     ++lineNum;
@@ -427,9 +602,6 @@ namespace NetworkTables
 
                     Value value = null;
                     string str;
-                    bool tmpBoolean;
-                    double tmpDouble;
-                    string[] spl;
                     switch (type)
                     {
                         case NtType.Boolean:
@@ -440,16 +612,17 @@ namespace NetworkTables
                             else
                             {
                                 warn?.Invoke(lineNum, "unrecognized boolean value, not 'true' or 'false'");
-                                goto nextLine;
+                                continue;
                             }
                             break;
                         case NtType.Double:
                             str = line;
-                            tmpBoolean = double.TryParse(str, out tmpDouble);
+                            double tmpDouble;
+                            var tmpBoolean = double.TryParse(str, out tmpDouble);
                             if (!tmpBoolean)
                             {
                                 warn?.Invoke(lineNum, "invalid double value");
-                                goto nextLine;
+                                continue;
                             }
                             value = Value.MakeDouble(tmpDouble);
                             break;
@@ -458,12 +631,12 @@ namespace NetworkTables
                             if (string.IsNullOrEmpty(strTok))
                             {
                                 warn?.Invoke(lineNum, "missing string value");
-                                goto nextLine;
+                                continue;
                             }
                             if (strTok[strTok.Length - 1] != '"')
                             {
                                 warn?.Invoke(lineNum, "unterminated string value");
-                                goto nextLine;
+                                continue;
                             }
                             UnescapeString(strTok, out str);
                             value = Value.MakeString(str);
@@ -472,79 +645,23 @@ namespace NetworkTables
                             value = Value.MakeRaw(Convert.FromBase64String(line));
                             break;
                         case NtType.BooleanArray:
-                            boolArray.Clear();
-                            while (!string.IsNullOrEmpty(line))
-                            {
-                                spl = line.Split(new[] { ',' }, 2);
-                                line = spl.Length < 2 ? string.Empty : spl[1];
-                                strTok = spl[0].Trim(' ', '\t');
-                                if (strTok == "true")
-                                    boolArray.Add(true);
-                                else if (strTok == "false")
-                                    boolArray.Add(false);
-                                else
-                                {
-                                    warn?.Invoke(lineNum, "unrecognized boolean value, not 'true' or 'false'");
-                                    goto nextLine;
-                                }
-                            }
-                            value = Value.MakeBooleanArray(boolArray.ToArray());
+                            value = ReadBooleanArray(line, lineNum, boolArray, warn);
+                            if (value == null) continue;
                             break;
                         case NtType.DoubleArray:
-                            doubleArray.Clear();
-                            while (!string.IsNullOrEmpty(line))
-                            {
-                                spl = line.Split(new[] { ',' }, 2);
-                                line = spl.Length == 1 ? string.Empty : spl[1];
-                                strTok = spl[0].Trim(' ', '\t');
-                                tmpBoolean = double.TryParse(strTok, out tmpDouble);
-                                if (!tmpBoolean)
-                                {
-                                    warn?.Invoke(lineNum, "invalid double value");
-                                    goto nextLine;
-                                }
-                                doubleArray.Add(tmpDouble);
-                            }
-                            value = Value.MakeDoubleArray(doubleArray.ToArray());
+                            value = ReadDoubleArray(line, lineNum, doubleArray, warn);
+                            if (value == null) continue;
                             break;
                         case NtType.StringArray:
-                            stringArray.Clear();
-                            while (!string.IsNullOrEmpty(line))
-                            {
-                                string elemTok;
-                                ReadStringToken(out elemTok, out line, line);
-                                if (string.IsNullOrEmpty(elemTok))
-                                {
-                                    warn?.Invoke(lineNum, "missing string value");
-                                    goto nextLine;
-                                }
-                                if (strTok[strTok.Length - 1] != '"')
-                                {
-                                    warn?.Invoke(lineNum, "unterminated string value");
-                                    goto nextLine;
-                                }
-                                UnescapeString(elemTok, out str);
-                                stringArray.Add(str);
-
-                                line = line.TrimStart(' ', '\t');
-                                if (string.IsNullOrEmpty(line)) break;
-                                if (line[0] != ',')
-                                {
-                                    warn?.Invoke(lineNum, "expected comma between strings");
-                                    goto nextLine;
-                                }
-                                line = line.Substring(1).TrimStart(' ', '\t');
-                            }
-
-                            value = Value.MakeStringArray(stringArray.ToArray());
+                            value = ReadStringArray(line, lineNum, strTok, stringArray, warn);
+                            if (value == null) continue;
                             break;
                     }
                     if (name.Length != 0 && value != null)
                     {
                         entries.Add(new StoragePair(name, value));
                     }
-                    nextLine:
-                    ;
+
                 }
 
                 List<Message> msgs = new List<Message>();
@@ -552,8 +669,7 @@ namespace NetworkTables
                 IDisposable monitor = null;
                 try
                 {
-                    monitor = m_monitor.Enter();
-                    IDisposable monitorToUnlock = null;
+                    monitor = await m_monitor.EnterAsync();
                     foreach (var i in entries)
                     {
                         Entry entry;
@@ -609,7 +725,7 @@ namespace NetworkTables
                     if (m_queueOutgoing != null)
                     {
                         var queuOutgoing = m_queueOutgoing;
-                        monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                        var monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                         monitorToUnlock.Dispose();
                         foreach (var msg in msgs) queuOutgoing(msg, null, null);
                     }
