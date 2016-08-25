@@ -70,6 +70,7 @@
     }
   },
   "dependencies": {
-    "Nito.AsyncEx.Coordination": "1.0.2"
+    "Nito.AsyncEx.Coordination": "1.0.2",
+    "System.ValueTuple": "4.0.0-rc3-24212-01"
   }
 }
