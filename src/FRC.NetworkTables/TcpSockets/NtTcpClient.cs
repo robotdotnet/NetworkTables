@@ -114,6 +114,7 @@ namespace NetworkTables.TcpSockets
                             else
                             {
                                 Info("Timeout Case Called");
+                                throw new Exception("Test case to see if timeout is called while using mono");
                                 if (DateTime.UtcNow >= waitUntil)
                                 {
                                     // We have timed out

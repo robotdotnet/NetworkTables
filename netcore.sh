@@ -28,8 +28,6 @@ function Build {
 function Test {
   dotnet restore
   
-   dotnet test ./test/NetworkTables.Test $configuration -f netcoreapp1.0
-  
   if [ "$skipNtCore" = false ] ; then
      dotnet test ./test/NetworkTables.Core.Test $configuration -f netcoreapp1.0
   fi
