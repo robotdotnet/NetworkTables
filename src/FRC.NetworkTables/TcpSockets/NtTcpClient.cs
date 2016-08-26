@@ -113,6 +113,7 @@ namespace NetworkTables.TcpSockets
                             }
                             else
                             {
+                                Info("Timeout Case Called");
                                 if (DateTime.UtcNow >= waitUntil)
                                 {
                                     // We have timed out
