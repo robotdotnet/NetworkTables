@@ -994,9 +994,9 @@ namespace NetworkTables
         public static async Task<string> SavePersistentAsync(string filename)
         {
 #if CORE
-            return await Task.Run(() => CoreMethods.SavePersistent(filename));
+            return await Task.Run(() => CoreMethods.SavePersistent(filename)).ConfigureAwait(false);
 #else
-            return await Storage.Instance.SavePersistentAsync(filename, false);
+            return await Storage.Instance.SavePersistentAsync(filename, false).ConfigureAwait(false);
 #endif
         }
 
@@ -1024,9 +1024,9 @@ namespace NetworkTables
         public static async Task<string> LoadPersistentAsync(string filename, Action<int, string> warn)
         {
 #if CORE
-            return await Task.Run(() => CoreMethods.LoadPersistent(filename, warn));
+            return await Task.Run(() => CoreMethods.LoadPersistent(filename, warn)).ConfigureAwait(false);
 #else
-            return await Storage.Instance.LoadPersistentAsync(filename, warn);
+            return await Storage.Instance.LoadPersistentAsync(filename, warn).ConfigureAwait(false);
 #endif
         }
 
@@ -1082,7 +1082,7 @@ namespace NetworkTables
             var err = await LoadPersistentAsync(filename, (i, s) =>
             {
                 warns.Add($"{i}: {s}");
-            });
+            }).ConfigureAwait(false);
             if (err != null) throw new PersistentException($"Load Persistent Failed: {err}");
             return warns.ToArray();
         }

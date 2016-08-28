@@ -30,7 +30,7 @@ namespace NetworkTables
 
         private static async Task SavePersistentImpl(StreamWriter stream, IEnumerable<StoragePair> entries)
         {
-            await stream.WriteAsync("[NetworkTables Storage 3.0]\n");
+            await stream.WriteAsync("[NetworkTables Storage 3.0]\n").ConfigureAwait(false);
             foreach (var i in entries)
             {
                 var v = i.Second;
@@ -38,47 +38,47 @@ namespace NetworkTables
                 switch (v.Type)
                 {
                     case NtType.Boolean:
-                        await stream.WriteAsync("boolean ");
+                        await stream.WriteAsync("boolean ").ConfigureAwait(false);
                         break;
                     case NtType.Double:
-                        await stream.WriteAsync("double ");
+                        await stream.WriteAsync("double ").ConfigureAwait(false);
                         break;
                     case NtType.String:
-                        await stream.WriteAsync("string ");
+                        await stream.WriteAsync("string ").ConfigureAwait(false);
                         break;
                     case NtType.Raw:
-                        await stream.WriteAsync("raw ");
+                        await stream.WriteAsync("raw ").ConfigureAwait(false);
                         break;
                     case NtType.BooleanArray:
-                        await stream.WriteAsync("array boolean ");
+                        await stream.WriteAsync("array boolean ").ConfigureAwait(false);
                         break;
                     case NtType.DoubleArray:
-                        await stream.WriteAsync("array double ");
+                        await stream.WriteAsync("array double ").ConfigureAwait(false);
                         break;
                     case NtType.StringArray:
-                        await stream.WriteAsync("array string ");
+                        await stream.WriteAsync("array string ").ConfigureAwait(false);
                         break;
                     default:
                         continue;
                 }
 
-                await WriteStringAsync(stream, i.First);
+                await WriteStringAsync(stream, i.First).ConfigureAwait(false);
 
-                await stream.WriteAsync('=');
+                await stream.WriteAsync('=').ConfigureAwait(false);
 
                 switch (v.Type)
                 {
                     case NtType.Boolean:
-                        await stream.WriteAsync(v.GetBoolean() ? "true" : "false");
+                        await stream.WriteAsync(v.GetBoolean() ? "true" : "false").ConfigureAwait(false);
                         break;
                     case NtType.Double:
-                        await stream.WriteAsync(v.GetDouble().ToString());
+                        await stream.WriteAsync(v.GetDouble().ToString()).ConfigureAwait(false);
                         break;
                     case NtType.String:
-                        await WriteStringAsync(stream, v.GetString());
+                        await WriteStringAsync(stream, v.GetString()).ConfigureAwait(false);
                         break;
                     case NtType.Raw:
-                        await stream.WriteAsync(Convert.ToBase64String(v.GetRaw()));
+                        await stream.WriteAsync(Convert.ToBase64String(v.GetRaw())).ConfigureAwait(false);
                         break;
                     case NtType.BooleanArray:
                         bool first = true;
@@ -86,7 +86,7 @@ namespace NetworkTables
                         {
                             if (!first) stream.Write(",");
                             first = false;
-                            await stream.WriteAsync(b ? "true" : "false");
+                            await stream.WriteAsync(b ? "true" : "false").ConfigureAwait(false);
                         }
                         break;
                     case NtType.DoubleArray:
@@ -95,7 +95,7 @@ namespace NetworkTables
                         {
                             if (!first) stream.Write(",");
                             first = false;
-                            await stream.WriteAsync(b.ToString());
+                            await stream.WriteAsync(b.ToString()).ConfigureAwait(false);
                         }
                         break;
                     case NtType.StringArray:
@@ -104,12 +104,12 @@ namespace NetworkTables
                         {
                             if (!first) stream.Write(",");
                             first = false;
-                            await WriteStringAsync(stream, b);
+                            await WriteStringAsync(stream, b).ConfigureAwait(false);
                         }
                         break;
                 }
                 //eol
-                await stream.WriteAsync('\n');
+                await stream.WriteAsync('\n').ConfigureAwait(false);
             }
         }
 
@@ -121,40 +121,40 @@ namespace NetworkTables
 
         private static async Task WriteStringAsync(StreamWriter stream, string str)
         {
-            await stream.WriteAsync('"');
+            await stream.WriteAsync('"').ConfigureAwait(false);
             foreach (var c in str)
             {
                 switch (c)
                 {
                     case '\\':
-                        await stream.WriteAsync("\\\\");
+                        await stream.WriteAsync("\\\\").ConfigureAwait(false);
                         break;
                     case '\t':
-                        await stream.WriteAsync("\\t");
+                        await stream.WriteAsync("\\t").ConfigureAwait(false);
                         break;
                     case '\n':
-                        await stream.WriteAsync("\\n");
+                        await stream.WriteAsync("\\n").ConfigureAwait(false);
                         break;
                     case '"':
-                        await stream.WriteAsync("\\\"");
+                        await stream.WriteAsync("\\\"").ConfigureAwait(false);
                         break;
                     case '\0':
-                        await stream.WriteAsync("\\x00");
+                        await stream.WriteAsync("\\x00").ConfigureAwait(false);
                         break;
                     default:
                         if (IsPrintable(c))
                         {
-                            await stream.WriteAsync(c);
+                            await stream.WriteAsync(c).ConfigureAwait(false);
                             break;
                         }
 
-                        await stream.WriteAsync("\\x");
-                        await stream.WriteAsync(HexDigit((c >> 4) & 0xF));
-                        await stream.WriteAsync(HexDigit((c >> 0) & 0xF));
+                        await stream.WriteAsync("\\x").ConfigureAwait(false);
+                        await stream.WriteAsync(HexDigit((c >> 4) & 0xF)).ConfigureAwait(false);
+                        await stream.WriteAsync(HexDigit((c >> 0) & 0xF)).ConfigureAwait(false);
                         break;
                 }
             }
-            await stream.WriteAsync('"');
+            await stream.WriteAsync('"').ConfigureAwait(false);
         }
 
         private static bool IsPrintable(char c)
@@ -358,8 +358,8 @@ namespace NetworkTables
                 using (StreamWriter writer = new StreamWriter(fStream))
                 {
                     Debug($"saving persistent file '{filename}'");
-                    await SavePersistentImpl(writer, entries);
-                    await writer.FlushAsync();
+                    await SavePersistentImpl(writer, entries).ConfigureAwait(false);
+                    await writer.FlushAsync().ConfigureAwait(false);
                 }
             }
             catch (IOException)
@@ -502,7 +502,7 @@ namespace NetworkTables
             {
                 using (Stream stream = new FileStream(filename, FileMode.Open))
                 {
-                    if (!await LoadPersistentAsync(stream, warn)) return "error reading file";
+                    if (!await LoadPersistentAsync(stream, warn).ConfigureAwait(false)) return "error reading file";
                     return null;
                 }
             }
@@ -533,7 +533,7 @@ namespace NetworkTables
             using (StreamReader reader = new StreamReader(stream))
             {
                 string lineStr;
-                while ((lineStr = await reader.ReadLineAsync()) != null)
+                while ((lineStr = await reader.ReadLineAsync().ConfigureAwait(false)) != null)
                 {
                     string line = lineStr.Trim();
                     if (line != string.Empty && line[0] != ';' && line[0] != '#')
@@ -548,7 +548,7 @@ namespace NetworkTables
                     return false;
                 }
 
-                while ((lineStr = await reader.ReadLineAsync()) != null)
+                while ((lineStr = await reader.ReadLineAsync().ConfigureAwait(false)) != null)
                 {
                     string line = lineStr.Trim();
                     ++lineNum;
@@ -669,7 +669,7 @@ namespace NetworkTables
                 IDisposable monitor = null;
                 try
                 {
-                    monitor = await m_monitor.EnterAsync();
+                    monitor = await m_monitor.EnterAsync().ConfigureAwait(false);
                     foreach (var i in entries)
                     {
                         Entry entry;

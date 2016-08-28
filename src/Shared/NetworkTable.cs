@@ -507,7 +507,7 @@ namespace NetworkTables
         /// saving the file.</exception>
         public static async Task<string> SavePersistentAsync(string filename)
         {
-            return await NtCore.SavePersistentAsync(filename);
+            return await NtCore.SavePersistentAsync(filename).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -531,7 +531,7 @@ namespace NetworkTables
         /// loading the file.</exception>
         public static async Task<string[]> LoadPersistentAsync(string filename)
         {
-            return await NtCore.LoadPersistentAsync(filename);
+            return await NtCore.LoadPersistentAsync(filename).ConfigureAwait(false);
         }
 
         ///<inheritdoc/>
