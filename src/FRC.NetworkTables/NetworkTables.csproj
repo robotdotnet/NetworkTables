@@ -124,12 +124,18 @@
       <Link>Wire\WireEncoder.cs</Link>
     </Compile>
     <Compile Include="AsyncEx\AsyncAutoResetEvent.cs" />
+    <Compile Include="AsyncEx\AsyncConditionVariable.cs" />
+    <Compile Include="AsyncEx\AsyncLock.cs" />
+    <Compile Include="AsyncEx\AsyncMonitor.cs" />
     <Compile Include="AsyncEx\AsyncWaitQueue.cs" />
+    <Compile Include="AsyncEx\AwaitableDisposable.cs" />
     <Compile Include="AsyncEx\Deque.cs" />
     <Compile Include="AsyncEx\Enlightenment.cs" />
     <Compile Include="AsyncEx\ExceptionEnlightenment.cs" />
     <Compile Include="AsyncEx\ExceptionHelpers.cs" />
     <Compile Include="AsyncEx\IdManager.cs" />
+    <Compile Include="AsyncEx\TaskCompletionSource.cs" />
+    <Compile Include="AsyncEx\TaskCompletionSourceExtensions.cs" />
     <Compile Include="AsyncEx\TaskConstants.cs" />
     <Compile Include="AsyncEx\TaskExceptions.cs" />
     <Compile Include="AsyncEx\TaskShim.cs" />

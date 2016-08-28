@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NetworkTables.Exceptions;
+using System.Threading.Tasks;
 #if !CORE
 using NetworkTables.Logging;
 #endif
@@ -986,6 +987,20 @@ namespace NetworkTables
         }
 
         /// <summary>
+        /// Saves all persistent variables to the files specified asynchronously
+        /// </summary>
+        /// <param name="filename">The file to save to</param>
+        /// <returns>Error string, or null on success</returns>
+        public static async Task<string> SavePersistentAsync(string filename)
+        {
+#if CORE
+            return await Task.Run(() => CoreMethods.SavePersistent(filename));
+#else
+            return await Storage.Instance.SavePersistentAsync(filename, false);
+#endif
+        }
+
+        /// <summary>
         /// Loads persistent variables from a specified file
         /// </summary>
         /// <param name="filename">The file to load from</param>
@@ -997,6 +1012,21 @@ namespace NetworkTables
             return CoreMethods.LoadPersistent(filename, warn);
 #else
             return Storage.Instance.LoadPersistent(filename, warn);
+#endif
+        }
+
+        /// <summary>
+        /// Loads persistent variables from a specified file asynchronously
+        /// </summary>
+        /// <param name="filename">The file to load from</param>
+        /// <param name="warn">Function called whenever an error is seen during loading. Int is line number, string is message.</param>
+        /// <returns>Error string, or null on success</returns>
+        public static async Task<string> LoadPersistentAsync(string filename, Action<int, string> warn)
+        {
+#if CORE
+            return await Task.Run(() => CoreMethods.LoadPersistent(filename, warn));
+#else
+            return await Storage.Instance.LoadPersistentAsync(filename, warn);
 #endif
         }
 
@@ -1034,6 +1064,22 @@ namespace NetworkTables
         {
             List<string> warns = new List<string>();
             var err = LoadPersistent(filename, (i, s) =>
+            {
+                warns.Add($"{i}: {s}");
+            });
+            if (err != null) throw new PersistentException($"Load Persistent Failed: {err}");
+            return warns.ToArray();
+        }
+
+        /// <summary>
+        /// Loads persistent variables from a specified file asynchronously
+        /// </summary>
+        /// <param name="filename">The file to load from</param>
+        /// <returns>An array of all errors reported during loading</returns>
+        public static async Task<string[]> LoadPersistentAsync(string filename)
+        {
+            List<string> warns = new List<string>();
+            var err = await LoadPersistentAsync(filename, (i, s) =>
             {
                 warns.Add($"{i}: {s}");
             });
