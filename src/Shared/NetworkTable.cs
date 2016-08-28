@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NetworkTables.Exceptions;
 using NetworkTables.Tables;
 
@@ -493,9 +494,20 @@ namespace NetworkTables
         /// <param name="filename">The file name.</param>
         /// <exception cref="PersistentException">Thrown if there is an error
         /// saving the file.</exception>
-        public static void SavePersistent(string filename)
+        public static string SavePersistent(string filename)
         {
-            NtCore.SavePersistent(filename);
+            return NtCore.SavePersistent(filename);
+        }
+
+        /// <summary>
+        /// Saves persistent keys to a file asynchronously. The server does this automatically.
+        /// </summary>
+        /// <param name="filename">The file name.</param>
+        /// <exception cref="PersistentException">Thrown if there is an error
+        /// saving the file.</exception>
+        public static async Task<string> SavePersistentAsync(string filename)
+        {
+            return await NtCore.SavePersistentAsync(filename);
         }
 
         /// <summary>
@@ -508,6 +520,18 @@ namespace NetworkTables
         public static string[] LoadPersistent(string filename)
         {
             return NtCore.LoadPersistent(filename);
+        }
+
+        /// <summary>
+        /// Loads persistent keys from a file asynchronously. The server does this automatically.
+        /// </summary>
+        /// <param name="filename">The file name.</param>
+        /// <returns>A List of warnings (errors result in an exception instead.)</returns>
+        /// <exception cref="PersistentException">Thrown if there is an error
+        /// loading the file.</exception>
+        public static async Task<string[]> LoadPersistentAsync(string filename)
+        {
+            return await NtCore.LoadPersistentAsync(filename);
         }
 
         ///<inheritdoc/>
