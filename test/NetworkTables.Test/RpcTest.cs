@@ -89,10 +89,15 @@ namespace NetworkTables.Test
             RemoteProcedureCall.CreatePolledRpc("func1", def);
 
             Console.WriteLine("Calling RPC");
-
+            TimeSpan timeoutTime = TimeSpan.FromSeconds(1);
+            Stopwatch sw = Stopwatch.StartNew();
             RpcCallInfo info;
-            bool polled = RemoteProcedureCall.PollRpc(true, TimeSpan.FromSeconds(1), out info);
+            bool polled = RemoteProcedureCall.PollRpc(true, timeoutTime, out info);
+            sw.Stop();
             Assert.That(polled, Is.False);
+            TimeSpan tolerance = TimeSpan.FromSeconds(0.25);
+            Assert.That(sw.Elapsed < timeoutTime + tolerance);
+            Assert.That(sw.Elapsed > timeoutTime - tolerance);
         }
 
         [Test]
@@ -191,10 +196,16 @@ namespace NetworkTables.Test
             long call1Uid = 585;
 
             Console.WriteLine("Waiting for RPC Result");
+            TimeSpan timeoutTime = TimeSpan.FromSeconds(1);
+            Stopwatch sw = Stopwatch.StartNew();
             byte[] result = null;
-            bool success = RemoteProcedureCall.GetRpcResult(true, call1Uid, TimeSpan.FromSeconds(1), out result);
+            bool success = RemoteProcedureCall.GetRpcResult(true, call1Uid, timeoutTime, out result);
+            sw.Stop();
             Assert.That(success, Is.False);
             Assert.That(result, Is.Null);
+            TimeSpan tolerance = TimeSpan.FromSeconds(0.25);
+            Assert.That(sw.Elapsed < timeoutTime + tolerance);
+            Assert.That(sw.Elapsed > timeoutTime - tolerance);
         }
 
         [Test]
