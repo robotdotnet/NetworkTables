@@ -935,7 +935,7 @@ namespace NetworkTables.Core.Native
 
         #region IntPtrs To String Conversions
 
-        private static ConcurrentDictionary<string, NtStringWrite> s_keyCache = new ConcurrentDictionary<string, NtStringWrite>();
+        private static readonly ConcurrentDictionary<string, NtStringWrite> s_keyCache = new ConcurrentDictionary<string, NtStringWrite>();
 
         internal static IntPtr CreateCachedUTF8String(string str, out UIntPtr size)
         {

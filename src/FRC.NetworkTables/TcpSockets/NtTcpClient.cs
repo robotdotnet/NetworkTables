@@ -10,7 +10,7 @@ using static NetworkTables.Logging.Logger;
 
 namespace NetworkTables.TcpSockets
 {
-    internal class NtTcpClient : IDisposable, IClient
+    internal class NtTcpClient : IClient
     {
         private Socket m_clientSocket;
         private NetworkStream m_dataStream;

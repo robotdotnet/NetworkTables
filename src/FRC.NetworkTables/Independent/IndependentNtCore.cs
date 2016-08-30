@@ -183,7 +183,7 @@ namespace NetworkTables.Independent
         public bool GetEntryBoolean(string name)
         {
             var v = m_storage.GetEntryValue(name);
-            if (v == null || !v.IsBoolean()) NtCore.ThrowException(name, v, NtType.Boolean);
+            if (v == null || !v.IsBoolean()) throw NtCore.GetValueException(name, v, NtType.Boolean);
             return v.GetBoolean();
 
         }
@@ -192,7 +192,7 @@ namespace NetworkTables.Independent
         public double GetEntryDouble(string name)
         {
             var v = m_storage.GetEntryValue(name);
-            if (v == null || !v.IsDouble()) NtCore.ThrowException(name, v, NtType.Double);
+            if (v == null || !v.IsDouble()) throw NtCore.GetValueException(name, v, NtType.Double);
             return v.GetDouble();
 
         }
@@ -201,7 +201,7 @@ namespace NetworkTables.Independent
         public string GetEntryString(string name)
         {
             var v = m_storage.GetEntryValue(name);
-            if (v == null || !v.IsString()) NtCore.ThrowException(name, v, NtType.String);
+            if (v == null || !v.IsString()) throw NtCore.GetValueException(name, v, NtType.String);
             return v.GetString();
 
         }
@@ -210,7 +210,7 @@ namespace NetworkTables.Independent
         public bool[] GetEntryBooleanArray(string name)
         {
             var v = m_storage.GetEntryValue(name);
-            if (v == null || !v.IsBooleanArray()) NtCore.ThrowException(name, v, NtType.BooleanArray);
+            if (v == null || !v.IsBooleanArray()) throw NtCore.GetValueException(name, v, NtType.BooleanArray);
             return v.GetBooleanArray();
 
         }
@@ -219,7 +219,7 @@ namespace NetworkTables.Independent
         public double[] GetEntryDoubleArray(string name)
         {
             var v = m_storage.GetEntryValue(name);
-            if (v == null || !v.IsDoubleArray()) NtCore.ThrowException(name, v, NtType.DoubleArray);
+            if (v == null || !v.IsDoubleArray()) throw NtCore.GetValueException(name, v, NtType.DoubleArray);
             return v.GetDoubleArray();
 
         }
@@ -228,7 +228,7 @@ namespace NetworkTables.Independent
         public string[] GetEntryStringArray(string name)
         {
             var v = m_storage.GetEntryValue(name);
-            if (v == null || !v.IsStringArray()) NtCore.ThrowException(name, v, NtType.StringArray);
+            if (v == null || !v.IsStringArray()) throw NtCore.GetValueException(name, v, NtType.StringArray);
             return v.GetStringArray();
 
         }
@@ -237,7 +237,7 @@ namespace NetworkTables.Independent
         public byte[] GetEntryRaw(string name)
         {
             var v = m_storage.GetEntryValue(name);
-            if (v == null || !v.IsRaw()) NtCore.ThrowException(name, v, NtType.Raw);
+            if (v == null || !v.IsRaw()) throw NtCore.GetValueException(name, v, NtType.Raw);
             return v.GetRaw();
 
         }
@@ -364,7 +364,7 @@ namespace NetworkTables.Independent
             return m_storage.GetEntryInfo(prefix, types);
         }
 
-        /// <inheritdoc cref="NtCore.GetType"/>
+        /// <inheritdoc cref="NtCore.GetType(string)"/>
         public NtType GetType(string key)
         {
             var v = GetEntryValue(key);

@@ -72,6 +72,7 @@ namespace NetworkTables
                         await stream.WriteAsync(v.GetBoolean() ? "true" : "false").ConfigureAwait(false);
                         break;
                     case NtType.Double:
+                        // ReSharper disable once SpecifyACultureInStringConversionExplicitly
                         await stream.WriteAsync(v.GetDouble().ToString()).ConfigureAwait(false);
                         break;
                     case NtType.String:
@@ -95,6 +96,7 @@ namespace NetworkTables
                         {
                             if (!first) stream.Write(",");
                             first = false;
+                            // ReSharper disable once SpecifyACultureInStringConversionExplicitly
                             await stream.WriteAsync(b.ToString()).ConfigureAwait(false);
                         }
                         break;
@@ -401,7 +403,7 @@ namespace NetworkTables
             return err;
         }
 
-        private static Value ReadStringArray(string line, int lineNum, string strTok, List<string> stringArray, Action<int, string> warn)
+        private static Value ReadStringArray(string line, int lineNum, List<string> stringArray, Action<int, string> warn)
         {
             stringArray.Clear();
             while (!string.IsNullOrEmpty(line))
@@ -413,7 +415,7 @@ namespace NetworkTables
                     warn?.Invoke(lineNum, "missing string value");
                     return null;
                 }
-                if (strTok[strTok.Length - 1] != '"')
+                if (elemTok[elemTok.Length - 1] != '"')
                 {
                     warn?.Invoke(lineNum, "unterminated string value");
                     return null;
@@ -528,7 +530,6 @@ namespace NetworkTables
             List<bool> boolArray = new List<bool>();
             List<double> doubleArray = new List<double>();
             List<string> stringArray = new List<string>();
-            string strTok = null;
 
             using (StreamReader reader = new StreamReader(stream))
             {
@@ -627,6 +628,7 @@ namespace NetworkTables
                             value = Value.MakeDouble(tmpDouble);
                             break;
                         case NtType.String:
+                            string strTok;
                             ReadStringToken(out strTok, out line, line);
                             if (string.IsNullOrEmpty(strTok))
                             {
@@ -653,7 +655,7 @@ namespace NetworkTables
                             if (value == null) continue;
                             break;
                         case NtType.StringArray:
-                            value = ReadStringArray(line, lineNum, strTok, stringArray, warn);
+                            value = ReadStringArray(line, lineNum, stringArray, warn);
                             if (value == null) continue;
                             break;
                     }
@@ -725,7 +727,7 @@ namespace NetworkTables
                     if (m_queueOutgoing != null)
                     {
                         var queuOutgoing = m_queueOutgoing;
-                        var monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                        IDisposable monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                         monitorToUnlock.Dispose();
                         foreach (var msg in msgs) queuOutgoing(msg, null, null);
                     }
