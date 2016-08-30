@@ -1,5 +1,5 @@
 {
-  "version": "2017.0.1-beta-*",
+  "version": "3.0.0-beta-*",
   "title": "FRC NetworkTables",
   "description": "A Managed version of the NetworkTables3 Protocol.",
   "copyright": "Copyright 2016 RobotDotNet",
