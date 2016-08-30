@@ -149,7 +149,7 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                IDisposable monitorToUnlock = null;
+                IDisposable monitorToUnlock;
                 Message.MsgType type = msg.Type;
                 SequenceNumber seqNum;
                 Entry entry;
@@ -498,7 +498,6 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                IDisposable monitorToUnlock = null;
                 if (m_server) return;
 
                 conn.SetState(NetworkConnection.State.Synchronized);
@@ -576,7 +575,7 @@ namespace NetworkTables
                 }
 
                 var queueOutgoing = m_queueOutgoing;
-                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                IDisposable monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                 monitorToUnlock.Dispose();
                 foreach (var msg in updateMsgs) queueOutgoing(msg, null, null);
             }
@@ -611,7 +610,6 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                IDisposable monitorToUnlock = null;
                 Entry newEntry;
                 if (m_entries.TryGetValue(name, out newEntry)) // entry already exists
                 {
@@ -648,7 +646,7 @@ namespace NetworkTables
                 var queueOutgoing = m_queueOutgoing;
                 var msg = Message.EntryAssign(name, entry.Id, entry.SeqNum.Value, value, entry.Flags);
 
-                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                IDisposable monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                 monitorToUnlock.Dispose();
                 queueOutgoing(msg, null, null);
                 return true;
@@ -667,7 +665,7 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                IDisposable monitorToUnlock = null;
+                IDisposable monitorToUnlock;
                 Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {
@@ -738,7 +736,7 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                IDisposable monitorToUnlock = null;
+                IDisposable monitorToUnlock;
                 Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {
@@ -805,7 +803,6 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                IDisposable monitorToUnlock = null;
                 Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {
@@ -826,7 +823,7 @@ namespace NetworkTables
                 uint id = entry.Id;
                 if (id != 0xffff)
                 {
-                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                    IDisposable monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                     monitorToUnlock.Dispose();
                     queueOutgoing(Message.FlagsUpdate(id, flags), null, null);
                 }
@@ -860,7 +857,6 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                IDisposable monitorToUnlock = null;
                 Entry entry;
                 if (!m_entries.TryGetValue(name, out entry)) return;
                 uint id = entry.Id;
@@ -878,7 +874,7 @@ namespace NetworkTables
                 {
                     if (m_queueOutgoing == null) return;
                     var queueOutgoing = m_queueOutgoing;
-                    monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                    IDisposable monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                     monitorToUnlock.Dispose();
                     queueOutgoing(Message.EntryDelete(id), null, null);
                 }
@@ -926,14 +922,13 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                IDisposable monitorToUnlock = null;
                 if (m_entries.Count == 0) return;
 
                 DeleteAllEntriesImpl();
 
                 if (m_queueOutgoing == null) return;
                 var queueOutgoing = m_queueOutgoing;
-                monitorToUnlock = Interlocked.Exchange(ref monitor, null);
+                IDisposable monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                 monitorToUnlock.Dispose();
                 queueOutgoing(Message.ClearEntries(), null, null);
             }
@@ -984,7 +979,7 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                IDisposable monitorToUnlock = null;
+                IDisposable monitorToUnlock;
                 if (!m_server) return;
 
                 Entry entry;
@@ -1042,7 +1037,7 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                IDisposable monitorToUnlock = null;
+                IDisposable monitorToUnlock;
                 if (!m_server) return;
 
                 Entry entry;
@@ -1098,7 +1093,7 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                IDisposable monitorToUnlock = null;
+                IDisposable monitorToUnlock;
                 Entry entry;
                 if (!m_entries.TryGetValue(name, out entry))
                 {

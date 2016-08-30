@@ -303,15 +303,15 @@ namespace NetworkTables
         #region ThrowingGetters
 
 #if !CORE
-        internal static void ThrowException(string name, Value v, NtType requestedType)
+        internal static Exception GetValueException(string name, Value v, NtType requestedType)
         {
             if (v == null || v.Type == NtType.Unassigned)
             {
-                throw new TableKeyNotDefinedException(name);
+                return new TableKeyNotDefinedException(name);
             }
             else
             {
-                throw new TableKeyDifferentTypeException(name, requestedType, v.Type);
+                return new TableKeyDifferentTypeException(name, requestedType, v.Type);
             }
         }
 #endif
@@ -331,7 +331,7 @@ namespace NetworkTables
             return CoreMethods.GetEntryBoolean(name);
 #else
             var v = Storage.Instance.GetEntryValue(name);
-            if (v == null || !v.IsBoolean()) ThrowException(name, v, NtType.Boolean);
+            if (v == null || !v.IsBoolean()) throw GetValueException(name, v, NtType.Boolean);
             return v.GetBoolean();
 #endif
         }
@@ -351,7 +351,7 @@ namespace NetworkTables
             return CoreMethods.GetEntryDouble(name);
 #else
             var v = Storage.Instance.GetEntryValue(name);
-            if (v == null || !v.IsDouble()) ThrowException(name, v, NtType.Double);
+            if (v == null || !v.IsDouble()) throw GetValueException(name, v, NtType.Double);
             return v.GetDouble();
 #endif
         }
@@ -371,7 +371,7 @@ namespace NetworkTables
             return CoreMethods.GetEntryString(name);
 #else
             var v = Storage.Instance.GetEntryValue(name);
-            if (v == null || !v.IsString()) ThrowException(name, v, NtType.String);
+            if (v == null || !v.IsString()) throw GetValueException(name, v, NtType.String);
             return v.GetString();
 #endif
         }
@@ -391,7 +391,7 @@ namespace NetworkTables
             return CoreMethods.GetEntryBooleanArray(name);
 #else
             var v = Storage.Instance.GetEntryValue(name);
-            if (v == null || !v.IsBooleanArray()) ThrowException(name, v, NtType.BooleanArray);
+            if (v == null || !v.IsBooleanArray()) throw GetValueException(name, v, NtType.BooleanArray);
             return v.GetBooleanArray();
 #endif
         }
@@ -411,7 +411,7 @@ namespace NetworkTables
             return CoreMethods.GetEntryDoubleArray(name);
 #else
             var v = Storage.Instance.GetEntryValue(name);
-            if (v == null || !v.IsDoubleArray()) ThrowException(name, v, NtType.DoubleArray);
+            if (v == null || !v.IsDoubleArray()) throw GetValueException(name, v, NtType.DoubleArray);
             return v.GetDoubleArray();
 #endif
         }
@@ -431,7 +431,7 @@ namespace NetworkTables
             return CoreMethods.GetEntryStringArray(name);
 #else
             var v = Storage.Instance.GetEntryValue(name);
-            if (v == null || !v.IsStringArray()) ThrowException(name, v, NtType.StringArray);
+            if (v == null || !v.IsStringArray()) throw GetValueException(name, v, NtType.StringArray);
             return v.GetStringArray();
 #endif
         }
@@ -451,7 +451,7 @@ namespace NetworkTables
             return CoreMethods.GetEntryRaw(name);
 #else
             var v = Storage.Instance.GetEntryValue(name);
-            if (v == null || !v.IsRaw()) ThrowException(name, v, NtType.Raw);
+            if (v == null || !v.IsRaw()) throw GetValueException(name, v, NtType.Raw);
             return v.GetRaw();
 #endif
         }

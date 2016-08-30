@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+// ReSharper disable once RedundantUsingDirective
 using System.Runtime.InteropServices;
 
 namespace NetworkTables.Core.Native
