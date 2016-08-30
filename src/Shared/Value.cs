@@ -100,7 +100,7 @@ namespace NetworkTables
         /// Gets a enumerable of all the types supported by the <see cref="Value"/> class.
         /// </summary>
         /// <returns>An enumerable of all supported types</returns>
-        public IEnumerable<Type> GetSupportedValueTypes()
+        public static IEnumerable<Type> GetSupportedValueTypes()
         {
             yield return typeof(double);
             yield return typeof(bool);
