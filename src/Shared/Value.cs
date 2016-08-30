@@ -82,6 +82,10 @@ namespace NetworkTables
         /// <returns></returns>
         public bool IsStringArray() => Type == NtType.StringArray;
 
+        /// <summary>
+        /// Gets the raw object contained in this value.
+        /// </summary>
+        /// <returns></returns>
         public object GetObjectValue()
         {
             if (IsRaw()) return GetRaw();
@@ -92,6 +96,26 @@ namespace NetworkTables
             else return Val;
         }
 
+        /// <summary>
+        /// Gets a enumerable of all the types supported by the <see cref="Value"/> class.
+        /// </summary>
+        /// <returns>An enumerable of all supported types</returns>
+        public IEnumerable<Type> GetSupportedValueTypes()
+        {
+            yield return typeof(double);
+            yield return typeof(bool);
+            yield return typeof(string);
+            yield return typeof(byte[]);
+            yield return typeof(bool[]);
+            yield return typeof(double[]);
+            yield return typeof(string[]);
+        }
+
+        /// <summary>
+        /// Makes a value from a specific object
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns>The value if valid, otherwise an Empty value</returns>
         public static Value MakeValue(object val)
         {
             Value v = new Value();
