@@ -82,6 +82,75 @@ namespace NetworkTables
         /// <returns></returns>
         public bool IsStringArray() => Type == NtType.StringArray;
 
+        public object GetObjectValue()
+        {
+            if (IsRaw()) return GetRaw();
+            else if (IsRpc()) return GetRpc();
+            else if (IsBooleanArray()) return GetBooleanArray();
+            else if (IsDoubleArray()) return GetDoubleArray();
+            else if (IsStringArray()) return GetStringArray();
+            else return Val;
+        }
+
+        public T GetValue<T>(out bool success)
+        {
+            success = false;
+            if (Type == NtType.Unassigned)
+            {
+                return default(T);
+            }
+            else if (typeof(T) == typeof(double))
+            {
+                if (IsDouble()) success = true;
+            }
+            else if (typeof(T) == typeof(bool))
+            {
+                if (IsBoolean()) success = true;
+            }
+            else if (typeof(T) == typeof(string))
+            {
+                if (IsString()) success = true;
+            }
+            else if (typeof(T) == typeof(byte[]))
+            {
+                if (IsRaw())
+                {
+                    success = true;
+                    // Create copy of array
+                    return (T)(object)GetRaw();
+                }
+            }
+            else if (typeof(T) == typeof(bool[]))
+            {
+                if ((IsBooleanArray()))
+                {
+                    success = true;
+                    // Create copy of array
+                    return (T)(object)GetBooleanArray();
+                }
+            }
+            else if (typeof(T) == typeof(double[]))
+            {
+                if (IsDoubleArray())
+                {
+                    success = true;
+                    // Create copy of array
+                    return (T)(object)GetDoubleArray();
+                }
+            }
+            else if (typeof(T) == typeof(string[]))
+            {
+                if (IsStringArray())
+                {
+                    success = true;
+                    // Create copy of array
+                    return (T)(object)GetStringArray();
+                }
+            }
+            if (success) return (T) Val;
+            else return default(T);
+        }
+
         /// <summary>
         /// Gets the boolean value from the type
         /// </summary>

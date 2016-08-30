@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using NetworkTables.Exceptions;
 using NetworkTables.Tables;
@@ -311,8 +312,6 @@ namespace NetworkTables.Test.NetworkTablesApi
 
         #region Getters and Setters
 
-        // TODO: Rewrite
-        /*
         [Test]
         [TestCase(3.56, ExpectedResult = 3.56)]
         [TestCase(true, ExpectedResult = true)]
@@ -355,9 +354,8 @@ namespace NetworkTables.Test.NetworkTablesApi
             {
                 throw new ArgumentException("Value is either null or an invalid type.");
             }
-            return m_table.GetValue(key);
+            return m_table.GetValue(key).GetObjectValue();
         }
-        */
 
         [Test]
         public void TestGetValueStringArray()
@@ -379,8 +377,6 @@ namespace NetworkTables.Test.NetworkTablesApi
             Assert.Throws<TableKeyNotDefinedException>(() => m_table.GetValue("key"));
         }
 
-        // TODO: Rewrite
-        /*
         [Test]
         [TestCase(3.56, ExpectedResult = 3.56)]
         [TestCase(true, ExpectedResult = true)]
@@ -423,9 +419,8 @@ namespace NetworkTables.Test.NetworkTablesApi
             {
                 throw new ArgumentException("Value is either null or an invalid type.");
             }
-            return m_table.GetValue(key, null);
+            return m_table.GetValue(key, null).GetObjectValue();
         }
-        */
 
         [Test]
         public void TestGetValueStringArrayDefault()

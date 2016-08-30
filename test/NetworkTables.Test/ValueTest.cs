@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using NetworkTables.Exceptions;
 using NUnit.Framework;
@@ -55,6 +56,10 @@ namespace NetworkTables.Test
             v = Value.MakeBoolean(true);
             Assert.That(v.Type, Is.EqualTo(NtType.Boolean));
             Assert.That(v.GetBoolean(), Is.True);
+            bool genericSuccess;
+            var retVal = v.GetValue<bool>(out genericSuccess);
+            Assert.That(genericSuccess, Is.True);
+            Assert.That(retVal, Is.True);
         }
 
         [Test]
@@ -68,6 +73,10 @@ namespace NetworkTables.Test
             v = Value.MakeDouble(0.25);
             Assert.That(v.Type, Is.EqualTo(NtType.Double));
             Assert.That(v.GetDouble(), Is.EqualTo(0.25));
+            bool genericSuccess;
+            var retVal = v.GetValue<double>(out genericSuccess);
+            Assert.That(genericSuccess, Is.True);
+            Assert.That(retVal, Is.EqualTo(0.25));
         }
 
         [Test]
@@ -81,6 +90,10 @@ namespace NetworkTables.Test
             v = Value.MakeString("goodbye");
             Assert.That(v.Type, Is.EqualTo(NtType.String));
             Assert.That(v.GetString(), Is.EqualTo("goodbye"));
+            bool genericSuccess;
+            var retVal = v.GetValue<string>(out genericSuccess);
+            Assert.That(genericSuccess, Is.True);
+            Assert.That(retVal, Is.EqualTo("goodbye"));
         }
 
         [Test]
@@ -119,6 +132,11 @@ namespace NetworkTables.Test
             Assert.That(v.Type, Is.EqualTo(NtType.Raw));
             Assert.That(ReferenceEquals(v.GetRaw(), raw), Is.False);
             Assert.That(v.GetRaw(), Is.EquivalentTo(raw));
+
+            bool genericSuccess;
+            var retVal = v.GetValue<byte[]>(out genericSuccess);
+            Assert.That(genericSuccess, Is.True);
+            Assert.That(retVal, Is.EquivalentTo(raw));
         }
 
         [Test]
@@ -195,6 +213,10 @@ namespace NetworkTables.Test
             Assert.That(v.Type, Is.EqualTo(NtType.BooleanArray));
             Assert.That(ReferenceEquals(v.GetBooleanArray(), raw), Is.False);
             Assert.That(v.GetBooleanArray(), Is.EquivalentTo(raw));
+            bool genericSuccess;
+            var retVal = v.GetValue<bool[]>(out genericSuccess);
+            Assert.That(genericSuccess, Is.True);
+            Assert.That(retVal, Is.EquivalentTo(raw));
         }
 
         [Test]
@@ -233,6 +255,10 @@ namespace NetworkTables.Test
             Assert.That(v.Type, Is.EqualTo(NtType.DoubleArray));
             Assert.That(ReferenceEquals(v.GetDoubleArray(), raw), Is.False);
             Assert.That(v.GetDoubleArray(), Is.EquivalentTo(raw));
+            bool genericSuccess;
+            var retVal = v.GetValue<double[]>(out genericSuccess);
+            Assert.That(genericSuccess, Is.True);
+            Assert.That(retVal, Is.EquivalentTo(raw));
         }
 
         [Test]
@@ -271,6 +297,10 @@ namespace NetworkTables.Test
             Assert.That(v.Type, Is.EqualTo(NtType.StringArray));
             Assert.That(ReferenceEquals(v.GetStringArray(), raw), Is.False);
             Assert.That(v.GetStringArray(), Is.EquivalentTo(raw));
+            bool genericSuccess;
+            var retVal = v.GetValue<string[]>(out genericSuccess);
+            Assert.That(genericSuccess, Is.True);
+            Assert.That(retVal, Is.EquivalentTo(raw));
         }
 
 
@@ -526,6 +556,16 @@ namespace NetworkTables.Test
             Assert.That(ex.ThrownByValueGet, Is.True);
             Assert.That(ex.TypeInTable, Is.EqualTo(NtType.Unassigned));
             Assert.That(ex.RequestedType, Is.EqualTo(NtType.StringArray));
+
+            bool genericSuccess;
+            v.GetValue<bool>(out genericSuccess);
+            Assert.That(genericSuccess, Is.False);
+            v.GetValue<TimeSpan>(out genericSuccess);
+            Assert.That(genericSuccess, Is.False);
+            v.GetValue<List<string>>(out genericSuccess);
+            Assert.That(genericSuccess, Is.False);
+            v.GetValue<int[]>(out genericSuccess);
+            Assert.That(genericSuccess, Is.False);
         }
 
         [Test]
