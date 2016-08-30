@@ -92,6 +92,43 @@ namespace NetworkTables
             else return Val;
         }
 
+        public static Value MakeValue(object val)
+        {
+            Value v = new Value();
+            if (val is double)
+            {
+                return MakeDouble((double) val);
+            }
+            else if (val is bool)
+            {
+                return MakeBoolean((bool) val);
+            }
+            else if (val is string)
+            {
+                return MakeString((string)val);
+            }
+            else if (val is byte[])
+            {
+                return MakeRaw((byte[])val);
+            }
+            else if (val is double[])
+            {
+                return MakeDoubleArray((double[])val);
+            }
+            else if (val is bool[])
+            {
+                return MakeBooleanArray((bool[])val);
+            }
+            else if (val is string[])
+            {
+                return MakeStringArray((string[]) val);
+            }
+            else
+            {
+                return MakeEmpty();
+            }
+        }
+
         public T GetValue<T>(out bool success)
         {
             success = false;
@@ -147,7 +184,7 @@ namespace NetworkTables
                     return (T)(object)GetStringArray();
                 }
             }
-            if (success) return (T) Val;
+            if (success) return (T)Val;
             else return default(T);
         }
 
