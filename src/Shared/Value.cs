@@ -153,6 +153,12 @@ namespace NetworkTables
             }
         }
 
+        /// <summary>
+        /// Gets a copy of the value using a generic parameter.
+        /// </summary>
+        /// <typeparam name="T">The type of value to return</typeparam>
+        /// <param name="success">True if the type is the value type, otherwise false</param>
+        /// <returns>The value contained in this value.</returns>
         public T GetValue<T>(out bool success)
         {
             success = false;
