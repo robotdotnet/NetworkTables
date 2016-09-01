@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using NetworkTables.Core.Native;
+using NetworkTables.Core.NativeLibraryUtilities;
 using NUnit.Framework;
 
 namespace NetworkTables.Core.Test.SpecScanners
@@ -124,7 +125,7 @@ namespace NetworkTables.Core.Test.SpecScanners
         [Test]
         public void TestRoboRioMapsToNativeAssemblySymbols()
         {
-            OsType type = LoaderUtilities.GetOsType();
+            OsType type = NativeLibraryLoader.GetOsType();
 
             //Only run the roboRIO symbol test on windows.
             if (type != OsType.Windows32 && type != OsType.Windows64) Assert.Pass();
@@ -221,7 +222,7 @@ namespace NetworkTables.Core.Test.SpecScanners
             int numberNonChangingBytes = 16;
             int numberPointers = 0;
             //Check for mac changes
-            OsType type = LoaderUtilities.GetOsType();
+            OsType type = NativeLibraryLoader.GetOsType();
             if(type == OsType.MacOs32 || type == OsType.MacOs64)
             {
                 //No padding byte added on Mac OS X.
@@ -285,7 +286,7 @@ namespace NetworkTables.Core.Test.SpecScanners
         [Test]
         public void TestNativeIntefaceBlittable()
         {
-            OsType type = LoaderUtilities.GetOsType();
+            OsType type = NativeLibraryLoader.GetOsType();
             //Only run the blittable test on windows. Pathing on linux is being an issue
             if (type != OsType.Windows32 && type != OsType.Windows64) Assert.Pass();
 
