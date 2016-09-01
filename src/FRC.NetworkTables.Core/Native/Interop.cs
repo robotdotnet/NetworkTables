@@ -120,9 +120,9 @@ namespace NetworkTables.Core.Native
                         if (s_osType == OsType.Armv7HardFloat)
                         {
                             //We are arm v7. We might need the special libstdc++.so.6;
-                            Console.WriteLine("You are on an Arm V7 device. On most of these devices, a " 
+                            Console.WriteLine("You are on an Arm V7 device. On most of these devices, a "
                                 + "special library needs to be loaded. This library has been extracted" +
-                                " to the current directory. Please prepend your run command with\n" + 
+                                " to the current directory. Please prepend your run command with\n" +
                                 "env LD_LIBRARY_PATH=.:LD_LIBRARY_PATH yourcommand\nand run again.");
                             throw new InvalidOperationException("Follow the instructions printed above to solve this error.");
                         }
@@ -131,8 +131,7 @@ namespace NetworkTables.Core.Native
                             throw new BadImageFormatException($"Library file {s_libraryLocation} could not be loaded successfully.");
                         }
                     }
-
-                    InitializeDelegates(s_library, s_loader);
+                    DelegateInitializer.SetupDelegates(typeof(Interop), s_library, s_loader);
                 }
                 catch (Exception e)
                 {
@@ -143,83 +142,6 @@ namespace NetworkTables.Core.Native
                 s_runFinalizer = true;
                 s_libraryLoaded = true;
             }
-        }
-
-        private static void InitializeDelegates(IntPtr library, ILibraryLoader loader)
-        {
-#pragma warning disable CS0618
-            NT_SetEntryFlags = (NT_SetEntryFlagsDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryFlags"), typeof(NT_SetEntryFlagsDelegate));
-            NT_GetEntryFlags = (NT_GetEntryFlagsDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetEntryFlags"), typeof(NT_GetEntryFlagsDelegate));
-            NT_DeleteEntry = (NT_DeleteEntryDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_DeleteEntry"), typeof(NT_DeleteEntryDelegate));
-            NT_DeleteAllEntries = (NT_DeleteAllEntriesDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_DeleteAllEntries"), typeof(NT_DeleteAllEntriesDelegate));
-            NT_GetEntryInfo = (NT_GetEntryInfoDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetEntryInfo"), typeof(NT_GetEntryInfoDelegate));
-            NT_Flush = (NT_FlushDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_Flush"), typeof(NT_FlushDelegate));
-            NT_AddEntryListener = (NT_AddEntryListenerDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_AddEntryListener"), typeof(NT_AddEntryListenerDelegate));
-            NT_RemoveEntryListener = (NT_RemoveEntryListenerDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_RemoveEntryListener"), typeof(NT_RemoveEntryListenerDelegate));
-            NT_AddConnectionListener = (NT_AddConnectionListenerDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_AddConnectionListener"), typeof(NT_AddConnectionListenerDelegate));
-            NT_RemoveConnectionListener = (NT_RemoveConnectionListenerDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_RemoveConnectionListener"), typeof(NT_RemoveConnectionListenerDelegate));
-            NT_SetNetworkIdentity = (NT_SetNetworkIdentityDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetNetworkIdentity"), typeof(NT_SetNetworkIdentityDelegate));
-            NT_StartServer = (NT_StartServerDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StartServer"), typeof(NT_StartServerDelegate));
-            NT_StopServer = (NT_StopServerDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StopServer"), typeof(NT_StopServerDelegate));
-            NT_StartClient = (NT_StartClientDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StartClient"), typeof(NT_StartClientDelegate));
-            NT_StartClientMulti = (NT_StartClientMultiDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StartClientMulti"), typeof(NT_StartClientMultiDelegate));
-            NT_StopClient = (NT_StopClientDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StopClient"), typeof(NT_StopClientDelegate));
-            NT_StopRpcServer = (NT_StopRpcServerDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StopRpcServer"), typeof(NT_StopRpcServerDelegate));
-            NT_StopNotifier = (NT_StopNotifierDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_StopNotifier"), typeof(NT_StopNotifierDelegate));
-            NT_NotifierDestroyed = (NT_NotifierDestroyedDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_NotifierDestroyed"), typeof(NT_NotifierDestroyedDelegate));
-            NT_SetUpdateRate = (NT_SetUpdateRateDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetUpdateRate"), typeof(NT_SetUpdateRateDelegate));
-            NT_GetConnections = (NT_GetConnectionsDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetConnections"), typeof(NT_GetConnectionsDelegate));
-            NT_SavePersistent = (NT_SavePersistentDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SavePersistent"), typeof(NT_SavePersistentDelegate));
-            NT_LoadPersistent = (NT_LoadPersistentDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_LoadPersistent"), typeof(NT_LoadPersistentDelegate));
-            NT_DisposeValue = (NT_DisposeValueDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_DisposeValue"), typeof(NT_DisposeValueDelegate));
-            NT_InitValue = (NT_InitValueDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_InitValue"), typeof(NT_InitValueDelegate));
-            NT_DisposeString = (NT_DisposeStringDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_DisposeString"), typeof(NT_DisposeStringDelegate));
-            NT_GetType = (NT_GetTypeDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetType"), typeof(NT_GetTypeDelegate));
-            NT_DisposeConnectionInfoArray = (NT_DisposeConnectionInfoArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_DisposeConnectionInfoArray"), typeof(NT_DisposeConnectionInfoArrayDelegate));
-            NT_DisposeEntryInfoArray = (NT_DisposeEntryInfoArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_DisposeEntryInfoArray"), typeof(NT_DisposeEntryInfoArrayDelegate));
-            NT_Now = (NT_NowDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_Now"), typeof(NT_NowDelegate));
-            NT_SetLogger = (NT_SetLoggerDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetLogger"), typeof(NT_SetLoggerDelegate));
-            NT_AllocateCharArray = (NT_AllocateCharArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_AllocateCharArray"), typeof(NT_AllocateCharArrayDelegate));
-            NT_FreeBooleanArray = (NT_FreeBooleanArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_FreeBooleanArray"), typeof(NT_FreeBooleanArrayDelegate));
-            NT_FreeDoubleArray = (NT_FreeDoubleArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_FreeDoubleArray"), typeof(NT_FreeDoubleArrayDelegate));
-            NT_FreeCharArray = (NT_FreeCharArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_FreeCharArray"), typeof(NT_FreeCharArrayDelegate));
-            NT_FreeStringArray = (NT_FreeStringArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_FreeStringArray"), typeof(NT_FreeStringArrayDelegate));
-            NT_GetValueType = (NT_GetValueTypeDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetValueType"), typeof(NT_GetValueTypeDelegate));
-            NT_GetValueBoolean = (NT_GetValueBooleanDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetValueBoolean"), typeof(NT_GetValueBooleanDelegate));
-            NT_GetValueDouble = (NT_GetValueDoubleDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetValueDouble"), typeof(NT_GetValueDoubleDelegate));
-            NT_GetValueString = (NT_GetValueStringDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetValueString"), typeof(NT_GetValueStringDelegate));
-            NT_GetValueRaw = (NT_GetValueRawDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetValueRaw"), typeof(NT_GetValueRawDelegate));
-            NT_GetValueBooleanArray = (NT_GetValueBooleanArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetValueBooleanArray"), typeof(NT_GetValueBooleanArrayDelegate));
-            NT_GetValueDoubleArray = (NT_GetValueDoubleArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetValueDoubleArray"), typeof(NT_GetValueDoubleArrayDelegate));
-            NT_GetValueStringArray = (NT_GetValueStringArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetValueStringArray"), typeof(NT_GetValueStringArrayDelegate));
-            NT_GetEntryBoolean = (NT_GetEntryBooleanDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetEntryBoolean"), typeof(NT_GetEntryBooleanDelegate));
-            NT_GetEntryDouble = (NT_GetEntryDoubleDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetEntryDouble"), typeof(NT_GetEntryDoubleDelegate));
-            NT_GetEntryString = (NT_GetEntryStringDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetEntryString"), typeof(NT_GetEntryStringDelegate));
-            NT_GetEntryRaw = (NT_GetEntryRawDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetEntryRaw"), typeof(NT_GetEntryRawDelegate));
-            NT_GetEntryBooleanArray = (NT_GetEntryBooleanArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetEntryBooleanArray"), typeof(NT_GetEntryBooleanArrayDelegate));
-            NT_GetEntryDoubleArray = (NT_GetEntryDoubleArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetEntryDoubleArray"), typeof(NT_GetEntryDoubleArrayDelegate));
-            NT_GetEntryStringArray = (NT_GetEntryStringArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetEntryStringArray"), typeof(NT_GetEntryStringArrayDelegate));
-            NT_SetEntryBoolean = (NT_SetEntryBooleanDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryBoolean"), typeof(NT_SetEntryBooleanDelegate));
-            NT_SetEntryDouble = (NT_SetEntryDoubleDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryDouble"), typeof(NT_SetEntryDoubleDelegate));
-            NT_SetEntryString = (NT_SetEntryStringDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryString"), typeof(NT_SetEntryStringDelegate));
-            NT_SetEntryRaw = (NT_SetEntryRawDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryRaw"), typeof(NT_SetEntryRawDelegate));
-            NT_SetEntryBooleanArray = (NT_SetEntryBooleanArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryBooleanArray"), typeof(NT_SetEntryBooleanArrayDelegate));
-            NT_SetEntryDoubleArray = (NT_SetEntryDoubleArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryDoubleArray"), typeof(NT_SetEntryDoubleArrayDelegate));
-            NT_SetEntryStringArray = (NT_SetEntryStringArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryStringArray"), typeof(NT_SetEntryStringArrayDelegate));
-            NT_SetDefaultEntryBoolean = (NT_SetDefaultEntryBooleanDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryBoolean"), typeof(NT_SetDefaultEntryBooleanDelegate));
-            NT_SetDefaultEntryDouble = (NT_SetDefaultEntryDoubleDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryDouble"), typeof(NT_SetDefaultEntryDoubleDelegate));
-            NT_SetDefaultEntryString = (NT_SetDefaultEntryStringDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryString"), typeof(NT_SetDefaultEntryStringDelegate));
-            NT_SetDefaultEntryRaw = (NT_SetDefaultEntryRawDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryRaw"), typeof(NT_SetDefaultEntryRawDelegate));
-            NT_SetDefaultEntryBooleanArray = (NT_SetDefaultEntryBooleanArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryBooleanArray"), typeof(NT_SetDefaultEntryBooleanArrayDelegate));
-            NT_SetDefaultEntryDoubleArray = (NT_SetDefaultEntryDoubleArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryDoubleArray"), typeof(NT_SetDefaultEntryDoubleArrayDelegate));
-            NT_SetDefaultEntryStringArray = (NT_SetDefaultEntryStringArrayDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_SetEntryStringArray"), typeof(NT_SetDefaultEntryStringArrayDelegate));
-            NT_CreateRpc = (NT_CreateRpcDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_CreateRpc"), typeof(NT_CreateRpcDelegate));
-            NT_CreatePolledRpc = (NT_CreatePolledRpcDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_CreatePolledRpc"), typeof(NT_CreatePolledRpcDelegate));
-            NT_PollRpc = (NT_PollRpcDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_PollRpc"), typeof(NT_PollRpcDelegate));
-            NT_PostRpcResponse = (NT_PostRpcResponseDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_PostRpcResponse"), typeof(NT_PostRpcResponseDelegate));
-            NT_CallRpc = (NT_CallRpcDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_CallRpc"), typeof(NT_CallRpcDelegate));
-            NT_GetRpcResult = (NT_GetRpcResultDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetRpcResult"), typeof(NT_GetRpcResultDelegate));
-#pragma warning restore CS0618
         }
 
 
@@ -389,78 +311,149 @@ namespace NetworkTables.Core.Native
         internal delegate IntPtr NT_GetRpcResultDelegate(int blocking, uint call_uid, ref UIntPtr result_len);
 
 
+        [NativeDelegate]
         internal static NT_SetEntryFlagsDelegate NT_SetEntryFlags;
+        [NativeDelegate]
         internal static NT_GetEntryFlagsDelegate NT_GetEntryFlags;
+        [NativeDelegate]
         internal static NT_DeleteEntryDelegate NT_DeleteEntry;
+        [NativeDelegate]
         internal static NT_DeleteAllEntriesDelegate NT_DeleteAllEntries;
+        [NativeDelegate]
         internal static NT_GetEntryInfoDelegate NT_GetEntryInfo;
+        [NativeDelegate]
         internal static NT_FlushDelegate NT_Flush;
+        [NativeDelegate]
         internal static NT_AddEntryListenerDelegate NT_AddEntryListener;
+        [NativeDelegate]
         internal static NT_RemoveEntryListenerDelegate NT_RemoveEntryListener;
+        [NativeDelegate]
         internal static NT_AddConnectionListenerDelegate NT_AddConnectionListener;
+        [NativeDelegate]
         internal static NT_RemoveConnectionListenerDelegate NT_RemoveConnectionListener;
+        [NativeDelegate]
         internal static NT_SetNetworkIdentityDelegate NT_SetNetworkIdentity;
+        [NativeDelegate]
         internal static NT_StartServerDelegate NT_StartServer;
+        [NativeDelegate]
         internal static NT_StopServerDelegate NT_StopServer;
+        [NativeDelegate]
         internal static NT_StartClientDelegate NT_StartClient;
+        [NativeDelegate]
         internal static NT_StartClientMultiDelegate NT_StartClientMulti;
+        [NativeDelegate]
         internal static NT_StopClientDelegate NT_StopClient;
+        [NativeDelegate]
         internal static NT_StopRpcServerDelegate NT_StopRpcServer;
+        [NativeDelegate]
         internal static NT_StopNotifierDelegate NT_StopNotifier;
+        [NativeDelegate]
         internal static NT_NotifierDestroyedDelegate NT_NotifierDestroyed;
+        [NativeDelegate]
         internal static NT_SetUpdateRateDelegate NT_SetUpdateRate;
+        [NativeDelegate]
         internal static NT_GetConnectionsDelegate NT_GetConnections;
+        [NativeDelegate]
         internal static NT_SavePersistentDelegate NT_SavePersistent;
+        [NativeDelegate]
         internal static NT_LoadPersistentDelegate NT_LoadPersistent;
+        [NativeDelegate]
         internal static NT_DisposeValueDelegate NT_DisposeValue;
+        [NativeDelegate]
         internal static NT_InitValueDelegate NT_InitValue;
+        [NativeDelegate]
         internal static NT_DisposeStringDelegate NT_DisposeString;
+        [NativeDelegate]
         internal static NT_GetTypeDelegate NT_GetType;
+        [NativeDelegate]
         internal static NT_DisposeConnectionInfoArrayDelegate NT_DisposeConnectionInfoArray;
+        [NativeDelegate]
         internal static NT_DisposeEntryInfoArrayDelegate NT_DisposeEntryInfoArray;
+        [NativeDelegate]
         internal static NT_NowDelegate NT_Now;
+        [NativeDelegate]
         internal static NT_SetLoggerDelegate NT_SetLogger;
+        [NativeDelegate]
         internal static NT_AllocateCharArrayDelegate NT_AllocateCharArray;
+        [NativeDelegate]
         internal static NT_FreeBooleanArrayDelegate NT_FreeBooleanArray;
+        [NativeDelegate]
         internal static NT_FreeDoubleArrayDelegate NT_FreeDoubleArray;
+        [NativeDelegate]
         internal static NT_FreeCharArrayDelegate NT_FreeCharArray;
+        [NativeDelegate]
         internal static NT_FreeStringArrayDelegate NT_FreeStringArray;
+        [NativeDelegate]
         internal static NT_GetValueTypeDelegate NT_GetValueType;
+        [NativeDelegate]
         internal static NT_GetValueBooleanDelegate NT_GetValueBoolean;
+        [NativeDelegate]
         internal static NT_GetValueDoubleDelegate NT_GetValueDouble;
+        [NativeDelegate]
         internal static NT_GetValueStringDelegate NT_GetValueString;
+        [NativeDelegate]
         internal static NT_GetValueRawDelegate NT_GetValueRaw;
+        [NativeDelegate]
         internal static NT_GetValueBooleanArrayDelegate NT_GetValueBooleanArray;
+        [NativeDelegate]
         internal static NT_GetValueDoubleArrayDelegate NT_GetValueDoubleArray;
+        [NativeDelegate]
         internal static NT_GetValueStringArrayDelegate NT_GetValueStringArray;
+        [NativeDelegate]
         internal static NT_GetEntryBooleanDelegate NT_GetEntryBoolean;
+        [NativeDelegate]
         internal static NT_GetEntryDoubleDelegate NT_GetEntryDouble;
+        [NativeDelegate]
         internal static NT_GetEntryStringDelegate NT_GetEntryString;
+        [NativeDelegate]
         internal static NT_GetEntryRawDelegate NT_GetEntryRaw;
+        [NativeDelegate]
         internal static NT_GetEntryBooleanArrayDelegate NT_GetEntryBooleanArray;
+        [NativeDelegate]
         internal static NT_GetEntryDoubleArrayDelegate NT_GetEntryDoubleArray;
+        [NativeDelegate]
         internal static NT_GetEntryStringArrayDelegate NT_GetEntryStringArray;
+        [NativeDelegate]
         internal static NT_SetEntryBooleanDelegate NT_SetEntryBoolean;
+        [NativeDelegate]
         internal static NT_SetEntryDoubleDelegate NT_SetEntryDouble;
+        [NativeDelegate]
         internal static NT_SetEntryStringDelegate NT_SetEntryString;
+        [NativeDelegate]
         internal static NT_SetEntryRawDelegate NT_SetEntryRaw;
+        [NativeDelegate]
         internal static NT_SetEntryBooleanArrayDelegate NT_SetEntryBooleanArray;
+        [NativeDelegate]
         internal static NT_SetEntryDoubleArrayDelegate NT_SetEntryDoubleArray;
+        [NativeDelegate]
         internal static NT_SetEntryStringArrayDelegate NT_SetEntryStringArray;
 
+        [NativeDelegate]
         internal static NT_SetDefaultEntryBooleanDelegate NT_SetDefaultEntryBoolean;
+        [NativeDelegate]
         internal static NT_SetDefaultEntryDoubleDelegate NT_SetDefaultEntryDouble;
+        [NativeDelegate]
         internal static NT_SetDefaultEntryStringDelegate NT_SetDefaultEntryString;
+        [NativeDelegate]
         internal static NT_SetDefaultEntryRawDelegate NT_SetDefaultEntryRaw;
+        [NativeDelegate]
         internal static NT_SetDefaultEntryBooleanArrayDelegate NT_SetDefaultEntryBooleanArray;
+        [NativeDelegate]
         internal static NT_SetDefaultEntryDoubleArrayDelegate NT_SetDefaultEntryDoubleArray;
+        [NativeDelegate]
         internal static NT_SetDefaultEntryStringArrayDelegate NT_SetDefaultEntryStringArray;
 
+        [NativeDelegate]
         internal static NT_CreateRpcDelegate NT_CreateRpc;
+        [NativeDelegate]
         internal static NT_CreatePolledRpcDelegate NT_CreatePolledRpc;
+        [NativeDelegate]
         internal static NT_PollRpcDelegate NT_PollRpc;
+        [NativeDelegate]
         internal static NT_PostRpcResponseDelegate NT_PostRpcResponse;
+        [NativeDelegate]
         internal static NT_CallRpcDelegate NT_CallRpc;
+        [NativeDelegate]
         internal static NT_GetRpcResultDelegate NT_GetRpcResult;
     }
 }
