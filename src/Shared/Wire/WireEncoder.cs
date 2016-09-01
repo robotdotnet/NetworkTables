@@ -10,6 +10,8 @@ namespace NetworkTables.Wire
     /// </summary>
     public class WireEncoder
     {
+        private IFastBitConverter m_fastBitConverter;
+
         private readonly List<byte> m_buffer = new List<byte>(1024);
 
         /// <summary>
@@ -28,9 +30,7 @@ namespace NetworkTables.Wire
         /// <param name="val">The value to write</param>
         public void WriteDouble(double val)
         {
-            byte[] bytes = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(BitConverter.DoubleToInt64Bits(val)));
-
-            m_buffer.AddRange(bytes);
+            m_fastBitConverter.AddDouble(m_buffer, val);
         }
 
         /// <summary>
@@ -50,6 +50,14 @@ namespace NetworkTables.Wire
         /// <param name="protoRev">The protocol vision for the encoder</param>
         public WireEncoder(int protoRev)
         {
+            if (BitConverter.IsLittleEndian)
+            {
+                m_fastBitConverter = new FastBitConverterLE();
+            }
+            else
+            {
+                m_fastBitConverter = new FastBitConverterBE();
+            }
             ProtoRev = protoRev;
         }
 
@@ -77,8 +85,7 @@ namespace NetworkTables.Wire
         /// <param name="val">The ushort to write to the encoder</param>
         public void Write16(ushort val)
         {
-            var tmp = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)val));
-            m_buffer.AddRange(tmp);
+            m_fastBitConverter.AddUShort(m_buffer, val);
         }
 
         /// <summary>
@@ -87,7 +94,7 @@ namespace NetworkTables.Wire
         /// <param name="val">The uint to write to the encoder</param>
         public void Write32(uint val)
         {
-            m_buffer.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((int)val)));
+            m_fastBitConverter.AddUInt(m_buffer, val);
         }
 
         /// <summary>

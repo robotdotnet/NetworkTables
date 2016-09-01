@@ -38,6 +38,9 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "NetworkTables.Core.Test", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Wire", "Wire", "{1046D479-84E0-47C7-8EAA-8A032FCE39B4}"
 	ProjectSection(SolutionItems) = preProject
+		src\Shared\Wire\FastBitConverterBE.cs = src\Shared\Wire\FastBitConverterBE.cs
+		src\Shared\Wire\FastBitConverterLE.cs = src\Shared\Wire\FastBitConverterLE.cs
+		src\Shared\Wire\IFastBitConverter.cs = src\Shared\Wire\IFastBitConverter.cs
 		src\Shared\Wire\Leb128.cs = src\Shared\Wire\Leb128.cs
 		src\Shared\Wire\WireDecoder.cs = src\Shared\Wire\WireDecoder.cs
 		src\Shared\Wire\WireEncoder.cs = src\Shared\Wire\WireEncoder.cs
