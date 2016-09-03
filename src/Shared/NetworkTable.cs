@@ -1041,6 +1041,11 @@ namespace NetworkTables
             return NtCore.GetConnections();
         }
 
+        public static int AddConnectionListener(ConnectionListenerCallback callback, bool immediateNotify)
+        {
+            return NtCore.AddConnectionListener(callback, immediateNotify);
+        }
+
         /// <inheritdoc/>
         public bool SetDefaultValue(string key, Value defaultValue)
         {

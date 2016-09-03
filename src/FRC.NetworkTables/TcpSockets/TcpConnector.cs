@@ -26,7 +26,10 @@ namespace NetworkTables.TcpSockets
                     // Sockets don't all support IPV6
                     if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
                     {
-                        addresses.Add(ipAddress);
+                        if (!addresses.Contains(ipAddress))
+                        {
+                            addresses.Add(ipAddress);
+                        }
                     }
                 }
                 addr = addresses.ToArray();
