@@ -41,10 +41,9 @@
       ]
     },
     "xmlDoc": true
-
   },
   "frameworks": {
-    "net451": {},
+    "net46": {},
     "netstandard1.3": {
       "dependencies": {
         "System.Collections": "4.0.11",
@@ -71,5 +70,8 @@
     "Debug": {
       "define": [ "DEBUG" ]
     }
+  },
+  "dependencies": {
+    "Nito.AsyncEx.Coordination": "1.0.2"
   }
 }

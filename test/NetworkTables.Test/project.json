@@ -10,7 +10,7 @@
     "NUnit": "3.4.1"
   },
   "frameworks": {
-    "net451": {}, 
+    "net46": {}, 
     "netcoreapp1.0": {
       "imports": [
         "netcoreapp1.0",

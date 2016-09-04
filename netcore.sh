@@ -34,9 +34,9 @@ function Test {
      dotnet test ./test/NetworkTables.Core.Test $configuration -f netcoreapp1.0
   fi
 
-  dotnet build test/NetworkTables.Test $configuration -f net451
+  dotnet build test/NetworkTables.Test $configuration -f net46
 
-  mono test/NetworkTables.Test/$libLoc/net451/*/dotnet-test-nunit.exe test/NetworkTables.Test/$libLoc/net451/*/NetworkTables.Test.dll 
+  mono test/NetworkTables.Test/$libLoc/net46/*/dotnet-test-nunit.exe test/NetworkTables.Test/$libLoc/net46/*/NetworkTables.Test.dll 
   
   if [ "$skipNtCore" = false ] ; then
     dotnet build ./test/NetworkTables.Core.Test $configuration -f net451

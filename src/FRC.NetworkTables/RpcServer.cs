@@ -158,6 +158,9 @@ namespace NetworkTables
                     if (!success || m_terminating)
                     {
                         source.Cancel();
+                        // Call wait again without timeout to wait for lock to be reaquired
+                        // ReSharper disable once MethodSupportsCancellation
+                        task.WaitWithoutException();
                         callInfo = default(RpcCallInfo);
                         return false;
                     }

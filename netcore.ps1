@@ -125,9 +125,9 @@ function Test {
     
       UploadAppVeyorTestResults
       
-    exec { & dotnet build test\NetworkTables.Test -f net451 $configuration }
+    exec { & dotnet build test\NetworkTables.Test -f net46 $configuration }
       
-    exec { & dotnet build test\NetworkTables.Test -f net451 -o buildTemp\NetworkTables.Test451\ $configuration }
+    exec { & dotnet build test\NetworkTables.Test -f net46 -o buildTemp\NetworkTables.Test46\ $configuration }
     
     exec { & dotnet build test\NetworkTables.Core.Test -f net451 $configuration }
     
@@ -141,7 +141,7 @@ function Test {
     # install CodeCov
     .\NuGet.exe install OpenCover -Version $OpenCoverVersion -OutputDirectory buildTemp
     
-    exec { & $openCoverRun -register:user -target:nunit3-console.exe -targetargs:"buildTemp\NetworkTables.Test451\NetworkTables.Test.dll --framework=net-4.5 " -filter:"+[Network*]* +[FRC.Network*]* -[NetworkTables.T*]* -[*]Nito.*" -excludebyattribute:*.ExcludeFromCodeCoverage* -output:coverage.xml -mergeoutput -returntargetcode }
+    exec { & $openCoverRun -register:user -target:nunit3-console.exe -targetargs:"buildTemp\NetworkTables.Test46\NetworkTables.Test.dll --framework=net-4.5 " -filter:"+[Network*]* +[FRC.Network*]* -[NetworkTables.T*]* -[*]Nito.*" -excludebyattribute:*.ExcludeFromCodeCoverage* -output:coverage.xml -mergeoutput -returntargetcode }
     exec { & $openCoverRun -register:user -target:nunit3-console.exe -targetargs:"buildTemp\NetworkTables.Core.Test451\NetworkTables.Core.Test.dll --framework=net-4.5 " -filter:"+[Network*]* +[FRC.Network*]* -[NetworkTables.Core.T*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -output:coverage.xml -mergeoutput -returntargetcode }
     
     exec { & nunit3-console.exe buildTemp\NetworkTables.Core.Test451\NetworkTables.Core.Test.dll --framework=net-4.5 --x86 }
@@ -185,8 +185,8 @@ function UpdateXml {
 
    .\NuGet.exe install EWSoftware.SHFB.NETFramework -Version 4.6 -o buildTemp
    
-   Copy-Item src\FRC.NetworkTables\$libLoc\net451\FRC.NetworkTables.dll buildTemp\FRC.NetworkTables.dll
-   Copy-Item src\FRC.NetworkTables\$libLoc\net451\FRC.NetworkTables.xml buildTemp\FRC.NetworkTables.xml
+   Copy-Item src\FRC.NetworkTables\$libLoc\net46\FRC.NetworkTables.dll buildTemp\FRC.NetworkTables.dll
+   Copy-Item src\FRC.NetworkTables\$libLoc\net46\FRC.NetworkTables.xml buildTemp\FRC.NetworkTables.xml
    
    Copy-Item src\FRC.NetworkTables.Core\$libLoc\net451\FRC.NetworkTables.Core.dll buildTemp\FRC.NetworkTables.Core.dll
    Copy-Item src\FRC.NetworkTables.Core\$libLoc\net451\FRC.NetworkTables.Core.xml buildTemp\FRC.NetworkTables.Core.xml
@@ -201,7 +201,7 @@ function UpdateXml {
    
    & 'C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe' Sandcastle\NetworkTables.NetCore.shfbproj /property:Configuration=Release /v:m
 
-   Copy-Item Sandcastle\Help\FRC.NetworkTables.xml src\FRC.NetworkTables\$libLoc\net451\FRC.NetworkTables.xml
+   Copy-Item Sandcastle\Help\FRC.NetworkTables.xml src\FRC.NetworkTables\$libLoc\net46\FRC.NetworkTables.xml
    Copy-Item Sandcastle\Help\FRC.NetworkTables.xml src\FRC.NetworkTables\$libLoc\netstandard1.3\FRC.NetworkTables.xml
    
    & 'C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe' Sandcastle\NetworkTables.Core.NetCore.shfbproj /property:Configuration=Release /v:m
