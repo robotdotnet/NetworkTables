@@ -211,7 +211,7 @@ namespace Nito.AsyncEx
             public void Dispose()
             {
                 foreach (var cts in _taskCompletionSources)
-                    cts.TrySetResult(_result);
+                    cts.TrySetResultWithBackgroundContinuations(_result);
             }
         }
 
