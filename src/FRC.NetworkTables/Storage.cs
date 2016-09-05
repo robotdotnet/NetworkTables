@@ -7,6 +7,7 @@ using NetworkTables.Logging;
 using Nito.AsyncEx;
 using static NetworkTables.Logging.Logger;
 using static NetworkTables.Message.MsgType;
+using Nito.AsyncEx.Synchronous;
 
 namespace NetworkTables
 {
@@ -1220,6 +1221,9 @@ namespace NetworkTables
                         if (!success || m_terminating)
                         {
                             source.Cancel();
+                            // Call wait again without timeout to wait for lock to be reaquired
+                            // ReSharper disable once MethodSupportsCancellation
+                            task.WaitWithoutException();
                             m_blockingRpcCalls.Remove(callUid);
                             result = null;
                             return false;
