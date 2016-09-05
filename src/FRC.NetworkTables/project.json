@@ -43,7 +43,13 @@
     "xmlDoc": true
   },
   "frameworks": {
-    "net46": {},
+    "net46": {
+    "frameworkAssemblies": {
+        "System.Runtime": { "type": "build" },
+        "System.Threading": { "type": "build" },
+        "System.Threading.Tasks": { "type": "build" }
+      }
+    },
     "netstandard1.3": {
       "dependencies": {
         "System.Collections": "4.0.11",
