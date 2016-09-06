@@ -720,81 +720,90 @@ namespace NetworkTables
         ///<inheritdoc/>
         public void AddTableListenerEx(ITableListener listener, NotifyFlags flags)
         {
-            List<int> adapters;
-            if (!m_listenerMap.TryGetValue(listener, out adapters))
+            lock (m_listenerMap)
             {
-                adapters = new List<int>();
-                m_listenerMap.Add(listener, adapters);
-            }
-
-            // ReSharper disable once InconsistentNaming
-            EntryListenerCallback func = (uid, key, value, flags_) =>
-            {
-                string relativeKey = key.Substring(m_path.Length + 1);
-                if (relativeKey.IndexOf(PathSeperatorChar) != -1)
+                List<int> adapters;
+                if (!m_listenerMap.TryGetValue(listener, out adapters))
                 {
-                    return;
+                    adapters = new List<int>();
+                    m_listenerMap.Add(listener, adapters);
                 }
-                listener.ValueChanged(this, relativeKey, value, flags_);
-            };
 
-            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+                // ReSharper disable once InconsistentNaming
+                EntryListenerCallback func = (uid, key, value, flags_) =>
+                {
+                    string relativeKey = key.Substring(m_path.Length + 1);
+                    if (relativeKey.IndexOf(PathSeperatorChar) != -1)
+                    {
+                        return;
+                    }
+                    listener.ValueChanged(this, relativeKey, value, flags_);
+                };
 
-            adapters.Add(id);
+                int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+
+                adapters.Add(id);
+            }
         }
 
         ///<inheritdoc/>
         public void AddTableListenerEx(string key, ITableListener listener, NotifyFlags flags)
         {
-            List<int> adapters;
-            if (!m_listenerMap.TryGetValue(listener, out adapters))
+            lock (m_listenerMap)
             {
-                adapters = new List<int>();
-                m_listenerMap.Add(listener, adapters);
+                List<int> adapters;
+                if (!m_listenerMap.TryGetValue(listener, out adapters))
+                {
+                    adapters = new List<int>();
+                    m_listenerMap.Add(listener, adapters);
+                }
+                string fullKey = m_path + PathSeperatorChar + key;
+                // ReSharper disable once InconsistentNaming
+                EntryListenerCallback func = (uid, funcKey, value, flags_) =>
+                {
+                    if (!funcKey.Equals(fullKey))
+                        return;
+                    listener.ValueChanged(this, key, value, flags_);
+                };
+
+                int id = NtCore.AddEntryListener(fullKey, func, flags);
+
+                adapters.Add(id);
             }
-            string fullKey = m_path + PathSeperatorChar + key;
-            // ReSharper disable once InconsistentNaming
-            EntryListenerCallback func = (uid, funcKey, value, flags_) =>
-            {
-                if (!funcKey.Equals(fullKey))
-                    return;
-                listener.ValueChanged(this, key, value, flags_);
-            };
-
-            int id = NtCore.AddEntryListener(fullKey, func, flags);
-
-            adapters.Add(id);
         }
 
         ///<inheritdoc/>
         public void AddSubTableListener(ITableListener listener, bool localNotify)
         {
-            List<int> adapters;
-            if (!m_listenerMap.TryGetValue(listener, out adapters))
+            lock (m_listenerMap)
             {
-                adapters = new List<int>();
-                m_listenerMap.Add(listener, adapters);
-            }
-            HashSet<string> notifiedTables = new HashSet<string>();
-            // ReSharper disable once InconsistentNaming
-            EntryListenerCallback func = (uid, key, value, flags_) =>
-            {
-                string relativeKey = key.Substring(m_path.Length + 1);
-                int endSubTable = relativeKey.IndexOf(PathSeperatorChar);
-                if (endSubTable == -1)
-                    return;
-                string subTableKey = relativeKey.Substring(0, endSubTable);
-                if (notifiedTables.Contains(subTableKey))
-                    return;
-                notifiedTables.Add(subTableKey);
-                listener.ValueChanged(this, subTableKey, null, flags_);
-            };
-            NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
-            if (localNotify)
-                flags |= NotifyFlags.NotifyLocal;
-            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+                List<int> adapters;
+                if (!m_listenerMap.TryGetValue(listener, out adapters))
+                {
+                    adapters = new List<int>();
+                    m_listenerMap.Add(listener, adapters);
+                }
+                HashSet<string> notifiedTables = new HashSet<string>();
+                // ReSharper disable once InconsistentNaming
+                EntryListenerCallback func = (uid, key, value, flags_) =>
+                {
+                    string relativeKey = key.Substring(m_path.Length + 1);
+                    int endSubTable = relativeKey.IndexOf(PathSeperatorChar);
+                    if (endSubTable == -1)
+                        return;
+                    string subTableKey = relativeKey.Substring(0, endSubTable);
+                    if (notifiedTables.Contains(subTableKey))
+                        return;
+                    notifiedTables.Add(subTableKey);
+                    listener.ValueChanged(this, subTableKey, null, flags_);
+                };
+                NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
+                if (localNotify)
+                    flags |= NotifyFlags.NotifyLocal;
+                int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
-            adapters.Add(id);
+                adapters.Add(id);
+            }
         }
 
         ///<inheritdoc/>
@@ -824,14 +833,17 @@ namespace NetworkTables
         ///<inheritdoc/>
         public void RemoveTableListener(ITableListener listener)
         {
-            List<int> adapters;
-            if (m_listenerMap.TryGetValue(listener, out adapters))
+            lock (m_listenerMap)
             {
-                foreach (int t in adapters)
+                List<int> adapters;
+                if (m_listenerMap.TryGetValue(listener, out adapters))
                 {
-                    NtCore.RemoveEntryListener(t);
+                    foreach (int t in adapters)
+                    {
+                        NtCore.RemoveEntryListener(t);
+                    }
+                    adapters.Clear();
                 }
-                adapters.Clear();
             }
         }
 
@@ -839,81 +851,90 @@ namespace NetworkTables
         ///<inheritdoc/>
         public void AddTableListenerEx(Action<ITable, string, Value, NotifyFlags> listenerDelegate, NotifyFlags flags)
         {
-            List<int> adapters;
-            if (!m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+            lock (m_actionListenerMap)
             {
-                adapters = new List<int>();
-                m_actionListenerMap.Add(listenerDelegate, adapters);
-            }
-
-            // ReSharper disable once InconsistentNaming
-            EntryListenerCallback func = (uid, key, value, flags_) =>
-            {
-                string relativeKey = key.Substring(m_path.Length + 1);
-                if (relativeKey.IndexOf(PathSeperatorChar) != -1)
+                List<int> adapters;
+                if (!m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
                 {
-                    return;
+                    adapters = new List<int>();
+                    m_actionListenerMap.Add(listenerDelegate, adapters);
                 }
-                listenerDelegate(this, relativeKey, value, flags_);
-            };
 
-            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+                // ReSharper disable once InconsistentNaming
+                EntryListenerCallback func = (uid, key, value, flags_) =>
+                {
+                    string relativeKey = key.Substring(m_path.Length + 1);
+                    if (relativeKey.IndexOf(PathSeperatorChar) != -1)
+                    {
+                        return;
+                    }
+                    listenerDelegate(this, relativeKey, value, flags_);
+                };
 
-            adapters.Add(id);
+                int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+
+                adapters.Add(id);
+            }
         }
 
         ///<inheritdoc/>
         public void AddTableListenerEx(string key, Action<ITable, string, Value, NotifyFlags> listenerDelegate, NotifyFlags flags)
         {
-            List<int> adapters;
-            if (!m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+            lock (m_actionListenerMap)
             {
-                adapters = new List<int>();
-                m_actionListenerMap.Add(listenerDelegate, adapters);
+                List<int> adapters;
+                if (!m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+                {
+                    adapters = new List<int>();
+                    m_actionListenerMap.Add(listenerDelegate, adapters);
+                }
+                string fullKey = m_path + PathSeperatorChar + key;
+                // ReSharper disable once InconsistentNaming
+                EntryListenerCallback func = (uid, funcKey, value, flags_) =>
+                {
+                    if (!funcKey.Equals(fullKey))
+                        return;
+                    listenerDelegate(this, key, value, flags_);
+                };
+
+                int id = NtCore.AddEntryListener(fullKey, func, flags);
+
+                adapters.Add(id);
             }
-            string fullKey = m_path + PathSeperatorChar + key;
-            // ReSharper disable once InconsistentNaming
-            EntryListenerCallback func = (uid, funcKey, value, flags_) =>
-            {
-                if (!funcKey.Equals(fullKey))
-                    return;
-                listenerDelegate(this, key, value, flags_);
-            };
-
-            int id = NtCore.AddEntryListener(fullKey, func, flags);
-
-            adapters.Add(id);
         }
 
         ///<inheritdoc/>
         public void AddSubTableListener(Action<ITable, string, Value, NotifyFlags> listenerDelegate, bool localNotify)
         {
-            List<int> adapters;
-            if (!m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+            lock (m_actionListenerMap)
             {
-                adapters = new List<int>();
-                m_actionListenerMap.Add(listenerDelegate, adapters);
-            }
-            HashSet<string> notifiedTables = new HashSet<string>();
-            // ReSharper disable once InconsistentNaming
-            EntryListenerCallback func = (uid, key, value, flags_) =>
-            {
-                string relativeKey = key.Substring(m_path.Length + 1);
-                int endSubTable = relativeKey.IndexOf(PathSeperatorChar);
-                if (endSubTable == -1)
-                    return;
-                string subTableKey = relativeKey.Substring(0, endSubTable);
-                if (notifiedTables.Contains(subTableKey))
-                    return;
-                notifiedTables.Add(subTableKey);
-                listenerDelegate(this, subTableKey, null, flags_);
-            };
-            NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
-            if (localNotify)
-                flags |= NotifyFlags.NotifyLocal;
-            int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+                List<int> adapters;
+                if (!m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+                {
+                    adapters = new List<int>();
+                    m_actionListenerMap.Add(listenerDelegate, adapters);
+                }
+                HashSet<string> notifiedTables = new HashSet<string>();
+                // ReSharper disable once InconsistentNaming
+                EntryListenerCallback func = (uid, key, value, flags_) =>
+                {
+                    string relativeKey = key.Substring(m_path.Length + 1);
+                    int endSubTable = relativeKey.IndexOf(PathSeperatorChar);
+                    if (endSubTable == -1)
+                        return;
+                    string subTableKey = relativeKey.Substring(0, endSubTable);
+                    if (notifiedTables.Contains(subTableKey))
+                        return;
+                    notifiedTables.Add(subTableKey);
+                    listenerDelegate(this, subTableKey, null, flags_);
+                };
+                NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
+                if (localNotify)
+                    flags |= NotifyFlags.NotifyLocal;
+                int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
 
-            adapters.Add(id);
+                adapters.Add(id);
+            }
         }
 
         ///<inheritdoc/>
@@ -943,14 +964,17 @@ namespace NetworkTables
         ///<inheritdoc/>
         public void RemoveTableListener(Action<ITable, string, Value, NotifyFlags> listenerDelegate)
         {
-            List<int> adapters;
-            if (m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+            lock (m_actionListenerMap)
             {
-                foreach (int t in adapters)
+                List<int> adapters;
+                if (m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
                 {
-                    NtCore.RemoveEntryListener(t);
+                    foreach (int t in adapters)
+                    {
+                        NtCore.RemoveEntryListener(t);
+                    }
+                    adapters.Clear();
                 }
-                adapters.Clear();
             }
         }
 
@@ -963,55 +987,69 @@ namespace NetworkTables
         ///<inheritdoc/>
         public void AddConnectionListener(IRemoteConnectionListener listener, bool immediateNotify)
         {
-
-            if (m_connectionListenerMap.ContainsKey(listener))
+            lock (m_connectionListenerMap)
             {
-                throw new ArgumentException("Cannot add the same listener twice", nameof(listener));
+                if (m_connectionListenerMap.ContainsKey(listener))
+                {
+                    throw new ArgumentException("Cannot add the same listener twice", nameof(listener));
+                }
+
+                ConnectionListenerCallback func = (uid, connected, conn) =>
+                {
+                    if (connected) listener.Connected(this, conn);
+                    else listener.Disconnected(this, conn);
+                };
+                int id = NtCore.AddConnectionListener(func, immediateNotify);
+                m_connectionListenerMap.Add(listener, id);
             }
-
-            ConnectionListenerCallback func = (uid, connected, conn) =>
-            {
-                if (connected) listener.Connected(this, conn);
-                else listener.Disconnected(this, conn);
-            };
-            int id = NtCore.AddConnectionListener(func, immediateNotify);
-            m_connectionListenerMap.Add(listener, id);
 
         }
 
         ///<inheritdoc/>
         public void RemoveConnectionListener(IRemoteConnectionListener listener)
         {
-            int val;
-            if (m_connectionListenerMap.TryGetValue(listener, out val))
+            lock (m_connectionListenerMap)
             {
-                NtCore.RemoveConnectionListener(val);
+                int val;
+                if (m_connectionListenerMap.TryGetValue(listener, out val))
+                {
+                    NtCore.RemoveConnectionListener(val);
+                    m_connectionListenerMap.Remove(listener);
+
+                }
             }
         }
 
         /// <inheritdoc/>
         public void AddConnectionListener(Action<IRemote, ConnectionInfo, bool> listener, bool immediateNotify)
         {
-            if (m_actionConnectionListenerMap.ContainsKey(listener))
+            lock (m_actionConnectionListenerMap)
             {
-                throw new ArgumentException("Cannot add the same listener twice", nameof(listener));
-            }
+                if (m_actionConnectionListenerMap.ContainsKey(listener))
+                {
+                    throw new ArgumentException("Cannot add the same listener twice", nameof(listener));
+                }
 
-            ConnectionListenerCallback func = (uid, connected, conn) =>
-            {
-                listener(this, conn, connected);
-            };
-            int id = NtCore.AddConnectionListener(func, immediateNotify);
-            m_actionConnectionListenerMap.Add(listener, id);
+                ConnectionListenerCallback func = (uid, connected, conn) =>
+                {
+                    listener(this, conn, connected);
+                };
+                int id = NtCore.AddConnectionListener(func, immediateNotify);
+                m_actionConnectionListenerMap.Add(listener, id);
+            }
         }
 
         /// <inheritdoc/>
         public void RemoveConnectionListener(Action<IRemote, ConnectionInfo, bool> listener)
         {
-            int val;
-            if (m_actionConnectionListenerMap.TryGetValue(listener, out val))
+            lock (m_actionConnectionListenerMap)
             {
-                NtCore.RemoveConnectionListener(val);
+                int val;
+                if (m_actionConnectionListenerMap.TryGetValue(listener, out val))
+                {
+                    NtCore.RemoveConnectionListener(val);
+                    m_actionConnectionListenerMap.Remove(listener);
+                }
             }
         }
 
