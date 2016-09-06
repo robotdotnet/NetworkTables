@@ -28,6 +28,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{92F160
 		src\Shared\NtType.cs = src\Shared\NtType.cs
 		src\Shared\RemoteProcedureCall.cs = src\Shared\RemoteProcedureCall.cs
 		src\Shared\RpcStructs.cs = src\Shared\RpcStructs.cs
+		src\Shared\StaticRemote.cs = src\Shared\StaticRemote.cs
 		src\Shared\Value.cs = src\Shared\Value.cs
 	EndProjectSection
 EndProject

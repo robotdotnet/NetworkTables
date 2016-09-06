@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using NetworkTables.Exceptions;
 using NetworkTables.Tables;
 
-
-
 namespace NetworkTables
 {
     /// <summary>
@@ -1012,6 +1010,83 @@ namespace NetworkTables
             if (m_actionConnectionListenerMap.TryGetValue(listener, out val))
             {
                 NtCore.RemoveConnectionListener(val);
+            }
+        }
+
+        private static readonly Dictionary<IRemoteConnectionListener, int> s_connectionListenerMap =
+            new Dictionary<IRemoteConnectionListener, int>();
+
+        private static readonly Dictionary<Action<IRemote, ConnectionInfo, bool>, int> s_actionConnectionListenerMap
+            = new Dictionary<Action<IRemote, ConnectionInfo, bool>, int>();
+
+        private static readonly Lazy<IRemote> s_staticRemote = new Lazy<IRemote>(true);
+
+        ///<inheritdoc cref="NetworkTable.AddConnectionListener(IRemoteConnectionListener, bool)"/>
+        public static void AddGlobalConnectionListener(IRemoteConnectionListener listener, bool immediateNotify)
+        {
+            lock (s_connectionListenerMap)
+            {
+                if (s_connectionListenerMap.ContainsKey(listener))
+                {
+                    throw new ArgumentException("Cannot add the same listener twice", nameof(listener));
+                }
+
+                ConnectionListenerCallback func = (uid, connected, conn) =>
+                {
+                    if (connected) listener.Connected(s_staticRemote.Value, conn);
+                    else listener.Disconnected(s_staticRemote.Value, conn);
+                };
+
+                int id = NtCore.AddConnectionListener(func, immediateNotify);
+                s_connectionListenerMap.Add(listener, id);
+            }
+
+        }
+
+        ///<inheritdoc cref="RemoveConnectionListener(IRemoteConnectionListener)"/>
+        public static void RemoveGlobalConnectionListener(IRemoteConnectionListener listener)
+        {
+            lock (s_connectionListenerMap)
+            {
+                int val;
+                if (s_connectionListenerMap.TryGetValue(listener, out val))
+                {
+                    NtCore.RemoveConnectionListener(val);
+                    s_connectionListenerMap.Remove(listener);
+                }
+            }
+        }
+
+        /// <inheritdoc cref="AddConnectionListener(Action{IRemote, ConnectionInfo, bool}, bool)"/>
+        public static void AddGlobalConnectionListener(Action<IRemote, ConnectionInfo, bool> listener, bool immediateNotify)
+        {
+            lock (s_actionConnectionListenerMap)
+            {
+                if (s_actionConnectionListenerMap.ContainsKey(listener))
+                {
+                    throw new ArgumentException("Cannot add the same listener twice", nameof(listener));
+                }
+
+                ConnectionListenerCallback func = (uid, connected, conn) =>
+                {
+                    listener(s_staticRemote.Value, conn, connected);
+                };
+                int id = NtCore.AddConnectionListener(func, immediateNotify);
+                s_actionConnectionListenerMap.Add(listener, id);
+            }
+        }
+
+        /// <inheritdoc cref="RemoveConnectionListener(Action{IRemote, ConnectionInfo, bool})"/>
+        public static void RemoveGlobalConnectionListener(Action<IRemote, ConnectionInfo, bool> listener)
+        {
+            lock (s_actionConnectionListenerMap)
+            {
+                int val;
+                if (s_actionConnectionListenerMap.TryGetValue(listener, out val))
+                {
+                    NtCore.RemoveConnectionListener(val);
+                    s_actionConnectionListenerMap.Remove(listener);
+                }
             }
         }
 
