@@ -132,6 +132,7 @@ namespace NetworkTables
 #endif
         }
 
+#if !CORE
         /// <summary>
         /// Polls for an Rpc request from a client asynchronously
         /// </summary>
@@ -164,6 +165,7 @@ namespace NetworkTables
             return await RpcServer.Instance.PollRpcAsync(token).ConfigureAwait(false);
 #endif
         }
+#endif
 
         /// <summary>
         /// Polls for an Rpc request from a client
