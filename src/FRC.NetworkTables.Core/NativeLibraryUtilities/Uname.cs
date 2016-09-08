@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using NetworkTables.Core.Native;
+
 // ReSharper disable InconsistentNaming
 
-namespace NetworkTables.Core.Native
+namespace NetworkTables.Core.NativeLibraryUtilities
 {
     [ExcludeFromCodeCoverage]
     internal sealed class Utsname
@@ -56,7 +58,6 @@ namespace NetworkTables.Core.Native
         }
     }
 
-    [ExcludeFromCodeCoverage]
     [StructLayout(LayoutKind.Sequential)]
     internal struct _Utsname
     {
@@ -69,7 +70,6 @@ namespace NetworkTables.Core.Native
         public IntPtr _buf_;
     }
 
-    [ExcludeFromCodeCoverage]
     internal class Uname
     {
         private static void CopyUtsname(ref Utsname to, ref _Utsname from)
@@ -92,6 +92,7 @@ namespace NetworkTables.Core.Native
                 from._buf_ = IntPtr.Zero;
             }
         }
+
         internal const string MPH = "MonoPosixHelper";
         internal const string LIBC = "libc";
 
@@ -99,7 +100,7 @@ namespace NetworkTables.Core.Native
         public static extern void free(IntPtr ptr);
 
         [DllImport(MPH, SetLastError = true,
-                EntryPoint = "Mono_Posix_Syscall_uname")]
+             EntryPoint = "Mono_Posix_Syscall_uname")]
         private static extern int sys_uname(out _Utsname buf);
 
         public static int uname(out Utsname buf)
