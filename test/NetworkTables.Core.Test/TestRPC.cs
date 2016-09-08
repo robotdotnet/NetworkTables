@@ -55,6 +55,7 @@ namespace NetworkTables.Core.Test
 
         
         //[Test]
+        /*
         public void TestPolledRpcAsync()
         {
             Console.WriteLine("TestPolledRpcAsync");
@@ -87,6 +88,7 @@ namespace NetworkTables.Core.Test
 
             Console.WriteLine(call1Result[0].ToString());
         }
+        */
         
 
         [Test]
