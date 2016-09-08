@@ -216,9 +216,12 @@ namespace NetworkTables.Core.Native
             NT_CreateRpc = (NT_CreateRpcDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_CreateRpc"), typeof(NT_CreateRpcDelegate));
             NT_CreatePolledRpc = (NT_CreatePolledRpcDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_CreatePolledRpc"), typeof(NT_CreatePolledRpcDelegate));
             NT_PollRpc = (NT_PollRpcDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_PollRpc"), typeof(NT_PollRpcDelegate));
+            NT_PollRpcTimeout = (NT_PollRpcTimeoutDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_PollRpcTimeout"), typeof(NT_PollRpcTimeoutDelegate));
             NT_PostRpcResponse = (NT_PostRpcResponseDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_PostRpcResponse"), typeof(NT_PostRpcResponseDelegate));
             NT_CallRpc = (NT_CallRpcDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_CallRpc"), typeof(NT_CallRpcDelegate));
             NT_GetRpcResult = (NT_GetRpcResultDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetRpcResult"), typeof(NT_GetRpcResultDelegate));
+            NT_GetRpcResultTimeout = (NT_GetRpcResultTimeoutDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_GetRpcResultTimeout"), typeof(NT_GetRpcResultTimeoutDelegate));
+            NT_CancelBlockingRpcResult = (NT_CancelBlockingRpcResultDelegate)Marshal.GetDelegateForFunctionPointer(loader.GetProcAddress(library, "NT_CancelBlockingRpcResult"), typeof(NT_CancelBlockingRpcResultDelegate));
 #pragma warning restore CS0618
         }
 
@@ -380,6 +383,8 @@ namespace NetworkTables.Core.Native
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_CreatePolledRpcDelegate(IntPtr name, UIntPtr name_len, byte[] def, UIntPtr def_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int NT_PollRpcTimeoutDelegate(int blocking, double time_out, out NtRpcCallInfo call_info);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int NT_PollRpcDelegate(int blocking, out NtRpcCallInfo call_info);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_PostRpcResponseDelegate(uint rpc_id, uint call_uid, byte[] result, UIntPtr result_len);
@@ -387,6 +392,10 @@ namespace NetworkTables.Core.Native
         internal delegate uint NT_CallRpcDelegate(IntPtr name, UIntPtr name_len, byte[] param, UIntPtr params_len);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate IntPtr NT_GetRpcResultDelegate(int blocking, uint call_uid, ref UIntPtr result_len);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate IntPtr NT_GetRpcResultTimeoutDelegate(int blocking, uint call_uid, double time_out, ref UIntPtr result_len);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void NT_CancelBlockingRpcResultDelegate(uint call_uid);
 
 
         internal static NT_SetEntryFlagsDelegate NT_SetEntryFlags;
@@ -459,8 +468,11 @@ namespace NetworkTables.Core.Native
         internal static NT_CreateRpcDelegate NT_CreateRpc;
         internal static NT_CreatePolledRpcDelegate NT_CreatePolledRpc;
         internal static NT_PollRpcDelegate NT_PollRpc;
+        internal static NT_PollRpcTimeoutDelegate NT_PollRpcTimeout;
         internal static NT_PostRpcResponseDelegate NT_PostRpcResponse;
         internal static NT_CallRpcDelegate NT_CallRpc;
         internal static NT_GetRpcResultDelegate NT_GetRpcResult;
+        internal static NT_GetRpcResultTimeoutDelegate NT_GetRpcResultTimeout;
+        internal static NT_CancelBlockingRpcResultDelegate NT_CancelBlockingRpcResult;
     }
 }

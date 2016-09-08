@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using NUnit.Framework;
 
 namespace NetworkTables.Core.Test
@@ -8,10 +9,131 @@ namespace NetworkTables.Core.Test
     [TestFixture]
     public class RpcTest : TestBase
     {
+        [OneTimeSetUp]
+        public void FixtureSetUp()
+        {
+            NtCore.SetLogger((level, file, line, msg) =>
+            {
+                Console.WriteLine(msg);
+            }, LogLevel.LogInfo);
+        }
+
         [OneTimeTearDown]
         public void FixtureTearDown()
         {
             NtCore.StopRpcServer();
+        }
+
+        [Test]
+        public void TestPolledRpc()
+        {
+            Console.WriteLine("TestPolledRpc");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+            RemoteProcedureCall.CreatePolledRpc("func1", def);
+
+            Console.WriteLine("Calling RPC");
+
+            long call1Uid = RemoteProcedureCall.CallRpc("func1", RemoteProcedureCall.PackRpcValues(Value.MakeDouble(2.0)));
+
+            RpcCallInfo info;
+            bool polled = RemoteProcedureCall.PollRpc(true, TimeSpan.FromSeconds(1), out info);
+            Assert.That(polled, Is.True);
+
+            byte[] toSendBack = Callback1(info.Name, info.Params);
+            Assert.That(toSendBack.Length, Is.Not.EqualTo(0));
+
+            RemoteProcedureCall.PostRpcResponse(info.RpcId, info.CallUid, toSendBack);
+
+            Console.WriteLine("Waiting for RPC Result");
+            byte[] result = null;
+            RemoteProcedureCall.GetRpcResult(true, call1Uid, out result);
+            var call1Result = RemoteProcedureCall.UnpackRpcValues(result, NtType.Double);
+            Assert.AreNotEqual(0, call1Result.Count, "RPC Result empty");
+
+            Console.WriteLine(call1Result[0].ToString());
+        }
+
+        
+        //[Test]
+        public void TestPolledRpcAsync()
+        {
+            Console.WriteLine("TestPolledRpcAsync");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+            RemoteProcedureCall.CreatePolledRpc("func1", def);
+
+            Console.WriteLine("Calling RPC");
+
+            long call1Uid = RemoteProcedureCall.CallRpc("func1", RemoteProcedureCall.PackRpcValues(Value.MakeDouble(2.0)));
+
+            CancellationTokenSource source = new CancellationTokenSource();
+            var task = RemoteProcedureCall.PollRpcAsync(source.Token);
+            bool completed = task.Wait(TimeSpan.FromSeconds(1));
+            if (!completed) source.Cancel();
+            Assert.That(completed, Is.True);
+            Assert.That(task.IsCompleted, Is.True);
+            Assert.That(task.Result, Is.Not.Null);
+            Assert.That(task.Result.HasValue);
+
+            byte[] toSendBack = Callback1(task.Result.Value.Name, task.Result.Value.Params);
+            Assert.That(toSendBack.Length, Is.Not.EqualTo(0));
+
+            RemoteProcedureCall.PostRpcResponse(task.Result.Value.RpcId, task.Result.Value.CallUid, toSendBack);
+
+            Console.WriteLine("Waiting for RPC Result");
+            byte[] result = null;
+            RemoteProcedureCall.GetRpcResult(true, call1Uid, out result);
+            var call1Result = RemoteProcedureCall.UnpackRpcValues(result, NtType.Double);
+            Assert.AreNotEqual(0, call1Result.Count, "RPC Result empty");
+
+            Console.WriteLine(call1Result[0].ToString());
+        }
+        
+
+        [Test]
+        public void TestPolledRpcTimeout()
+        {
+            Console.WriteLine("TestPolledRpcTimeout");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+            RemoteProcedureCall.CreatePolledRpc("func1", def);
+
+            Console.WriteLine("Calling RPC");
+            TimeSpan timeoutTime = TimeSpan.FromSeconds(1);
+            Stopwatch sw = Stopwatch.StartNew();
+            RpcCallInfo info;
+            bool polled = RemoteProcedureCall.PollRpc(true, timeoutTime, out info);
+            sw.Stop();
+            Assert.That(polled, Is.False);
+            TimeSpan tolerance = TimeSpan.FromSeconds(0.25);
+            //Assert.That(sw.Elapsed < timeoutTime + tolerance);
+            //Assert.That(sw.Elapsed > timeoutTime - tolerance);
+        }
+
+        [Test]
+        public void TestPolledRpcNonBlocking()
+        {
+            Console.WriteLine("TestPolledRpcNonBlocking");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+            RemoteProcedureCall.CreatePolledRpc("func1", def);
+
+            Console.WriteLine("Calling RPC");
+
+            RpcCallInfo info;
+            bool polled = RemoteProcedureCall.PollRpc(false, out info);
+            Assert.That(polled, Is.False);
+        }
+
+        [Test]
+        public void TestPolledRpcNonBlockingWithTimeout()
+        {
+            Console.WriteLine("TestPolledRpcNonBlockingWithTimeout");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+            RemoteProcedureCall.CreatePolledRpc("func1", def);
+
+            Console.WriteLine("Calling RPC");
+
+            RpcCallInfo info;
+            bool polled = RemoteProcedureCall.PollRpc(false, TimeSpan.FromSeconds(1), out info);
+            Assert.That(polled, Is.False);
         }
 
         private static byte[] Callback1(string names, byte[] paramsStr)
@@ -59,9 +181,12 @@ namespace NetworkTables.Core.Test
             sw.Start();
             for (int i = 0; i < 10000; ++i)
             {
+                
                 long call1Uid = RemoteProcedureCall.CallRpc("func1", RemoteProcedureCall.PackRpcValues(Value.MakeDouble(i)));
                 byte[] call1Result = null;
                 RemoteProcedureCall.GetRpcResult(true, call1Uid, out call1Result);
+                if (call1Result == null)
+                    Console.WriteLine(" Array Null"); 
                 var res = RemoteProcedureCall.UnpackRpcValues(call1Result, NtType.Double);
                 Assert.AreNotEqual(0, res.Count, "RPC Result empty");
             }
@@ -70,7 +195,228 @@ namespace NetworkTables.Core.Test
 
         }
 
-        
+        [Test]
+        public void TestRpcLocalTimeoutFailure()
+        {
+            Console.WriteLine("LocalTimeoutFailure");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+            RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
+
+            Console.WriteLine("Calling RPC");
+
+            long call1Uid = 585;
+
+            Console.WriteLine("Waiting for RPC Result");
+            TimeSpan timeoutTime = TimeSpan.FromSeconds(1);
+            Stopwatch sw = Stopwatch.StartNew();
+            byte[] result = null;
+            bool success = RemoteProcedureCall.GetRpcResult(true, call1Uid, timeoutTime, out result);
+            sw.Stop();
+            Assert.That(success, Is.False);
+            Assert.That(result, Is.Null);
+            TimeSpan tolerance = TimeSpan.FromSeconds(0.25);
+            Console.WriteLine("Timeout Took: " + sw.Elapsed);
+            // TODO: Fix. Timeouts might be broken in ntcore
+            //Assert.That(sw.Elapsed < timeoutTime + tolerance);
+            //Assert.That(sw.Elapsed > timeoutTime - tolerance);
+        }
+
+        [Test]
+        public void TestRpcLocalNonBlocking()
+        {
+            Console.WriteLine("LoclaNonBlocking");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+            RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
+
+            Console.WriteLine("Calling RPC");
+
+            long call1Uid = 585;
+
+            Console.WriteLine("Waiting for RPC Result");
+            byte[] result = null;
+            bool success = RemoteProcedureCall.GetRpcResult(false, call1Uid, out result);
+            Assert.That(success, Is.False);
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void TestRpcLocalNonBlockingWithTimeout()
+        {
+            Console.WriteLine("LocalNonBlockingWithTimeout");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+            RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
+
+            Console.WriteLine("Calling RPC");
+
+            long call1Uid = 585;
+
+            Console.WriteLine("Waiting for RPC Result");
+            byte[] result = null;
+            bool success = RemoteProcedureCall.GetRpcResult(false, call1Uid, TimeSpan.FromSeconds(1), out result);
+            Assert.That(success, Is.False);
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void TestRpcLocalTimeoutSuccess()
+        {
+            Console.WriteLine("LocalTimeoutSuccess");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+            RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
+
+            Console.WriteLine("Calling RPC");
+
+            long call1Uid = RemoteProcedureCall.CallRpc("func1", RemoteProcedureCall.PackRpcValues(Value.MakeDouble(2.0)));
+
+            Console.WriteLine("Waiting for RPC Result");
+            byte[] result = null;
+            RemoteProcedureCall.GetRpcResult(true, call1Uid, TimeSpan.FromSeconds(1), out result);
+            Assert.That(result, Is.Not.Null);
+            var call1Result = RemoteProcedureCall.UnpackRpcValues(result, NtType.Double);
+            Assert.AreNotEqual(0, call1Result.Count, "RPC Result empty");
+
+            Console.WriteLine(call1Result[0].ToString());
+        }
+
+        [Test]
+        public void TestRpcSpeedTimeoutSuccess()
+        {
+            Console.WriteLine("SpeedTimeoutSuccess");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+
+            RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            for (int i = 0; i < 10000; ++i)
+            {
+                long call1Uid = RemoteProcedureCall.CallRpc("func1", RemoteProcedureCall.PackRpcValues(Value.MakeDouble(i)));
+                byte[] call1Result = null;
+                RemoteProcedureCall.GetRpcResult(true, call1Uid, TimeSpan.FromSeconds(1), out call1Result);
+                Assert.That(call1Result, Is.Not.Null);
+                var res = RemoteProcedureCall.UnpackRpcValues(call1Result, NtType.Double);
+                Assert.AreNotEqual(0, res.Count, "RPC Result empty");
+            }
+            sw.Stop();
+            Console.WriteLine(sw.Elapsed);
+
+        }
+
+        [Test]
+        public void TestRpcLocalAsyncCancel()
+        {
+            Console.WriteLine("LocalAsyncCancel");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+            RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
+
+            long call1Uid = 589;
+
+            Console.WriteLine("Waiting for RPC Result");
+            CancellationTokenSource source = new CancellationTokenSource();
+            var task = RemoteProcedureCall.GetRpcResultAsync(call1Uid, source.Token);
+            var completed = task.Wait(TimeSpan.FromSeconds(1));
+            if (!completed) source.Cancel();
+            Thread.Sleep(100);
+            Assert.That(completed, Is.False);
+            Assert.That(task.IsCompleted, Is.True);
+
+            // No way to check and make sure our task actually got canceled, but future tests will
+            // fail if the cancel fails. It's the best we have.
+        }
+
+
+        [Test]
+        public void TestRpcLocalAsync()
+        {
+            Console.WriteLine("LocalAsync");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+            RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
+
+            Console.WriteLine("Calling RPC");
+
+            long call1Uid = RemoteProcedureCall.CallRpc("func1", RemoteProcedureCall.PackRpcValues(Value.MakeDouble(2.0)));
+
+            Console.WriteLine("Waiting for RPC Result");
+            CancellationTokenSource source = new CancellationTokenSource();
+            var task = RemoteProcedureCall.GetRpcResultAsync(call1Uid, source.Token);
+            var completed = task.Wait(TimeSpan.FromSeconds(1));
+            if (!completed) source.Cancel();
+            Assert.That(completed, Is.True);
+            Assert.That(task.IsCompleted);
+            var call1Result = RemoteProcedureCall.UnpackRpcValues(task.Result, NtType.Double);
+            Assert.AreNotEqual(0, call1Result.Count, "RPC Result empty");
+
+            Console.WriteLine(call1Result[0].ToString());
+        }
+
+        [Test]
+        public void TestRpcSpeedAsync()
+        {
+            Console.WriteLine("SpeedAsync");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+
+            RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            for (int i = 0; i < 10000; ++i)
+            {
+                long call1Uid = RemoteProcedureCall.CallRpc("func1", RemoteProcedureCall.PackRpcValues(Value.MakeDouble(i)));
+                CancellationTokenSource source = new CancellationTokenSource();
+                var task = RemoteProcedureCall.GetRpcResultAsync(call1Uid, source.Token);
+                var completed = task.Wait(TimeSpan.FromSeconds(1));
+                if (!completed) source.Cancel();
+                Assert.That(completed, Is.True);
+                Assert.That(task.IsCompleted);
+                var res = RemoteProcedureCall.UnpackRpcValues(task.Result, NtType.Double);
+                Assert.AreNotEqual(0, res.Count, "RPC Result empty");
+            }
+            sw.Stop();
+            Console.WriteLine(sw.Elapsed);
+        }
+
+        [Test]
+        public void TestRpcLocalAsyncSingleCall()
+        {
+            Console.WriteLine("LocalAsyncSingleCall");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+            RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
+
+            Console.WriteLine("Calling RPC");
+            Console.WriteLine("Waiting for RPC Result");
+            CancellationTokenSource source = new CancellationTokenSource();
+            var task = RemoteProcedureCall.CallRpcWithResultAsync("func1", source.Token, RemoteProcedureCall.PackRpcValues(Value.MakeDouble(2.0)));
+            var completed = task.Wait(TimeSpan.FromSeconds(1));
+            if (!completed) source.Cancel();
+            Assert.That(completed, Is.True);
+            Assert.That(task.IsCompleted);
+            var call1Result = RemoteProcedureCall.UnpackRpcValues(task.Result, NtType.Double);
+            Assert.AreNotEqual(0, call1Result.Count, "RPC Result empty");
+
+            Console.WriteLine(call1Result[0].ToString());
+        }
+
+        [Test]
+        public void TestRpcSpeedAsyncSingleCall()
+        {
+            Console.WriteLine("SpeedAsyncSingleCall");
+            var def = new RpcDefinition(1, "myfunc1", new List<RpcParamDef> { new RpcParamDef("param1", Value.MakeDouble(0.0)) }, new List<RpcResultsDef> { new RpcResultsDef("result1", NtType.Double) });
+
+            RemoteProcedureCall.CreateRpc("func1", RemoteProcedureCall.PackRpcDefinition(def), Callback1);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            for (int i = 0; i < 10000; ++i)
+            {
+                CancellationTokenSource source = new CancellationTokenSource();
+                var task = RemoteProcedureCall.CallRpcWithResultAsync("func1", source.Token, RemoteProcedureCall.PackRpcValues(Value.MakeDouble(i)));
+                var completed = task.Wait(TimeSpan.FromSeconds(1));
+                if (!completed) source.Cancel();
+                Assert.That(completed, Is.True);
+                Assert.That(task.IsCompleted);
+                var res = RemoteProcedureCall.UnpackRpcValues(task.Result, NtType.Double);
+                Assert.AreNotEqual(0, res.Count, "RPC Result empty");
+            }
+            sw.Stop();
+            Console.WriteLine(sw.Elapsed);
+        }
 
         private static byte[] Callback2(string names, byte[] paramsStr)
         {
