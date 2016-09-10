@@ -53,7 +53,7 @@
     "xmlDoc": true
   },
   "frameworks": {
-    "net451": {},
+    "net45": {},
     "netstandard1.5": {
       "buildOptions": {
         "define": [ "NETSTANDARD" ]
