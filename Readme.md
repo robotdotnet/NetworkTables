@@ -53,6 +53,11 @@ Note that Xamarin requires 4.1.2 minimum in order to work directly from NuGet. I
 you need to download and manually use the .NET 4.5.1 library, as Xamarin by default will attempt to use the Net Standard build and then error on build. 
 Note that only Android has been tested, but iOS should work without issue.
 
+Building
+--------
+* Windows
+ * Requires either .NET Core SDK (for command line building) or Visual Studio 2015 Update 3 with the .NET Core VS 2015 Tooling Preview, see https://www.microsoft.com/net/core#windows.
+
 
 License
 =======
