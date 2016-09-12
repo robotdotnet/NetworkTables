@@ -1057,7 +1057,7 @@ namespace NetworkTables
         private static readonly Dictionary<Action<IRemote, ConnectionInfo, bool>, int> s_actionConnectionListenerMap
             = new Dictionary<Action<IRemote, ConnectionInfo, bool>, int>();
 
-        private static readonly Lazy<IRemote> s_staticRemote = new Lazy<IRemote>(true);
+        private static readonly Lazy<StaticRemote> s_staticRemote = new Lazy<StaticRemote>(true);
 
         ///<inheritdoc cref="NetworkTable.AddConnectionListener(IRemoteConnectionListener, bool)"/>
         public static void AddGlobalConnectionListener(IRemoteConnectionListener listener, bool immediateNotify)

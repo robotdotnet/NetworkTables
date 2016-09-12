@@ -130,5 +130,15 @@ namespace NetworkTables.Test.NetworkTablesApi
             nt2.PutNumber("testkey", 5);
             Assert.That(nt.ContainsKey("testkey"), Is.True);
         }
+
+        [Test]
+        public void TestStaticListeners()
+        {
+            NetworkTable.AddGlobalConnectionListener(((remote, info, conn) =>
+            {
+                Console.WriteLine("Connected");
+            }), true);
+            Assert.Pass();
+        }
     }
 }
