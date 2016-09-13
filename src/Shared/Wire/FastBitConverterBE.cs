@@ -7,7 +7,6 @@ namespace NetworkTables.Wire
     internal class FastBitConverterBE : IFastBitConverter
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [System.Security.SecuritySafeCritical]
         public void AddUShort(List<byte> list, ushort val)
         {
             list.Add((byte)(val & 0xff));
@@ -15,7 +14,6 @@ namespace NetworkTables.Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [System.Security.SecuritySafeCritical]
         public void AddShort(List<byte> list, short val)
         {
             list.Add((byte)(val & 0xff));
@@ -23,7 +21,6 @@ namespace NetworkTables.Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [System.Security.SecuritySafeCritical]
         public void AddUInt(List<byte> list, uint val)
         {
             list.Add((byte)(val & 0xff));
@@ -33,7 +30,6 @@ namespace NetworkTables.Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [System.Security.SecuritySafeCritical]
         public void AddInt(List<byte> list, int val)
         {
             list.Add((byte)(val & 0xff));
@@ -43,7 +39,6 @@ namespace NetworkTables.Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [System.Security.SecuritySafeCritical]
         public void AddULong(List<byte> list, ulong val)
         {
             list.Add((byte)(val & 0xff));
@@ -57,7 +52,6 @@ namespace NetworkTables.Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [System.Security.SecuritySafeCritical]
         public void AddLong(List<byte> list, long val)
         {
             list.Add((byte)(val & 0xff));
@@ -71,7 +65,6 @@ namespace NetworkTables.Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [System.Security.SecuritySafeCritical]
         public void AddDouble(List<byte> list, double val)
         {
             AddLong(list, BitConverter.DoubleToInt64Bits(val));
