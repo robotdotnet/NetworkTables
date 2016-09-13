@@ -50,14 +50,7 @@ namespace NetworkTables.Wire
         /// <param name="protoRev">The protocol vision for the encoder</param>
         public WireEncoder(int protoRev)
         {
-            if (BitConverter.IsLittleEndian)
-            {
-                m_fastBitConverter = new FastBitConverterLE();
-            }
-            else
-            {
-                m_fastBitConverter = new FastBitConverterBE();
-            }
+            m_fastBitConverter = FastBitConverterCache.GetFastBitConverter();
             ProtoRev = protoRev;
         }
 
