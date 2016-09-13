@@ -721,22 +721,12 @@ namespace NetworkTables.Core.Native
 
         internal static void StopClient()
         {
-            StopRpcServer();
-            StopNotifier();
             Interop.NT_StopClient();
-            //Clear callback dictionaries
-            s_entryCallbacks.Clear();
-            s_connectionCallbacks.Clear();
         }
 
         internal static void StopServer()
         {
-            StopRpcServer();
-            StopNotifier();
             Interop.NT_StopServer();
-            //Clear callback dictionaries
-            s_entryCallbacks.Clear();
-            s_connectionCallbacks.Clear();
         }
 
         internal static void StopNotifier()
