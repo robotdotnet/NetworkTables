@@ -33,7 +33,7 @@ namespace NetworkTables.Core.Test
             NtCore.StopRpcServer();
         }
 
-        [Test]
+        [Test, Ignore("Testing")]
         public void TestPolledRpc()
         {
             Console.WriteLine("TestPolledRpc");
@@ -69,7 +69,7 @@ namespace NetworkTables.Core.Test
             Console.WriteLine(call1Result[0].ToString());
         }
 
-        
+
         //[Test]
         /*
         public void TestPolledRpcAsync()
@@ -105,9 +105,8 @@ namespace NetworkTables.Core.Test
             Console.WriteLine(call1Result[0].ToString());
         }
         */
-        
 
-        [Test]
+        [Test, Ignore("Testing")]
         public void TestPolledRpcTimeout()
         {
             Console.WriteLine("TestPolledRpcTimeout");
@@ -126,7 +125,7 @@ namespace NetworkTables.Core.Test
             //Assert.That(sw.Elapsed > timeoutTime - tolerance);
         }
 
-        [Test]
+        [Test, Ignore("Testing")]
         public void TestPolledRpcNonBlocking()
         {
             Console.WriteLine("TestPolledRpcNonBlocking");
@@ -140,7 +139,7 @@ namespace NetworkTables.Core.Test
             Assert.That(polled, Is.False);
         }
 
-        [Test]
+        [Test, Ignore("Testing")]
         public void TestPolledRpcNonBlockingWithTimeout()
         {
             Console.WriteLine("TestPolledRpcNonBlockingWithTimeout");
