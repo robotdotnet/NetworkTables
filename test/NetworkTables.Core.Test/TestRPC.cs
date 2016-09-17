@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading;
+using NetworkTables.Core.Native;
 using NUnit.Framework;
 
 namespace NetworkTables.Core.Test
@@ -12,6 +14,12 @@ namespace NetworkTables.Core.Test
         [OneTimeSetUp]
         public void FixtureSetUp()
         {
+            // Print size of ConnectionInfo and RpcServer
+
+
+            Console.WriteLine("Call Info Size" + Marshal.SizeOf(typeof(NtRpcCallInfo)));
+            Console.WriteLine("Conn Info Size" + Marshal.SizeOf( typeof(NtConnectionInfo)));
+
             NtCore.SetLogger((level, file, line, msg) =>
             {
                 Console.WriteLine(msg);
@@ -37,6 +45,13 @@ namespace NetworkTables.Core.Test
 
             RpcCallInfo info;
             bool polled = RemoteProcedureCall.PollRpc(true, TimeSpan.FromSeconds(1), out info);
+
+            Console.WriteLine(info.CallUid);
+            Console.WriteLine(info.Name);
+            Console.WriteLine(info.ConnInfo.RemoteId);
+            Console.WriteLine(info.ConnInfo.RemoteIp);
+            Console.WriteLine(info.ConnInfo.RemotePort);
+
             Assert.That(polled, Is.True);
 
             byte[] toSendBack = Callback1(info.Name, info.Params, info.ConnInfo);
@@ -142,6 +157,13 @@ namespace NetworkTables.Core.Test
         {
             var param = RemoteProcedureCall.UnpackRpcValues(paramsStr, NtType.Double);
 
+
+            Console.WriteLine(info.RemoteId);
+            Console.WriteLine(info.RemoteIp);
+            Console.WriteLine(info.RemotePort);
+            Console.WriteLine(info.LastUpdate);
+            Console.WriteLine(info.ProtocolVersion);
+
             if (param.Count == 0)
             {
                 Console.Error.WriteLine("Empty Params?");
@@ -171,7 +193,7 @@ namespace NetworkTables.Core.Test
 
             Console.WriteLine(call1Result[0].ToString());
         }
-
+        /*
         [Test]
         public void TestRpcSpeed()
         {
@@ -196,6 +218,7 @@ namespace NetworkTables.Core.Test
             Console.WriteLine(sw.Elapsed);
 
         }
+        */
 
         [Test]
         public void TestRpcLocalTimeoutFailure()
@@ -280,6 +303,7 @@ namespace NetworkTables.Core.Test
             Console.WriteLine(call1Result[0].ToString());
         }
 
+        /*
         [Test]
         public void TestRpcSpeedTimeoutSuccess()
         {
@@ -302,6 +326,7 @@ namespace NetworkTables.Core.Test
             Console.WriteLine(sw.Elapsed);
 
         }
+        */
 
         [Test]
         public void TestRpcLocalAsyncCancel()
@@ -350,6 +375,7 @@ namespace NetworkTables.Core.Test
             Console.WriteLine(call1Result[0].ToString());
         }
 
+        /*
         [Test]
         public void TestRpcSpeedAsync()
         {
@@ -374,6 +400,7 @@ namespace NetworkTables.Core.Test
             sw.Stop();
             Console.WriteLine(sw.Elapsed);
         }
+        */
 
         [Test]
         public void TestRpcLocalAsyncSingleCall()
@@ -395,7 +422,7 @@ namespace NetworkTables.Core.Test
 
             Console.WriteLine(call1Result[0].ToString());
         }
-
+        /*
         [Test]
         public void TestRpcSpeedAsyncSingleCall()
         {
@@ -419,6 +446,7 @@ namespace NetworkTables.Core.Test
             sw.Stop();
             Console.WriteLine(sw.Elapsed);
         }
+        */
 
         private static byte[] Callback2(string names, byte[] paramsStr, ConnectionInfo info)
         {
