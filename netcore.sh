@@ -28,15 +28,15 @@ function Build {
 function Test {
   dotnet restore
   
-   dotnet test ./test/NetworkTables.Test $configuration -f netcoreapp1.0
+   #dotnet test ./test/NetworkTables.Test $configuration -f netcoreapp1.0
   
   if [ "$skipNtCore" = false ] ; then
      dotnet test ./test/NetworkTables.Core.Test $configuration -f netcoreapp1.0
   fi
 
-  dotnet build test/NetworkTables.Test $configuration -f net46
+  #dotnet build test/NetworkTables.Test $configuration -f net46
 
-  mono test/NetworkTables.Test/$libLoc/net46/*/dotnet-test-nunit.exe test/NetworkTables.Test/$libLoc/net46/*/NetworkTables.Test.dll 
+  #mono test/NetworkTables.Test/$libLoc/net46/*/dotnet-test-nunit.exe test/NetworkTables.Test/$libLoc/net46/*/NetworkTables.Test.dll 
   
   if [ "$skipNtCore" = false ] ; then
     dotnet build ./test/NetworkTables.Core.Test $configuration -f net451
