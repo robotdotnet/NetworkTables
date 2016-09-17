@@ -132,6 +132,10 @@ namespace NetworkTables
         /// </summary>
         public long CallUid { get; }
         /// <summary>
+        /// The ConnectionInfo for the Rpc call that set this polled value
+        /// </summary>
+        public ConnectionInfo ConnInfo { get; }
+        /// <summary>
         /// The name of this call info
         /// </summary>
         public string Name { get; }
@@ -145,13 +149,16 @@ namespace NetworkTables
         /// </summary>
         /// <param name="rpcId">The Rpc that is getting polled</param>
         /// <param name="callUid">The call Id that set this polled value</param>
+        /// <param name="connInfo">ConnectionInfo for the client that requested this call</param>
         /// <param name="name">The name of this polled call info</param>
         /// <param name="param">The data associated with this polled info</param>
-        public RpcCallInfo(long rpcId, long callUid, string name, byte[] param)
+        public RpcCallInfo(long rpcId, long callUid, ConnectionInfo connInfo, string name, 
+            byte[] param)
         {
             RpcId = rpcId;
             CallUid = callUid;
             Name = name;
+            ConnInfo = connInfo;
             Params = new byte[param.Length];
             Array.Copy(param, Params, param.Length);
         }

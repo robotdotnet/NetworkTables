@@ -446,7 +446,12 @@ namespace NetworkTables
                             Debug("received RPC call to non-RPC entry");
                             return;
                         }
-                        m_rpcServer.ProcessRpc(entry.Name, msg, entry.RpcCallback, conn.Uid, message =>
+                        ConnectionInfo info = new ConnectionInfo();
+                        NetworkConnection cn;
+                        connWeak.TryGetTarget(out cn);
+                        if (cn != null && !cn.Disposed)
+                            info = cn.GetConnectionInfo();
+                        m_rpcServer.ProcessRpc(entry.Name, msg, entry.RpcCallback, conn.Uid, ref info, message =>
                         {
                             NetworkConnection c;
                             connWeak.TryGetTarget(out c);
@@ -1112,7 +1117,8 @@ namespace NetworkTables
                     var rpcCallback = entry.RpcCallback;
                     monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                     monitorToUnlock.Dispose();
-                    m_rpcServer.ProcessRpc(name, msg, rpcCallback, 0xffff, message =>
+                    ConnectionInfo info = new ConnectionInfo("Server", "localhost", 0, 0, 0);
+                    m_rpcServer.ProcessRpc(name, msg, rpcCallback, 0xffff, ref info, message =>
                     {
                         using(m_monitor.Enter())
                         {

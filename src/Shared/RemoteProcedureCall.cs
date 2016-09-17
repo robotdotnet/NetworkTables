@@ -35,11 +35,13 @@ namespace NetworkTables
         {
 #if CORE
             Interop.NT_RPCCallback modCallback =
-                (IntPtr data, IntPtr ptr, UIntPtr len, IntPtr intPtr, UIntPtr paramsLen, out UIntPtr resultsLen) =>
+                (IntPtr data, IntPtr ptr, UIntPtr len, IntPtr intPtr, UIntPtr paramsLen,
+                ref NtConnectionInfo connInfo, out UIntPtr resultsLen) =>
                 {
                     string retName = CoreMethods.ReadUTF8String(ptr, len);
                     byte[] param = CoreMethods.GetRawDataFromPtr(intPtr, paramsLen);
-                    byte[] cb = callback(retName, param);
+                    ConnectionInfo info = connInfo.ToManaged();
+                    byte[] cb = callback(retName, param, info);
                     resultsLen = (UIntPtr)cb.Length;
                     IntPtr retPtr = Interop.NT_AllocateCharArray(resultsLen);
                     Marshal.Copy(cb, 0, retPtr, cb.Length);
