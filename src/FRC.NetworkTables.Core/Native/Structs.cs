@@ -97,7 +97,11 @@ namespace NetworkTables.Core.Native
 
         public ConnectionInfo ToManaged()
         {
-            return new ConnectionInfo(RemoteId.ToString(), RemoteIp.ToString(),
+            Console.WriteLine("Getting ID");
+            string id = RemoteId.ToString();
+            Console.WriteLine("Getting IP");
+            string ip = RemoteIp.ToString();
+            return new ConnectionInfo(id, ip,
                 (int)RemotePort, (long)LastUpdate, (int)ProtocolVersion);
         }
     }
@@ -115,8 +119,12 @@ namespace NetworkTables.Core.Native
 
         public RpcCallInfo ToManaged()
         {
+            Console.WriteLine("Getting Name");
+            string name = Name.ToString();
+            Console.WriteLine("Getting RPC Array");
+            byte[] rpc = Param.ToRpcArray();
             // ReSharper disable once ImpureMethodCallOnReadonlyValueField
-            return new RpcCallInfo(RpcId, CallUid, ConnInfo.ToManaged(), Name.ToString(), Param.ToRpcArray());
+            return new RpcCallInfo(RpcId, CallUid, ConnInfo.ToManaged(), name, rpc);
         }
     }
 
