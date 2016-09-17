@@ -116,18 +116,18 @@ function Test {
 
   if ($env:APPVEYOR) {
     # Run CodeCov tests using full framework
-    exec { & dotnet test test\NetworkTables.Test -f netcoreapp1.0 $configuration }
+    #exec { & dotnet test test\NetworkTables.Test -f netcoreapp1.0 $configuration }
     
-      UploadAppVeyorTestResults
+      #UploadAppVeyorTestResults
     
     
     exec { & dotnet test test\NetworkTables.Core.Test -f netcoreapp1.0 $configuration }
     
       UploadAppVeyorTestResults
       
-    exec { & dotnet build test\NetworkTables.Test -f net46 $configuration }
+    #exec { & dotnet build test\NetworkTables.Test -f net46 $configuration }
       
-    exec { & dotnet build test\NetworkTables.Test -f net46 -o buildTemp\NetworkTables.Test46\ $configuration }
+    #exec { & dotnet build test\NetworkTables.Test -f net46 -o buildTemp\NetworkTables.Test46\ $configuration }
     
     exec { & dotnet build test\NetworkTables.Core.Test -f net451 $configuration }
     
@@ -141,7 +141,7 @@ function Test {
     # install CodeCov
     .\NuGet.exe install OpenCover -Version $OpenCoverVersion -OutputDirectory buildTemp
     
-    exec { & $openCoverRun -register:user -target:nunit3-console.exe -targetargs:"buildTemp\NetworkTables.Test46\NetworkTables.Test.dll --framework=net-4.5 " -filter:"+[Network*]* +[FRC.Network*]* -[NetworkTables.T*]* -[*]Nito.*" -excludebyattribute:*.ExcludeFromCodeCoverage* -output:coverage.xml -mergeoutput -returntargetcode }
+    #exec { & $openCoverRun -register:user -target:nunit3-console.exe -targetargs:"buildTemp\NetworkTables.Test46\NetworkTables.Test.dll --framework=net-4.5 " -filter:"+[Network*]* +[FRC.Network*]* -[NetworkTables.T*]* -[*]Nito.*" -excludebyattribute:*.ExcludeFromCodeCoverage* -output:coverage.xml -mergeoutput -returntargetcode }
     exec { & $openCoverRun -register:user -target:nunit3-console.exe -targetargs:"buildTemp\NetworkTables.Core.Test451\NetworkTables.Core.Test.dll --framework=net-4.5 " -filter:"+[Network*]* +[FRC.Network*]* -[NetworkTables.Core.T*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -output:coverage.xml -mergeoutput -returntargetcode }
     
     exec { & nunit3-console.exe buildTemp\NetworkTables.Core.Test451\NetworkTables.Core.Test.dll --framework=net-4.5 --x86 }

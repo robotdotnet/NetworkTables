@@ -19,6 +19,8 @@ namespace NetworkTables.Core.Native
 
         public override string ToString()
         {
+            Console.WriteLine("Str " + str);
+            Console.WriteLine("Len " + len);
             byte[] arr = new byte[len.ToUInt64()];
             Marshal.Copy(str, arr, 0, (int)len.ToUInt64());
             return Encoding.UTF8.GetString(arr);
@@ -72,6 +74,13 @@ namespace NetworkTables.Core.Native
         // ReSharper restore FieldCanBeMadeReadOnly.Global
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct TwoNtStrings
+    {
+        public readonly NtStringRead RemoteId;
+        public readonly NtStringRead RemoteIp;
+    }
+
 
     //Looks like this will always be created for us by the library, so we do not have to write it.
     //
@@ -80,14 +89,21 @@ namespace NetworkTables.Core.Native
     {
 #pragma warning disable 649
         public readonly NtStringRead RemoteId;
-        //To be switched when #87 gets merged
-        //public readonly NtStringRead RemoteIp;
-        public readonly IntPtr RemoteIp;
+        public readonly NtStringRead RemoteIp;
         public readonly uint RemotePort;
         public readonly ulong LastUpdate;
         public readonly uint ProtocolVersion;
 #pragma warning restore 649
 
+        public ConnectionInfo ToManaged()
+        {
+            Console.WriteLine("Getting ID");
+            string id = RemoteId.ToString();
+            Console.WriteLine("Getting IP");
+            string ip = RemoteIp.ToString();
+            return new ConnectionInfo(id, ip,
+                (int)RemotePort, (long)LastUpdate, (int)ProtocolVersion);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -96,14 +112,19 @@ namespace NetworkTables.Core.Native
 #pragma warning disable 649
         public readonly uint RpcId;
         public readonly uint CallUid;
+        public readonly NtConnectionInfo ConnInfo;
         public readonly NtStringRead Name;
         public readonly NtStringRead Param;
 #pragma warning restore 649
 
         public RpcCallInfo ToManaged()
         {
+            Console.WriteLine("Getting Name");
+            string name = Name.ToString();
+            Console.WriteLine("Getting RPC Array");
+            byte[] rpc = Param.ToRpcArray();
             // ReSharper disable once ImpureMethodCallOnReadonlyValueField
-            return new RpcCallInfo(RpcId, CallUid, Name.ToString(), Param.ToRpcArray());
+            return new RpcCallInfo(RpcId, CallUid, ConnInfo.ToManaged(), name, rpc);
         }
     }
 

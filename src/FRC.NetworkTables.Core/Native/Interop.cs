@@ -152,7 +152,8 @@ namespace NetworkTables.Core.Native
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr NT_RPCCallback(
-            IntPtr data, IntPtr name, UIntPtr name_len, IntPtr param, UIntPtr params_len, out UIntPtr results_len);
+            IntPtr data, IntPtr name, UIntPtr name_len, IntPtr param, UIntPtr params_len, 
+            ref NtConnectionInfo conn_info, out UIntPtr results_len);
 
 
         //Interup Functions
