@@ -19,6 +19,7 @@ namespace NetworkTables.Core.Native
 
         public override string ToString()
         {
+            Console.WriteLine(len);
             byte[] arr = new byte[len.ToUInt64()];
             Marshal.Copy(str, arr, 0, (int)len.ToUInt64());
             return Encoding.UTF8.GetString(arr);
