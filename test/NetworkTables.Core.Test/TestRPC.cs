@@ -47,11 +47,11 @@ namespace NetworkTables.Core.Test
             RpcCallInfo info;
             bool polled = RemoteProcedureCall.PollRpc(true, TimeSpan.FromSeconds(1), out info);
 
-            Console.WriteLine(info.CallUid);
-            Console.WriteLine(info.Name);
-            Console.WriteLine(info.ConnInfo.RemoteId);
-            Console.WriteLine(info.ConnInfo.RemoteIp);
-            Console.WriteLine(info.ConnInfo.RemotePort);
+           // Console.WriteLine(info.CallUid);
+            //Console.WriteLine(info.Name);
+            Console.WriteLine("Remote ID Poll " + info.ConnInfo.RemoteId);
+            Console.WriteLine("Remote IP Poll " + info.ConnInfo.RemoteIp);
+            Console.WriteLine("Remote Port Poll " + info.ConnInfo.RemotePort);
 
             Assert.That(polled, Is.True);
 
