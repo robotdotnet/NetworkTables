@@ -215,28 +215,34 @@ namespace NetworkTables.Core.Test.SpecScanners
                 return false;
             }
         }
-        
-        [Test]
-        public void TestNtConnectionInfo()
+
+        private int GetNumNtConnectionInfoBytes()
         {
             int numberNonChangingBytes = 16;
             int numberPointers = 0;
             //Check for mac changes
             OsType type = NativeLibraryLoader.GetOsType();
-            if(type == OsType.MacOs32 || type == OsType.MacOs64)
+            if (type == OsType.MacOs32 || type == OsType.MacOs64)
             {
                 //No padding byte added on Mac OS X.
-                numberPointers = 3;
+                numberPointers = 4;
             }
             else
             {
                 //Padding pointer added on all other OS's
-                numberPointers = 3 + 1;
+                numberPointers = 4;
             }
-            int pointerSize = Marshal.SizeOf(typeof (IntPtr));
+            int pointerSize = Marshal.SizeOf(typeof(IntPtr));
 
-            int pointerTotal = numberPointers * pointerSize; 
-            Assert.That(Marshal.SizeOf(typeof(NtConnectionInfo)), Is.EqualTo(pointerTotal + numberNonChangingBytes));
+            int pointerTotal = numberPointers * pointerSize;
+
+            return pointerTotal + numberNonChangingBytes;
+        }
+        
+        [Test]
+        public void TestNtConnectionInfo()
+        {
+            Assert.That(Marshal.SizeOf(typeof(NtConnectionInfo)), Is.EqualTo(GetNumNtConnectionInfoBytes()));
             Assert.That(IsBlittable(typeof(NtConnectionInfo)));
         }
 
@@ -272,7 +278,8 @@ namespace NetworkTables.Core.Test.SpecScanners
             int pointerSize = Marshal.SizeOf(typeof(IntPtr));
 
             int pointerTotal = numberPointers * pointerSize;
-            Assert.That(Marshal.SizeOf(typeof(NtRpcCallInfo)), Is.EqualTo(pointerTotal + numberNonChangingBytes));
+            Assert.That(Marshal.SizeOf(typeof(NtRpcCallInfo)), Is.EqualTo(pointerTotal + 
+                numberNonChangingBytes + GetNumNtConnectionInfoBytes()));
             Assert.That(IsBlittable(typeof(NtRpcCallInfo)));
         }
         
