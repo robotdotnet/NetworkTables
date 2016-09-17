@@ -19,6 +19,7 @@ namespace NetworkTables.Core.Test
 
             Console.WriteLine("Call Info Size" + Marshal.SizeOf(typeof(NtRpcCallInfo)));
             Console.WriteLine("Conn Info Size" + Marshal.SizeOf( typeof(NtConnectionInfo)));
+            Console.WriteLine("TwoNtStrings" + Marshal.SizeOf(typeof(TwoNtStrings)));
 
             NtCore.SetLogger((level, file, line, msg) =>
             {

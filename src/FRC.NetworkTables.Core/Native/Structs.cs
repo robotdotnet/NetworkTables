@@ -72,6 +72,13 @@ namespace NetworkTables.Core.Native
         // ReSharper restore FieldCanBeMadeReadOnly.Global
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct TwoNtStrings
+    {
+        public readonly NtStringRead RemoteId;
+        public readonly NtStringRead RemoteIp;
+    }
+
 
     //Looks like this will always be created for us by the library, so we do not have to write it.
     //
