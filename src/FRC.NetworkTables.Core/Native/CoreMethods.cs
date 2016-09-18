@@ -555,7 +555,7 @@ namespace NetworkTables.Core.Native
 #pragma warning disable CS0618
                 var con = (NtConnectionInfo) Marshal.PtrToStructure(data, typeof(NtConnectionInfo));
 #pragma warning restore CS0618
-                connectionsArray.Add(new ConnectionInfo(con.RemoteId.ToString(), ReadUTF8String(con.RemoteIp), (int) con.RemotePort, (long) con.LastUpdate, (int) con.ProtocolVersion));
+                connectionsArray.Add(new ConnectionInfo(con.RemoteId.ToString(), con.RemoteIp.ToString(), (int) con.RemotePort, (long) con.LastUpdate, (int) con.ProtocolVersion));
             }
             Interop.NT_DisposeConnectionInfoArray(connections, count);
             return connectionsArray;
@@ -649,8 +649,7 @@ namespace NetworkTables.Core.Native
         {
             Interop.NT_ConnectionListenerCallback modCallback = (uint uid, IntPtr data, int connected, ref NtConnectionInfo conn) =>
             {
-                string remoteName = ReadUTF8String(conn.RemoteIp);
-                ConnectionInfo info = new ConnectionInfo(conn.RemoteId.ToString(), remoteName, (int) conn.RemotePort, (long) conn.LastUpdate, (int) conn.ProtocolVersion);
+                ConnectionInfo info = new ConnectionInfo(conn.RemoteId.ToString(), conn.RemoteIp.ToString(), (int) conn.RemotePort, (long) conn.LastUpdate, (int) conn.ProtocolVersion);
                 callback((int) uid, connected != 0, info);
             };
 
