@@ -227,6 +227,7 @@ namespace NetworkTables.Core.Test.SpecScanners
             {
                 //No padding byte added on Mac OS X.
                 numberPointers = 4;
+                numberNonChangingBytes = 16;
             }
             else
             {
