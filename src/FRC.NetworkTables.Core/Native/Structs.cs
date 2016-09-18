@@ -80,9 +80,7 @@ namespace NetworkTables.Core.Native
     {
 #pragma warning disable 649
         public readonly NtStringRead RemoteId;
-        //To be switched when #87 gets merged
-        //public readonly NtStringRead RemoteIp;
-        public readonly IntPtr RemoteIp;
+        public readonly NtStringRead RemoteIp;
         public readonly uint RemotePort;
         public readonly ulong LastUpdate;
         public readonly uint ProtocolVersion;

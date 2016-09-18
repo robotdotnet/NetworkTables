@@ -219,19 +219,20 @@ namespace NetworkTables.Core.Test.SpecScanners
         [Test]
         public void TestNtConnectionInfo()
         {
-            int numberNonChangingBytes = 16;
+            int numberNonChangingBytes = 24;
             int numberPointers = 0;
             //Check for mac changes
             OsType type = NativeLibraryLoader.GetOsType();
             if(type == OsType.MacOs32 || type == OsType.MacOs64)
             {
                 //No padding byte added on Mac OS X.
-                numberPointers = 3;
+                numberPointers = 4;
+                numberNonChangingBytes = 16;
             }
             else
             {
                 //Padding pointer added on all other OS's
-                numberPointers = 3 + 1;
+                numberPointers = 4;
             }
             int pointerSize = Marshal.SizeOf(typeof (IntPtr));
 
