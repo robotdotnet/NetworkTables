@@ -21,7 +21,7 @@ namespace NetworkTables.Core.Native
     {
         private static readonly bool s_libraryLoaded;
         // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
-        private static readonly NativeLibraryLoader nativeLoader;
+        internal static NativeLibraryLoader NativeLoader { get; }
         private static readonly string s_libraryLocation;
         private static readonly bool s_useCommandLineFile;
         // ReSharper restore PrivateFieldCanBeConvertedToLocalVariable
@@ -44,7 +44,7 @@ namespace NetworkTables.Core.Native
             NT_StopRpcServer();
             NT_StopNotifier();
 
-            nativeLoader.LibraryLoader.UnloadLibrary();
+            NativeLoader.LibraryLoader.UnloadLibrary();
 
             try
             {
@@ -91,37 +91,37 @@ namespace NetworkTables.Core.Native
 
                     if (s_useCommandLineFile)
                     {
-                        nativeLoader = new NativeLibraryLoader();
-                        nativeLoader.LoadNativeLibrary<Interop>(s_libraryLocation, true);
+                        NativeLoader = new NativeLibraryLoader();
+                        NativeLoader.LoadNativeLibrary<Interop>(s_libraryLocation, true);
                     }
                     else if (File.Exists("/usr/local/frc/bin/frcRunRobot.sh"))
                     {
-                        nativeLoader = new NativeLibraryLoader();
+                        NativeLoader = new NativeLibraryLoader();
                         // RoboRIO
-                        nativeLoader.LoadNativeLibrary<Interop>(new RoboRioLibraryLoader(), resourceRoot + "roborio.libntcore.so");
-                        s_libraryLocation = nativeLoader.LibraryLocation;
+                        NativeLoader.LoadNativeLibrary<Interop>(new RoboRioLibraryLoader(), resourceRoot + "roborio.libntcore.so");
+                        s_libraryLocation = NativeLoader.LibraryLocation;
                     }
                     else
                     {
-                        nativeLoader = new NativeLibraryLoader();
-                        nativeLoader.AddLibraryLocation(OsType.Windows32,
+                        NativeLoader = new NativeLibraryLoader();
+                        NativeLoader.AddLibraryLocation(OsType.Windows32,
                             resourceRoot + "x86.ntcore.dll");
-                        nativeLoader.AddLibraryLocation(OsType.Windows64,
+                        NativeLoader.AddLibraryLocation(OsType.Windows64,
                             resourceRoot + "amd64.ntcore.dll");
-                        nativeLoader.AddLibraryLocation(OsType.Linux32,
+                        NativeLoader.AddLibraryLocation(OsType.Linux32,
                             resourceRoot + "x86.libntcore.so");
-                        nativeLoader.AddLibraryLocation(OsType.Linux64,
+                        NativeLoader.AddLibraryLocation(OsType.Linux64,
                             resourceRoot + "amd64.libntcore.so");
-                        nativeLoader.AddLibraryLocation(OsType.MacOs32,
+                        NativeLoader.AddLibraryLocation(OsType.MacOs32,
                             resourceRoot + "x86.libntcore.dylib");
-                        nativeLoader.AddLibraryLocation(OsType.MacOs64,
+                        NativeLoader.AddLibraryLocation(OsType.MacOs64,
                             resourceRoot + "amd64.libntcore.dylib");
 
-                        nativeLoader.LoadNativeLibrary<Interop>();
-                        s_libraryLocation = nativeLoader.LibraryLocation;
+                        NativeLoader.LoadNativeLibrary<Interop>();
+                        s_libraryLocation = NativeLoader.LibraryLocation;
                     }
 
-                    NativeDelegateInitializer.SetupNativeDelegates<Interop>(nativeLoader);
+                    NativeDelegateInitializer.SetupNativeDelegates<Interop>(NativeLoader);
                 }
                 catch (Exception e)
                 {

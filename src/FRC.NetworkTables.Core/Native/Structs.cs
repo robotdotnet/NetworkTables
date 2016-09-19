@@ -86,6 +86,15 @@ namespace NetworkTables.Core.Native
         public readonly uint ProtocolVersion;
 #pragma warning restore 649
 
+        internal NtConnectionInfo(NtStringRead remoteId, NtStringRead remoteIp, uint port, ulong update, uint proto)
+        {
+            RemoteId = remoteId;
+            RemoteIp = remoteIp;
+            RemotePort = port;
+            LastUpdate = update;
+            ProtocolVersion = proto;
+        }
+
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -97,6 +106,14 @@ namespace NetworkTables.Core.Native
         public readonly NtStringRead Name;
         public readonly NtStringRead Param;
 #pragma warning restore 649
+
+        internal NtRpcCallInfo(NtStringRead name, NtStringRead param, uint rpcId, uint callUid)
+        {
+            Name = name;
+            Param = param;
+            RpcId = rpcId;
+            CallUid = callUid;
+        }
 
         public RpcCallInfo ToManaged()
         {
