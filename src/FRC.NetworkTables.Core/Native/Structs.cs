@@ -95,6 +95,10 @@ namespace NetworkTables.Core.Native
             ProtocolVersion = proto;
         }
 
+        public ConnectionInfo ToManaged()
+        {
+            return new ConnectionInfo(RemoteId.ToString(), RemoteIp.ToString(), (int)RemotePort, (long)LastUpdate, (int)ProtocolVersion);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]

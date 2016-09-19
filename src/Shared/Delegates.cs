@@ -31,6 +31,7 @@
     /// </summary>
     /// <param name="name">The name of the callback</param>
     /// <param name="param">The binary data of the callback</param>
+    /// <param name="connInfo">The connection info for the requested caller</param>
     /// <returns>The raw rpc data to send in response</returns>
-    public delegate byte[] RpcCallback(string name, byte[] param);
+    public delegate byte[] RpcCallback(string name, byte[] param, ConnectionInfo connInfo);
 }

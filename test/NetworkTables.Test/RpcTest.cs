@@ -31,7 +31,7 @@ namespace NetworkTables.Test
             bool polled = RemoteProcedureCall.PollRpc(true, TimeSpan.FromSeconds(1), out info);
             Assert.That(polled, Is.True);
 
-            byte[] toSendBack = Callback1(info.Name, info.Params);
+            byte[] toSendBack = Callback1(info.Name, info.Params, new ConnectionInfo());
             Assert.That(toSendBack.Length, Is.Not.EqualTo(0));
 
             RemoteProcedureCall.PostRpcResponse(info.RpcId, info.CallUid, toSendBack);
@@ -66,7 +66,7 @@ namespace NetworkTables.Test
             Assert.That(task.Result, Is.Not.Null);
             Assert.That(task.Result.HasValue);
 
-            byte[] toSendBack = Callback1(task.Result.Value.Name, task.Result.Value.Params);
+            byte[] toSendBack = Callback1(task.Result.Value.Name, task.Result.Value.Params, new ConnectionInfo());
             Assert.That(toSendBack.Length, Is.Not.EqualTo(0));
 
             RemoteProcedureCall.PostRpcResponse(task.Result.Value.RpcId, task.Result.Value.CallUid, toSendBack);
@@ -128,7 +128,7 @@ namespace NetworkTables.Test
             Assert.That(polled, Is.False);
         }
 
-        private static byte[] Callback1(string names, byte[] paramsStr)
+        private static byte[] Callback1(string names, byte[] paramsStr, ConnectionInfo connInfo)
         {
             var param = RemoteProcedureCall.UnpackRpcValues(paramsStr, NtType.Double);
 
@@ -382,7 +382,7 @@ namespace NetworkTables.Test
             Console.WriteLine(sw.Elapsed);
         }
 
-        private static byte[] Callback2(string names, byte[] paramsStr)
+        private static byte[] Callback2(string names, byte[] paramsStr, ConnectionInfo connInfo)
         {
             var param = RemoteProcedureCall.UnpackRpcValues(paramsStr, NtType.Boolean, NtType.BooleanArray, NtType.Double, NtType.DoubleArray, NtType.Raw, NtType.String, NtType.StringArray);
 

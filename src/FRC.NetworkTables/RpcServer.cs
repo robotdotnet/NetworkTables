@@ -77,16 +77,16 @@ namespace NetworkTables
             }
         }
 
-        public void ProcessRpc(string name, Message msg, RpcCallback func, uint connId, SendMsgFunc sendResponse)
+        public void ProcessRpc(string name, Message msg, RpcCallback func, uint connId, SendMsgFunc sendResponse, ref ConnectionInfo connInfo)
         {
 
             using (m_lockObject.Lock())
             {
                 if (func != null)
-                    m_callQueue.Enqueue(new RpcCall(name, msg, func, connId, sendResponse));
+                    m_callQueue.Enqueue(new RpcCall(name, msg, func, connId, sendResponse, connInfo));
                 else
                 // ReSharper disable once ExpressionIsAlwaysNull
-                    m_pollQueue.Enqueue(new RpcCall(name, msg, func, connId, sendResponse));
+                    m_pollQueue.Enqueue(new RpcCall(name, msg, func, connId, sendResponse, connInfo));
                 if (func != null)
                 {
                     m_callCond.NotifyAll();
@@ -248,7 +248,7 @@ namespace NetworkTables
                             continue;
                         IDisposable monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                         monitorToUnlock.Dispose();
-                        var result = item.Func(item.Name, item.Msg.Val.GetRpc());
+                        var result = item.Func(item.Name, item.Msg.Val.GetRpc(), item.ConnInfo);
                         var response = Message.RpcResponse(item.Msg.Id, item.Msg.SeqNumUid, result);
                         item.SendResponse(response);
                         Interlocked.Exchange(ref monitor, m_lockObject.Lock());
@@ -266,13 +266,14 @@ namespace NetworkTables
 
         private struct RpcCall
         {
-            public RpcCall(string name, Message msg, RpcCallback func, uint connId, SendMsgFunc sendResponse)
+            public RpcCall(string name, Message msg, RpcCallback func, uint connId, SendMsgFunc sendResponse, ConnectionInfo connInfo)
             {
                 Name = name;
                 Msg = msg;
                 Func = func;
                 ConnId = connId;
                 SendResponse = sendResponse;
+                ConnInfo = connInfo;
             }
 
             public string Name { get; }
@@ -280,6 +281,7 @@ namespace NetworkTables
             public RpcCallback Func { get; }
             public uint ConnId { get; }
             public SendMsgFunc SendResponse { get; }
+            public ConnectionInfo ConnInfo { get; }
 
         }
 
