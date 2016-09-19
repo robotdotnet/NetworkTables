@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using NetworkTables.Core.Native;
 using NetworkTables.Core.NativeLibraryUtilities;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable NotAccessedField.Global
+
 namespace NetworkTables.Core.Test.SpecScanners
 {
     public class InteropForTesting
@@ -18,6 +21,8 @@ namespace NetworkTables.Core.Test.SpecScanners
 
             NativeDelegateInitializer.SetupNativeDelegates<InteropForTesting>(nativeLoader);
         }
+
+#pragma warning disable 649
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate IntPtr NT_GetStringForTestingDelegate(byte[] name, ref int size);
 
@@ -56,5 +61,7 @@ namespace NetworkTables.Core.Test.SpecScanners
         internal delegate void NT_DisposeRpcCallInfoIntPtrDelegate(IntPtr callInfo);
         [NativeDelegate("NT_DisposeRpcCallInfo")]
         internal static NT_DisposeRpcCallInfoIntPtrDelegate NT_DisposeRpcCallInfoIntPtr;
+
+#pragma warning restore 649
     }
 }
