@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
@@ -19,10 +20,10 @@ using static NetworkTables.Core.Native.Interop;
 
 namespace NetworkTables.Core.Test.SpecScanners
 {
-#if !NETCOREAPP1_0
     [TestFixture]
     public class TestNativeLibraryInterface
     {
+#if !NETCOREAPP1_0
         public struct HALDelegateClass
         {
             public string ClassName;
@@ -169,6 +170,7 @@ namespace NetworkTables.Core.Test.SpecScanners
 
             Assert.That(found);
         }
+#endif
 
         //Checks all our types for blittable
         private void CheckForBlittable(List<TypeSyntax> types, List<string> allowedTypes, List<string> nonBlittableFuncs, string nonBlittableLine)
@@ -209,7 +211,11 @@ namespace NetworkTables.Core.Test.SpecScanners
             {
                 //Otherwise try and pin the type. If it pins, it is blittable.
                 //If exception is thrown, it is not blittable, and do not allow.
+#if NETCOREAPP1_0
+                object obj = Activator.CreateInstance(type);
+#else
                 object obj = FormatterServices.GetUninitializedObject(type);
+#endif
                 GCHandle.Alloc(obj, GCHandleType.Pinned).Free();
                 return true;
             }
@@ -393,7 +399,7 @@ namespace NetworkTables.Core.Test.SpecScanners
             object obj = new NtStringWrite[6];
             Assert.DoesNotThrow(() => GCHandle.Alloc(obj, GCHandleType.Pinned).Free());
         }
-
+#if !NETCOREAPP1_0
         [Test]
         public void TestNativeIntefaceBlittable()
         {
@@ -488,6 +494,7 @@ namespace NetworkTables.Core.Test.SpecScanners
                 Assert.Pass();
             }
         }
-    }
 #endif
+    }
+
 }
