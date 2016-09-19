@@ -13,6 +13,9 @@ using Microsoft.CodeAnalysis.Text;
 using NetworkTables.Core.Native;
 using NetworkTables.Core.NativeLibraryUtilities;
 using NUnit.Framework;
+using static NetworkTables.Core.Test.SpecScanners.InteropForTesting;
+using static NetworkTables.Core.Native.CoreMethods;
+using static NetworkTables.Core.Native.Interop;
 
 namespace NetworkTables.Core.Test.SpecScanners
 {
@@ -143,7 +146,7 @@ namespace NetworkTables.Core.Test.SpecScanners
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.FileName = $"{dirToNetworkTablesLib}\\NativeLibraries\\roborio\\frcnm.exe";
-                Console.WriteLine(p.StartInfo.FileName);
+            Console.WriteLine(p.StartInfo.FileName);
             p.StartInfo.Arguments = $"{dirToNetworkTablesLib}\\NativeLibraries\\roborio\\libntcore.so";
             p.Start();
             string output = p.StandardOutput.ReadToEnd();
@@ -215,30 +218,77 @@ namespace NetworkTables.Core.Test.SpecScanners
                 return false;
             }
         }
-        
+
         [Test]
         public void TestNtConnectionInfo()
         {
-            int numberNonChangingBytes = 24;
-            int numberPointers = 0;
-            //Check for mac changes
-            OsType type = NativeLibraryLoader.GetOsType();
-            if(type == OsType.MacOs32 || type == OsType.MacOs64)
-            {
-                //No padding byte added on Mac OS X.
-                numberPointers = 4;
-                numberNonChangingBytes = 16;
-            }
-            else
-            {
-                //Padding pointer added on all other OS's
-                numberPointers = 4;
-            }
-            int pointerSize = Marshal.SizeOf(typeof (IntPtr));
+            string name = "Testing";
+            string ip = "localhost";
+            uint port = 1756;
+            ulong lastUpdate = 26;
+            uint protoRev = 0x0300;
+            int nativeSize = 0;
 
-            int pointerTotal = numberPointers * pointerSize; 
-            Assert.That(Marshal.SizeOf(typeof(NtConnectionInfo)), Is.EqualTo(pointerTotal + numberNonChangingBytes));
+            UIntPtr nameLen;
+            byte[] nameArr = CreateUTF8String(name, out nameLen);
+            UIntPtr ipLen;
+            byte[] ipArr = CreateUTF8String(ip, out ipLen);
+            IntPtr connectionInfoPtr = NT_GetConnectionInfoForTesting(nameArr, ipArr, port, lastUpdate, protoRev,
+                ref nativeSize);
+            Assert.That(Marshal.SizeOf(typeof(NtConnectionInfo)), Is.EqualTo(nativeSize));
             Assert.That(IsBlittable(typeof(NtConnectionInfo)));
+
+            using (NtStringWrite nameToWrite = new NtStringWrite(name))
+            using (NtStringWrite ipToWrite = new NtStringWrite(ip))
+            {
+
+
+                NtConnectionInfo managedInfo = new NtConnectionInfo(new NtStringRead(nameToWrite.str, nameToWrite.len),
+                    new NtStringRead(ipToWrite.str, ipToWrite.len), port, lastUpdate, protoRev);
+
+                Assert.That(managedInfo.RemoteId.ToString(), Is.EqualTo(name));
+                Assert.That(managedInfo.RemoteIp.ToString(), Is.EqualTo(ip));
+                Assert.That(managedInfo.RemotePort, Is.EqualTo(port));
+                Assert.That(managedInfo.LastUpdate, Is.EqualTo(lastUpdate));
+                Assert.That(managedInfo.ProtocolVersion, Is.EqualTo(protoRev));
+
+
+                List<byte> nativeArray = new List<byte>();
+                List<byte> managedArray = new List<byte>();
+
+                int bytesToSkip = (Marshal.SizeOf(typeof(IntPtr)) == 8) ? 32 : 16;
+                unsafe
+                {
+                    NtConnectionInfo* connInfo = (NtConnectionInfo*)connectionInfoPtr.ToPointer();
+                    Assert.That(connInfo->RemoteId.ToString(), Is.EqualTo(name));
+                    Assert.That(connInfo->RemoteIp.ToString(), Is.EqualTo(ip));
+                    Assert.That(connInfo->RemotePort, Is.EqualTo(port));
+                    Assert.That(connInfo->LastUpdate, Is.EqualTo(lastUpdate));
+                    Assert.That(connInfo->ProtocolVersion, Is.EqualTo(protoRev));
+
+
+
+                    byte* bp = (byte*)connInfo;
+                    for (int i = bytesToSkip; i < nativeSize; i++)
+                    {
+                        nativeArray.Add(bp[i]);
+                    }
+
+                    NtConnectionInfo* managedConn = &managedInfo;
+                    byte* mbp = (byte*)managedConn;
+
+                    for (int i = bytesToSkip; i < Marshal.SizeOf(typeof(NtConnectionInfo)); i++)
+                    {
+                        managedArray.Add(mbp[i]);
+                    }
+                }
+
+                // Assert that everything past our pointer values are equivelent
+                Assert.That(nativeArray, Is.EquivalentTo(managedArray));
+
+            }
+
+            NT_FreeConnectionInfoForTesting(connectionInfoPtr);
         }
 
         [Test]
@@ -268,22 +318,82 @@ namespace NetworkTables.Core.Test.SpecScanners
         [Test]
         public void TestNtRpcCallInfo()
         {
-            int numberNonChangingBytes = 8;
-            int numberPointers = 4;
-            int pointerSize = Marshal.SizeOf(typeof(IntPtr));
+            uint rpcId = 10549;
+            uint callUid = 8085;
+            string name = "TestName";
+            string param = "Params\0Others";
 
-            int pointerTotal = numberPointers * pointerSize;
-            Assert.That(Marshal.SizeOf(typeof(NtRpcCallInfo)), Is.EqualTo(pointerTotal + numberNonChangingBytes));
+            UIntPtr nameLen;
+            byte[] nameArr = CreateUTF8String(name, out nameLen);
+            UIntPtr paramLen;
+            byte[] paramArr = CreateUTF8String(param, out paramLen);
+            int nativeSize = 0;
+
+            IntPtr rpcCallInfoPtr = NT_GetRpcCallInfoForTesting(rpcId, callUid, nameArr, paramArr, paramLen, ref nativeSize);
+
+
+
+            Assert.That(Marshal.SizeOf(typeof(NtRpcCallInfo)), Is.EqualTo(nativeSize));
             Assert.That(IsBlittable(typeof(NtRpcCallInfo)));
+
+            using (NtStringWrite nameToWrite = new NtStringWrite(name))
+            using (NtStringWrite paramToWrite = new NtStringWrite(param))
+            {
+
+
+                NtRpcCallInfo managedInfo = new NtRpcCallInfo(new NtStringRead(nameToWrite.str, nameToWrite.len),
+                    new NtStringRead(paramToWrite.str, paramToWrite.len), rpcId, callUid);
+
+                Assert.That(managedInfo.Name.ToString(), Is.EqualTo(name));
+                Assert.That(managedInfo.Param.ToString(), Is.EqualTo(param));
+                Assert.That(managedInfo.CallUid, Is.EqualTo(callUid));
+                Assert.That(managedInfo.RpcId, Is.EqualTo(rpcId));
+
+
+                List<byte> nativeArray = new List<byte>();
+                List<byte> managedArray = new List<byte>();
+
+                int bytesToSkip = (Marshal.SizeOf(typeof(IntPtr)) == 8) ? 32 : 16;
+                unsafe
+                {
+                    NtRpcCallInfo* callInfo = (NtRpcCallInfo*)rpcCallInfoPtr.ToPointer();
+                    Assert.That(callInfo->Name.ToString(), Is.EqualTo(name));
+                    Assert.That(callInfo->Param.ToString(), Is.EqualTo(param));
+                    Assert.That(callInfo->CallUid, Is.EqualTo(callUid));
+                    Assert.That(callInfo->RpcId, Is.EqualTo(rpcId));
+
+
+
+                    byte* bp = (byte*)callInfo;
+                    for (int i = 0; i < nativeSize - bytesToSkip; i++)
+                    {
+                        nativeArray.Add(bp[i]);
+                    }
+
+                    NtRpcCallInfo* managedRpc = &managedInfo;
+                    byte* mbp = (byte*)managedRpc;
+
+                    for (int i = 0; i < Marshal.SizeOf(typeof(NtRpcCallInfo)) - bytesToSkip; i++)
+                    {
+                        managedArray.Add(mbp[i]);
+                    }
+                }
+
+                // Assert that everything past our pointer values are equivelent
+                Assert.That(nativeArray, Is.EquivalentTo(managedArray));
+
+            }
+
+            NT_DisposeRpcCallInfoIntPtr(rpcCallInfoPtr);
         }
-        
+
         [Test]
         public void TestNtStringWriteArray()
         {
             object obj = new NtStringWrite[6];
             Assert.DoesNotThrow(() => GCHandle.Alloc(obj, GCHandleType.Pinned).Free());
         }
-        
+
         [Test]
         public void TestNativeIntefaceBlittable()
         {
@@ -380,4 +490,4 @@ namespace NetworkTables.Core.Test.SpecScanners
         }
     }
 #endif
-        }
+}

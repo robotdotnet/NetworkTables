@@ -36,7 +36,8 @@
       "Tables/",
       "Wire/"
     ],
-    "nowarn": [ "CS0618" ]
+    "nowarn": [ "CS0618" ],
+    "allowUnsafe": true
   },
   "configurations": {
     "CI": {}
