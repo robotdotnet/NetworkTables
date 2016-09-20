@@ -1029,11 +1029,7 @@ namespace NetworkTables.Core.Native
             IntPtr retVal = Interop.NT_GetRpcResultTimeout(blocking ? 1 : 0, (uint)callUid, timeout.TotalSeconds, ref size);
             if (retVal == IntPtr.Zero)
             {
-#if NETSTANDARD
-                result = Array.Empty<byte>();
-#else
-                result = new byte[0];
-#endif
+                result = null;
                 return false;
             }
             result = GetRawDataFromPtr(retVal, size);
@@ -1046,11 +1042,7 @@ namespace NetworkTables.Core.Native
             IntPtr retVal = Interop.NT_GetRpcResult(blocking ? 1 : 0, (uint)callUid, ref size);
             if (retVal == IntPtr.Zero)
             {
-#if NETSTANDARD
-                result = Array.Empty<byte>();
-#else
-                result = new byte[0];
-#endif
+                result = null;
                 return false;
             }
             result = GetRawDataFromPtr(retVal, size);
