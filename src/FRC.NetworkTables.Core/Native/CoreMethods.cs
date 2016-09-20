@@ -934,8 +934,8 @@ namespace NetworkTables.Core.Native
             Interop.NT_RPCCallback modCallback =
                 (IntPtr data, IntPtr ptr, UIntPtr len, IntPtr intPtr, UIntPtr paramsLen, out UIntPtr resultsLen) =>
                 {
-                    string retName = CoreMethods.ReadUTF8String(ptr, len);
-                    byte[] param = CoreMethods.GetRawDataFromPtr(intPtr, paramsLen);
+                    string retName = ReadUTF8String(ptr, len);
+                    byte[] param = GetRawDataFromPtr(intPtr, paramsLen);
                     byte[] cb = callback(retName, param);
                     resultsLen = (UIntPtr)cb.Length;
                     IntPtr retPtr = Interop.NT_AllocateCharArray(resultsLen);
@@ -943,7 +943,7 @@ namespace NetworkTables.Core.Native
                     return retPtr;
                 };
             UIntPtr nameLen;
-            IntPtr nameB = CoreMethods.CreateCachedUTF8String(name, out nameLen);
+            IntPtr nameB = CreateCachedUTF8String(name, out nameLen);
             Interop.NT_CreateRpc(nameB, nameLen, def, (UIntPtr)def.Length, IntPtr.Zero, modCallback);
             s_rpcCallbacks.Add(modCallback);
         }
@@ -951,7 +951,7 @@ namespace NetworkTables.Core.Native
         internal static void CreatePolledRpc(string name, byte[] def)
         {
             UIntPtr nameLen;
-            IntPtr nameB = CoreMethods.CreateCachedUTF8String(name, out nameLen);
+            IntPtr nameB = CreateCachedUTF8String(name, out nameLen);
             Interop.NT_CreatePolledRpc(nameB, nameLen, def, (UIntPtr)def.Length);
         }
 
@@ -989,7 +989,7 @@ namespace NetworkTables.Core.Native
         internal static long CallRpc(string name, byte[] param)
         {
             UIntPtr size;
-            IntPtr nameB = CoreMethods.CreateCachedUTF8String(name, out size);
+            IntPtr nameB = CreateCachedUTF8String(name, out size);
             return Interop.NT_CallRpc(nameB, size, param, (UIntPtr)param.Length);
         }
 
@@ -1036,7 +1036,7 @@ namespace NetworkTables.Core.Native
 #endif
                 return false;
             }
-            result = CoreMethods.GetRawDataFromPtr(retVal, size);
+            result = GetRawDataFromPtr(retVal, size);
             return true;
         }
 
@@ -1053,7 +1053,7 @@ namespace NetworkTables.Core.Native
 #endif
                 return false;
             }
-            result = CoreMethods.GetRawDataFromPtr(retVal, size);
+            result = GetRawDataFromPtr(retVal, size);
             return true;
         }
 
