@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using NetworkTables.Exceptions;
 
 namespace NetworkTables.Core.Native
@@ -181,7 +183,7 @@ namespace NetworkTables.Core.Native
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
-            int retVal = Interop.NT_SetEntryRaw(namePtr, size, value, (UIntPtr) value.Length, force ? 1 : 0);
+            int retVal = Interop.NT_SetEntryRaw(namePtr, size, value, (UIntPtr)value.Length, force ? 1 : 0);
             return retVal != 0;
         }
 
@@ -196,7 +198,7 @@ namespace NetworkTables.Core.Native
                 valueIntArr[i] = value[i] ? 1 : 0;
             }
 
-            int retVal = Interop.NT_SetEntryBooleanArray(namePtr, size, valueIntArr, (UIntPtr) valueIntArr.Length, force ? 1 : 0);
+            int retVal = Interop.NT_SetEntryBooleanArray(namePtr, size, valueIntArr, (UIntPtr)valueIntArr.Length, force ? 1 : 0);
 
             return retVal != 0;
         }
@@ -206,7 +208,7 @@ namespace NetworkTables.Core.Native
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
 
-            int retVal = Interop.NT_SetEntryDoubleArray(namePtr, size, value, (UIntPtr) value.Length, force ? 1 : 0);
+            int retVal = Interop.NT_SetEntryDoubleArray(namePtr, size, value, (UIntPtr)value.Length, force ? 1 : 0);
 
             return retVal != 0;
         }
@@ -222,7 +224,7 @@ namespace NetworkTables.Core.Native
                 ntStrings[i] = new NtStringWrite(value[i]);
             }
 
-            int retVal = Interop.NT_SetEntryStringArray(namePtr, size, ntStrings, (UIntPtr) ntStrings.Length, force ? 1 : 0);
+            int retVal = Interop.NT_SetEntryStringArray(namePtr, size, ntStrings, (UIntPtr)ntStrings.Length, force ? 1 : 0);
 
             foreach (var ntString in ntStrings)
             {
@@ -515,20 +517,20 @@ namespace NetworkTables.Core.Native
             UIntPtr size;
             byte[] str = CreateUTF8String(prefix, out size);
             UIntPtr arrSize = UIntPtr.Zero;
-            IntPtr arr = Interop.NT_GetEntryInfo(str, size, (uint) types, ref arrSize);
+            IntPtr arr = Interop.NT_GetEntryInfo(str, size, (uint)types, ref arrSize);
 #pragma warning disable CS0618
             int entryInfoSize = Marshal.SizeOf(typeof(NtEntryInfo));
 #pragma warning restore CS0618
-            int arraySize = (int) arrSize.ToUInt64();
+            int arraySize = (int)arrSize.ToUInt64();
             List<EntryInfo> entryArray = new List<EntryInfo>(arraySize);
 
             for (int i = 0; i < arraySize; i++)
             {
-                IntPtr data = new IntPtr(arr.ToInt64() + entryInfoSize*i);
+                IntPtr data = new IntPtr(arr.ToInt64() + entryInfoSize * i);
 #pragma warning disable CS0618
-                NtEntryInfo info = (NtEntryInfo) Marshal.PtrToStructure(data, typeof(NtEntryInfo));
+                NtEntryInfo info = (NtEntryInfo)Marshal.PtrToStructure(data, typeof(NtEntryInfo));
 #pragma warning restore CS0618
-                entryArray.Add(new EntryInfo(info.name.ToString(), info.type, (EntryFlags) info.flags, (long) info.last_change));
+                entryArray.Add(new EntryInfo(info.name.ToString(), info.type, (EntryFlags)info.flags, (long)info.last_change));
             }
             Interop.NT_DisposeEntryInfoArray(arr, arrSize);
             return entryArray;
@@ -545,17 +547,17 @@ namespace NetworkTables.Core.Native
 #pragma warning disable CS0618
             int connectionInfoSize = Marshal.SizeOf(typeof(NtConnectionInfo));
 #pragma warning restore CS0618
-            int arraySize = (int) count.ToUInt64();
+            int arraySize = (int)count.ToUInt64();
 
             List<ConnectionInfo> connectionsArray = new List<ConnectionInfo>(arraySize);
 
             for (int i = 0; i < arraySize; i++)
             {
-                IntPtr data = new IntPtr(connections.ToInt64() + connectionInfoSize*i);
+                IntPtr data = new IntPtr(connections.ToInt64() + connectionInfoSize * i);
 #pragma warning disable CS0618
-                var con = (NtConnectionInfo) Marshal.PtrToStructure(data, typeof(NtConnectionInfo));
+                var con = (NtConnectionInfo)Marshal.PtrToStructure(data, typeof(NtConnectionInfo));
 #pragma warning restore CS0618
-                connectionsArray.Add(new ConnectionInfo(con.RemoteId.ToString(), con.RemoteIp.ToString(), (int) con.RemotePort, (long) con.LastUpdate, (int) con.ProtocolVersion));
+                connectionsArray.Add(new ConnectionInfo(con.RemoteId.ToString(), con.RemoteIp.ToString(), (int)con.RemotePort, (long)con.LastUpdate, (int)con.ProtocolVersion));
             }
             Interop.NT_DisposeConnectionInfoArray(connections, count);
             return connectionsArray;
@@ -621,18 +623,18 @@ namespace NetworkTables.Core.Native
                         break;
                 }
                 string key = ReadUTF8String(name, len);
-                listener((int) uid, key, obj, (NotifyFlags) flags_);
+                listener((int)uid, key, obj, (NotifyFlags)flags_);
             };
             UIntPtr prefixSize;
             byte[] prefixStr = CreateUTF8String(prefix, out prefixSize);
-            int retVal = (int) Interop.NT_AddEntryListener(prefixStr, prefixSize, IntPtr.Zero, modCallback, (uint) flags);
+            int retVal = (int)Interop.NT_AddEntryListener(prefixStr, prefixSize, IntPtr.Zero, modCallback, (uint)flags);
             s_entryCallbacks.Add(retVal, modCallback);
             return retVal;
         }
 
         internal static void RemoveEntryListener(int uid)
         {
-            Interop.NT_RemoveEntryListener((uint) uid);
+            Interop.NT_RemoveEntryListener((uint)uid);
             if (s_entryCallbacks.ContainsKey(uid))
             {
                 s_entryCallbacks.Remove(uid);
@@ -649,18 +651,18 @@ namespace NetworkTables.Core.Native
         {
             Interop.NT_ConnectionListenerCallback modCallback = (uint uid, IntPtr data, int connected, ref NtConnectionInfo conn) =>
             {
-                ConnectionInfo info = new ConnectionInfo(conn.RemoteId.ToString(), conn.RemoteIp.ToString(), (int) conn.RemotePort, (long) conn.LastUpdate, (int) conn.ProtocolVersion);
-                callback((int) uid, connected != 0, info);
+                ConnectionInfo info = new ConnectionInfo(conn.RemoteId.ToString(), conn.RemoteIp.ToString(), (int)conn.RemotePort, (long)conn.LastUpdate, (int)conn.ProtocolVersion);
+                callback((int)uid, connected != 0, info);
             };
 
-            int retVal = (int) Interop.NT_AddConnectionListener(IntPtr.Zero, modCallback, immediateNotify ? 1 : 0);
+            int retVal = (int)Interop.NT_AddConnectionListener(IntPtr.Zero, modCallback, immediateNotify ? 1 : 0);
             s_connectionCallbacks.Add(retVal, modCallback);
             return retVal;
         }
 
         internal static void RemoveConnectionListener(int uid)
         {
-            Interop.NT_RemoveConnectionListener((uint) uid);
+            Interop.NT_RemoveConnectionListener((uint)uid);
             if (s_connectionCallbacks.ContainsKey(uid))
             {
                 s_connectionCallbacks.Remove(uid);
@@ -694,7 +696,7 @@ namespace NetworkTables.Core.Native
             uint[] uPorts = new uint[servers.Count];
             for (int i = 0; i < uPorts.Length; i++)
             {
-                uPorts[i] = (uint) servers[i].Port;
+                uPorts[i] = (uint)servers[i].Port;
             }
             IntPtr[] serv = new IntPtr[servers.Count];
             UIntPtr len;
@@ -702,7 +704,7 @@ namespace NetworkTables.Core.Native
             {
                 serv[i] = CreateUTF8StringPointer(servers[i].IpAddress, out len);
             }
-            len = (UIntPtr) servers.Count;
+            len = (UIntPtr)servers.Count;
             Interop.NT_StartClientMulti(len, serv, uPorts);
             foreach (var s in serv)
             {
@@ -713,9 +715,9 @@ namespace NetworkTables.Core.Native
         internal static void StartServer(string fileName, string listenAddress, int port)
         {
             UIntPtr size;
-            var fileNamePtr = string.IsNullOrEmpty(fileName) ? new[] {(byte) 0} : CreateUTF8String(fileName, out size);
-            var listenAddressPtr = string.IsNullOrEmpty(fileName) ? new[] {(byte) 0} : CreateUTF8String(listenAddress, out size);
-            Interop.NT_StartServer(fileNamePtr, listenAddressPtr, (uint) port);
+            var fileNamePtr = string.IsNullOrEmpty(fileName) ? new[] { (byte)0 } : CreateUTF8String(fileName, out size);
+            var listenAddressPtr = string.IsNullOrEmpty(fileName) ? new[] { (byte)0 } : CreateUTF8String(listenAddress, out size);
+            Interop.NT_StartServer(fileNamePtr, listenAddressPtr, (uint)port);
         }
 
         internal static void StopClient()
@@ -740,7 +742,7 @@ namespace NetworkTables.Core.Native
         {
             Interop.NT_StopRpcServer();
             // Clear callback dictionaries
-            RemoteProcedureCall.s_rpcCallbacks.Clear();
+            s_rpcCallbacks.Clear();
         }
 
         internal static void SetUpdateRate(double interval)
@@ -771,7 +773,7 @@ namespace NetworkTables.Core.Native
         {
             UIntPtr size;
             byte[] name = CreateUTF8String(filename, out size);
-            IntPtr err = Interop.NT_LoadPersistent(name, (line, msg) => { warn((int) line, ReadUTF8String(msg)); });
+            IntPtr err = Interop.NT_LoadPersistent(name, (line, msg) => { warn((int)line, ReadUTF8String(msg)); });
             if (err != IntPtr.Zero)
             {
                 return ReadUTF8String(err);
@@ -790,7 +792,7 @@ namespace NetworkTables.Core.Native
         {
             UIntPtr size;
             IntPtr str = CreateCachedUTF8String(name, out size);
-            Interop.NT_SetEntryFlags(str, size, (uint) flags);
+            Interop.NT_SetEntryFlags(str, size, (uint)flags);
         }
 
         internal static EntryFlags GetEntryFlags(string name)
@@ -798,7 +800,7 @@ namespace NetworkTables.Core.Native
             UIntPtr size;
             IntPtr str = CreateCachedUTF8String(name, out size);
             uint flags = Interop.NT_GetEntryFlags(str, size);
-            return (EntryFlags) flags;
+            return (EntryFlags)flags;
         }
 
         #endregion
@@ -843,7 +845,7 @@ namespace NetworkTables.Core.Native
 
         internal static long Now()
         {
-            return (long) Interop.NT_Now();
+            return (long)Interop.NT_Now();
         }
 
         #endregion
@@ -865,10 +867,10 @@ namespace NetworkTables.Core.Native
                 string message = ReadUTF8String(msg);
                 string fileName = ReadUTF8String(file);
 
-                func((LogLevel) level, fileName, (int) line, message);
+                func((LogLevel)level, fileName, (int)line, message);
             };
 
-            Interop.NT_SetLogger(s_nativeLog, (uint) minLevel);
+            Interop.NT_SetLogger(s_nativeLog, (uint)minLevel);
         }
 
         #endregion
@@ -884,7 +886,7 @@ namespace NetworkTables.Core.Native
 
         internal static byte[] GetRawDataFromPtr(IntPtr ptr, UIntPtr size)
         {
-            int len = (int) size.ToUInt64();
+            int len = (int)size.ToUInt64();
             byte[] data = new byte[len];
             Marshal.Copy(ptr, data, 0, len);
             return data;
@@ -892,12 +894,12 @@ namespace NetworkTables.Core.Native
 
         private static bool[] GetBooleanArrayFromPtr(IntPtr ptr, UIntPtr size)
         {
-            int iSize = (int) size.ToUInt64();
+            int iSize = (int)size.ToUInt64();
 
             bool[] bArr = new bool[iSize];
             for (int i = 0; i < iSize; i++)
             {
-                bArr[i] = Marshal.ReadInt32(ptr, sizeof(int)*i) != 0;
+                bArr[i] = Marshal.ReadInt32(ptr, sizeof(int) * i) != 0;
             }
             return bArr;
         }
@@ -907,17 +909,152 @@ namespace NetworkTables.Core.Native
 #pragma warning disable CS0618
             int ntStringSize = Marshal.SizeOf(typeof(NtStringRead));
 #pragma warning restore CS0618
-            int arraySize = (int) size.ToUInt64();
+            int arraySize = (int)size.ToUInt64();
             string[] strArray = new string[arraySize];
 
             for (int i = 0; i < arraySize; i++)
             {
-                IntPtr data = new IntPtr(ptr.ToInt64() + ntStringSize*i);
+                IntPtr data = new IntPtr(ptr.ToInt64() + ntStringSize * i);
 #pragma warning disable CS0618
                 strArray[i] = Marshal.PtrToStructure(data, typeof(NtStringRead)).ToString();
 #pragma warning restore CS0618
             }
             return strArray;
+        }
+
+        #endregion
+
+        #region Rpc
+        // Never queried because it is only used to save for the GC
+        // ReSharper disable once CollectionNeverQueried.Global
+        internal static readonly List<Interop.NT_RPCCallback> s_rpcCallbacks = new List<Interop.NT_RPCCallback>();
+
+        internal static void CreateRpc(string name, byte[] def, RpcCallback callback)
+        {
+            Interop.NT_RPCCallback modCallback =
+                (IntPtr data, IntPtr ptr, UIntPtr len, IntPtr intPtr, UIntPtr paramsLen, out UIntPtr resultsLen) =>
+                {
+                    string retName = CoreMethods.ReadUTF8String(ptr, len);
+                    byte[] param = CoreMethods.GetRawDataFromPtr(intPtr, paramsLen);
+                    byte[] cb = callback(retName, param);
+                    resultsLen = (UIntPtr)cb.Length;
+                    IntPtr retPtr = Interop.NT_AllocateCharArray(resultsLen);
+                    Marshal.Copy(cb, 0, retPtr, cb.Length);
+                    return retPtr;
+                };
+            UIntPtr nameLen;
+            IntPtr nameB = CoreMethods.CreateCachedUTF8String(name, out nameLen);
+            Interop.NT_CreateRpc(nameB, nameLen, def, (UIntPtr)def.Length, IntPtr.Zero, modCallback);
+            s_rpcCallbacks.Add(modCallback);
+        }
+
+        internal static void CreatePolledRpc(string name, byte[] def)
+        {
+            UIntPtr nameLen;
+            IntPtr nameB = CoreMethods.CreateCachedUTF8String(name, out nameLen);
+            Interop.NT_CreatePolledRpc(nameB, nameLen, def, (UIntPtr)def.Length);
+        }
+
+        internal static bool PollRpc(bool blocking, TimeSpan timeout, out RpcCallInfo callInfo)
+        {
+            NtRpcCallInfo nativeInfo;
+            int retVal = Interop.NT_PollRpcTimeout(blocking ? 1 : 0, timeout.TotalSeconds, out nativeInfo);
+            if (retVal == 0)
+            {
+                callInfo = new RpcCallInfo();
+                return false;
+            }
+            callInfo = nativeInfo.ToManaged();
+            return true;
+        }
+
+        internal static bool PollRpc(bool blocking, out RpcCallInfo callInfo)
+        {
+            NtRpcCallInfo nativeInfo;
+            int retVal = Interop.NT_PollRpc(blocking ? 1 : 0, out nativeInfo);
+            if (retVal == 0)
+            {
+                callInfo = new RpcCallInfo();
+                return false;
+            }
+            callInfo = nativeInfo.ToManaged();
+            return true;
+        }
+
+        internal static void PostRpcResponse(long rpcId, long callUid, byte[] result)
+        {
+            Interop.NT_PostRpcResponse((uint)rpcId, (uint)callUid, result, (UIntPtr)result.Length);
+        }
+
+        internal static long CallRpc(string name, byte[] param)
+        {
+            UIntPtr size;
+            IntPtr nameB = CoreMethods.CreateCachedUTF8String(name, out size);
+            return Interop.NT_CallRpc(nameB, size, param, (UIntPtr)param.Length);
+        }
+
+        internal static async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
+        {
+            token.Register(() =>
+            {
+                // must use a delegate to cancel the call.
+                Interop.NT_CancelBlockingRpcResult((uint)callUid);
+            });
+            try
+            {
+                var result = await Task.Run(() =>
+                {
+                    byte[] results;
+                    bool success = GetRpcResult(true, callUid, out results);
+                    if (success)
+                    {
+                        return results;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }, token).ConfigureAwait(false);
+                return result;
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
+            }
+        }
+
+        internal static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
+        {
+            UIntPtr size = UIntPtr.Zero;
+            IntPtr retVal = Interop.NT_GetRpcResultTimeout(blocking ? 1 : 0, (uint)callUid, timeout.TotalSeconds, ref size);
+            if (retVal == IntPtr.Zero)
+            {
+#if NETSTANDARD
+                result = Array.Empty<byte>();
+#else
+                result = new byte[0];
+#endif
+                return false;
+            }
+            result = CoreMethods.GetRawDataFromPtr(retVal, size);
+            return true;
+        }
+
+        internal static bool GetRpcResult(bool blocking, long callUid, out byte[] result)
+        {
+            UIntPtr size = UIntPtr.Zero;
+            IntPtr retVal = Interop.NT_GetRpcResult(blocking ? 1 : 0, (uint)callUid, ref size);
+            if (retVal == IntPtr.Zero)
+            {
+#if NETSTANDARD
+                result = Array.Empty<byte>();
+#else
+                result = new byte[0];
+#endif
+                return false;
+            }
+            result = CoreMethods.GetRawDataFromPtr(retVal, size);
+            return true;
         }
 
         #endregion
@@ -938,7 +1075,7 @@ namespace NetworkTables.Core.Native
             var bytes = Encoding.UTF8.GetByteCount(str);
 
             var buffer = new byte[bytes + 1];
-            size = (UIntPtr) bytes;
+            size = (UIntPtr)bytes;
             Encoding.UTF8.GetBytes(str, 0, str.Length, buffer, 0);
             buffer[bytes] = 0;
             return buffer;
@@ -947,7 +1084,7 @@ namespace NetworkTables.Core.Native
         internal static IntPtr CreateUTF8StringPointer(string str, out UIntPtr size)
         {
             var bytes = CreateUTF8String(str, out size);
-            var buffer = Marshal.AllocHGlobal(bytes.Length*sizeof(byte));
+            var buffer = Marshal.AllocHGlobal(bytes.Length * sizeof(byte));
 
             Marshal.Copy(bytes, 0, buffer, bytes.Length);
             return buffer;
@@ -961,7 +1098,7 @@ namespace NetworkTables.Core.Native
         //Must be null terminated
         internal static string ReadUTF8String(IntPtr str, UIntPtr size)
         {
-            int iSize = (int) size.ToUInt64();
+            int iSize = (int)size.ToUInt64();
             byte[] data = new byte[iSize];
             Marshal.Copy(str, data, 0, iSize);
             return Encoding.UTF8.GetString(data);
