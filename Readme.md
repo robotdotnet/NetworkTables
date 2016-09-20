@@ -4,7 +4,7 @@
 | ------------------------|-------------------------|-----------------------|-----------------------|-----------------------|
 | [![Build status][1]][2] | [![Build Status][3]][4] | [![codecov][5]][6]    | [![NuGet][7]][8]      | [![NuGet][9]][10]      |
 
-[1]: https://ci.appveyor.com/api/projects/status/7oo0gyq4fv0jvsjn/branch/master?svg=true
+[1]: https://ci.appveyor.com/api/projects/status/35aclclri0mf4juk/branch/master?svg=true
 [2]: https://ci.appveyor.com/project/robotdotnet/networktables/branch/master
 [3]: https://travis-ci.org/robotdotnet/NetworkTables.svg?branch=master
 [4]: https://travis-ci.org/robotdotnet/NetworkTables
