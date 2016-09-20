@@ -16,11 +16,6 @@ namespace NetworkTables
     /// </summary>
     public static class RemoteProcedureCall
     {
-#if CORE
-        // Never queried because it is only used to save for the GC
-        // ReSharper disable once CollectionNeverQueried.Global
-        internal static readonly List<Interop.NT_RPCCallback> s_rpcCallbacks = new List<Interop.NT_RPCCallback>();
-#endif
 
         /// <summary>
         /// Creates an procedure that can be called by a remote client
@@ -34,21 +29,7 @@ namespace NetworkTables
         public static void CreateRpc(string name, byte[] def, RpcCallback callback)
         {
 #if CORE
-            Interop.NT_RPCCallback modCallback =
-                (IntPtr data, IntPtr ptr, UIntPtr len, IntPtr intPtr, UIntPtr paramsLen, out UIntPtr resultsLen) =>
-                {
-                    string retName = CoreMethods.ReadUTF8String(ptr, len);
-                    byte[] param = CoreMethods.GetRawDataFromPtr(intPtr, paramsLen);
-                    byte[] cb = callback(retName, param);
-                    resultsLen = (UIntPtr)cb.Length;
-                    IntPtr retPtr = Interop.NT_AllocateCharArray(resultsLen);
-                    Marshal.Copy(cb, 0, retPtr, cb.Length);
-                    return retPtr;
-                };
-            UIntPtr nameLen;
-            IntPtr nameB = CoreMethods.CreateCachedUTF8String(name, out nameLen);
-            Interop.NT_CreateRpc(nameB, nameLen, def, (UIntPtr)def.Length, IntPtr.Zero, modCallback);
-            s_rpcCallbacks.Add(modCallback);
+            CoreMethods.CreateRpc(name, def, callback);
 #else
             Storage.Instance.CreateRpc(name, def, callback);
 #endif
@@ -83,9 +64,7 @@ namespace NetworkTables
         public static void CreatePolledRpc(string name, byte[] def)
         {
 #if CORE
-            UIntPtr nameLen;
-            IntPtr nameB = CoreMethods.CreateCachedUTF8String(name, out nameLen);
-            Interop.NT_CreatePolledRpc(nameB, nameLen, def, (UIntPtr)def.Length);
+            CoreMethods.CreatePolledRpc(name, def);
 #else
             Storage.Instance.CreatePolledRpc(name, def);
 #endif
@@ -118,15 +97,7 @@ namespace NetworkTables
         public static bool PollRpc(bool blocking, TimeSpan timeout, out RpcCallInfo callInfo)
         {
 #if CORE
-            NtRpcCallInfo nativeInfo;
-            int retVal = Interop.NT_PollRpcTimeout(blocking ? 1 : 0, timeout.TotalSeconds, out nativeInfo);
-            if (retVal == 0)
-            {
-                callInfo = new RpcCallInfo();
-                return false;
-            }
-            callInfo = nativeInfo.ToManaged();
-            return retVal != 0;
+            return CoreMethods.PollRpc(blocking, timeout, out callInfo);
 #else
             return RpcServer.Instance.PollRpc(blocking, timeout, out callInfo);
 #endif
@@ -142,25 +113,6 @@ namespace NetworkTables
         {
 #if CORE
             throw new NotSupportedException("NetworkTables.Core does not support Async Polled Rpcs, as there is no way to cancel the call");
-            /*
-            try
-            {
-                Func<RpcCallInfo?> func = () =>
-                {
-                    RpcCallInfo info;
-                    bool success = PollRpc(true, out info);
-                    if (success) return info;
-                    return null;
-                };
-
-                var result = await Task.Run(func, token).ConfigureAwait(false);
-                return result;
-            }
-            catch (OperationCanceledException)
-            {
-                return null;
-            }
-            */
 #else
             return await RpcServer.Instance.PollRpcAsync(token).ConfigureAwait(false);
 #endif
@@ -176,15 +128,7 @@ namespace NetworkTables
         public static bool PollRpc(bool blocking, out RpcCallInfo callInfo)
         {
 #if CORE
-            NtRpcCallInfo nativeInfo;
-            int retVal = Interop.NT_PollRpc(blocking ? 1 : 0, out nativeInfo);
-            if (retVal == 0) 
-            {
-                callInfo = new RpcCallInfo();
-                return false;
-            }
-            callInfo = nativeInfo.ToManaged();
-            return retVal != 0;
+            return CoreMethods.PollRpc(blocking, out callInfo);
 #else
             return RpcServer.Instance.PollRpc(blocking, out callInfo);
 #endif
@@ -199,7 +143,7 @@ namespace NetworkTables
         public static void PostRpcResponse(long rpcId, long callUid, params byte[] result)
         {
 #if CORE
-            Interop.NT_PostRpcResponse((uint)rpcId, (uint)callUid, result, (UIntPtr)result.Length);
+            CoreMethods.PostRpcResponse(rpcId, callUid, result);
 #else
             RpcServer.Instance.PostRpcResponse(rpcId, callUid, result);
 #endif
@@ -214,9 +158,7 @@ namespace NetworkTables
         public static long CallRpc(string name, params byte[] param)
         {
 #if CORE
-            UIntPtr size;
-            IntPtr nameB = CoreMethods.CreateCachedUTF8String(name, out size);
-            return Interop.NT_CallRpc(nameB, size, param, (UIntPtr)param.Length);
+            return CoreMethods.CallRpc(name, param);
 #else
             return Storage.Instance.CallRpc(name, param);
 #endif
@@ -272,32 +214,7 @@ namespace NetworkTables
         public static async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
         {
 #if CORE
-            int canceled = 0;
-            token.Register(() => {
-                // must use a delegate to cancel the call.
-                Interop.NT_CancelBlockingRpcResult((uint)callUid);
-                Console.WriteLine("Called Async Cancel");
-                Interlocked.Exchange(ref canceled, 1);
-            });
-            try
-            {
-                var result = await Task.Run(() =>
-                {
-                    byte[] info;
-                    bool success = GetRpcResult(true, callUid, out info);
-                    Interlocked.MemoryBarrier();
-                    if (canceled == 1) {
-                        Console.WriteLine("Operation Canceled");
-                    }
-                    if (success) return info;
-                    return null;
-                }, token).ConfigureAwait(false);
-                return result;
-            }
-            catch (OperationCanceledException)
-            {
-                return null;
-            }
+            return await CoreMethods.GetRpcResultAsync(callUid, token).ConfigureAwait(false);
 #else
             return await Storage.Instance.GetRpcResultAsync(callUid, token).ConfigureAwait(false);
 #endif
@@ -314,15 +231,7 @@ namespace NetworkTables
         public static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
         {
 #if CORE
-            UIntPtr size = UIntPtr.Zero;
-            IntPtr retVal = Interop.NT_GetRpcResultTimeout(blocking ? 1 : 0, (uint)callUid, timeout.TotalSeconds, ref size);
-            if (retVal == IntPtr.Zero)
-            {
-                result = null;
-                return false;
-            }
-            result = CoreMethods.GetRawDataFromPtr(retVal, size);
-            return true;
+            return CoreMethods.GetRpcResult(blocking, callUid, timeout, out result);
 #else
             return Storage.Instance.GetRpcResult(blocking, callUid, timeout, out result);
 #endif
@@ -338,15 +247,7 @@ namespace NetworkTables
         public static bool GetRpcResult(bool blocking, long callUid, out byte[] result)
         {
 #if CORE
-            UIntPtr size = UIntPtr.Zero;
-            IntPtr retVal = Interop.NT_GetRpcResult(blocking ? 1 : 0, (uint)callUid, ref size);
-            if (retVal == IntPtr.Zero)
-            {
-                result = null;
-                return false;
-            }
-            result = CoreMethods.GetRawDataFromPtr(retVal, size);
-            return true;
+            return CoreMethods.GetRpcResult(blocking, callUid, out result);
 #else
             return Storage.Instance.GetRpcResult(blocking, callUid, out result);
 #endif
