@@ -32,8 +32,13 @@ namespace NetworkTables.Independent
         /// <param name="path">The root path for this table</param>
         public IndependentNetworkTable(IndependentNtCore ntCore, string path)
         {
+            if (path == "" || path[0] == PathSeperatorChar)
+                m_path = path;
+            else
+            {
+                m_path = PathSeperatorChar + path;
+            }
             m_ntCore = ntCore;
-            m_path = path;
         }
 
         /// <inheritdoc cref="NetworkTable.ToString"/>
