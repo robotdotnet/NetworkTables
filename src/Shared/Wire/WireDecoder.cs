@@ -68,7 +68,7 @@ namespace NetworkTables.Wire
         }
 
         /// <summary>
-        /// Reads a specific number of bytes from teh buffer
+        /// Reads a specific number of bytes from the buffer
         /// </summary>
         /// <param name="buf">The buffer to output to.</param>
         /// <param name="len">The length of data to read</param>
