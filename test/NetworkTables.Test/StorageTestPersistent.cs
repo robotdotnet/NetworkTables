@@ -69,6 +69,7 @@ namespace NetworkTables.Test
                                       Value.MakeBoolean(true));
             storage.SetEntryTypeValue(specialLargeDigits,
                                       Value.MakeBoolean(false));
+            storage.SetEntryTypeValue("=", Value.MakeBoolean(true));
             outgoing.Clear();
         }
 
@@ -116,6 +117,10 @@ namespace NetworkTables.Test
                 line = split[0];
                 rem = split[1];
                 Assert.That(line, Is.EqualTo("boolean \"\\x00\\xAE\\xFF\\n\"=false"));
+                split = rem.Split(new[] { '\n' }, 2);
+                line = split[0];
+                rem = split[1];
+                Assert.That(line, Is.EqualTo("boolean \"\\x3D\"=true"));
                 split = rem.Split(new[] { '\n' }, 2);
                 line = split[0];
                 rem = split[1];

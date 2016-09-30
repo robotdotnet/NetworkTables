@@ -13,7 +13,7 @@ $armFileName = "ntcore-arm"
 $armFileLocation = "http://frcjenkins.wpi.edu/job/ntcore-arm/lastSuccessfulBuild/artifact/arm/ntcore/build/$armFileName.zip"
 
 $linuxFileName = "ntcore-linux"
-$linuxFileLocation = "http://frcjenkins.wpi.edu/job/ntcore-platforms/label=Linux/lastSuccessfulBuild/artifact/native/ntcore/build/$linuxFileName.zip"
+$linuxFileLocation = "http://frcjenkins.wpi.edu/job/ntcore-platforms/label=linux/lastSuccessfulBuild/artifact/native/ntcore/build/$linuxFileName.zip"
 
 $osxFileName = "ntcore-osx"
 $osxFileLocation = "http://frcjenkins.wpi.edu/job/ntcore-platforms/label=mac/lastSuccessfulBuild/artifact/native/ntcore/build/ntcore-os%20x.zip"

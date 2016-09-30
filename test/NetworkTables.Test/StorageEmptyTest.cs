@@ -455,6 +455,7 @@ namespace NetworkTables.Test
             string i = "[NetworkTables Storage 3.0]\n";
             i += "boolean \"\\x00\\x03\\x05\\n\"=true\n";
             i += "boolean \"\\x00\\xAE\\xFF\\n\"=false\n";
+            i += "boolean \"\\x3D\"=true\n";
             i += "boolean \"boolean/false\"=false\n";
             i += "boolean \"boolean/true\"=true\n";
             i += "array boolean \"booleanarr/empty\"=\n";
@@ -487,8 +488,8 @@ namespace NetworkTables.Test
                 iss.Position = 0;
                 Assert.That(storage.LoadPersistent(iss, warn_func), Is.True);
             }
-            Assert.That(Entries, Has.Count.EqualTo(25));
-            Assert.That(outgoing, Has.Count.EqualTo(25));
+            Assert.That(Entries, Has.Count.EqualTo(26));
+            Assert.That(outgoing, Has.Count.EqualTo(26));
 
             string s = "\0\x03\x05\n";
 
@@ -517,6 +518,7 @@ namespace NetworkTables.Test
             Assert.That(Value.MakeStringArray("hello", "world\n") == storage.GetEntryValue("stringarr/two"));
             Assert.That(Value.MakeBoolean(true) == storage.GetEntryValue(s));
             Assert.That(Value.MakeBoolean(false) == storage.GetEntryValue(specialLargeDigits));
+            Assert.That(Value.MakeBoolean(true) == storage.GetEntryValue("="));
         }
 
         [Test]
