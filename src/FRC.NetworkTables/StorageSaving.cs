@@ -144,7 +144,7 @@ namespace NetworkTables
                         await stream.WriteAsync("\\x00").ConfigureAwait(false);
                         break;
                     default:
-                        if (IsPrintable(c))
+                        if (IsPrintable(c) && c != '=')
                         {
                             await stream.WriteAsync(c).ConfigureAwait(false);
                             break;
