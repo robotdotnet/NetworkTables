@@ -23,7 +23,10 @@ namespace NetworkTables.Independent
         private readonly IndependentNtCore m_ntCore;
         /// <inheritdoc cref="NetworkTable.PathSeperatorChar"/>
         public const char PathSeperatorChar = NetworkTable.PathSeperatorChar;
+
+        public const string PathSeperatorCharString = NetworkTable.PathSeperatorCharString;
         private readonly string m_path;
+        private readonly string m_pathWithSeperator;
 
         /// <summary>
         /// Creates a new NetworkTable object from an NtCore object
@@ -36,9 +39,10 @@ namespace NetworkTables.Independent
                 m_path = path;
             else
             {
-                m_path = PathSeperatorChar + path;
+                m_path = PathSeperatorCharString + path;
             }
             m_ntCore = ntCore;
+            m_pathWithSeperator = m_path + PathSeperatorCharString;
         }
 
         /// <inheritdoc cref="NetworkTable.ToString"/>
@@ -54,7 +58,7 @@ namespace NetworkTables.Independent
         /// <returns>True if the table contains the key, otherwise false.</returns>
         public bool ContainsKey(string key)
         {
-            return m_ntCore.ContainsEntry(m_path + PathSeperatorChar + key);
+            return m_ntCore.ContainsEntry(m_pathWithSeperator + key);
         }
 
         /// <summary>
@@ -64,7 +68,7 @@ namespace NetworkTables.Independent
         /// <returns>True if the table contains the sub-table, otherwise false</returns>
         public bool ContainsSubTable(string key)
         {
-            return m_ntCore.GetEntryInfo(m_path + PathSeperatorChar + key + PathSeperatorChar, 0).Count != 0;
+            return m_ntCore.GetEntryInfo(m_pathWithSeperator + key + PathSeperatorChar, 0).Count != 0;
         }
 
         /// <summary>
@@ -76,7 +80,7 @@ namespace NetworkTables.Independent
         {
             HashSet<string> keys = new HashSet<string>();
             int prefixLen = m_path.Length + 1;
-            foreach (EntryInfo entry in m_ntCore.GetEntryInfo(m_path + PathSeperatorChar, types))
+            foreach (EntryInfo entry in m_ntCore.GetEntryInfo(m_pathWithSeperator, types))
             {
                 string relativeKey = entry.Name.Substring(prefixLen);
                 if (relativeKey.IndexOf(PathSeperatorChar) != -1)
@@ -103,7 +107,7 @@ namespace NetworkTables.Independent
         {
             HashSet<string> keys = new HashSet<string>();
             int prefixLen = m_path.Length + 1;
-            foreach (EntryInfo entry in m_ntCore.GetEntryInfo(m_path + PathSeperatorChar, 0))
+            foreach (EntryInfo entry in m_ntCore.GetEntryInfo(m_pathWithSeperator, 0))
             {
                 string relativeKey = entry.Name.Substring(prefixLen);
                 int endSubTable = relativeKey.IndexOf(PathSeperatorChar);
@@ -122,7 +126,7 @@ namespace NetworkTables.Independent
         /// <returns>The <see cref="ITable"/> to be returned.</returns>
         public ITable GetSubTable(string key)
         {
-            return new IndependentNetworkTable(m_ntCore, m_path + PathSeperatorChar + key);
+            return new IndependentNetworkTable(m_ntCore, m_pathWithSeperator + key);
         }
 
         /// <summary>
@@ -160,7 +164,7 @@ namespace NetworkTables.Independent
         /// <param name="flags">The flags to set. (Bitmask)</param>
         public void SetFlags(string key, EntryFlags flags)
         {
-            m_ntCore.SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) | flags);
+            m_ntCore.SetEntryFlags(m_pathWithSeperator + key, GetFlags(key) | flags);
         }
 
         /// <summary>
@@ -170,7 +174,7 @@ namespace NetworkTables.Independent
         /// <param name="flags">The flags to clear. (Bitmask)</param>
         public void ClearFlags(string key, EntryFlags flags)
         {
-            m_ntCore.SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) & ~flags);
+            m_ntCore.SetEntryFlags(m_pathWithSeperator + key, GetFlags(key) & ~flags);
         }
 
         /// <summary>
@@ -180,7 +184,7 @@ namespace NetworkTables.Independent
         /// <returns>The flags attached to the key.</returns>
         public EntryFlags GetFlags(string key)
         {
-            return m_ntCore.GetEntryFlags(m_path + PathSeperatorChar + key);
+            return m_ntCore.GetEntryFlags(m_pathWithSeperator + key);
         }
 
         /// <summary>
@@ -189,7 +193,7 @@ namespace NetworkTables.Independent
         /// <param name="key">The key name.</param>
         public void Delete(string key)
         {
-            m_ntCore.DeleteEntry(m_path + PathSeperatorChar + key);
+            m_ntCore.DeleteEntry(m_pathWithSeperator + key);
         }
 
         /// <summary>
@@ -231,7 +235,7 @@ namespace NetworkTables.Independent
         [Obsolete("Please use the Default Value Get... Methods instead.")]
         public Value GetValue(string key)
         {
-            string localPath = m_path + PathSeperatorChar + key;
+            string localPath = m_pathWithSeperator + key;
             var v = m_ntCore.GetEntryValue(localPath);
             if (v == null) throw new TableKeyNotDefinedException(localPath);
             return v;
@@ -240,7 +244,7 @@ namespace NetworkTables.Independent
         ///<inheritdoc/>
         public Value GetValue(string key, Value defaultValue)
         {
-            string localPath = m_path + PathSeperatorChar + key;
+            string localPath = m_pathWithSeperator + key;
             var v = m_ntCore.GetEntryValue(localPath);
             if (v == null) return defaultValue;
             return v;
@@ -249,7 +253,7 @@ namespace NetworkTables.Independent
         ///<inheritdoc/>
         public bool PutValue(string key, Value value)
         {
-            key = m_path + PathSeperatorChar + key;
+            key = m_pathWithSeperator + key;
             return m_ntCore.SetEntryValue(key, value);
         }
 
@@ -257,14 +261,14 @@ namespace NetworkTables.Independent
         public bool PutNumber(string key, double value)
         {
 
-            return m_ntCore.SetEntryDouble(m_path + PathSeperatorChar + key, value);
+            return m_ntCore.SetEntryDouble(m_pathWithSeperator + key, value);
         }
 
         ///<inheritdoc/>
         public double GetNumber(string key, double defaultValue)
         {
 
-            return m_ntCore.GetEntryDouble(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.GetEntryDouble(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
@@ -272,21 +276,21 @@ namespace NetworkTables.Independent
         public double GetNumber(string key)
         {
 
-            return m_ntCore.GetEntryDouble(m_path + PathSeperatorChar + key);
+            return m_ntCore.GetEntryDouble(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
         public bool PutString(string key, string value)
         {
 
-            return m_ntCore.SetEntryString(m_path + PathSeperatorChar + key, value);
+            return m_ntCore.SetEntryString(m_pathWithSeperator + key, value);
         }
 
         ///<inheritdoc/>
         public string GetString(string key, string defaultValue)
         {
 
-            return m_ntCore.GetEntryString(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.GetEntryString(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
@@ -294,21 +298,21 @@ namespace NetworkTables.Independent
         public string GetString(string key)
         {
 
-            return m_ntCore.GetEntryString(m_path + PathSeperatorChar + key);
+            return m_ntCore.GetEntryString(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
         public bool PutBoolean(string key, bool value)
         {
 
-            return m_ntCore.SetEntryBoolean(m_path + PathSeperatorChar + key, value);
+            return m_ntCore.SetEntryBoolean(m_pathWithSeperator + key, value);
         }
 
         ///<inheritdoc/>
         public bool GetBoolean(string key, bool defaultValue)
         {
 
-            return m_ntCore.GetEntryBoolean(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.GetEntryBoolean(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
@@ -316,14 +320,14 @@ namespace NetworkTables.Independent
         public bool GetBoolean(string key)
         {
 
-            return m_ntCore.GetEntryBoolean(m_path + PathSeperatorChar + key);
+            return m_ntCore.GetEntryBoolean(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
         public bool PutStringArray(string key, string[] value)
         {
 
-            return m_ntCore.SetEntryStringArray(m_path + PathSeperatorChar + key, value);
+            return m_ntCore.SetEntryStringArray(m_pathWithSeperator + key, value);
         }
 
         ///<inheritdoc/>
@@ -331,14 +335,14 @@ namespace NetworkTables.Independent
         public string[] GetStringArray(string key)
         {
 
-            return m_ntCore.GetEntryStringArray(m_path + PathSeperatorChar + key);
+            return m_ntCore.GetEntryStringArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
         public string[] GetStringArray(string key, string[] defaultValue)
         {
 
-            return m_ntCore.GetEntryStringArray(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.GetEntryStringArray(m_pathWithSeperator + key, defaultValue);
 
         }
 
@@ -346,7 +350,7 @@ namespace NetworkTables.Independent
         public bool PutNumberArray(string key, double[] value)
         {
 
-            return m_ntCore.SetEntryDoubleArray(m_path + PathSeperatorChar + key, value);
+            return m_ntCore.SetEntryDoubleArray(m_pathWithSeperator + key, value);
         }
 
         ///<inheritdoc/>
@@ -354,21 +358,21 @@ namespace NetworkTables.Independent
         public double[] GetNumberArray(string key)
         {
 
-            return m_ntCore.GetEntryDoubleArray(m_path + PathSeperatorChar + key);
+            return m_ntCore.GetEntryDoubleArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
         public double[] GetNumberArray(string key, double[] defaultValue)
         {
 
-            return m_ntCore.GetEntryDoubleArray(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.GetEntryDoubleArray(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
         public bool PutBooleanArray(string key, bool[] value)
         {
 
-            return m_ntCore.SetEntryBooleanArray(m_path + PathSeperatorChar + key, value);
+            return m_ntCore.SetEntryBooleanArray(m_pathWithSeperator + key, value);
         }
 
         ///<inheritdoc/>
@@ -376,34 +380,34 @@ namespace NetworkTables.Independent
         public bool[] GetBooleanArray(string key)
         {
 
-            return m_ntCore.GetEntryBooleanArray(m_path + PathSeperatorChar + key);
+            return m_ntCore.GetEntryBooleanArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
         public bool PutRaw(string key, byte[] value)
         {
 
-            return m_ntCore.SetEntryRaw(m_path + PathSeperatorChar + key, value);
+            return m_ntCore.SetEntryRaw(m_pathWithSeperator + key, value);
         }
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
         public byte[] GetRaw(string key)
         {
 
-            return m_ntCore.GetEntryRaw(m_path + PathSeperatorChar + key);
+            return m_ntCore.GetEntryRaw(m_pathWithSeperator + key);
         }
         ///<inheritdoc/>
         public byte[] GetRaw(string key, byte[] defaultValue)
         {
 
-            return m_ntCore.GetEntryRaw(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.GetEntryRaw(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
         public bool[] GetBooleanArray(string key, bool[] defaultValue)
         {
 
-            return m_ntCore.GetEntryBooleanArray(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.GetEntryBooleanArray(m_pathWithSeperator + key, defaultValue);
         }
 
         private readonly Dictionary<ITableListener, List<int>> m_listenerMap = new Dictionary<ITableListener, List<int>>();
@@ -431,7 +435,7 @@ namespace NetworkTables.Independent
                 listener.ValueChanged(this, relativeKey, value, flags_);
             };
 
-            int id = m_ntCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = m_ntCore.AddEntryListener(m_pathWithSeperator, func, flags);
 
             adapters.Add(id);
         }
@@ -445,7 +449,7 @@ namespace NetworkTables.Independent
                 adapters = new List<int>();
                 m_listenerMap.Add(listener, adapters);
             }
-            string fullKey = m_path + PathSeperatorChar + key;
+            string fullKey = m_pathWithSeperator + key;
             // ReSharper disable once InconsistentNaming
             EntryListenerCallback func = (uid, funcKey, value, flags_) =>
             {
@@ -485,7 +489,7 @@ namespace NetworkTables.Independent
             NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
             if (localNotify)
                 flags |= NotifyFlags.NotifyLocal;
-            int id = m_ntCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = m_ntCore.AddEntryListener(m_pathWithSeperator, func, flags);
 
             adapters.Add(id);
         }
@@ -550,7 +554,7 @@ namespace NetworkTables.Independent
                 listenerDelegate(this, relativeKey, value, flags_);
             };
 
-            int id = m_ntCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = m_ntCore.AddEntryListener(m_pathWithSeperator, func, flags);
 
             adapters.Add(id);
         }
@@ -564,7 +568,7 @@ namespace NetworkTables.Independent
                 adapters = new List<int>();
                 m_actionListenerMap.Add(listenerDelegate, adapters);
             }
-            string fullKey = m_path + PathSeperatorChar + key;
+            string fullKey = m_pathWithSeperator + key;
             // ReSharper disable once InconsistentNaming
             EntryListenerCallback func = (uid, funcKey, value, flags_) =>
             {
@@ -604,7 +608,7 @@ namespace NetworkTables.Independent
             NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
             if (localNotify)
                 flags |= NotifyFlags.NotifyLocal;
-            int id = m_ntCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+            int id = m_ntCore.AddEntryListener(m_pathWithSeperator, func, flags);
 
             adapters.Add(id);
         }
@@ -723,42 +727,42 @@ namespace NetworkTables.Independent
         /// <inheritdoc/>
         public bool SetDefaultValue(string key, Value defaultValue)
         {
-            return m_ntCore.SetDefaultEntryValue(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.SetDefaultEntryValue(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultNumber(string key, double defaultValue)
         {
-            return m_ntCore.SetDefaultEntryDouble(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.SetDefaultEntryDouble(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultBoolean(string key, bool defaultValue)
         {
-            return m_ntCore.SetDefaultEntryBoolean(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.SetDefaultEntryBoolean(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultString(string key, string defaultValue)
         {
-            return m_ntCore.SetDefaultEntryString(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.SetDefaultEntryString(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultRaw(string key, byte[] defaultValue)
         {
-            return m_ntCore.SetDefaultEntryRaw(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.SetDefaultEntryRaw(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultBooleanArray(string key, bool[] defaultValue)
         {
-            return m_ntCore.SetDefaultEntryBooleanArray(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.SetDefaultEntryBooleanArray(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultNumberArray(string key, double[] defaultValue)
         {
-            return m_ntCore.SetDefaultEntryDoubleArray(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.SetDefaultEntryDoubleArray(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultStringArray(string key, string[] defaultValue)
         {
-            return m_ntCore.SetDefaultEntryStringArray(m_path + PathSeperatorChar + key, defaultValue);
+            return m_ntCore.SetDefaultEntryStringArray(m_pathWithSeperator + key, defaultValue);
         }
 
         /// <inheritdoc/>

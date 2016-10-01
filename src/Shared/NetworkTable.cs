@@ -81,6 +81,8 @@ namespace NetworkTables
         public const char PathSeperatorChar = '/';
         /// <summary>The default port NetworkTables listens on.</summary>
         public const int DefaultPort = 1735;
+        // String version of seperater char to avoid allocations
+        internal const string PathSeperatorCharString = "/";
 
         private static readonly object s_lockObject = new object();
 
@@ -300,10 +302,12 @@ namespace NetworkTables
         }
 
         private readonly string m_path;
+        private readonly string m_pathWithSeperator;
 
         private NetworkTable(string path)
         {
             m_path = path;
+            m_pathWithSeperator = path + PathSeperatorCharString;
         }
 
         /// <inheritdoc/>
@@ -319,7 +323,7 @@ namespace NetworkTables
         /// <returns>True if the table contains the key, otherwise false.</returns>
         public bool ContainsKey(string key)
         {
-            return NtCore.ContainsEntry(m_path + PathSeperatorChar + key);
+            return NtCore.ContainsEntry(m_pathWithSeperator + key);
         }
 
         /// <summary>
@@ -329,7 +333,7 @@ namespace NetworkTables
         /// <returns>True if the table contains the sub-table, otherwise false</returns>
         public bool ContainsSubTable(string key)
         {
-            return NtCore.GetEntryInfo(m_path + PathSeperatorChar + key + PathSeperatorChar, 0).Count != 0;
+            return NtCore.GetEntryInfo(m_pathWithSeperator + key + PathSeperatorChar, 0).Count != 0;
         }
 
         /// <summary>
@@ -341,7 +345,7 @@ namespace NetworkTables
         {
             HashSet<string> keys = new HashSet<string>();
             int prefixLen = m_path.Length + 1;
-            foreach (EntryInfo entry in NtCore.GetEntryInfo(m_path + PathSeperatorChar, types))
+            foreach (EntryInfo entry in NtCore.GetEntryInfo(m_pathWithSeperator, types))
             {
                 string relativeKey = entry.Name.Substring(prefixLen);
                 if (relativeKey.IndexOf(PathSeperatorChar) != -1)
@@ -368,7 +372,7 @@ namespace NetworkTables
         {
             HashSet<string> keys = new HashSet<string>();
             int prefixLen = m_path.Length + 1;
-            foreach (EntryInfo entry in NtCore.GetEntryInfo(m_path + PathSeperatorChar, 0))
+            foreach (EntryInfo entry in NtCore.GetEntryInfo(m_pathWithSeperator, 0))
             {
                 string relativeKey = entry.Name.Substring(prefixLen);
                 int endSubTable = relativeKey.IndexOf(PathSeperatorChar);
@@ -387,7 +391,7 @@ namespace NetworkTables
         /// <returns>The <see cref="ITable"/> to be returned.</returns>
         public ITable GetSubTable(string key)
         {
-            return new NetworkTable(m_path + PathSeperatorChar + key);
+            return new NetworkTable(m_pathWithSeperator + key);
         }
 
         /// <summary>
@@ -425,7 +429,7 @@ namespace NetworkTables
         /// <param name="flags">The flags to set. (Bitmask)</param>
         public void SetFlags(string key, EntryFlags flags)
         {
-            NtCore.SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) | flags);
+            NtCore.SetEntryFlags(m_pathWithSeperator + key, GetFlags(key) | flags);
         }
 
         /// <summary>
@@ -435,7 +439,7 @@ namespace NetworkTables
         /// <param name="flags">The flags to clear. (Bitmask)</param>
         public void ClearFlags(string key, EntryFlags flags)
         {
-            NtCore.SetEntryFlags(m_path + PathSeperatorChar + key, GetFlags(key) & ~flags);
+            NtCore.SetEntryFlags(m_pathWithSeperator + key, GetFlags(key) & ~flags);
         }
 
         /// <summary>
@@ -445,7 +449,7 @@ namespace NetworkTables
         /// <returns>The flags attached to the key.</returns>
         public EntryFlags GetFlags(string key)
         {
-            return NtCore.GetEntryFlags(m_path + PathSeperatorChar + key);
+            return NtCore.GetEntryFlags(m_pathWithSeperator + key);
         }
 
         /// <summary>
@@ -454,7 +458,7 @@ namespace NetworkTables
         /// <param name="key">The key name.</param>
         public void Delete(string key)
         {
-            NtCore.DeleteEntry(m_path + PathSeperatorChar + key);
+            NtCore.DeleteEntry(m_pathWithSeperator + key);
         }
 
         /// <summary>
@@ -536,7 +540,7 @@ namespace NetworkTables
         [Obsolete("Please use the Default Value Get... Methods instead.")]
         public Value GetValue(string key)
         {
-            string localPath = m_path + PathSeperatorChar + key;
+            string localPath = m_pathWithSeperator + key;
             var v = NtCore.GetEntryValue(localPath);
             if (v == null) throw new TableKeyNotDefinedException(localPath);
             return v;
@@ -545,7 +549,7 @@ namespace NetworkTables
         ///<inheritdoc/>
         public Value GetValue(string key, Value defaultValue)
         {
-            string localPath = m_path + PathSeperatorChar + key;
+            string localPath = m_pathWithSeperator + key;
             var v = NtCore.GetEntryValue(localPath);
             if (v == null) return defaultValue;
             return v;
@@ -554,7 +558,7 @@ namespace NetworkTables
         ///<inheritdoc/>
         public bool PutValue(string key, Value value)
         {
-            key = m_path + PathSeperatorChar + key;
+            key = m_pathWithSeperator + key;
             return NtCore.SetEntryValue(key, value);
         }
 
@@ -562,14 +566,14 @@ namespace NetworkTables
         public bool PutNumber(string key, double value)
         {
 
-            return NtCore.SetEntryDouble(m_path + PathSeperatorChar + key, value);
+            return NtCore.SetEntryDouble(m_pathWithSeperator + key, value);
         }
 
         ///<inheritdoc/>
         public double GetNumber(string key, double defaultValue)
         {
 
-            return NtCore.GetEntryDouble(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.GetEntryDouble(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
@@ -577,21 +581,21 @@ namespace NetworkTables
         public double GetNumber(string key)
         {
 
-            return NtCore.GetEntryDouble(m_path + PathSeperatorChar + key);
+            return NtCore.GetEntryDouble(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
         public bool PutString(string key, string value)
         {
 
-            return NtCore.SetEntryString(m_path + PathSeperatorChar + key, value);
+            return NtCore.SetEntryString(m_pathWithSeperator + key, value);
         }
 
         ///<inheritdoc/>
         public string GetString(string key, string defaultValue)
         {
 
-            return NtCore.GetEntryString(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.GetEntryString(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
@@ -599,21 +603,21 @@ namespace NetworkTables
         public string GetString(string key)
         {
 
-            return NtCore.GetEntryString(m_path + PathSeperatorChar + key);
+            return NtCore.GetEntryString(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
         public bool PutBoolean(string key, bool value)
         {
 
-            return NtCore.SetEntryBoolean(m_path + PathSeperatorChar + key, value);
+            return NtCore.SetEntryBoolean(m_pathWithSeperator + key, value);
         }
 
         ///<inheritdoc/>
         public bool GetBoolean(string key, bool defaultValue)
         {
 
-            return NtCore.GetEntryBoolean(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.GetEntryBoolean(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
@@ -621,14 +625,14 @@ namespace NetworkTables
         public bool GetBoolean(string key)
         {
 
-            return NtCore.GetEntryBoolean(m_path + PathSeperatorChar + key);
+            return NtCore.GetEntryBoolean(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
         public bool PutStringArray(string key, string[] value)
         {
 
-            return NtCore.SetEntryStringArray(m_path + PathSeperatorChar + key, value);
+            return NtCore.SetEntryStringArray(m_pathWithSeperator + key, value);
         }
 
         ///<inheritdoc/>
@@ -636,14 +640,14 @@ namespace NetworkTables
         public string[] GetStringArray(string key)
         {
 
-            return NtCore.GetEntryStringArray(m_path + PathSeperatorChar + key);
+            return NtCore.GetEntryStringArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
         public string[] GetStringArray(string key, string[] defaultValue)
         {
 
-            return NtCore.GetEntryStringArray(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.GetEntryStringArray(m_pathWithSeperator + key, defaultValue);
 
         }
 
@@ -651,7 +655,7 @@ namespace NetworkTables
         public bool PutNumberArray(string key, double[] value)
         {
 
-            return NtCore.SetEntryDoubleArray(m_path + PathSeperatorChar + key, value);
+            return NtCore.SetEntryDoubleArray(m_pathWithSeperator + key, value);
         }
 
         ///<inheritdoc/>
@@ -659,21 +663,21 @@ namespace NetworkTables
         public double[] GetNumberArray(string key)
         {
 
-            return NtCore.GetEntryDoubleArray(m_path + PathSeperatorChar + key);
+            return NtCore.GetEntryDoubleArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
         public double[] GetNumberArray(string key, double[] defaultValue)
         {
 
-            return NtCore.GetEntryDoubleArray(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.GetEntryDoubleArray(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
         public bool PutBooleanArray(string key, bool[] value)
         {
 
-            return NtCore.SetEntryBooleanArray(m_path + PathSeperatorChar + key, value);
+            return NtCore.SetEntryBooleanArray(m_pathWithSeperator + key, value);
         }
 
         ///<inheritdoc/>
@@ -681,34 +685,34 @@ namespace NetworkTables
         public bool[] GetBooleanArray(string key)
         {
 
-            return NtCore.GetEntryBooleanArray(m_path + PathSeperatorChar + key);
+            return NtCore.GetEntryBooleanArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
         public bool PutRaw(string key, byte[] value)
         {
 
-            return NtCore.SetEntryRaw(m_path + PathSeperatorChar + key, value);
+            return NtCore.SetEntryRaw(m_pathWithSeperator + key, value);
         }
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
         public byte[] GetRaw(string key)
         {
 
-            return NtCore.GetEntryRaw(m_path + PathSeperatorChar + key);
+            return NtCore.GetEntryRaw(m_pathWithSeperator + key);
         }
         ///<inheritdoc/>
         public byte[] GetRaw(string key, byte[] defaultValue)
         {
 
-            return NtCore.GetEntryRaw(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.GetEntryRaw(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
         public bool[] GetBooleanArray(string key, bool[] defaultValue)
         {
 
-            return NtCore.GetEntryBooleanArray(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.GetEntryBooleanArray(m_pathWithSeperator + key, defaultValue);
         }
 
         private readonly Dictionary<ITableListener, List<int>> m_listenerMap = new Dictionary<ITableListener, List<int>>();
@@ -738,7 +742,7 @@ namespace NetworkTables
                     listener.ValueChanged(this, relativeKey, value, flags_);
                 };
 
-                int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+                int id = NtCore.AddEntryListener(m_pathWithSeperator, func, flags);
 
                 adapters.Add(id);
             }
@@ -755,7 +759,7 @@ namespace NetworkTables
                     adapters = new List<int>();
                     m_listenerMap.Add(listener, adapters);
                 }
-                string fullKey = m_path + PathSeperatorChar + key;
+                string fullKey = m_pathWithSeperator + key;
                 // ReSharper disable once InconsistentNaming
                 EntryListenerCallback func = (uid, funcKey, value, flags_) =>
                 {
@@ -798,7 +802,7 @@ namespace NetworkTables
                 NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
                 if (localNotify)
                     flags |= NotifyFlags.NotifyLocal;
-                int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+                int id = NtCore.AddEntryListener(m_pathWithSeperator, func, flags);
 
                 adapters.Add(id);
             }
@@ -869,7 +873,7 @@ namespace NetworkTables
                     listenerDelegate(this, relativeKey, value, flags_);
                 };
 
-                int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+                int id = NtCore.AddEntryListener(m_pathWithSeperator, func, flags);
 
                 adapters.Add(id);
             }
@@ -886,7 +890,7 @@ namespace NetworkTables
                     adapters = new List<int>();
                     m_actionListenerMap.Add(listenerDelegate, adapters);
                 }
-                string fullKey = m_path + PathSeperatorChar + key;
+                string fullKey = m_pathWithSeperator + key;
                 // ReSharper disable once InconsistentNaming
                 EntryListenerCallback func = (uid, funcKey, value, flags_) =>
                 {
@@ -929,7 +933,7 @@ namespace NetworkTables
                 NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyUpdate;
                 if (localNotify)
                     flags |= NotifyFlags.NotifyLocal;
-                int id = NtCore.AddEntryListener(m_path + PathSeperatorChar, func, flags);
+                int id = NtCore.AddEntryListener(m_pathWithSeperator, func, flags);
 
                 adapters.Add(id);
             }
@@ -1157,42 +1161,42 @@ namespace NetworkTables
         /// <inheritdoc/>
         public bool SetDefaultValue(string key, Value defaultValue)
         {
-            return NtCore.SetDefaultEntryValue(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.SetDefaultEntryValue(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultNumber(string key, double defaultValue)
         {
-            return NtCore.SetDefaultEntryDouble(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.SetDefaultEntryDouble(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultBoolean(string key, bool defaultValue)
         {
-            return NtCore.SetDefaultEntryBoolean(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.SetDefaultEntryBoolean(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultString(string key, string defaultValue)
         {
-            return NtCore.SetDefaultEntryString(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.SetDefaultEntryString(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultRaw(string key, byte[] defaultValue)
         {
-            return NtCore.SetDefaultEntryRaw(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.SetDefaultEntryRaw(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultBooleanArray(string key, bool[] defaultValue)
         {
-            return NtCore.SetDefaultEntryBooleanArray(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.SetDefaultEntryBooleanArray(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultNumberArray(string key, double[] defaultValue)
         {
-            return NtCore.SetDefaultEntryDoubleArray(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.SetDefaultEntryDoubleArray(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
         public bool SetDefaultStringArray(string key, string[] defaultValue)
         {
-            return NtCore.SetDefaultEntryStringArray(m_path + PathSeperatorChar + key, defaultValue);
+            return NtCore.SetDefaultEntryStringArray(m_pathWithSeperator + key, defaultValue);
         }
 
         /// <summary>
