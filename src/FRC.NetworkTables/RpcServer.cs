@@ -145,6 +145,7 @@ namespace NetworkTables
             try
             {
                 monitor = m_lockObject.Lock();
+                DateTime startTime = DateTime.UtcNow;
                 while (m_pollQueue.Count == 0)
                 {
                     if (!blocking || m_terminating)
@@ -154,7 +155,22 @@ namespace NetworkTables
                     }
                     CancellationTokenSource source = new CancellationTokenSource();
                     var task = m_pollCond.WaitAsync(source.Token);
-                    bool success = task.Wait(timeout);
+                    TimeSpan waitTimeout = timeout;
+                    if (timeout != Timeout.InfiniteTimeSpan)
+                    {
+                        DateTime now = DateTime.UtcNow;
+                        if (now < startTime + timeout)
+                        {
+                            // We still have time to wait.
+                            waitTimeout = (startTime + timeout) - now;
+                        }
+                        else
+                        {
+                            // We're past the wait time. No need to wait anymore
+                            waitTimeout = TimeSpan.Zero;
+                        }
+                    }
+                    bool success = task.Wait(waitTimeout);
                     if (!success || m_terminating)
                     {
                         source.Cancel();
