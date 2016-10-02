@@ -115,6 +115,8 @@ namespace NetworkTables
         public void Dispose()
         {
             Stop();
+            // Set process incoming to null to make sure any closures don't hold references.
+            m_processIncoming = null;
             Disposed = true;
         }
 
