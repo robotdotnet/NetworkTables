@@ -401,7 +401,7 @@ namespace NetworkTables
                     var conn = new NetworkConnection(stream, m_notifier, ClientHandshake, m_storage.GetEntryType);
                     conn.SetProcessIncoming((msg, connection) =>
                     {
-                        m_storage.ProcessIncoming(msg, conn, new WeakReference<NetworkConnection>(conn));
+                        m_storage.ProcessIncoming(msg, connection, new WeakReference<NetworkConnection>(conn));
                     });
                     foreach (var s in m_connections) //Disconnect any current
                     {
