@@ -401,7 +401,8 @@ namespace NetworkTables
                     m_stream?.Dispose();
                     break;
                 }
-                Debug3($"received type={msg.Type} with str={msg.Str} id={msg.Id} seqNum={msg.SeqNumUid}");
+                // ToString on the enum type does not stop the boxing
+                Debug3($"received type={msg.Type} with str={msg.Str} id={msg.Id.ToString()} seqNum={msg.SeqNumUid.ToString()}");
                 LastUpdate = Timestamp.Now();
                 m_processIncoming(msg, this);
             }
@@ -424,19 +425,19 @@ namespace NetworkTables
                 if (msgs.Count == 0) continue;
                 encoder.ProtoRev = ProtoRev;
                 encoder.Reset();
-                Debug3($"sending {msgs.Count} messages");
+                Debug3($"sending {msgs.Count.ToString()} messages");
                 foreach (var message in msgs)
                 {
                     if (message != null)
                     {
-                        Debug3($"sending type={message.Type} with str={message.Str} id={message.Id} seqNum={message.SeqNumUid}");
+                        Debug3($"sending type={message.Type} with str={message.Str} id={message.Id.ToString()} seqNum={message.SeqNumUid.ToString()}");
                         message.Write(encoder);
                     }
                 }
                 if (m_stream == null) break;
                 if (encoder.Count == 0) continue;
                 if (m_stream.Send(encoder.Buffer, 0, encoder.Count) == 0) break;
-                Debug4($"sent {encoder.Count} bytes");
+                Debug4($"sent {encoder.Count.ToString()} bytes");
             }
             Debug2($"write thread died ({this})");
             if (m_state != State.Dead) m_notifier.NotifyConnection(false, GetConnectionInfo());

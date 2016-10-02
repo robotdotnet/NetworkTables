@@ -120,7 +120,7 @@ namespace NetworkTables
                         first = false;
                         Warning($"When reading initial persistent values from \" {persistentFilename} \":");
                     }
-                    Warning($"{persistentFilename} : {line} : {msg}");
+                    Warning($"{persistentFilename} : {line.ToString()} : {msg}");
                 });
             }
 
@@ -286,7 +286,7 @@ namespace NetworkTables
 
                         if (++count > 10)
                         {
-                            Debug($"dispatch running {m_connections.Count} connections");
+                            Debug($"dispatch running {m_connections.Count.ToString()} connections");
                             count = 0;
                         }
 
@@ -338,7 +338,7 @@ namespace NetworkTables
                 IPEndPoint ipEp = stream.RemoteEndPoint as IPEndPoint;
                 if (ipEp != null)
                 {
-                    Debug($"server: client connection from {ipEp.Address} port {ipEp.Port}");
+                    Debug($"server: client connection from {ipEp.Address} port {ipEp.Port.ToString()}");
                 }
                 else
                 {
@@ -470,7 +470,7 @@ namespace NetworkTables
                     Debug("client: server disconnected during initial entries");
                     return false;
                 }
-                Debug4($"received init str={msg.Str} id={msg.Id} seqNum={msg.SeqNumUid}");
+                Debug4($"received init str={msg.Str} id={msg.Id.ToString()} seqNum={msg.SeqNumUid.ToString()}");
 
                 if (msg.Is(Message.MsgType.ServerHelloDone)) break;
                 if (!msg.Is(Message.MsgType.EntryAssign))
@@ -496,7 +496,7 @@ namespace NetworkTables
 
             if (outgoing.Count != 0) sendMsgs(outgoing);
 
-            Info($"client: CONNECTED to server {conn.PeerIP} port {conn.PeerPort}");
+            Info($"client: CONNECTED to server {conn.PeerIP} port {conn.PeerPort.ToString()}");
 
             return true;
         }
@@ -528,7 +528,7 @@ namespace NetworkTables
 
             if (protoRev >= 0x0300) conn.RemoteId = msg.Str;
 
-            Debug($"server: client protocol {protoRev}");
+            Debug($"server: client protocol {protoRev.ToString()}");
             conn.ProtoRev = protoRev;
 
             List<Message> outgoing = new List<Message>();
@@ -582,7 +582,7 @@ namespace NetworkTables
                 }
             }
 
-            Info($"server: client CONNECTED: {conn.PeerIP} port {conn.PeerPort}");
+            Info($"server: client CONNECTED: {conn.PeerIP} port {conn.PeerPort.ToString()}");
             return true;
         }
 

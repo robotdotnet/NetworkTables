@@ -289,7 +289,7 @@ namespace NetworkTables
                     break;
                 default:
                     decoder.Error = "unrecognized message type";
-                    Info($"unrecognized message type: {msgType}");
+                    Info($"unrecognized message type: {msgType.ToString()}");
                     return null;
             }
             return msg;
