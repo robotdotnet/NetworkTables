@@ -181,7 +181,7 @@ function UpdateXml {
   md .\buildTemp
  }
  
-  .\NuGet.exe install EWSoftware.SHFB -Version 2016.4.9 -o buildTemp
+  .\NuGet.exe install EWSoftware.SHFB -Version 2016.9.17 -o buildTemp
 
    .\NuGet.exe install EWSoftware.SHFB.NETFramework -Version 4.6 -o buildTemp
    

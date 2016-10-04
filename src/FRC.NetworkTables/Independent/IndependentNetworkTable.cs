@@ -23,8 +23,7 @@ namespace NetworkTables.Independent
         private readonly IndependentNtCore m_ntCore;
         /// <inheritdoc cref="NetworkTable.PathSeperatorChar"/>
         public const char PathSeperatorChar = NetworkTable.PathSeperatorChar;
-
-        public const string PathSeperatorCharString = NetworkTable.PathSeperatorCharString;
+        internal const string PathSeperatorCharString = NetworkTable.PathSeperatorCharString;
         private readonly string m_path;
         private readonly string m_pathWithSeperator;
 

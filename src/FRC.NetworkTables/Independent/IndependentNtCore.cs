@@ -14,7 +14,7 @@ namespace NetworkTables.Independent
     /// <see cref="IndependentNtCore"/>, <see cref="IndependentNetworkTable"/> and <see cref="IndependentRemoteProcedureCall"/>
     /// get around this restriction, and allow multiple clients and servers in the same user program. Note that this is
     /// not supported by NetworkTables.Core.</remarks>
-    public class IndependentNtCore
+    public class IndependentNtCore : IDisposable
     {
         /// <inheritdoc cref="NetworkTable.DefaultPort"/>
         public const int DefaultPort = NetworkTable.DefaultPort;
@@ -365,9 +365,9 @@ namespace NetworkTables.Independent
         }
 
         /// <inheritdoc cref="NtCore.GetType(string)"/>
-        public NtType GetType(string key)
+        public NtType GetType(string name)
         {
-            var v = GetEntryValue(key);
+            var v = GetEntryValue(name);
             if (v == null) return NtType.Unassigned;
             return v.Type;
         }

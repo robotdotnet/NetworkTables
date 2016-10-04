@@ -494,6 +494,7 @@ namespace NetworkTables
         /// Saves persistent keys to a file. The server does this automatically.
         /// </summary>
         /// <param name="filename">The file name.</param>
+        /// <returns>Error string, or null on success</returns>
         /// <exception cref="PersistentException">Thrown if there is an error
         /// saving the file.</exception>
         public static string SavePersistent(string filename)
@@ -505,6 +506,7 @@ namespace NetworkTables
         /// Saves persistent keys to a file asynchronously. The server does this automatically.
         /// </summary>
         /// <param name="filename">The file name.</param>
+        /// <returns>Error string, or null on success</returns>
         /// <exception cref="PersistentException">Thrown if there is an error
         /// saving the file.</exception>
         public static async Task<string> SavePersistentAsync(string filename)

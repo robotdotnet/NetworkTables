@@ -13,7 +13,7 @@
     <RootNamespace>Sandcastle</RootNamespace>
     <Name>Sandcastle</Name>
     <!-- SHFB properties -->
-    <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
+    <FrameworkVersion>.NET Framework 4.6</FrameworkVersion>
     <OutputPath>Help\</OutputPath>
     <HtmlHelpName>Sandcastle</HtmlHelpName>
     <Language>en-US</Language>
@@ -41,21 +41,28 @@
         <component id="API Token Resolution">{@TokenFiles}
 <replace elements="/*//token" item="string(.)" /></component>
       </ComponentConfig>
-<ComponentConfig id="IntelliSense Component" enabled="True"><component id="IntelliSense Component"><!-- Output options (optional)
+      <ComponentConfig id="IntelliSense Component" enabled="True">
+        <component id="IntelliSense Component">
+          <!-- Output options (optional)
   Attributes:
     Include namespaces (false by default)
     Namespaces comments filename ("Namespaces" if not specified or empty)
-    Output folder (current folder if not specified or empty) --><output includeNamespaces="false" namespacesFile="Namespaces" folder="{@OutputFolder}" /></component></ComponentConfig></ComponentConfigurations>
+    Output folder (current folder if not specified or empty) -->
+          <output includeNamespaces="false" namespacesFile="Namespaces" folder="{@OutputFolder}" />
+        </component>
+      </ComponentConfig>
+    </ComponentConfigurations>
     <PlugInConfigurations>
-      <PlugInConfig id="IntelliSense Only" enabled="True" xmlns="">
+      <PlugInConfig id="IntelliSense Only" enabled="True">
         <configuration />
       </PlugInConfig>
-    </PlugInConfigurations>
-	<NamespaceSummaries>
+<PlugInConfig id="Assembly Binding Redirection" enabled="True"><configuration useGAC="false"><assemblyBinding /><ignoreIfUnresolved><assemblyIdentity name="BusinessObjects.Licensing.KeycodeDecoder" /><assemblyIdentity name="Microsoft.VisualStudio.TestTools.UITest.Playback" /><assemblyIdentity name="Nito.AsyncEx.Coordination" /></ignoreIfUnresolved></configuration></PlugInConfig></PlugInConfigurations>
+    <NamespaceSummaries>
       <NamespaceSummaryItem name="NetworkTables" isDocumented="True" xmlns="">The root containing all NetworkTables functionality.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="NetworkTables.Core.Native" isDocumented="True" xmlns="">Contains all the native ntcore interface code.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="NetworkTables.Exceptions" isDocumented="True" xmlns="">Exceptions thrown by the native interface.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="NetworkTables.Tables" isDocumented="True" xmlns="">Interfaces used by NetworkTables.</NamespaceSummaryItem></NamespaceSummaries>
+      <NamespaceSummaryItem name="NetworkTables.Core.Native" isDocumented="True" xmlns="">Contains all the native ntcore interface code.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="NetworkTables.Exceptions" isDocumented="True" xmlns="">Exceptions thrown by the native interface.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="NetworkTables.Tables" isDocumented="True" xmlns="">Interfaces used by NetworkTables.</NamespaceSummaryItem>
+    </NamespaceSummaries>
     <ComponentPath>..\buildTemp\EWSoftware.SHFB.NETFramework.4.6\tools\Data\.NETFramework\</ComponentPath>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform

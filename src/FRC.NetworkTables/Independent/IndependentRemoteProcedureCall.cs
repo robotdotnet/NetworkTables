@@ -102,9 +102,9 @@ namespace NetworkTables.Independent
         }
 
         /// <inheritdoc cref="RemoteProcedureCall.GetRpcResult(bool, long, TimeSpan, out byte[])"/>
-        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timout, out byte[] result)
+        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
         {
-            return m_ntCore.m_storage.GetRpcResult(blocking, callUid, timout, out result);
+            return m_ntCore.m_storage.GetRpcResult(blocking, callUid, timeout, out result);
         }
 
         /// <inheritdoc cref="RemoteProcedureCall.GetRpcResult(bool, long, out byte[])"/>
