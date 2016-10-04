@@ -6,11 +6,11 @@ namespace NetworkTables
 {
     internal class ListStream : Stream
     {
-        private readonly IReadOnlyList<byte> m_buffer;
+        private readonly IList<byte> m_buffer;
 
         private int m_position;
 
-        public ListStream(IReadOnlyList<byte> list)
+        public ListStream(IList<byte> list)
         {
             if (list == null) throw new ArgumentNullException(nameof(list), "List cannot be null");
             m_buffer = list;

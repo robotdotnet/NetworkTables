@@ -69,7 +69,7 @@ namespace NetworkTables
         /// <param name="name">The entry name</param>
         /// <param name="value">The value to set</param>
         /// <returns>False if the type does not match existing value</returns>
-        public static bool SetDefaultEntryBooleanArray(string name, IReadOnlyList<bool> value)
+        public static bool SetDefaultEntryBooleanArray(string name, IList<bool> value)
         {
 #if CORE
             return CoreMethods.SetDefaultEntryBooleanArray(name, value);
@@ -84,7 +84,7 @@ namespace NetworkTables
         /// <param name="name">The entry name</param>
         /// <param name="value">The value to set</param>
         /// <returns>False if the type does not match existing value</returns>
-        public static bool SetDefaultEntryDoubleArray(string name, IReadOnlyList<double> value)
+        public static bool SetDefaultEntryDoubleArray(string name, IList<double> value)
         {
 #if CORE
             return CoreMethods.SetDefaultEntryDoubleArray(name, value);
@@ -99,7 +99,7 @@ namespace NetworkTables
         /// <param name="name">The entry name</param>
         /// <param name="value">The value to set</param>
         /// <returns>False if the type does not match existing value</returns>
-        public static bool SetDefaultEntryStringArray(string name, IReadOnlyList<string> value)
+        public static bool SetDefaultEntryStringArray(string name, IList<string> value)
         {
 #if CORE
             return CoreMethods.SetDefaultEntryStringArray(name, value);
@@ -114,7 +114,7 @@ namespace NetworkTables
         /// <param name="name">The entry name</param>
         /// <param name="value">The value to set</param>
         /// <returns>False if the type does not match existing value</returns>
-        public static bool SetDefaultEntryRaw(string name, IReadOnlyList<byte> value)
+        public static bool SetDefaultEntryRaw(string name, IList<byte> value)
         {
 #if CORE
             return CoreMethods.SetDefaultEntryRaw(name, value);
@@ -209,7 +209,7 @@ namespace NetworkTables
         /// <param name="value">The value to set</param>
         /// <param name="force">True to force an update even if types are different</param>
         /// <returns>True on success, otherwise false</returns>
-        public static bool SetEntryBooleanArray(string name, IReadOnlyList<bool> value, bool force = false)
+        public static bool SetEntryBooleanArray(string name, IList<bool> value, bool force = false)
         {
 #if CORE
             return CoreMethods.SetEntryBooleanArray(name, value, force);
@@ -234,7 +234,7 @@ namespace NetworkTables
         /// <param name="value">The value to set</param>
         /// <param name="force">True to force an update even if types are different</param>
         /// <returns>True on success, otherwise false</returns>
-        public static bool SetEntryDoubleArray(string name, IReadOnlyList<double> value, bool force = false)
+        public static bool SetEntryDoubleArray(string name, IList<double> value, bool force = false)
         {
 #if CORE
             return CoreMethods.SetEntryDoubleArray(name, value, force);
@@ -259,7 +259,7 @@ namespace NetworkTables
         /// <param name="value">The value to set</param>
         /// <param name="force">True to force an update even if types are different</param>
         /// <returns>True on success, otherwise false</returns>
-        public static bool SetEntryStringArray(string name, IReadOnlyList<string> value, bool force = false)
+        public static bool SetEntryStringArray(string name, IList<string> value, bool force = false)
         {
 #if CORE
             return CoreMethods.SetEntryStringArray(name, value, force);
@@ -284,7 +284,7 @@ namespace NetworkTables
         /// <param name="value">The value to set</param>
         /// <param name="force">True to force an update even if types are different</param>
         /// <returns>True on success, otherwise false</returns>
-        public static bool SetEntryRaw(string name, IReadOnlyList<byte> value, bool force = false)
+        public static bool SetEntryRaw(string name, IList<byte> value, bool force = false)
         {
 #if CORE
             return CoreMethods.SetEntryRaw(name, value, force);
@@ -385,7 +385,7 @@ namespace NetworkTables
         /// not exist in the table</exception>
         /// <exception cref="TableKeyDifferentTypeException">Thrown if the type
         /// requested does not match the type in the table</exception>
-        public static IReadOnlyList<bool> GetEntryBooleanArray(string name)
+        public static IList<bool> GetEntryBooleanArray(string name)
         {
 #if CORE
             return CoreMethods.GetEntryBooleanArray(name);
@@ -405,7 +405,7 @@ namespace NetworkTables
         /// not exist in the table</exception>
         /// <exception cref="TableKeyDifferentTypeException">Thrown if the type
         /// requested does not match the type in the table</exception>
-        public static IReadOnlyList<double> GetEntryDoubleArray(string name)
+        public static IList<double> GetEntryDoubleArray(string name)
         {
 #if CORE
             return CoreMethods.GetEntryDoubleArray(name);
@@ -425,7 +425,7 @@ namespace NetworkTables
         /// not exist in the table</exception>
         /// <exception cref="TableKeyDifferentTypeException">Thrown if the type
         /// requested does not match the type in the table</exception>
-        public static IReadOnlyList<string> GetEntryStringArray(string name)
+        public static IList<string> GetEntryStringArray(string name)
         {
 #if CORE
             return CoreMethods.GetEntryStringArray(name);
@@ -445,7 +445,7 @@ namespace NetworkTables
         /// not exist in the table</exception>
         /// <exception cref="TableKeyDifferentTypeException">Thrown if the type
         /// requested does not match the type in the table</exception>
-        public static IReadOnlyList<byte> GetEntryRaw(string name)
+        public static IList<byte> GetEntryRaw(string name)
         {
 #if CORE
             return CoreMethods.GetEntryRaw(name);
@@ -517,7 +517,7 @@ namespace NetworkTables
         /// <param name="name">The entry name</param>
         /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
         /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
-        public static IReadOnlyList<bool> GetEntryBooleanArray(string name, IReadOnlyList<bool> defaultValue)
+        public static IList<bool> GetEntryBooleanArray(string name, IList<bool> defaultValue)
         {
 #if CORE
             return CoreMethods.GetEntryBooleanArray(name, defaultValue);
@@ -534,7 +534,7 @@ namespace NetworkTables
         /// <param name="name">The entry name</param>
         /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
         /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
-        public static IReadOnlyList<double> GetEntryDoubleArray(string name, IReadOnlyList<double> defaultValue)
+        public static IList<double> GetEntryDoubleArray(string name, IList<double> defaultValue)
         {
 #if CORE
             return CoreMethods.GetEntryDoubleArray(name, defaultValue);
@@ -551,7 +551,7 @@ namespace NetworkTables
         /// <param name="name">The entry name</param>
         /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
         /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
-        public static IReadOnlyList<string> GetEntryStringArray(string name, IReadOnlyList<string> defaultValue)
+        public static IList<string> GetEntryStringArray(string name, IList<string> defaultValue)
         {
 #if CORE
             return CoreMethods.GetEntryStringArray(name, defaultValue);
@@ -568,7 +568,7 @@ namespace NetworkTables
         /// <param name="name">The entry name</param>
         /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
         /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
-        public static IReadOnlyList<byte> GetEntryRaw(string name, IReadOnlyList<byte> defaultValue)
+        public static IList<byte> GetEntryRaw(string name, IList<byte> defaultValue)
         {
 #if CORE
             return CoreMethods.GetEntryRaw(name, defaultValue);
@@ -1060,7 +1060,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="filename">The file to load from</param>
         /// <returns>An array of all errors reported during loading</returns>
-        public static IReadOnlyList<string> LoadPersistent(string filename)
+        public static IList<string> LoadPersistent(string filename)
         {
             List<string> warns = new List<string>();
             var err = LoadPersistent(filename, (i, s) =>
@@ -1076,7 +1076,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="filename">The file to load from</param>
         /// <returns>An array of all errors reported during loading</returns>
-        public static async Task<IReadOnlyList<string>> LoadPersistentAsync(string filename)
+        public static async Task<IList<string>> LoadPersistentAsync(string filename)
         {
             List<string> warns = new List<string>();
             var err = await LoadPersistentAsync(filename, (i, s) =>

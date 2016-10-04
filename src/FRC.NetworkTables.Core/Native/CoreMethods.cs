@@ -72,7 +72,7 @@ namespace NetworkTables.Core.Native
             return retVal != 0;
         }
 
-        internal static bool SetDefaultEntryRaw(string name, IReadOnlyList<byte> value)
+        internal static bool SetDefaultEntryRaw(string name, IList<byte> value)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -81,7 +81,7 @@ namespace NetworkTables.Core.Native
             return retVal != 0;
         }
 
-        internal static bool SetDefaultEntryBooleanArray(string name, IReadOnlyList<bool> value)
+        internal static bool SetDefaultEntryBooleanArray(string name, IList<bool> value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value), "Value array cannot be null");
             UIntPtr size;
@@ -98,7 +98,7 @@ namespace NetworkTables.Core.Native
             return retVal != 0;
         }
 
-        internal static bool SetDefaultEntryDoubleArray(string name, IReadOnlyList<double> value)
+        internal static bool SetDefaultEntryDoubleArray(string name, IList<double> value)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -108,7 +108,7 @@ namespace NetworkTables.Core.Native
             return retVal != 0;
         }
 
-        internal static bool SetDefaultEntryStringArray(string name, IReadOnlyList<string> value)
+        internal static bool SetDefaultEntryStringArray(string name, IList<string> value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value), "Value array cannot be null");
             UIntPtr size;
@@ -183,7 +183,7 @@ namespace NetworkTables.Core.Native
             return retVal != 0;
         }
 
-        internal static bool SetEntryRaw(string name, IReadOnlyList<byte> value, bool force = false)
+        internal static bool SetEntryRaw(string name, IList<byte> value, bool force = false)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -192,7 +192,7 @@ namespace NetworkTables.Core.Native
             return retVal != 0;
         }
 
-        internal static bool SetEntryBooleanArray(string name, IReadOnlyList<bool> value, bool force = false)
+        internal static bool SetEntryBooleanArray(string name, IList<bool> value, bool force = false)
         {
             if (value == null) throw new ArgumentNullException(nameof(value), "Value array cannot be null");
             UIntPtr size;
@@ -209,7 +209,7 @@ namespace NetworkTables.Core.Native
             return retVal != 0;
         }
 
-        internal static bool SetEntryDoubleArray(string name, IReadOnlyList<double> value, bool force = false)
+        internal static bool SetEntryDoubleArray(string name, IList<double> value, bool force = false)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -219,7 +219,7 @@ namespace NetworkTables.Core.Native
             return retVal != 0;
         }
 
-        internal static bool SetEntryStringArray(string name, IReadOnlyList<string> value, bool force = false)
+        internal static bool SetEntryStringArray(string name, IList<string> value, bool force = false)
         {
             if (value == null) throw new ArgumentNullException(nameof(value), "Value array cannot be null");
             UIntPtr size;
@@ -292,7 +292,7 @@ namespace NetworkTables.Core.Native
             }
         }
 
-        internal static IReadOnlyList<byte> GetEntryRaw(string name, IReadOnlyList<byte> defaultValue)
+        internal static IList<byte> GetEntryRaw(string name, IList<byte> defaultValue)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -305,13 +305,13 @@ namespace NetworkTables.Core.Native
             }
             else
             {
-                IReadOnlyList<byte> data = GetRawDataFromPtr(ret, stringSize);
+                IList<byte> data = GetRawDataFromPtr(ret, stringSize);
                 Interop.NT_FreeCharArray(ret);
                 return data;
             }
         }
 
-        internal static IReadOnlyList<double> GetEntryDoubleArray(string name, IReadOnlyList<double> defaultValue)
+        internal static IList<double> GetEntryDoubleArray(string name, IList<double> defaultValue)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -322,12 +322,12 @@ namespace NetworkTables.Core.Native
             {
                 return defaultValue;
             }
-            IReadOnlyList<double> arr = GetDoubleArrayFromPtr(arrPtr, arrSize);
+            IList<double> arr = GetDoubleArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeDoubleArray(arrPtr);
             return arr;
         }
 
-        internal static IReadOnlyList<bool> GetEntryBooleanArray(string name, IReadOnlyList<bool> defaultValue)
+        internal static IList<bool> GetEntryBooleanArray(string name, IList<bool> defaultValue)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -338,12 +338,12 @@ namespace NetworkTables.Core.Native
             {
                 return defaultValue;
             }
-            IReadOnlyList<bool> arr = GetBooleanArrayFromPtr(arrPtr, arrSize);
+            IList<bool> arr = GetBooleanArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeBooleanArray(arrPtr);
             return arr;
         }
 
-        internal static IReadOnlyList<string> GetEntryStringArray(string name, IReadOnlyList<string> defaultValue)
+        internal static IList<string> GetEntryStringArray(string name, IList<string> defaultValue)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -354,7 +354,7 @@ namespace NetworkTables.Core.Native
             {
                 return defaultValue;
             }
-            IReadOnlyList<string> arr = GetStringArrayFromPtr(arrPtr, arrSize);
+            IList<string> arr = GetStringArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeStringArray(arrPtr, arrSize);
             return arr;
         }
@@ -451,7 +451,7 @@ namespace NetworkTables.Core.Native
             return str;
         }
 
-        internal static IReadOnlyList<byte> GetEntryRaw(string name)
+        internal static IList<byte> GetEntryRaw(string name)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -462,12 +462,12 @@ namespace NetworkTables.Core.Native
             {
                 ThrowException(name, namePtr, size, NtType.Raw);
             }
-            IReadOnlyList<byte> data = GetRawDataFromPtr(ret, stringSize);
+            IList<byte> data = GetRawDataFromPtr(ret, stringSize);
             Interop.NT_FreeCharArray(ret);
             return data;
         }
 
-        internal static IReadOnlyList<double> GetEntryDoubleArray(string name)
+        internal static IList<double> GetEntryDoubleArray(string name)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -478,12 +478,12 @@ namespace NetworkTables.Core.Native
             {
                 ThrowException(name, namePtr, size, NtType.DoubleArray);
             }
-            IReadOnlyList<double> arr = GetDoubleArrayFromPtr(arrPtr, arrSize);
+            IList<double> arr = GetDoubleArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeDoubleArray(arrPtr);
             return arr;
         }
 
-        internal static IReadOnlyList<bool> GetEntryBooleanArray(string name)
+        internal static IList<bool> GetEntryBooleanArray(string name)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -494,12 +494,12 @@ namespace NetworkTables.Core.Native
             {
                 ThrowException(name, namePtr, size, NtType.BooleanArray);
             }
-            IReadOnlyList<bool> arr = GetBooleanArrayFromPtr(arrPtr, arrSize);
+            IList<bool> arr = GetBooleanArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeBooleanArray(arrPtr);
             return arr;
         }
 
-        internal static IReadOnlyList<string> GetEntryStringArray(string name)
+        internal static IList<string> GetEntryStringArray(string name)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -510,7 +510,7 @@ namespace NetworkTables.Core.Native
             {
                 ThrowException(name, namePtr, size, NtType.StringArray);
             }
-            IReadOnlyList<string> arr = GetStringArrayFromPtr(arrPtr, arrSize);
+            IList<string> arr = GetStringArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeStringArray(arrPtr, arrSize);
             return arr;
         }
@@ -884,14 +884,14 @@ namespace NetworkTables.Core.Native
 
         #region IntPtr to Array Conversions
 
-        private static IReadOnlyList<double> GetDoubleArrayFromPtr(IntPtr ptr, UIntPtr size)
+        private static IList<double> GetDoubleArrayFromPtr(IntPtr ptr, UIntPtr size)
         {
             double[] arr = new double[size.ToUInt64()];
             Marshal.Copy(ptr, arr, 0, arr.Length);
             return arr;
         }
 
-        internal static IReadOnlyList<byte> GetRawDataFromPtr(IntPtr ptr, UIntPtr size)
+        internal static IList<byte> GetRawDataFromPtr(IntPtr ptr, UIntPtr size)
         {
             int len = (int)size.ToUInt64();
             byte[] data = new byte[len];
@@ -899,7 +899,7 @@ namespace NetworkTables.Core.Native
             return data;
         }
 
-        private static IReadOnlyList<bool> GetBooleanArrayFromPtr(IntPtr ptr, UIntPtr size)
+        private static IList<bool> GetBooleanArrayFromPtr(IntPtr ptr, UIntPtr size)
         {
             int iSize = (int)size.ToUInt64();
 
@@ -911,7 +911,7 @@ namespace NetworkTables.Core.Native
             return bArr;
         }
 
-        private static IReadOnlyList<string> GetStringArrayFromPtr(IntPtr ptr, UIntPtr size)
+        private static IList<string> GetStringArrayFromPtr(IntPtr ptr, UIntPtr size)
         {
 #pragma warning disable CS0618
             int ntStringSize = Marshal.SizeOf(typeof(NtStringRead));
@@ -936,14 +936,14 @@ namespace NetworkTables.Core.Native
         // ReSharper disable once CollectionNeverQueried.Global
         internal static readonly List<Interop.NT_RPCCallback> s_rpcCallbacks = new List<Interop.NT_RPCCallback>();
 
-        internal static void CreateRpc(string name, IReadOnlyList<byte> def, RpcCallback callback)
+        internal static void CreateRpc(string name, IList<byte> def, RpcCallback callback)
         {
             Interop.NT_RPCCallback modCallback =
                 (IntPtr data, IntPtr ptr, UIntPtr len, IntPtr intPtr, UIntPtr paramsLen, out UIntPtr resultsLen, ref NtConnectionInfo connInfo) =>
                 {
                     string retName = ReadUTF8String(ptr, len);
-                    IReadOnlyList<byte> param = GetRawDataFromPtr(intPtr, paramsLen);
-                    IReadOnlyList<byte> cb = callback(retName, param, connInfo.ToManaged());
+                    IList<byte> param = GetRawDataFromPtr(intPtr, paramsLen);
+                    IList<byte> cb = callback(retName, param, connInfo.ToManaged());
                     resultsLen = (UIntPtr)cb.Count;
                     IntPtr retPtr = Interop.NT_AllocateCharArray(resultsLen);
                     if (cb is byte[])
@@ -976,7 +976,7 @@ namespace NetworkTables.Core.Native
             s_rpcCallbacks.Add(modCallback);
         }
 
-        internal static void CreatePolledRpc(string name, IReadOnlyList<byte> def)
+        internal static void CreatePolledRpc(string name, IList<byte> def)
         {
             UIntPtr nameLen;
             IntPtr nameB = CreateCachedUTF8String(name, out nameLen);
@@ -1017,7 +1017,7 @@ namespace NetworkTables.Core.Native
             return true;
         }
 
-        internal static void PostRpcResponse(long rpcId, long callUid, IReadOnlyList<byte> result)
+        internal static void PostRpcResponse(long rpcId, long callUid, IList<byte> result)
         {
             var bArr = result as byte[];
             if (bArr != null)
@@ -1030,7 +1030,7 @@ namespace NetworkTables.Core.Native
             }
         }
 
-        internal static long CallRpc(string name, IReadOnlyList<byte> param)
+        internal static long CallRpc(string name, IList<byte> param)
         {
             UIntPtr size;
             IntPtr nameB = CreateCachedUTF8String(name, out size);
@@ -1045,7 +1045,7 @@ namespace NetworkTables.Core.Native
             }
         }
 
-        internal static async Task<IReadOnlyList<byte>> GetRpcResultAsync(long callUid, CancellationToken token)
+        internal static async Task<IList<byte>> GetRpcResultAsync(long callUid, CancellationToken token)
         {
             token.Register(() =>
             {
@@ -1056,7 +1056,7 @@ namespace NetworkTables.Core.Native
             {
                 var result = await Task.Run(() =>
                 {
-                    IReadOnlyList<byte> results;
+                    IList<byte> results;
                     bool success = GetRpcResult(true, callUid, out results);
                     if (success)
                     {
@@ -1075,7 +1075,7 @@ namespace NetworkTables.Core.Native
             }
         }
 
-        internal static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out IReadOnlyList<byte> result)
+        internal static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out IList<byte> result)
         {
             UIntPtr size = UIntPtr.Zero;
             IntPtr retVal = Interop.NT_GetRpcResultTimeout(blocking ? 1 : 0, (uint)callUid, timeout.TotalSeconds, ref size);
@@ -1088,7 +1088,7 @@ namespace NetworkTables.Core.Native
             return true;
         }
 
-        internal static bool GetRpcResult(bool blocking, long callUid, out IReadOnlyList<byte> result)
+        internal static bool GetRpcResult(bool blocking, long callUid, out IList<byte> result)
         {
             UIntPtr size = UIntPtr.Zero;
             IntPtr retVal = Interop.NT_GetRpcResult(blocking ? 1 : 0, (uint)callUid, ref size);

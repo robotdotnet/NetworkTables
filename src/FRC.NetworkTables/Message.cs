@@ -362,7 +362,7 @@ namespace NetworkTables
             return msg;
         }
 
-        public static Message ExecuteRpc(uint id, uint uid, IReadOnlyList<byte> param)
+        public static Message ExecuteRpc(uint id, uint uid, IList<byte> param)
         {
             var msg = new Message(MsgType.ExecuteRpc)
             {
@@ -373,7 +373,7 @@ namespace NetworkTables
             return msg;
         }
 
-        public static Message RpcResponse(uint id, uint uid, IReadOnlyList<byte> results)
+        public static Message RpcResponse(uint id, uint uid, IList<byte> results)
         {
             var msg = new Message(MsgType.RpcResponse)
             {

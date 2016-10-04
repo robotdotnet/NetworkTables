@@ -84,7 +84,7 @@ namespace NetworkTables.Core.Test
             CoreMethods.SetEntryRaw(key, firstWrite);
 
 
-            IReadOnlyList<byte> retVal = CoreMethods.GetEntryRaw(key);
+            IList<byte> retVal = CoreMethods.GetEntryRaw(key);
 
             for(int i = 0; i < firstWrite.Length; i++)
             {
@@ -116,7 +116,7 @@ namespace NetworkTables.Core.Test
             CoreMethods.SetEntryBooleanArray(key, firstWrite);
 
 
-            IReadOnlyList<bool> retVal = CoreMethods.GetEntryBooleanArray(key);
+            IList<bool> retVal = CoreMethods.GetEntryBooleanArray(key);
 
             for (int i = 0; i < firstWrite.Length; i++)
             {
@@ -148,7 +148,7 @@ namespace NetworkTables.Core.Test
             CoreMethods.SetEntryDoubleArray(key, firstWrite);
 
 
-            IReadOnlyList<double> retVal = CoreMethods.GetEntryDoubleArray(key);
+            IList<double> retVal = CoreMethods.GetEntryDoubleArray(key);
 
             for (int i = 0; i < firstWrite.Length; i++)
             {
@@ -180,7 +180,7 @@ namespace NetworkTables.Core.Test
             CoreMethods.SetEntryStringArray(key, firstWrite);
 
 
-            IReadOnlyList<string> retVal = CoreMethods.GetEntryStringArray(key);
+            IList<string> retVal = CoreMethods.GetEntryStringArray(key);
 
             for (int i = 0; i < firstWrite.Length; i++)
             {

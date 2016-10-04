@@ -269,7 +269,7 @@ namespace NetworkTables.Test.NetworkTablesApi
 
             File.WriteAllLines(fileName, toWrite);
 
-            IReadOnlyList<string> errors = NetworkTable.LoadPersistent(fileName);
+            IList<string> errors = NetworkTable.LoadPersistent(fileName);
 
             Assert.That(errors.Count, Is.EqualTo(0));
 
@@ -304,7 +304,7 @@ namespace NetworkTables.Test.NetworkTablesApi
 
             File.WriteAllLines(fileName, toWrite);
 
-            IReadOnlyList<string> errors = NetworkTable.LoadPersistent(fileName);
+            IList<string> errors = NetworkTable.LoadPersistent(fileName);
 
             Assert.That(errors.Count, Is.EqualTo(1));
             Assert.That(errors[0], Contains.Substring("3: unrecognized boolean value, not 'true' or 'false'"));

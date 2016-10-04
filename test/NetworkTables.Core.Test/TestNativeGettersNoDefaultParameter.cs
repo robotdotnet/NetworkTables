@@ -169,7 +169,7 @@ namespace NetworkTables.Core.Test
             byte[] actualVal = { 42, 28, 142, 0, 22, 0, 132 };
             CoreMethods.SetEntryRaw(key, actualVal);
 
-            IReadOnlyList<byte> retVal = CoreMethods.GetEntryRaw(key);
+            IList<byte> retVal = CoreMethods.GetEntryRaw(key);
 
             Assert.That(retVal.Count, Is.EqualTo(actualVal.Length));
 
@@ -187,7 +187,7 @@ namespace NetworkTables.Core.Test
             double[] actualVal = { 3.54538, 43536.825, 34534454.34554, 3423413.23432 };
             CoreMethods.SetEntryDoubleArray(key, actualVal);
 
-            IReadOnlyList<double> retVal = CoreMethods.GetEntryDoubleArray(key);
+            IList<double> retVal = CoreMethods.GetEntryDoubleArray(key);
 
             Assert.That(retVal.Count, Is.EqualTo(actualVal.Length));
 
@@ -205,7 +205,7 @@ namespace NetworkTables.Core.Test
             string[] actualVal = { "writeas1", "wriasdte2", "writasde3", "adsadsd4" };
             CoreMethods.SetEntryStringArray(key, actualVal);
 
-            IReadOnlyList<string> retVal = CoreMethods.GetEntryStringArray(key);
+            IList<string> retVal = CoreMethods.GetEntryStringArray(key);
 
             Assert.That(retVal.Count, Is.EqualTo(actualVal.Length));
 
@@ -223,7 +223,7 @@ namespace NetworkTables.Core.Test
             bool[] actualVal = { false, false, true, true, false };
             CoreMethods.SetEntryBooleanArray(key, actualVal);
 
-            IReadOnlyList<bool> retVal = CoreMethods.GetEntryBooleanArray(key);
+            IList<bool> retVal = CoreMethods.GetEntryBooleanArray(key);
 
             Assert.That(retVal.Count, Is.EqualTo(actualVal.Length));
 

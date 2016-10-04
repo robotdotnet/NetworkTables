@@ -974,7 +974,7 @@ namespace NetworkTables
 
 
 
-        public void CreateRpc(string name, IReadOnlyList<byte> def, RpcCallback callback)
+        public void CreateRpc(string name, IList<byte> def, RpcCallback callback)
         {
             if (string.IsNullOrEmpty(name) || def == null || def.Count == 0 || callback == null) return;
             IDisposable monitor = null;
@@ -1032,7 +1032,7 @@ namespace NetworkTables
             }
         }
 
-        public void CreatePolledRpc(string name, IReadOnlyList<byte> def)
+        public void CreatePolledRpc(string name, IList<byte> def)
         {
             if (string.IsNullOrEmpty(name) || def == null || def.Count == 0) return;
             IDisposable monitor = null;
@@ -1088,7 +1088,7 @@ namespace NetworkTables
             }
         }
 
-        public long CallRpc(string name, IReadOnlyList<byte> param)
+        public long CallRpc(string name, IList<byte> param)
         {
             if (string.IsNullOrEmpty(name)) return 0;
             IDisposable monitor = null;
@@ -1189,12 +1189,12 @@ namespace NetworkTables
             }
         }
 
-        public bool GetRpcResult(bool blocking, long callUid, out IReadOnlyList<byte> result)
+        public bool GetRpcResult(bool blocking, long callUid, out IList<byte> result)
         {
             return GetRpcResult(blocking, callUid, Timeout.InfiniteTimeSpan, out result);
         }
 
-        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out IReadOnlyList<byte> result)
+        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out IList<byte> result)
         {
             IDisposable monitor = null;
             try
