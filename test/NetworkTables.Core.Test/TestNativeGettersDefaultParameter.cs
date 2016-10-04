@@ -1,4 +1,5 @@
-﻿using NetworkTables.Core.Native;
+﻿using System.Collections.Generic;
+using NetworkTables.Core.Native;
 using NUnit.Framework;
 
 namespace NetworkTables.Core.Test
@@ -185,9 +186,9 @@ namespace NetworkTables.Core.Test
             byte[] actualVal = { 42, 28, 142, 0, 22, 0, 132 };
             CoreMethods.SetEntryRaw(key, actualVal);
 
-            byte[] retVal = CoreMethods.GetEntryRaw(key, testVal);
+            IReadOnlyList<byte> retVal = CoreMethods.GetEntryRaw(key, testVal);
 
-            Assert.That(retVal.Length, Is.EqualTo(actualVal.Length));
+            Assert.That(retVal.Count, Is.EqualTo(actualVal.Length));
 
             for(int i = 0; i < actualVal.Length; i++)
             {
@@ -204,9 +205,9 @@ namespace NetworkTables.Core.Test
             double[] actualVal = { 3.54538, 43536.825, 34534454.34554, 3423413.23432 };
             CoreMethods.SetEntryDoubleArray(key, actualVal);
 
-            double[] retVal = CoreMethods.GetEntryDoubleArray(key, testVal);
+            IReadOnlyList<double> retVal = CoreMethods.GetEntryDoubleArray(key, testVal);
 
-            Assert.That(retVal.Length, Is.EqualTo(actualVal.Length));
+            Assert.That(retVal.Count, Is.EqualTo(actualVal.Length));
 
             for (int i = 0; i < actualVal.Length; i++)
             {
@@ -223,9 +224,9 @@ namespace NetworkTables.Core.Test
             string[] actualVal = { "writeas1", "wriasdte2", "writasde3", "adsadsd4" };
             CoreMethods.SetEntryStringArray(key, actualVal);
 
-            string[] retVal = CoreMethods.GetEntryStringArray(key, testVal);
+            IReadOnlyList<string> retVal = CoreMethods.GetEntryStringArray(key, testVal);
 
-            Assert.That(retVal.Length, Is.EqualTo(actualVal.Length));
+            Assert.That(retVal.Count, Is.EqualTo(actualVal.Length));
 
             for (int i = 0; i < actualVal.Length; i++)
             {
@@ -242,9 +243,9 @@ namespace NetworkTables.Core.Test
             bool[] actualVal = { false, false, true, true, false };
             CoreMethods.SetEntryBooleanArray(key, actualVal);
 
-            bool[] retVal = CoreMethods.GetEntryBooleanArray(key, testVal);
+            IReadOnlyList<bool> retVal = CoreMethods.GetEntryBooleanArray(key, testVal);
 
-            Assert.That(retVal.Length, Is.EqualTo(actualVal.Length));
+            Assert.That(retVal.Count, Is.EqualTo(actualVal.Length));
 
             for (int i = 0; i < actualVal.Length; i++)
             {

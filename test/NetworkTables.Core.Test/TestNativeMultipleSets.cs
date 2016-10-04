@@ -1,4 +1,5 @@
-﻿using NetworkTables.Core.Native;
+﻿using System.Collections.Generic;
+using NetworkTables.Core.Native;
 using NUnit.Framework;
 
 namespace NetworkTables.Core.Test
@@ -83,7 +84,7 @@ namespace NetworkTables.Core.Test
             CoreMethods.SetEntryRaw(key, firstWrite);
 
 
-            byte[] retVal = CoreMethods.GetEntryRaw(key);
+            IReadOnlyList<byte> retVal = CoreMethods.GetEntryRaw(key);
 
             for(int i = 0; i < firstWrite.Length; i++)
             {
@@ -115,7 +116,7 @@ namespace NetworkTables.Core.Test
             CoreMethods.SetEntryBooleanArray(key, firstWrite);
 
 
-            bool[] retVal = CoreMethods.GetEntryBooleanArray(key);
+            IReadOnlyList<bool> retVal = CoreMethods.GetEntryBooleanArray(key);
 
             for (int i = 0; i < firstWrite.Length; i++)
             {
@@ -147,7 +148,7 @@ namespace NetworkTables.Core.Test
             CoreMethods.SetEntryDoubleArray(key, firstWrite);
 
 
-            double[] retVal = CoreMethods.GetEntryDoubleArray(key);
+            IReadOnlyList<double> retVal = CoreMethods.GetEntryDoubleArray(key);
 
             for (int i = 0; i < firstWrite.Length; i++)
             {
@@ -179,7 +180,7 @@ namespace NetworkTables.Core.Test
             CoreMethods.SetEntryStringArray(key, firstWrite);
 
 
-            string[] retVal = CoreMethods.GetEntryStringArray(key);
+            IReadOnlyList<string> retVal = CoreMethods.GetEntryStringArray(key);
 
             for (int i = 0; i < firstWrite.Length; i++)
             {

@@ -56,7 +56,7 @@ namespace NetworkTables.Core.Test
         [Test]
         public void TestPutNullStringArray()
         {
-            Assert.Throws<NullReferenceException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
             {
                 m_nt.PutStringArray("nullStringArray", null);
             }, "Null array should not be allowed");
@@ -70,7 +70,7 @@ namespace NetworkTables.Core.Test
         [Test]
         public void TestPutNullBooleanArray()
         {
-            Assert.Throws<NullReferenceException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
             {
                 m_nt.PutBooleanArray("nullBoolArray", null);
             }, "Null array should not be allowed");
@@ -84,7 +84,7 @@ namespace NetworkTables.Core.Test
         [Test]
         public void TestPutNullDoubleArray()
         {
-            Assert.Throws<NullReferenceException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
             {
                 m_nt.PutNumberArray("nullNumberArray", null);
             }, "Null array should not be allowed");

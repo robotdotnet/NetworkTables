@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using NetworkTables.Core.Native;
 using NUnit.Framework;
@@ -133,9 +134,9 @@ namespace NetworkTables.Core.Test
 
             File.WriteAllLines(fileName, toWrite);
 
-            string[] errors = NtCore.LoadPersistent(fileName);
+            IReadOnlyList<string> errors = NtCore.LoadPersistent(fileName);
 
-            Assert.That(errors.Length, Is.EqualTo(0));
+            Assert.That(errors.Count, Is.EqualTo(0));
 
             var entries = CoreMethods.GetEntryInfo("", 0);
 
@@ -168,9 +169,9 @@ namespace NetworkTables.Core.Test
 
             File.WriteAllLines(fileName, toWrite);
 
-            string[] errors = NtCore.LoadPersistent(fileName);
+            IReadOnlyList<string> errors = NtCore.LoadPersistent(fileName);
 
-            Assert.That(errors.Length, Is.EqualTo(1));
+            Assert.That(errors.Count, Is.EqualTo(1));
             Assert.That(errors[0], Contains.Substring("3: unrecognized boolean value, not 'true' or 'false'"));
         }
 

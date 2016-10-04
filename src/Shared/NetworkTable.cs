@@ -97,7 +97,7 @@ namespace NetworkTables
 
         internal static string PersistentFilename { get; private set; } = DefaultPersistentFileName;
 
-        internal static string[] GetIPAddresses()
+        internal static IReadOnlyList<string> GetIPAddresses()
         {
             string[] tmp = new string[s_ipAddresses.Length];
             for (int i = 0; i < s_ipAddresses.Length; i++)
@@ -236,16 +236,16 @@ namespace NetworkTables
         /// Sets the IP address that will be connected to in client mode using round robin order.
         /// </summary>
         /// <param name="addresses">The IP address to connect to in client mode using round robin order.</param>
-        public static void SetIPAddress(string[] addresses)
+        public static void SetIPAddress(IReadOnlyList<string> addresses)
         {
-            if (s_ipAddresses.Length == addresses.Length)
+            if (s_ipAddresses.Length == addresses.Count)
             {
                 bool match = !addresses.Where((t, i) => s_ipAddresses[i] != t).Any();
                 if (match)
                     return;
             }
             CheckInit();
-            s_ipAddresses = addresses;
+            s_ipAddresses = addresses.ToArray();
         }
 
         /// <summary>
@@ -521,7 +521,7 @@ namespace NetworkTables
         /// <returns>A List of warnings (errors result in an exception instead.)</returns>
         /// <exception cref="PersistentException">Thrown if there is an error
         /// loading the file.</exception>
-        public static string[] LoadPersistent(string filename)
+        public static IReadOnlyList<string> LoadPersistent(string filename)
         {
             return NtCore.LoadPersistent(filename);
         }
@@ -533,7 +533,7 @@ namespace NetworkTables
         /// <returns>A List of warnings (errors result in an exception instead.)</returns>
         /// <exception cref="PersistentException">Thrown if there is an error
         /// loading the file.</exception>
-        public static async Task<string[]> LoadPersistentAsync(string filename)
+        public static async Task<IReadOnlyList<string>> LoadPersistentAsync(string filename)
         {
             return await NtCore.LoadPersistentAsync(filename).ConfigureAwait(false);
         }
@@ -631,7 +631,7 @@ namespace NetworkTables
         }
 
         ///<inheritdoc/>
-        public bool PutStringArray(string key, string[] value)
+        public bool PutStringArray(string key, IReadOnlyList<string> value)
         {
 
             return NtCore.SetEntryStringArray(m_pathWithSeperator + key, value);
@@ -639,14 +639,14 @@ namespace NetworkTables
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public string[] GetStringArray(string key)
+        public IReadOnlyList<string> GetStringArray(string key)
         {
 
             return NtCore.GetEntryStringArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
-        public string[] GetStringArray(string key, string[] defaultValue)
+        public IReadOnlyList<string> GetStringArray(string key, IReadOnlyList<string> defaultValue)
         {
 
             return NtCore.GetEntryStringArray(m_pathWithSeperator + key, defaultValue);
@@ -654,7 +654,7 @@ namespace NetworkTables
         }
 
         ///<inheritdoc/>
-        public bool PutNumberArray(string key, double[] value)
+        public bool PutNumberArray(string key, IReadOnlyList<double> value)
         {
 
             return NtCore.SetEntryDoubleArray(m_pathWithSeperator + key, value);
@@ -662,21 +662,21 @@ namespace NetworkTables
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public double[] GetNumberArray(string key)
+        public IReadOnlyList<double> GetNumberArray(string key)
         {
 
             return NtCore.GetEntryDoubleArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
-        public double[] GetNumberArray(string key, double[] defaultValue)
+        public IReadOnlyList<double> GetNumberArray(string key, IReadOnlyList<double> defaultValue)
         {
 
             return NtCore.GetEntryDoubleArray(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
-        public bool PutBooleanArray(string key, bool[] value)
+        public bool PutBooleanArray(string key, IReadOnlyList<bool> value)
         {
 
             return NtCore.SetEntryBooleanArray(m_pathWithSeperator + key, value);
@@ -684,34 +684,34 @@ namespace NetworkTables
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public bool[] GetBooleanArray(string key)
+        public IReadOnlyList<bool> GetBooleanArray(string key)
         {
 
             return NtCore.GetEntryBooleanArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
-        public bool PutRaw(string key, byte[] value)
+        public bool PutRaw(string key, IReadOnlyList<byte> value)
         {
 
             return NtCore.SetEntryRaw(m_pathWithSeperator + key, value);
         }
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public byte[] GetRaw(string key)
+        public IReadOnlyList<byte> GetRaw(string key)
         {
 
             return NtCore.GetEntryRaw(m_pathWithSeperator + key);
         }
         ///<inheritdoc/>
-        public byte[] GetRaw(string key, byte[] defaultValue)
+        public IReadOnlyList<byte> GetRaw(string key, IReadOnlyList<byte> defaultValue)
         {
 
             return NtCore.GetEntryRaw(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
-        public bool[] GetBooleanArray(string key, bool[] defaultValue)
+        public IReadOnlyList<bool> GetBooleanArray(string key, IReadOnlyList<bool> defaultValue)
         {
 
             return NtCore.GetEntryBooleanArray(m_pathWithSeperator + key, defaultValue);
@@ -1181,22 +1181,22 @@ namespace NetworkTables
             return NtCore.SetDefaultEntryString(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
-        public bool SetDefaultRaw(string key, byte[] defaultValue)
+        public bool SetDefaultRaw(string key, IReadOnlyList<byte> defaultValue)
         {
             return NtCore.SetDefaultEntryRaw(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
-        public bool SetDefaultBooleanArray(string key, bool[] defaultValue)
+        public bool SetDefaultBooleanArray(string key, IReadOnlyList<bool> defaultValue)
         {
             return NtCore.SetDefaultEntryBooleanArray(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
-        public bool SetDefaultNumberArray(string key, double[] defaultValue)
+        public bool SetDefaultNumberArray(string key, IReadOnlyList<double> defaultValue)
         {
             return NtCore.SetDefaultEntryDoubleArray(m_pathWithSeperator + key, defaultValue);
         }
         /// <inheritdoc/>
-        public bool SetDefaultStringArray(string key, string[] defaultValue)
+        public bool SetDefaultStringArray(string key, IReadOnlyList<string> defaultValue)
         {
             return NtCore.SetDefaultEntryStringArray(m_pathWithSeperator + key, defaultValue);
         }

@@ -72,21 +72,23 @@ namespace NetworkTables.Core.Native
             return retVal != 0;
         }
 
-        internal static bool SetDefaultEntryRaw(string name, byte[] value)
+        internal static bool SetDefaultEntryRaw(string name, IReadOnlyList<byte> value)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
-            int retVal = Interop.NT_SetDefaultEntryRaw(namePtr, size, value, (UIntPtr)value.Length);
+            byte[] arr = value as byte[];
+            int retVal = Interop.NT_SetDefaultEntryRaw(namePtr, size, arr ?? value.ToArray(), (UIntPtr)value.Count);
             return retVal != 0;
         }
 
-        internal static bool SetDefaultEntryBooleanArray(string name, bool[] value)
+        internal static bool SetDefaultEntryBooleanArray(string name, IReadOnlyList<bool> value)
         {
+            if (value == null) throw new ArgumentNullException(nameof(value), "Value array cannot be null");
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
 
-            int[] valueIntArr = new int[value.Length];
-            for (int i = 0; i < value.Length; i++)
+            int[] valueIntArr = new int[value.Count];
+            for (int i = 0; i < value.Count; i++)
             {
                 valueIntArr[i] = value[i] ? 1 : 0;
             }
@@ -96,23 +98,24 @@ namespace NetworkTables.Core.Native
             return retVal != 0;
         }
 
-        internal static bool SetDefaultEntryDoubleArray(string name, double[] value)
+        internal static bool SetDefaultEntryDoubleArray(string name, IReadOnlyList<double> value)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
-
-            int retVal = Interop.NT_SetDefaultEntryDoubleArray(namePtr, size, value, (UIntPtr)value.Length);
+            double[] arr = value as double[]; 
+            int retVal = Interop.NT_SetDefaultEntryDoubleArray(namePtr, size, arr ?? value.ToArray(), (UIntPtr)value.Count);
 
             return retVal != 0;
         }
 
-        internal static bool SetDefaultEntryStringArray(string name, string[] value)
+        internal static bool SetDefaultEntryStringArray(string name, IReadOnlyList<string> value)
         {
+            if (value == null) throw new ArgumentNullException(nameof(value), "Value array cannot be null");
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
 
-            NtStringWrite[] ntStrings = new NtStringWrite[value.Length];
-            for (int i = 0; i < value.Length; i++)
+            NtStringWrite[] ntStrings = new NtStringWrite[value.Count];
+            for (int i = 0; i < value.Count; i++)
             {
                 ntStrings[i] = new NtStringWrite(value[i]);
             }
@@ -180,21 +183,23 @@ namespace NetworkTables.Core.Native
             return retVal != 0;
         }
 
-        internal static bool SetEntryRaw(string name, byte[] value, bool force = false)
+        internal static bool SetEntryRaw(string name, IReadOnlyList<byte> value, bool force = false)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
-            int retVal = Interop.NT_SetEntryRaw(namePtr, size, value, (UIntPtr)value.Length, force ? 1 : 0);
+            byte[] arr = value as byte[];
+            int retVal = Interop.NT_SetEntryRaw(namePtr, size, arr ?? value.ToArray(), (UIntPtr)value.Count, force ? 1 : 0);
             return retVal != 0;
         }
 
-        internal static bool SetEntryBooleanArray(string name, bool[] value, bool force = false)
+        internal static bool SetEntryBooleanArray(string name, IReadOnlyList<bool> value, bool force = false)
         {
+            if (value == null) throw new ArgumentNullException(nameof(value), "Value array cannot be null");
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
 
-            int[] valueIntArr = new int[value.Length];
-            for (int i = 0; i < value.Length; i++)
+            int[] valueIntArr = new int[value.Count];
+            for (int i = 0; i < value.Count; i++)
             {
                 valueIntArr[i] = value[i] ? 1 : 0;
             }
@@ -204,23 +209,24 @@ namespace NetworkTables.Core.Native
             return retVal != 0;
         }
 
-        internal static bool SetEntryDoubleArray(string name, double[] value, bool force = false)
+        internal static bool SetEntryDoubleArray(string name, IReadOnlyList<double> value, bool force = false)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
-
-            int retVal = Interop.NT_SetEntryDoubleArray(namePtr, size, value, (UIntPtr)value.Length, force ? 1 : 0);
+            double[] arr = value as double[];
+            int retVal = Interop.NT_SetEntryDoubleArray(namePtr, size, arr ?? value.ToArray(), (UIntPtr)value.Count, force ? 1 : 0);
 
             return retVal != 0;
         }
 
-        internal static bool SetEntryStringArray(string name, string[] value, bool force = false)
+        internal static bool SetEntryStringArray(string name, IReadOnlyList<string> value, bool force = false)
         {
+            if (value == null) throw new ArgumentNullException(nameof(value), "Value array cannot be null");
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
 
-            NtStringWrite[] ntStrings = new NtStringWrite[value.Length];
-            for (int i = 0; i < value.Length; i++)
+            NtStringWrite[] ntStrings = new NtStringWrite[value.Count];
+            for (int i = 0; i < value.Count; i++)
             {
                 ntStrings[i] = new NtStringWrite(value[i]);
             }
@@ -286,7 +292,7 @@ namespace NetworkTables.Core.Native
             }
         }
 
-        internal static byte[] GetEntryRaw(string name, byte[] defaultValue)
+        internal static IReadOnlyList<byte> GetEntryRaw(string name, IReadOnlyList<byte> defaultValue)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -299,13 +305,13 @@ namespace NetworkTables.Core.Native
             }
             else
             {
-                byte[] data = GetRawDataFromPtr(ret, stringSize);
+                IReadOnlyList<byte> data = GetRawDataFromPtr(ret, stringSize);
                 Interop.NT_FreeCharArray(ret);
                 return data;
             }
         }
 
-        internal static double[] GetEntryDoubleArray(string name, double[] defaultValue)
+        internal static IReadOnlyList<double> GetEntryDoubleArray(string name, IReadOnlyList<double> defaultValue)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -316,12 +322,12 @@ namespace NetworkTables.Core.Native
             {
                 return defaultValue;
             }
-            double[] arr = GetDoubleArrayFromPtr(arrPtr, arrSize);
+            IReadOnlyList<double> arr = GetDoubleArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeDoubleArray(arrPtr);
             return arr;
         }
 
-        internal static bool[] GetEntryBooleanArray(string name, bool[] defaultValue)
+        internal static IReadOnlyList<bool> GetEntryBooleanArray(string name, IReadOnlyList<bool> defaultValue)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -332,12 +338,12 @@ namespace NetworkTables.Core.Native
             {
                 return defaultValue;
             }
-            bool[] arr = GetBooleanArrayFromPtr(arrPtr, arrSize);
+            IReadOnlyList<bool> arr = GetBooleanArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeBooleanArray(arrPtr);
             return arr;
         }
 
-        internal static string[] GetEntryStringArray(string name, string[] defaultValue)
+        internal static IReadOnlyList<string> GetEntryStringArray(string name, IReadOnlyList<string> defaultValue)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -348,7 +354,7 @@ namespace NetworkTables.Core.Native
             {
                 return defaultValue;
             }
-            string[] arr = GetStringArrayFromPtr(arrPtr, arrSize);
+            IReadOnlyList<string> arr = GetStringArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeStringArray(arrPtr, arrSize);
             return arr;
         }
@@ -445,7 +451,7 @@ namespace NetworkTables.Core.Native
             return str;
         }
 
-        internal static byte[] GetEntryRaw(string name)
+        internal static IReadOnlyList<byte> GetEntryRaw(string name)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -456,12 +462,12 @@ namespace NetworkTables.Core.Native
             {
                 ThrowException(name, namePtr, size, NtType.Raw);
             }
-            byte[] data = GetRawDataFromPtr(ret, stringSize);
+            IReadOnlyList<byte> data = GetRawDataFromPtr(ret, stringSize);
             Interop.NT_FreeCharArray(ret);
             return data;
         }
 
-        internal static double[] GetEntryDoubleArray(string name)
+        internal static IReadOnlyList<double> GetEntryDoubleArray(string name)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -472,12 +478,12 @@ namespace NetworkTables.Core.Native
             {
                 ThrowException(name, namePtr, size, NtType.DoubleArray);
             }
-            double[] arr = GetDoubleArrayFromPtr(arrPtr, arrSize);
+            IReadOnlyList<double> arr = GetDoubleArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeDoubleArray(arrPtr);
             return arr;
         }
 
-        internal static bool[] GetEntryBooleanArray(string name)
+        internal static IReadOnlyList<bool> GetEntryBooleanArray(string name)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -488,12 +494,12 @@ namespace NetworkTables.Core.Native
             {
                 ThrowException(name, namePtr, size, NtType.BooleanArray);
             }
-            bool[] arr = GetBooleanArrayFromPtr(arrPtr, arrSize);
+            IReadOnlyList<bool> arr = GetBooleanArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeBooleanArray(arrPtr);
             return arr;
         }
 
-        internal static string[] GetEntryStringArray(string name)
+        internal static IReadOnlyList<string> GetEntryStringArray(string name)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -504,7 +510,7 @@ namespace NetworkTables.Core.Native
             {
                 ThrowException(name, namePtr, size, NtType.StringArray);
             }
-            string[] arr = GetStringArrayFromPtr(arrPtr, arrSize);
+            IReadOnlyList<string> arr = GetStringArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeStringArray(arrPtr, arrSize);
             return arr;
         }
@@ -878,14 +884,14 @@ namespace NetworkTables.Core.Native
 
         #region IntPtr to Array Conversions
 
-        private static double[] GetDoubleArrayFromPtr(IntPtr ptr, UIntPtr size)
+        private static IReadOnlyList<double> GetDoubleArrayFromPtr(IntPtr ptr, UIntPtr size)
         {
             double[] arr = new double[size.ToUInt64()];
             Marshal.Copy(ptr, arr, 0, arr.Length);
             return arr;
         }
 
-        internal static byte[] GetRawDataFromPtr(IntPtr ptr, UIntPtr size)
+        internal static IReadOnlyList<byte> GetRawDataFromPtr(IntPtr ptr, UIntPtr size)
         {
             int len = (int)size.ToUInt64();
             byte[] data = new byte[len];
@@ -893,7 +899,7 @@ namespace NetworkTables.Core.Native
             return data;
         }
 
-        private static bool[] GetBooleanArrayFromPtr(IntPtr ptr, UIntPtr size)
+        private static IReadOnlyList<bool> GetBooleanArrayFromPtr(IntPtr ptr, UIntPtr size)
         {
             int iSize = (int)size.ToUInt64();
 
@@ -905,7 +911,7 @@ namespace NetworkTables.Core.Native
             return bArr;
         }
 
-        private static string[] GetStringArrayFromPtr(IntPtr ptr, UIntPtr size)
+        private static IReadOnlyList<string> GetStringArrayFromPtr(IntPtr ptr, UIntPtr size)
         {
 #pragma warning disable CS0618
             int ntStringSize = Marshal.SizeOf(typeof(NtStringRead));
@@ -936,7 +942,7 @@ namespace NetworkTables.Core.Native
                 (IntPtr data, IntPtr ptr, UIntPtr len, IntPtr intPtr, UIntPtr paramsLen, out UIntPtr resultsLen, ref NtConnectionInfo connInfo) =>
                 {
                     string retName = ReadUTF8String(ptr, len);
-                    byte[] param = GetRawDataFromPtr(intPtr, paramsLen);
+                    IReadOnlyList<byte> param = GetRawDataFromPtr(intPtr, paramsLen);
                     IReadOnlyList<byte> cb = callback(retName, param, connInfo.ToManaged());
                     resultsLen = (UIntPtr)cb.Count;
                     IntPtr retPtr = Interop.NT_AllocateCharArray(resultsLen);

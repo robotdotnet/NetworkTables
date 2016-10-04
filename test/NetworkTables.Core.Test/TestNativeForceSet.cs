@@ -1,4 +1,5 @@
-﻿using NetworkTables.Core.Native;
+﻿using System.Collections.Generic;
+using NetworkTables.Core.Native;
 using NUnit.Framework;
 
 namespace NetworkTables.Core.Test
@@ -90,7 +91,7 @@ namespace NetworkTables.Core.Test
             };
             CoreMethods.SetEntryRaw(key, secondWrite, true);
 
-            byte[] retVal = CoreMethods.GetEntryRaw(key);
+            IReadOnlyList<byte> retVal = CoreMethods.GetEntryRaw(key);
 
             for (int i = 0; i < secondWrite.Length; i++)
             {
@@ -116,7 +117,7 @@ namespace NetworkTables.Core.Test
             };
             CoreMethods.SetEntryBooleanArray(key, secondWrite, true);
 
-            bool[] retVal = CoreMethods.GetEntryBooleanArray(key);
+            IReadOnlyList<bool> retVal = CoreMethods.GetEntryBooleanArray(key);
 
             for (int i = 0; i < secondWrite.Length; i++)
             {
@@ -142,7 +143,7 @@ namespace NetworkTables.Core.Test
             };
             CoreMethods.SetEntryDoubleArray(key, secondWrite, true);
 
-            double[] retVal = CoreMethods.GetEntryDoubleArray(key);
+            IReadOnlyList<double> retVal = CoreMethods.GetEntryDoubleArray(key);
 
             for (int i = 0; i < secondWrite.Length; i++)
             {
@@ -168,7 +169,7 @@ namespace NetworkTables.Core.Test
             };
             CoreMethods.SetEntryStringArray(key, secondWrite, true);
 
-            string[] retVal = CoreMethods.GetEntryStringArray(key);
+            IReadOnlyList<string> retVal = CoreMethods.GetEntryStringArray(key);
 
             for (int i = 0; i < secondWrite.Length; i++)
             {

@@ -249,9 +249,9 @@ namespace NetworkTables.Core.Test
 
             File.WriteAllLines(fileName, toWrite);
 
-            string[] errors = NetworkTable.LoadPersistent(fileName);
+            IReadOnlyList<string> errors = NetworkTable.LoadPersistent(fileName);
 
-            Assert.That(errors.Length, Is.EqualTo(0));
+            Assert.That(errors.Count, Is.EqualTo(0));
 
             HashSet<string> entries = m_table.GetKeys();
 
@@ -284,9 +284,9 @@ namespace NetworkTables.Core.Test
 
             File.WriteAllLines(fileName, toWrite);
 
-            string[] errors = NetworkTable.LoadPersistent(fileName);
+            IReadOnlyList<string> errors = NetworkTable.LoadPersistent(fileName);
 
-            Assert.That(errors.Length, Is.EqualTo(1));
+            Assert.That(errors.Count, Is.EqualTo(1));
             Assert.That(errors[0], Contains.Substring("3: unrecognized boolean value, not 'true' or 'false'"));
         }
 
