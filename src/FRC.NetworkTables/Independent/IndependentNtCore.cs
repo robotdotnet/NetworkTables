@@ -528,7 +528,7 @@ namespace NetworkTables.Independent
         }
 
         /// <summary>
-        /// Gets or sets the update rate for this table
+        /// Gets or sets the update rate for this table (seconds)
         /// </summary>
         public double UpdateRate
         {

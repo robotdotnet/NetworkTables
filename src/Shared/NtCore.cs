@@ -947,9 +947,9 @@ namespace NetworkTables
         }
 
         /// <summary>
-        /// Sets the update rate for the table
+        /// Sets the update rate for the table (seconds)
         /// </summary>
-        /// <param name="interval">The interval to update the table at (seconds)</param>
+        /// <param name="interval">The interval to update the table in (seconds)</param>
         public static void SetUpdateRate(double interval)
         {
 #if CORE

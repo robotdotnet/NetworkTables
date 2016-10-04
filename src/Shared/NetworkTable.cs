@@ -482,9 +482,9 @@ namespace NetworkTables
         }
 
         /// <summary>
-        /// Sets the periodic update rate of the NetworkTables.
+        /// Sets the periodic update rate of the NetworkTables in seconds.
         /// </summary>
-        /// <param name="interval">The update interval in seconds (0.1 to 1.0).</param>
+        /// <param name="interval">The update interval in seconds (0.01 to 1.0).</param>
         public static void SetUpdateRate(double interval)
         {
             NtCore.SetUpdateRate(interval);
