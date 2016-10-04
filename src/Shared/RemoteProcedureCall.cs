@@ -26,7 +26,7 @@ namespace NetworkTables
         /// <param name="name">The name for this Rpc</param>
         /// <param name="def">The definition for this Rpc</param>
         /// <param name="callback">The callback to use the the procedure is called from a remote</param>
-        public static void CreateRpc(string name, byte[] def, RpcCallback callback)
+        public static void CreateRpc(string name, IReadOnlyList<byte> def, RpcCallback callback)
         {
 #if CORE
             CoreMethods.CreateRpc(name, def, callback);
@@ -61,7 +61,7 @@ namespace NetworkTables
         /// </remarks>
         /// <param name="name">The name for this Rpc</param>
         /// <param name="def">The definition for this Rpc</param>
-        public static void CreatePolledRpc(string name, byte[] def)
+        public static void CreatePolledRpc(string name, IReadOnlyList<byte> def)
         {
 #if CORE
             CoreMethods.CreatePolledRpc(name, def);
@@ -140,7 +140,7 @@ namespace NetworkTables
         /// <param name="rpcId">The id of the rpc to respond to</param>
         /// <param name="callUid">The id of the request to respond to</param>
         /// <param name="result">The result to send as a response</param>
-        public static void PostRpcResponse(long rpcId, long callUid, params byte[] result)
+        public static void PostRpcResponse(long rpcId, long callUid, IReadOnlyList<byte> result)
         {
 #if CORE
             CoreMethods.PostRpcResponse(rpcId, callUid, result);
@@ -155,7 +155,7 @@ namespace NetworkTables
         /// <param name="name">The name of the Rpc</param>
         /// <param name="param">The data to send for the request</param>
         /// <returns>The Rpc call id</returns>
-        public static long CallRpc(string name, params byte[] param)
+        public static long CallRpc(string name, IReadOnlyList<byte> param)
         {
 #if CORE
             return CoreMethods.CallRpc(name, param);
@@ -170,7 +170,7 @@ namespace NetworkTables
         /// <param name="name">The name of the Rpc</param>
         /// <param name="param">The data to send for the request</param>
         /// <returns>The Rpc call id</returns>
-        public static long CallRpc(string name, params Value[] param)
+        public static long CallRpc(string name, IReadOnlyList<Value> param)
         {
 #if CORE
             return CallRpc(name, PackRpcValues(param));
@@ -186,7 +186,7 @@ namespace NetworkTables
         /// <param name="token">The token to cancel the response request</param>
         /// <param name="param">The data to send for the request</param>
         /// <returns>The results received from the server for the request</returns>
-        public static async Task<byte[]> CallRpcWithResultAsync(string name, CancellationToken token, params byte[] param)
+        public static async Task<IReadOnlyList<byte>> CallRpcWithResultAsync(string name, CancellationToken token, IReadOnlyList<byte> param)
         {
             long id = CallRpc(name, param);
             return await GetRpcResultAsync(id, token).ConfigureAwait(false);
@@ -199,7 +199,7 @@ namespace NetworkTables
         /// <param name="token">The token to cancel the response request</param>
         /// <param name="param">The data to send for the request</param>
         /// <returns>The results received from the server for the request</returns>
-        public static async Task<byte[]> CallRpcWithResultAsync(string name, CancellationToken token, params Value[] param)
+        public static async Task<IReadOnlyList<byte>> CallRpcWithResultAsync(string name, CancellationToken token, IReadOnlyList<Value> param)
         {
             long id = CallRpc(name, param);
             return await GetRpcResultAsync(id, token).ConfigureAwait(false);
@@ -211,7 +211,7 @@ namespace NetworkTables
         /// <param name="callUid">The Rpc call id</param>
         /// <param name="token">Token to cancel the request on</param>
         /// <returns>Array of results sent back from the server from the request</returns>
-        public static async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
+        public static async Task<IReadOnlyList<byte>> GetRpcResultAsync(long callUid, CancellationToken token)
         {
 #if CORE
             return await CoreMethods.GetRpcResultAsync(callUid, token).ConfigureAwait(false);
@@ -228,7 +228,7 @@ namespace NetworkTables
         /// <param name="timeout">Timeout to wait for if blocking</param>
         /// <param name="result">Array of results sent back from the server from the request</param>
         /// <returns>True if a result was received, otherwise false</returns>
-        public static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
+        public static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out IReadOnlyList<byte> result)
         {
 #if CORE
             return CoreMethods.GetRpcResult(blocking, callUid, timeout, out result);
@@ -244,7 +244,7 @@ namespace NetworkTables
         /// <param name="callUid">The Rpc call id</param>
         /// <param name="result">Array of results sent back from the server from the request</param>
         /// <returns>True if a result was received, otherwise false</returns>
-        public static bool GetRpcResult(bool blocking, long callUid, out byte[] result)
+        public static bool GetRpcResult(bool blocking, long callUid, out IReadOnlyList<byte> result)
         {
 #if CORE
             return CoreMethods.GetRpcResult(blocking, callUid, out result);
@@ -258,7 +258,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="def">The definition to pack</param>
         /// <returns>The packed data</returns>
-        public static byte[] PackRpcDefinition(RpcDefinition def)
+        public static IReadOnlyList<byte> PackRpcDefinition(RpcDefinition def)
         {
             WireEncoder enc = new WireEncoder(0x0300);
             enc.Write8((byte)def.Version);
@@ -291,9 +291,9 @@ namespace NetworkTables
         /// <param name="packed">The data array</param>
         /// <param name="def">The definition to unpack to</param>
         /// <returns>True if the data was unpacked successfully</returns>
-        public static bool UnpackRpcDefinition(byte[] packed, ref RpcDefinition def)
+        public static bool UnpackRpcDefinition(IReadOnlyList<byte> packed, ref RpcDefinition def)
         {
-            MemoryStream iStream = new MemoryStream(packed);
+            ListStream iStream = new ListStream(packed);
             WireDecoder dec = new WireDecoder(iStream, 0x0300);
             byte ref8 = 0;
             string str = "";
@@ -336,22 +336,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="values">The values to pack</param>
         /// <returns>The packed values</returns>
-        public static byte[] PackRpcValues(params Value[] values)
-        {
-            WireEncoder enc = new WireEncoder(0x0300);
-            foreach (var value in values)
-            {
-                enc.WriteValue(value);
-            }
-            return enc.Buffer;
-        }
-
-        /// <summary>
-        /// Pack a list of values
-        /// </summary>
-        /// <param name="values">The values to pack</param>
-        /// <returns>The packed values</returns>
-        public static byte[] PackRpcValues(List<Value> values)
+        public static IReadOnlyList<byte> PackRpcValues(IReadOnlyList<Value> values)
         {
             WireEncoder enc = new WireEncoder(0x0300);
             foreach (var value in values)
@@ -367,29 +352,9 @@ namespace NetworkTables
         /// <param name="packed">The packed data</param>
         /// <param name="types">The types the packed data should be</param>
         /// <returns>A list of the unpacked values</returns>
-        public static List<Value> UnpackRpcValues(byte[] packed, params NtType[] types)
+        public static IReadOnlyList<Value> UnpackRpcValues(IReadOnlyList<byte> packed, IReadOnlyList<NtType> types)
         {
-            MemoryStream iStream = new MemoryStream(packed);
-            WireDecoder dec = new WireDecoder(iStream, 0x0300);
-            List<Value> vec = new List<Value>();
-            foreach (var ntType in types)
-            {
-                var item = dec.ReadValue(ntType);
-                if (item == null) return new List<Value>();
-                vec.Add(item);
-            }
-            return vec;
-        }
-
-        /// <summary>
-        /// Unpack a list of values
-        /// </summary>
-        /// <param name="packed">The packed data</param>
-        /// <param name="types">The types the packed data should be</param>
-        /// <returns>A list of the unpacked values</returns>
-        public static List<Value> UnpackRpcValues(byte[] packed, List<NtType> types)
-        {
-            MemoryStream iStream = new MemoryStream(packed);
+            ListStream iStream = new ListStream(packed);
             WireDecoder dec = new WireDecoder(iStream, 0x0300);
             List<Value> vec = new List<Value>();
             foreach (var ntType in types)

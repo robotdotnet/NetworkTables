@@ -974,9 +974,9 @@ namespace NetworkTables
 
 
 
-        public void CreateRpc(string name, byte[] def, RpcCallback callback)
+        public void CreateRpc(string name, IReadOnlyList<byte> def, RpcCallback callback)
         {
-            if (string.IsNullOrEmpty(name) || def == null || def.Length == 0 || callback == null) return;
+            if (string.IsNullOrEmpty(name) || def == null || def.Count == 0 || callback == null) return;
             IDisposable monitor = null;
             try
             {
@@ -1032,9 +1032,9 @@ namespace NetworkTables
             }
         }
 
-        public void CreatePolledRpc(string name, byte[] def)
+        public void CreatePolledRpc(string name, IReadOnlyList<byte> def)
         {
-            if (string.IsNullOrEmpty(name) || def == null || def.Length == 0) return;
+            if (string.IsNullOrEmpty(name) || def == null || def.Count == 0) return;
             IDisposable monitor = null;
             try
             {
@@ -1088,7 +1088,7 @@ namespace NetworkTables
             }
         }
 
-        public long CallRpc(string name, byte[] param)
+        public long CallRpc(string name, IReadOnlyList<byte> param)
         {
             if (string.IsNullOrEmpty(name)) return 0;
             IDisposable monitor = null;
@@ -1189,12 +1189,12 @@ namespace NetworkTables
             }
         }
 
-        public bool GetRpcResult(bool blocking, long callUid, out byte[] result)
+        public bool GetRpcResult(bool blocking, long callUid, out IReadOnlyList<byte> result)
         {
             return GetRpcResult(blocking, callUid, Timeout.InfiniteTimeSpan, out result);
         }
 
-        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
+        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out IReadOnlyList<byte> result)
         {
             IDisposable monitor = null;
             try
@@ -1249,8 +1249,9 @@ namespace NetworkTables
                         }
                         continue;
                     }
-                    result = new byte[str.Length];
-                    Array.Copy(str, result, result.Length);
+                    byte[] vresult = new byte[str.Length];
+                    Array.Copy(str, vresult, vresult.Length);
+                    result = vresult;
                     m_blockingRpcCalls.Remove(callUid);
                     return true;
                 }

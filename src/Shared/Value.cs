@@ -538,6 +538,18 @@ namespace NetworkTables
         /// Makes an Rpc <see cref="Value"/>
         /// </summary>
         /// <param name="val">The value to set the <see cref="Value"/> to</param>
+        /// <param name="size">The size of the array to use for the Rpc</param>
+        /// <returns>The created <see cref="Value"/></returns>
+        public static Value MakeRpc(IReadOnlyList<byte> val, int size)
+        {
+            if (size > val.Count) return null;
+            return new Value(val.ToArray(), true);
+        }
+
+        /// <summary>
+        /// Makes an Rpc <see cref="Value"/>
+        /// </summary>
+        /// <param name="val">The value to set the <see cref="Value"/> to</param>
         /// <returns>The created <see cref="Value"/></returns>
         public static Value MakeRpc(IReadOnlyList<byte> val)
         {

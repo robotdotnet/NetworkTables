@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkTables.Exceptions;
+using System.Linq;
 
 namespace NetworkTables.Core.Native
 {
@@ -929,30 +930,59 @@ namespace NetworkTables.Core.Native
         // ReSharper disable once CollectionNeverQueried.Global
         internal static readonly List<Interop.NT_RPCCallback> s_rpcCallbacks = new List<Interop.NT_RPCCallback>();
 
-        internal static void CreateRpc(string name, byte[] def, RpcCallback callback)
+        internal static void CreateRpc(string name, IReadOnlyList<byte> def, RpcCallback callback)
         {
             Interop.NT_RPCCallback modCallback =
                 (IntPtr data, IntPtr ptr, UIntPtr len, IntPtr intPtr, UIntPtr paramsLen, out UIntPtr resultsLen, ref NtConnectionInfo connInfo) =>
                 {
                     string retName = ReadUTF8String(ptr, len);
                     byte[] param = GetRawDataFromPtr(intPtr, paramsLen);
-                    byte[] cb = callback(retName, param, connInfo.ToManaged());
-                    resultsLen = (UIntPtr)cb.Length;
+                    IReadOnlyList<byte> cb = callback(retName, param, connInfo.ToManaged());
+                    resultsLen = (UIntPtr)cb.Count;
                     IntPtr retPtr = Interop.NT_AllocateCharArray(resultsLen);
-                    Marshal.Copy(cb, 0, retPtr, cb.Length);
+                    if (cb is byte[])
+                    {
+                        Marshal.Copy((byte[])cb, 0, retPtr, cb.Count);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < cb.Count; i++)
+                        {
+                            // Must do a slow write if not a byte[]
+                            Marshal.WriteByte(retPtr, i, cb[i]);
+                        }
+                    }
+
                     return retPtr;
                 };
             UIntPtr nameLen;
             IntPtr nameB = CreateCachedUTF8String(name, out nameLen);
-            Interop.NT_CreateRpc(nameB, nameLen, def, (UIntPtr)def.Length, IntPtr.Zero, modCallback);
+            byte[] bArr = def as byte[];
+            if (bArr != null)
+            {
+                Interop.NT_CreateRpc(nameB, nameLen, bArr, (UIntPtr)def.Count, IntPtr.Zero, modCallback);
+            }
+            else
+            {
+                Interop.NT_CreateRpc(nameB, nameLen, def.ToArray(), (UIntPtr)def.Count, IntPtr.Zero, modCallback);
+            }
+
             s_rpcCallbacks.Add(modCallback);
         }
 
-        internal static void CreatePolledRpc(string name, byte[] def)
+        internal static void CreatePolledRpc(string name, IReadOnlyList<byte> def)
         {
             UIntPtr nameLen;
             IntPtr nameB = CreateCachedUTF8String(name, out nameLen);
-            Interop.NT_CreatePolledRpc(nameB, nameLen, def, (UIntPtr)def.Length);
+            byte[] bArr = def as byte[];
+            if (bArr != null)
+            {
+                Interop.NT_CreatePolledRpc(nameB, nameLen, bArr, (UIntPtr)def.Count);
+            }
+            else
+            {
+                Interop.NT_CreatePolledRpc(nameB, nameLen, def.ToArray(), (UIntPtr)def.Count);
+            }
         }
 
         internal static bool PollRpc(bool blocking, TimeSpan timeout, out RpcCallInfo callInfo)
@@ -981,19 +1011,35 @@ namespace NetworkTables.Core.Native
             return true;
         }
 
-        internal static void PostRpcResponse(long rpcId, long callUid, byte[] result)
+        internal static void PostRpcResponse(long rpcId, long callUid, IReadOnlyList<byte> result)
         {
-            Interop.NT_PostRpcResponse((uint)rpcId, (uint)callUid, result, (UIntPtr)result.Length);
+            var bArr = result as byte[];
+            if (bArr != null)
+            {
+                Interop.NT_PostRpcResponse((uint) rpcId, (uint) callUid, bArr, (UIntPtr) result.Count);
+            }
+            else
+            {
+                Interop.NT_PostRpcResponse((uint)rpcId, (uint)callUid, result.ToArray(), (UIntPtr)result.Count);
+            }
         }
 
-        internal static long CallRpc(string name, byte[] param)
+        internal static long CallRpc(string name, IReadOnlyList<byte> param)
         {
             UIntPtr size;
             IntPtr nameB = CreateCachedUTF8String(name, out size);
-            return Interop.NT_CallRpc(nameB, size, param, (UIntPtr)param.Length);
+            var bArr = param as byte[];
+            if (bArr != null)
+            {
+                return Interop.NT_CallRpc(nameB, size, bArr, (UIntPtr) param.Count);
+            }
+            else
+            {
+                return Interop.NT_CallRpc(nameB, size, param.ToArray(), (UIntPtr)param.Count);
+            }
         }
 
-        internal static async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
+        internal static async Task<IReadOnlyList<byte>> GetRpcResultAsync(long callUid, CancellationToken token)
         {
             token.Register(() =>
             {
@@ -1004,7 +1050,7 @@ namespace NetworkTables.Core.Native
             {
                 var result = await Task.Run(() =>
                 {
-                    byte[] results;
+                    IReadOnlyList<byte> results;
                     bool success = GetRpcResult(true, callUid, out results);
                     if (success)
                     {
@@ -1023,7 +1069,7 @@ namespace NetworkTables.Core.Native
             }
         }
 
-        internal static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
+        internal static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out IReadOnlyList<byte> result)
         {
             UIntPtr size = UIntPtr.Zero;
             IntPtr retVal = Interop.NT_GetRpcResultTimeout(blocking ? 1 : 0, (uint)callUid, timeout.TotalSeconds, ref size);
@@ -1036,7 +1082,7 @@ namespace NetworkTables.Core.Native
             return true;
         }
 
-        internal static bool GetRpcResult(bool blocking, long callUid, out byte[] result)
+        internal static bool GetRpcResult(bool blocking, long callUid, out IReadOnlyList<byte> result)
         {
             UIntPtr size = UIntPtr.Zero;
             IntPtr retVal = Interop.NT_GetRpcResult(blocking ? 1 : 0, (uint)callUid, ref size);

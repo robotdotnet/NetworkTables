@@ -22,6 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{92F160
 		src\Shared\Delegates.cs = src\Shared\Delegates.cs
 		src\Shared\EntryInfo.cs = src\Shared\EntryInfo.cs
 		src\Shared\Enumerations.cs = src\Shared\Enumerations.cs
+		src\Shared\ListStream.cs = src\Shared\ListStream.cs
 		src\Shared\NetworkTable.cs = src\Shared\NetworkTable.cs
 		src\Shared\NtCore.cs = src\Shared\NtCore.cs
 		src\Shared\NtIPAddress.cs = src\Shared\NtIPAddress.cs

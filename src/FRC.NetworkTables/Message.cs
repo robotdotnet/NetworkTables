@@ -1,4 +1,5 @@
-﻿using NetworkTables.Wire;
+﻿using System.Collections.Generic;
+using NetworkTables.Wire;
 using static NetworkTables.Message.MsgType;
 using static NetworkTables.Logging.Logger;
 
@@ -361,22 +362,22 @@ namespace NetworkTables
             return msg;
         }
 
-        public static Message ExecuteRpc(uint id, uint uid, byte[] param)
+        public static Message ExecuteRpc(uint id, uint uid, IReadOnlyList<byte> param)
         {
             var msg = new Message(MsgType.ExecuteRpc)
             {
-                Val = Value.MakeRpc(param, param.Length),
+                Val = Value.MakeRpc(param, param.Count),
                 Id = id,
                 SeqNumUid = uid
             };
             return msg;
         }
 
-        public static Message RpcResponse(uint id, uint uid, byte[] results)
+        public static Message RpcResponse(uint id, uint uid, IReadOnlyList<byte> results)
         {
             var msg = new Message(MsgType.RpcResponse)
             {
-                Val = Value.MakeRpc(results, results.Length),
+                Val = Value.MakeRpc(results, results.Count),
                 Id = id,
                 SeqNumUid = uid
             };

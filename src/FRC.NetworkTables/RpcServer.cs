@@ -202,7 +202,7 @@ namespace NetworkTables
             }
         }
 
-        public void PostRpcResponse(long rpcId, long callId, params byte[] result)
+        public void PostRpcResponse(long rpcId, long callId, IReadOnlyList<byte> result)
         {
             SendMsgFunc func;
             var pair = new ImmutablePair<uint, uint>((uint)rpcId, (uint)callId);

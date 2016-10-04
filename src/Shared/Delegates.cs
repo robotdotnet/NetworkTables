@@ -1,4 +1,6 @@
-﻿namespace NetworkTables
+﻿using System.Collections.Generic;
+
+namespace NetworkTables
 {
     /// <summary>
     /// This delegate is used when creating callbacks to be used for EntryListeners
@@ -33,5 +35,5 @@
     /// <param name="param">The binary data of the callback</param>
     /// <param name="connInfo">The connection info for the requested caller</param>
     /// <returns>The raw rpc data to send in response</returns>
-    public delegate byte[] RpcCallback(string name, byte[] param, ConnectionInfo connInfo);
+    public delegate IReadOnlyList<byte> RpcCallback(string name, IReadOnlyList<byte> param, ConnectionInfo connInfo);
 }
