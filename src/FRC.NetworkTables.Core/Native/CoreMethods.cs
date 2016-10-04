@@ -932,11 +932,11 @@ namespace NetworkTables.Core.Native
         internal static void CreateRpc(string name, byte[] def, RpcCallback callback)
         {
             Interop.NT_RPCCallback modCallback =
-                (IntPtr data, IntPtr ptr, UIntPtr len, IntPtr intPtr, UIntPtr paramsLen, out UIntPtr resultsLen) =>
+                (IntPtr data, IntPtr ptr, UIntPtr len, IntPtr intPtr, UIntPtr paramsLen, out UIntPtr resultsLen, ref NtConnectionInfo connInfo) =>
                 {
                     string retName = ReadUTF8String(ptr, len);
                     byte[] param = GetRawDataFromPtr(intPtr, paramsLen);
-                    byte[] cb = callback(retName, param);
+                    byte[] cb = callback(retName, param, connInfo.ToManaged());
                     resultsLen = (UIntPtr)cb.Length;
                     IntPtr retPtr = Interop.NT_AllocateCharArray(resultsLen);
                     Marshal.Copy(cb, 0, retPtr, cb.Length);

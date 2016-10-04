@@ -446,13 +446,14 @@ namespace NetworkTables
                             Debug("received RPC call to non-RPC entry");
                             return;
                         }
+                        ConnectionInfo connInfo = conn.GetConnectionInfo();
                         m_rpcServer.ProcessRpc(entry.Name, msg, entry.RpcCallback, conn.Uid, message =>
                         {
                             NetworkConnection c;
                             connWeak.TryGetTarget(out c);
                             if (c != null && !c.Disposed)
                                 c.QueueOutgoing(message);
-                        });
+                        }, ref connInfo);
                         break;
                     case RpcResponse:
                         if (m_server) return;
@@ -1112,6 +1113,7 @@ namespace NetworkTables
                     var rpcCallback = entry.RpcCallback;
                     monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                     monitorToUnlock.Dispose();
+                    ConnectionInfo connInfo = new ConnectionInfo("Server", "localhost", 0, Support.Timestamp.Now(), 0x0300);
                     m_rpcServer.ProcessRpc(name, msg, rpcCallback, 0xffff, message =>
                     {
                         using(m_monitor.Enter())
@@ -1119,7 +1121,7 @@ namespace NetworkTables
                             m_rpcResults.Add(new ImmutablePair<uint, uint>(msg.Id, msg.SeqNumUid), msg.Val.GetRpc());
                             m_monitor.PulseAll();
                         }
-                    });
+                    }, ref connInfo);
                 }
                 else
                 {
