@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Collections.Generic;
 
 #if (!CORE)
 using NetworkTables.Streams;
@@ -45,6 +46,15 @@ namespace NetworkTables.Wire
             m_buffer = new byte[m_allocated];
             Error = null;
             m_stream = istream;
+            ProtoRev = protoRev;
+        }
+
+        public WireDecoder(IList<byte> data, int protoRev)
+        {
+            m_allocated = 1024;
+            m_buffer = new byte[m_allocated];
+            Error = null;
+            m_stream = new ListStream(data);
             ProtoRev = protoRev;
         }
 
