@@ -1118,7 +1118,7 @@ namespace NetworkTables
                     {
                         using(m_monitor.Enter())
                         {
-                            m_rpcResults.Add(new ImmutablePair<uint, uint>(msg.Id, msg.SeqNumUid), msg.Val.GetRpc());
+                            m_rpcResults.Add(new ImmutablePair<uint, uint>(message.Id, message.SeqNumUid), message.Val.GetRpc());
                             m_monitor.PulseAll();
                         }
                     }, ref connInfo);
