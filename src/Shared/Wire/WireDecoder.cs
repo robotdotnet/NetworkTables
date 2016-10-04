@@ -49,6 +49,11 @@ namespace NetworkTables.Wire
             ProtoRev = protoRev;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="WireDecoder"/> using a list of bytes
+        /// </summary>
+        /// <param name="data">The data to decode</param>
+        /// <param name="protoRev">The protocol revision for the decoder</param>
         public WireDecoder(IList<byte> data, int protoRev)
         {
             m_allocated = 1024;
