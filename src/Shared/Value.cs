@@ -106,10 +106,10 @@ namespace NetworkTables
             yield return typeof(double);
             yield return typeof(bool);
             yield return typeof(string);
-            yield return typeof(IList<byte>);
-            yield return typeof(IList<bool>);
-            yield return typeof(IList<double>);
-            yield return typeof(IList<string>);
+            yield return typeof(IReadOnlyList<byte>);
+            yield return typeof(IReadOnlyList<bool>);
+            yield return typeof(IReadOnlyList<double>);
+            yield return typeof(IReadOnlyList<string>);
         }
 
         /// <summary>
@@ -132,21 +132,21 @@ namespace NetworkTables
             {
                 return MakeString((string)val);
             }
-            else if (val is IList<byte>)
+            else if (val is IReadOnlyList<byte>)
             {
-                return MakeRaw((IList<byte>)val);
+                return MakeRaw((IReadOnlyList<byte>)val);
             }
-            else if (val is IList<double>)
+            else if (val is IReadOnlyList<double>)
             {
-                return MakeDoubleArray((IList<double>)val);
+                return MakeDoubleArray((IReadOnlyList<double>)val);
             }
-            else if (val is IList<bool>)
+            else if (val is IReadOnlyList<bool>)
             {
-                return MakeBooleanArray((IList<bool>)val);
+                return MakeBooleanArray((IReadOnlyList<bool>)val);
             }
-            else if (val is IList<string>)
+            else if (val is IReadOnlyList<string>)
             {
-                return MakeStringArray((IList<string>)val);
+                return MakeStringArray((IReadOnlyList<string>)val);
             }
             else
             {
@@ -503,7 +503,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="val">The value to set the <see cref="Value"/> to</param>
         /// <returns>The created <see cref="Value"/></returns>
-        public static Value MakeRaw(IList<byte> val)
+        public static Value MakeRaw(IReadOnlyList<byte> val)
         {
             return new Value(val.ToArray());
         }
@@ -539,7 +539,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="val">The value to set the <see cref="Value"/> to</param>
         /// <returns>The created <see cref="Value"/></returns>
-        public static Value MakeRpc(IList<byte> val)
+        public static Value MakeRpc(IReadOnlyList<byte> val)
         {
             return new Value(val.ToArray(), true);
         }
@@ -585,7 +585,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="val">The value to set the <see cref="Value"/> to</param>
         /// <returns>The created <see cref="Value"/></returns>
-        public static Value MakeBooleanArray(IList<bool> val)
+        public static Value MakeBooleanArray(IReadOnlyList<bool> val)
         {
             return new Value(val.ToArray());
         }
@@ -595,7 +595,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="val">The value to set the <see cref="Value"/> to</param>
         /// <returns>The created <see cref="Value"/></returns>
-        public static Value MakeDoubleArray(IList<double> val)
+        public static Value MakeDoubleArray(IReadOnlyList<double> val)
         {
             return new Value(val.ToArray());
         }
@@ -605,7 +605,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="val">The value to set the <see cref="Value"/> to</param>
         /// <returns>The created <see cref="Value"/></returns>
-        public static Value MakeStringArray(IList<string> val)
+        public static Value MakeStringArray(IReadOnlyList<string> val)
         {
             return new Value(val.ToArray());
         }
