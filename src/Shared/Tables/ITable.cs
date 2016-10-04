@@ -427,7 +427,7 @@ namespace NetworkTables.Tables
         /// <param name="key">The key to listen for</param>
         /// <param name="listenerDelegate">The Table Listener Delegate to add.</param>
         /// <param name="immediateNotify">If true then this listener will be notified of all current entries (marked as new)</param>
-        void AddTableListener(string key, Action<ITable, string, Value, NotifyFlags> listenerDelegate, bool immediateNotify);
+        void AddTableListener(string key, Action<ITable, string, Value, NotifyFlags> listenerDelegate, bool immediateNotify = false);
 
         /// <summary>
         /// Adds a SubTable Listener with the default flags, and without local notify.
