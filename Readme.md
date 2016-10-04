@@ -28,14 +28,14 @@ The second project is NetworkTables.Core. This is a wrapper around the official 
 Supported Platforms - NetworkTables
 -----------------------------------
 * All systems that support the frameworks listed below
-* .NET 4.5.1 or higher
+* .NET 4.6 or higher
 * .NET Standard 1.3 or higher:
   * System.Net.NameResolution
   * System.ComponentModel.EventBasedAsync
 
 Supported Platforms - NetworkTables.Core
 ----------------------------------------
-* .NET 4.5.1 or higher
+* .NET 4.5 or higher
 * .NET Standard 1.5
 * Since this uses a native library, only the platforms listed below are supported
   * Windows x86 and amd64
@@ -50,7 +50,7 @@ When you create a WPILib robot project using our VisualStudio extension, Network
 For new installs, see the badges at the top for NuGet packages.
 
 Note that Xamarin requires 4.1.2 minimum in order to work directly from NuGet. If you require support for older versions, 
-you need to download and manually use the .NET 4.5.1 library, as Xamarin by default will attempt to use the Net Standard build and then error on build. 
+you need to download and manually use the .NET 4.6 library, as Xamarin by default will attempt to use the Net Standard build and then error on build. 
 Note that only Android has been tested, but iOS should work without issue.
 
 Building
