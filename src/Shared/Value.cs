@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NetworkTables.Exceptions;
 using NetworkTables.Support;
+using System.Linq;
 
 namespace NetworkTables
 {
@@ -39,53 +40,53 @@ namespace NetworkTables
         /// <summary>
         /// Gets if the type is boolean
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the type is boolean</returns>
         public bool IsBoolean() => Type == NtType.Boolean;
         /// <summary>
         /// Gets if the type is double
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the type is double</returns>
         public bool IsDouble() => Type == NtType.Double;
         /// <summary>
         /// Gets if the type is string
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the type is string</returns>
         public bool IsString() => Type == NtType.String;
 
         /// <summary>
         /// Gets if the type is raw
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the type is raw</returns>
         public bool IsRaw() => Type == NtType.Raw;
 
         /// <summary>
         /// Gets if the type is Rpc
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the type is Rpc</returns>
         public bool IsRpc() => Type == NtType.Rpc;
 
         /// <summary>
         /// Gets if the type is boolean array
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the type is a boolean array</returns>
         public bool IsBooleanArray() => Type == NtType.BooleanArray;
 
         /// <summary>
         /// Gets if the type is double array
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the type is a double array</returns>
         public bool IsDoubleArray() => Type == NtType.DoubleArray;
 
         /// <summary>
         /// Gets if the type is string array
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the type is a string array</returns>
         public bool IsStringArray() => Type == NtType.StringArray;
 
         /// <summary>
         /// Gets the raw object contained in this value.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Object representation of the value</returns>
         public object GetObjectValue()
         {
             if (IsRaw()) return GetRaw();
@@ -105,16 +106,16 @@ namespace NetworkTables
             yield return typeof(double);
             yield return typeof(bool);
             yield return typeof(string);
-            yield return typeof(byte[]);
-            yield return typeof(bool[]);
-            yield return typeof(double[]);
-            yield return typeof(string[]);
+            yield return typeof(IList<byte>);
+            yield return typeof(IList<bool>);
+            yield return typeof(IList<double>);
+            yield return typeof(IList<string>);
         }
 
         /// <summary>
         /// Makes a value from a specific object
         /// </summary>
-        /// <param name="val"></param>
+        /// <param name="val">The object ot make the value from</param>
         /// <returns>The value if valid, otherwise an Empty value</returns>
         public static Value MakeValue(object val)
         {
@@ -131,21 +132,21 @@ namespace NetworkTables
             {
                 return MakeString((string)val);
             }
-            else if (val is byte[])
+            else if (val is IList<byte>)
             {
-                return MakeRaw((byte[])val);
+                return MakeRaw((IList<byte>)val);
             }
-            else if (val is double[])
+            else if (val is IList<double>)
             {
-                return MakeDoubleArray((double[])val);
+                return MakeDoubleArray((IList<double>)val);
             }
-            else if (val is bool[])
+            else if (val is IList<bool>)
             {
-                return MakeBooleanArray((bool[])val);
+                return MakeBooleanArray((IList<bool>)val);
             }
-            else if (val is string[])
+            else if (val is IList<string>)
             {
-                return MakeStringArray((string[]) val);
+                return MakeStringArray((IList<string>)val);
             }
             else
             {
@@ -362,7 +363,7 @@ namespace NetworkTables
         /// <summary>
         /// Gets a string representation of the backing value
         /// </summary>
-        /// <returns></returns>
+        /// <returns>String representation of the backing value</returns>
         public override string ToString()
         {
             if (Val == null) return "Unassigned";
@@ -502,7 +503,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="val">The value to set the <see cref="Value"/> to</param>
         /// <returns>The created <see cref="Value"/></returns>
-        public static Value MakeRaw(List<byte> val)
+        public static Value MakeRaw(IList<byte> val)
         {
             return new Value(val.ToArray());
         }
@@ -538,7 +539,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="val">The value to set the <see cref="Value"/> to</param>
         /// <returns>The created <see cref="Value"/></returns>
-        public static Value MakeRpc(List<byte> val)
+        public static Value MakeRpc(IList<byte> val)
         {
             return new Value(val.ToArray(), true);
         }
@@ -584,7 +585,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="val">The value to set the <see cref="Value"/> to</param>
         /// <returns>The created <see cref="Value"/></returns>
-        public static Value MakeBooleanArray(List<bool> val)
+        public static Value MakeBooleanArray(IList<bool> val)
         {
             return new Value(val.ToArray());
         }
@@ -594,7 +595,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="val">The value to set the <see cref="Value"/> to</param>
         /// <returns>The created <see cref="Value"/></returns>
-        public static Value MakeDoubleArray(List<double> val)
+        public static Value MakeDoubleArray(IList<double> val)
         {
             return new Value(val.ToArray());
         }
@@ -604,7 +605,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="val">The value to set the <see cref="Value"/> to</param>
         /// <returns>The created <see cref="Value"/></returns>
-        public static Value MakeStringArray(List<string> val)
+        public static Value MakeStringArray(IList<string> val)
         {
             return new Value(val.ToArray());
         }
