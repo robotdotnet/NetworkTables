@@ -1139,7 +1139,7 @@ namespace NetworkTables
             }
         }
 
-        public async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
+        public async Task<IList<byte>> GetRpcResultAsync(long callUid, CancellationToken token)
         {
             IDisposable monitor = null;
             try
