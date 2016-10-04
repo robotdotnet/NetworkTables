@@ -188,8 +188,8 @@ function UpdateXml {
    Copy-Item src\FRC.NetworkTables\$libLoc\net46\FRC.NetworkTables.dll buildTemp\FRC.NetworkTables.dll
    Copy-Item src\FRC.NetworkTables\$libLoc\net46\FRC.NetworkTables.xml buildTemp\FRC.NetworkTables.xml
    
-   Copy-Item src\FRC.NetworkTables.Core\$libLoc\net451\FRC.NetworkTables.Core.dll buildTemp\FRC.NetworkTables.Core.dll
-   Copy-Item src\FRC.NetworkTables.Core\$libLoc\net451\FRC.NetworkTables.Core.xml buildTemp\FRC.NetworkTables.Core.xml
+   Copy-Item src\FRC.NetworkTables.Core\$libLoc\net45\FRC.NetworkTables.Core.dll buildTemp\FRC.NetworkTables.Core.dll
+   Copy-Item src\FRC.NetworkTables.Core\$libLoc\net45\FRC.NetworkTables.Core.xml buildTemp\FRC.NetworkTables.Core.xml
    
    EnsurePsbuildInstalled
    
@@ -206,7 +206,7 @@ function UpdateXml {
    
    & 'C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe' Sandcastle\NetworkTables.Core.NetCore.shfbproj /property:Configuration=Release /v:m
    
-   Copy-Item Sandcastle\Help\FRC.NetworkTables.Core.xml src\FRC.NetworkTables.Core\$libLoc\net451\FRC.NetworkTables.Core.xml
+   Copy-Item Sandcastle\Help\FRC.NetworkTables.Core.xml src\FRC.NetworkTables.Core\$libLoc\net45\FRC.NetworkTables.Core.xml
    Copy-Item Sandcastle\Help\FRC.NetworkTables.Core.xml src\FRC.NetworkTables.Core\$libLoc\netstandard1.5\FRC.NetworkTables.Core.xml
 }
 
