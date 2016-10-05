@@ -250,7 +250,7 @@ namespace NetworkTables.Tables
         /// <param name="key">The key name.</param>
         /// <param name="defaultValue">The default value if the key does not exist or is null</param>
         /// <returns>The value array requested, or defaultValue if the key does not exist or is null.</returns>
-        bool[] GetBooleanArray(string key, IList<bool> defaultValue);
+        bool[] GetBooleanArray(string key, bool[] defaultValue);
 
         /// <summary>
         /// Maps the specified key to the specified array of values in the table. 
@@ -280,7 +280,7 @@ namespace NetworkTables.Tables
         /// <param name="key">The key name.</param>
         /// <param name="defaultValue">The default value if the key does not exist or is null</param>
         /// <returns>The value array requested, or defaultValue if the key does not exist or is null.</returns>
-        double[] GetNumberArray(string key, IList<double> defaultValue);
+        double[] GetNumberArray(string key, double[] defaultValue);
 
         /// <summary>
         /// Maps the specified key to the specified array of values in the table. 
@@ -311,7 +311,7 @@ namespace NetworkTables.Tables
         /// <param name="key">The key name.</param>
         /// <param name="defaultValue">The default value if the key does not exist or is null</param>
         /// <returns>The value array requested, or defaultValue if the key does not exist or is null.</returns>
-        string[] GetStringArray(string key, IList<string> defaultValue);
+        string[] GetStringArray(string key, string[] defaultValue);
 
         /// <summary>
         /// Put a raw value (byte array) in the table.
@@ -338,7 +338,7 @@ namespace NetworkTables.Tables
         /// <param name="key">The key name.</param>
         /// <param name="defaultValue">The default value if the key does not exist or is null</param>
         /// <returns>The value array requested, or defaultValue if the key does not exist or is null.</returns>
-        byte[] GetRaw(string key, IList<byte> defaultValue);
+        byte[] GetRaw(string key, byte[] defaultValue);
 
 
         /// <summary>

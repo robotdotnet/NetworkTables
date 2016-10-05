@@ -338,7 +338,7 @@ namespace NetworkTables.Independent
         }
 
         ///<inheritdoc/>
-        public string[] GetStringArray(string key, IList<string> defaultValue)
+        public string[] GetStringArray(string key, string[] defaultValue)
         {
 
             return m_ntCore.GetEntryStringArray(m_pathWithSeperator + key, defaultValue);
@@ -361,7 +361,7 @@ namespace NetworkTables.Independent
         }
 
         ///<inheritdoc/>
-        public double[] GetNumberArray(string key, IList<double> defaultValue)
+        public double[] GetNumberArray(string key, double[] defaultValue)
         {
 
             return m_ntCore.GetEntryDoubleArray(m_pathWithSeperator + key, defaultValue);
@@ -396,14 +396,14 @@ namespace NetworkTables.Independent
             return m_ntCore.GetEntryRaw(m_pathWithSeperator + key);
         }
         ///<inheritdoc/>
-        public byte[] GetRaw(string key, IList<byte> defaultValue)
+        public byte[] GetRaw(string key, byte[] defaultValue)
         {
 
             return m_ntCore.GetEntryRaw(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
-        public bool[] GetBooleanArray(string key, IList<bool> defaultValue)
+        public bool[] GetBooleanArray(string key, bool[] defaultValue)
         {
 
             return m_ntCore.GetEntryBooleanArray(m_pathWithSeperator + key, defaultValue);

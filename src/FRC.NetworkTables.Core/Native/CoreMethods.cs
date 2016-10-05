@@ -292,7 +292,7 @@ namespace NetworkTables.Core.Native
             }
         }
 
-        internal static byte[] GetEntryRaw(string name, IList<byte> defaultValue)
+        internal static byte[] GetEntryRaw(string name, byte[] defaultValue)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -301,16 +301,14 @@ namespace NetworkTables.Core.Native
             IntPtr ret = Interop.NT_GetEntryRaw(namePtr, size, ref lastChange, ref stringSize);
             if (ret == IntPtr.Zero)
             {
-                byte[] def = defaultValue as byte[];
-                if (def != null) return def;
-                return defaultValue.ToArray();
+                return defaultValue;
             }
             byte[] arr = GetRawDataFromPtr(ret, stringSize);
             Interop.NT_FreeCharArray(ret);
             return arr;
         }
 
-        internal static double[] GetEntryDoubleArray(string name, IList<double> defaultValue)
+        internal static double[] GetEntryDoubleArray(string name, double[] defaultValue)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -319,16 +317,14 @@ namespace NetworkTables.Core.Native
             IntPtr arrPtr = Interop.NT_GetEntryDoubleArray(namePtr, size, ref lastChange, ref arrSize);
             if (arrPtr == IntPtr.Zero)
             {
-                double[] def = defaultValue as double[];
-                if (def != null) return def;
-                return defaultValue.ToArray();
+                return defaultValue;
             }
             double[] arr = GetDoubleArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeDoubleArray(arrPtr);
             return arr;
         }
 
-        internal static bool[] GetEntryBooleanArray(string name, IList<bool> defaultValue)
+        internal static bool[] GetEntryBooleanArray(string name, bool[] defaultValue)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -337,16 +333,14 @@ namespace NetworkTables.Core.Native
             IntPtr arrPtr = Interop.NT_GetEntryBooleanArray(namePtr, size, ref lastChange, ref arrSize);
             if (arrPtr == IntPtr.Zero)
             {
-                bool[] def = defaultValue as bool[];
-                if (def != null) return def;
-                return defaultValue.ToArray();
+                return defaultValue;
             }
             bool[] arr = GetBooleanArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeBooleanArray(arrPtr);
             return arr;
         }
 
-        internal static string[] GetEntryStringArray(string name, IList<string> defaultValue)
+        internal static string[] GetEntryStringArray(string name, string[] defaultValue)
         {
             UIntPtr size;
             IntPtr namePtr = CreateCachedUTF8String(name, out size);
@@ -355,9 +349,7 @@ namespace NetworkTables.Core.Native
             IntPtr arrPtr = Interop.NT_GetEntryStringArray(namePtr, size, ref lastChange, ref arrSize);
             if (arrPtr == IntPtr.Zero)
             {
-                string[] def = defaultValue as string[];
-                if (def != null) return def;
-                return defaultValue.ToArray();
+                return defaultValue;
             }
             string[] arr = GetStringArrayFromPtr(arrPtr, arrSize);
             Interop.NT_FreeStringArray(arrPtr, arrSize);

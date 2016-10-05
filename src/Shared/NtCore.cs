@@ -518,7 +518,7 @@ namespace NetworkTables
         /// <param name="name">The entry name</param>
         /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
         /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
-        public static bool[] GetEntryBooleanArray(string name, IList<bool> defaultValue)
+        public static bool[] GetEntryBooleanArray(string name, bool[] defaultValue)
         {
 #if CORE
             return CoreMethods.GetEntryBooleanArray(name, defaultValue);
@@ -526,9 +526,7 @@ namespace NetworkTables
             var v = Storage.Instance.GetEntryValue(name);
             if (v == null || !v.IsBooleanArray())
             {
-                bool[] arr = defaultValue as bool[];
-                if (arr != null) return arr;
-                return defaultValue.ToArray();
+                return defaultValue;
             }
             return v.GetBooleanArray();
 #endif
@@ -540,7 +538,7 @@ namespace NetworkTables
         /// <param name="name">The entry name</param>
         /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
         /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
-        public static double[] GetEntryDoubleArray(string name, IList<double> defaultValue)
+        public static double[] GetEntryDoubleArray(string name, double[] defaultValue)
         {
 #if CORE
             return CoreMethods.GetEntryDoubleArray(name, defaultValue);
@@ -548,9 +546,7 @@ namespace NetworkTables
             var v = Storage.Instance.GetEntryValue(name);
             if (v == null || !v.IsDoubleArray())
             {
-                double[] arr = defaultValue as double[];
-                if (arr != null) return arr;
-                return defaultValue.ToArray();
+                return defaultValue;
             }
             return v.GetDoubleArray();
 #endif
@@ -562,7 +558,7 @@ namespace NetworkTables
         /// <param name="name">The entry name</param>
         /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
         /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
-        public static string[] GetEntryStringArray(string name, IList<string> defaultValue)
+        public static string[] GetEntryStringArray(string name, string[] defaultValue)
         {
 #if CORE
             return CoreMethods.GetEntryStringArray(name, defaultValue);
@@ -570,9 +566,7 @@ namespace NetworkTables
             var v = Storage.Instance.GetEntryValue(name);
             if (v == null || !v.IsStringArray())
             {
-                string[] arr = defaultValue as string[];
-                if (arr != null) return arr;
-                return defaultValue.ToArray();
+                return defaultValue;
             }
             return v.GetStringArray();
 #endif
@@ -584,7 +578,7 @@ namespace NetworkTables
         /// <param name="name">The entry name</param>
         /// <param name="defaultValue">The default value if the key does not exist or is the wrong typel</param>
         /// <returns>The value requested, or defaultValue if the key does not exist or is the wrong type</returns>
-        public static byte[] GetEntryRaw(string name, IList<byte> defaultValue)
+        public static byte[] GetEntryRaw(string name, byte[] defaultValue)
         {
 #if CORE
             return CoreMethods.GetEntryRaw(name, defaultValue);
@@ -592,9 +586,7 @@ namespace NetworkTables
             var v = Storage.Instance.GetEntryValue(name);
             if (v == null || !v.IsRaw())
             {
-                byte[] arr = defaultValue as byte[];
-                if (arr != null) return arr;
-                return defaultValue.ToArray();
+                return defaultValue;
             }
             return v.GetRaw();
 #endif
