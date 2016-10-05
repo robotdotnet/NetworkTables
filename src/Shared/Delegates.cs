@@ -35,5 +35,5 @@ namespace NetworkTables
     /// <param name="param">The binary data of the callback</param>
     /// <param name="connInfo">The connection info for the requested caller</param>
     /// <returns>The raw rpc data to send in response</returns>
-    public delegate IList<byte> RpcCallback(string name, IList<byte> param, ConnectionInfo connInfo);
+    public delegate IList<byte> RpcCallback(string name, byte[] param, ConnectionInfo connInfo);
 }

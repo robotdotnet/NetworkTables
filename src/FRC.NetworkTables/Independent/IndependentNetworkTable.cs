@@ -331,14 +331,14 @@ namespace NetworkTables.Independent
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public IList<string> GetStringArray(string key)
+        public string[] GetStringArray(string key)
         {
 
             return m_ntCore.GetEntryStringArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
-        public IList<string> GetStringArray(string key, IList<string> defaultValue)
+        public string[] GetStringArray(string key, IList<string> defaultValue)
         {
 
             return m_ntCore.GetEntryStringArray(m_pathWithSeperator + key, defaultValue);
@@ -354,14 +354,14 @@ namespace NetworkTables.Independent
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public IList<double> GetNumberArray(string key)
+        public double[] GetNumberArray(string key)
         {
 
             return m_ntCore.GetEntryDoubleArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
-        public IList<double> GetNumberArray(string key, IList<double> defaultValue)
+        public double[] GetNumberArray(string key, IList<double> defaultValue)
         {
 
             return m_ntCore.GetEntryDoubleArray(m_pathWithSeperator + key, defaultValue);
@@ -376,7 +376,7 @@ namespace NetworkTables.Independent
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public IList<bool> GetBooleanArray(string key)
+        public bool[] GetBooleanArray(string key)
         {
 
             return m_ntCore.GetEntryBooleanArray(m_pathWithSeperator + key);
@@ -390,20 +390,20 @@ namespace NetworkTables.Independent
         }
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public IList<byte> GetRaw(string key)
+        public byte[] GetRaw(string key)
         {
 
             return m_ntCore.GetEntryRaw(m_pathWithSeperator + key);
         }
         ///<inheritdoc/>
-        public IList<byte> GetRaw(string key, IList<byte> defaultValue)
+        public byte[] GetRaw(string key, IList<byte> defaultValue)
         {
 
             return m_ntCore.GetEntryRaw(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
-        public IList<bool> GetBooleanArray(string key, IList<bool> defaultValue)
+        public bool[] GetBooleanArray(string key, IList<bool> defaultValue)
         {
 
             return m_ntCore.GetEntryBooleanArray(m_pathWithSeperator + key, defaultValue);

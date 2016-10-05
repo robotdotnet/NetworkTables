@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NetworkTables.Exceptions;
 using NetworkTables.Logging;
 
@@ -207,7 +208,7 @@ namespace NetworkTables.Independent
         }
 
         /// <inheritdoc cref="NtCore.GetEntryBooleanArray(string)"/>
-        public IList<bool> GetEntryBooleanArray(string name)
+        public bool[] GetEntryBooleanArray(string name)
         {
             var v = m_storage.GetEntryValue(name);
             if (v == null || !v.IsBooleanArray()) throw NtCore.GetValueException(name, v, NtType.BooleanArray);
@@ -216,7 +217,7 @@ namespace NetworkTables.Independent
         }
 
         /// <inheritdoc cref="NtCore.GetEntryDoubleArray(string)"/>
-        public IList<double> GetEntryDoubleArray(string name)
+        public double[] GetEntryDoubleArray(string name)
         {
             var v = m_storage.GetEntryValue(name);
             if (v == null || !v.IsDoubleArray()) throw NtCore.GetValueException(name, v, NtType.DoubleArray);
@@ -225,7 +226,7 @@ namespace NetworkTables.Independent
         }
 
         /// <inheritdoc cref="NtCore.GetEntryStringArray(string)"/>
-        public IList<string> GetEntryStringArray(string name)
+        public string[] GetEntryStringArray(string name)
         {
             var v = m_storage.GetEntryValue(name);
             if (v == null || !v.IsStringArray()) throw NtCore.GetValueException(name, v, NtType.StringArray);
@@ -234,7 +235,7 @@ namespace NetworkTables.Independent
         }
 
         /// <inheritdoc cref="NtCore.GetEntryRaw(string)"/>
-        public IList<byte> GetEntryRaw(string name)
+        public byte[] GetEntryRaw(string name)
         {
             var v = m_storage.GetEntryValue(name);
             if (v == null || !v.IsRaw()) throw NtCore.GetValueException(name, v, NtType.Raw);
@@ -274,37 +275,57 @@ namespace NetworkTables.Independent
         }
 
         /// <inheritdoc cref="NtCore.GetEntryBooleanArray(string, IList{bool})"/>
-        public IList<bool> GetEntryBooleanArray(string name, IList<bool> defaultValue)
+        public bool[] GetEntryBooleanArray(string name, IList<bool> defaultValue)
         {
             var v = m_storage.GetEntryValue(name);
-            if (v == null || !v.IsBooleanArray()) return defaultValue;
+            if (v == null || !v.IsBooleanArray())
+            {
+                bool[] arr = defaultValue as bool[];
+                if (arr != null) return arr;
+                return defaultValue.ToArray();
+            }
             return v.GetBooleanArray();
 
         }
 
         /// <inheritdoc cref="NtCore.GetEntryDoubleArray(string, IList{double})"/>
-        public IList<double> GetEntryDoubleArray(string name, IList<double> defaultValue)
+        public double[] GetEntryDoubleArray(string name, IList<double> defaultValue)
         {
             var v = m_storage.GetEntryValue(name);
-            if (v == null || !v.IsDoubleArray()) return defaultValue;
+            if (v == null || !v.IsDoubleArray())
+            {
+                double[] arr = defaultValue as double[];
+                if (arr != null) return arr;
+                return defaultValue.ToArray();
+            }
             return v.GetDoubleArray();
 
         }
 
         /// <inheritdoc cref="NtCore.GetEntryStringArray(string, IList{string})"/>
-        public IList<string> GetEntryStringArray(string name, IList<string> defaultValue)
+        public string[] GetEntryStringArray(string name, IList<string> defaultValue)
         {
             var v = m_storage.GetEntryValue(name);
-            if (v == null || !v.IsStringArray()) return defaultValue;
+            if (v == null || !v.IsStringArray())
+            {
+                string[] arr = defaultValue as string[];
+                if (arr != null) return arr;
+                return defaultValue.ToArray();
+            }
             return v.GetStringArray();
 
         }
 
         /// <inheritdoc cref="NtCore.GetEntryRaw(string, IList{byte})"/>
-        public IList<byte> GetEntryRaw(string name, IList<byte> defaultValue)
+        public byte[] GetEntryRaw(string name, IList<byte> defaultValue)
         {
             var v = m_storage.GetEntryValue(name);
-            if (v == null || !v.IsRaw()) return defaultValue;
+            if (v == null || !v.IsRaw())
+            {
+                byte[] arr = defaultValue as byte[];
+                if (arr != null) return arr;
+                return defaultValue.ToArray();
+            }
             return v.GetRaw();
 
         }
@@ -569,7 +590,7 @@ namespace NetworkTables.Independent
         }
 
         /// <inheritdoc cref="NtCore.LoadPersistent(string)"/>
-        public IList<string> LoadPersistent(string filename)
+        public List<string> LoadPersistent(string filename)
         {
             List<string> warns = new List<string>();
             var err = LoadPersistent(filename, (i, s) =>
@@ -577,7 +598,7 @@ namespace NetworkTables.Independent
                 warns.Add($"{i}: {s}");
             });
             if (err != null) throw new PersistentException($"Load Persistent Failed: {err}");
-            return warns.ToArray();
+            return warns;
         }
     }
 }

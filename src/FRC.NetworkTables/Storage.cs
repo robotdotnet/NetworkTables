@@ -1189,12 +1189,12 @@ namespace NetworkTables
             }
         }
 
-        public bool GetRpcResult(bool blocking, long callUid, out IList<byte> result)
+        public bool GetRpcResult(bool blocking, long callUid, out byte[] result)
         {
             return GetRpcResult(blocking, callUid, Timeout.InfiniteTimeSpan, out result);
         }
 
-        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out IList<byte> result)
+        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
         {
             IDisposable monitor = null;
             try

@@ -228,7 +228,7 @@ namespace NetworkTables
         /// <param name="timeout">Timeout to wait for if blocking</param>
         /// <param name="result">Array of results sent back from the server from the request</param>
         /// <returns>True if a result was received, otherwise false</returns>
-        public static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out IList<byte> result)
+        public static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
         {
 #if CORE
             return CoreMethods.GetRpcResult(blocking, callUid, timeout, out result);
@@ -244,7 +244,7 @@ namespace NetworkTables
         /// <param name="callUid">The Rpc call id</param>
         /// <param name="result">Array of results sent back from the server from the request</param>
         /// <returns>True if a result was received, otherwise false</returns>
-        public static bool GetRpcResult(bool blocking, long callUid, out IList<byte> result)
+        public static bool GetRpcResult(bool blocking, long callUid, out byte[] result)
         {
 #if CORE
             return CoreMethods.GetRpcResult(blocking, callUid, out result);
@@ -258,7 +258,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="def">The definition to pack</param>
         /// <returns>The packed data</returns>
-        public static IList<byte> PackRpcDefinition(RpcDefinition def)
+        public static byte[] PackRpcDefinition(RpcDefinition def)
         {
             WireEncoder enc = new WireEncoder(0x0300);
             enc.Write8((byte)def.Version);
@@ -336,7 +336,7 @@ namespace NetworkTables
         /// </summary>
         /// <param name="values">The values to pack</param>
         /// <returns>The packed values</returns>
-        public static IList<byte> PackRpcValues(IList<Value> values)
+        public static byte[] PackRpcValues(IList<Value> values)
         {
             WireEncoder enc = new WireEncoder(0x0300);
             foreach (var value in values)
@@ -352,7 +352,7 @@ namespace NetworkTables
         /// <param name="packed">The packed data</param>
         /// <param name="types">The types the packed data should be</param>
         /// <returns>A list of the unpacked values</returns>
-        public static IList<Value> UnpackRpcValues(IList<byte> packed, IList<NtType> types)
+        public static List<Value> UnpackRpcValues(IList<byte> packed, IList<NtType> types)
         {
             ListStream iStream = new ListStream(packed);
             WireDecoder dec = new WireDecoder(iStream, 0x0300);

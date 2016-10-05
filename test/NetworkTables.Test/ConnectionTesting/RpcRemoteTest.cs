@@ -85,7 +85,7 @@ namespace NetworkTables.Test.ConnectionTesting
             serverRemoteProcedureCall.PostRpcResponse(info.RpcId, info.CallUid, toSendBack);
 
             Console.WriteLine("Waiting for RPC Result");
-            IList<byte> result = null;
+            byte[] result = null;
             clientRemoteProcedureCall.GetRpcResult(true, call1Uid, out result);
             var call1Result = clientRemoteProcedureCall.UnpackRpcValues(result, new[] { NtType.Double });
             Assert.AreNotEqual(0, call1Result.Count, "RPC Result empty");
@@ -120,7 +120,7 @@ namespace NetworkTables.Test.ConnectionTesting
             serverRemoteProcedureCall.PostRpcResponse(task.Result.Value.RpcId, task.Result.Value.CallUid, toSendBack);
 
             Console.WriteLine("Waiting for RPC Result");
-            IList<byte> result = null;
+            byte[] result = null;
             clientRemoteProcedureCall.GetRpcResult(true, call1Uid, out result);
             var call1Result = clientRemoteProcedureCall.UnpackRpcValues(result, new[] { NtType.Double });
             Assert.AreNotEqual(0, call1Result.Count, "RPC Result empty");
@@ -176,7 +176,7 @@ namespace NetworkTables.Test.ConnectionTesting
             Assert.That(polled, Is.False);
         }
 
-        private static IList<byte> Callback1(string names, IList<byte> paramsStr, ConnectionInfo connInfo)
+        private static IList<byte> Callback1(string names, byte[] paramsStr, ConnectionInfo connInfo)
         {
             var param = RemoteProcedureCall.UnpackRpcValues(paramsStr, new[] { NtType.Double });
 
@@ -202,7 +202,7 @@ namespace NetworkTables.Test.ConnectionTesting
             long call1Uid = clientRemoteProcedureCall.CallRpc("func1", RemoteProcedureCall.PackRpcValues(new[] { Value.MakeDouble(2.0) }));
 
             Console.WriteLine("Waiting for RPC Result");
-            IList<byte> result = null;
+            byte[] result = null;
             clientRemoteProcedureCall.GetRpcResult(true, call1Uid, out result);
             var call1Result = clientRemoteProcedureCall.UnpackRpcValues(result, new[] { NtType.Double });
             Assert.AreNotEqual(0, call1Result.Count, "RPC Result empty");
@@ -222,7 +222,7 @@ namespace NetworkTables.Test.ConnectionTesting
             for (int i = 0; i < 20; ++i)
             {
                 long call1Uid = clientRemoteProcedureCall.CallRpc("func1", clientRemoteProcedureCall.PackRpcValues(new[] { Value.MakeDouble(i) }));
-                IList<byte> call1Result = null;
+                byte[] call1Result = null;
                 clientRemoteProcedureCall.GetRpcResult(true, call1Uid, out call1Result);
                 var res = clientRemoteProcedureCall.UnpackRpcValues(call1Result, new[] { NtType.Double });
                 Assert.AreNotEqual(0, res.Count, "RPC Result empty");
@@ -246,7 +246,7 @@ namespace NetworkTables.Test.ConnectionTesting
             Console.WriteLine("Waiting for RPC Result");
             TimeSpan timeoutTime = TimeSpan.FromSeconds(1);
             Stopwatch sw = Stopwatch.StartNew();
-            IList<byte> result = null;
+            byte[] result = null;
             bool success = clientRemoteProcedureCall.GetRpcResult(true, call1Uid, timeoutTime, out result);
             sw.Stop();
             Assert.That(success, Is.False);
@@ -268,7 +268,7 @@ namespace NetworkTables.Test.ConnectionTesting
             long call1Uid = 585;
 
             Console.WriteLine("Waiting for RPC Result");
-            IList<byte> result = null;
+            byte[] result = null;
             bool success = clientRemoteProcedureCall.GetRpcResult(false, call1Uid, out result);
             Assert.That(success, Is.False);
             Assert.That(result, Is.Null);
@@ -286,7 +286,7 @@ namespace NetworkTables.Test.ConnectionTesting
             long call1Uid = 585;
 
             Console.WriteLine("Waiting for RPC Result");
-            IList<byte> result = null;
+            byte[] result = null;
             bool success = clientRemoteProcedureCall.GetRpcResult(false, call1Uid, TimeSpan.FromSeconds(1), out result);
             Assert.That(success, Is.False);
             Assert.That(result, Is.Null);
@@ -304,7 +304,7 @@ namespace NetworkTables.Test.ConnectionTesting
             long call1Uid = clientRemoteProcedureCall.CallRpc("func1", clientRemoteProcedureCall.PackRpcValues(new[] { Value.MakeDouble(2.0) }));
 
             Console.WriteLine("Waiting for RPC Result");
-            IList<byte> result = null;
+            byte[] result = null;
             clientRemoteProcedureCall.GetRpcResult(true, call1Uid, TimeSpan.FromSeconds(1), out result);
             Assert.That(result, Is.Not.Null);
             var call1Result = clientRemoteProcedureCall.UnpackRpcValues(result, new[] { NtType.Double });
@@ -325,7 +325,7 @@ namespace NetworkTables.Test.ConnectionTesting
             for (int i = 0; i < 20; ++i)
             {
                 long call1Uid = clientRemoteProcedureCall.CallRpc("func1", clientRemoteProcedureCall.PackRpcValues(new[] { Value.MakeDouble(i) }));
-                IList<byte> call1Result = null;
+                byte[] call1Result = null;
                 clientRemoteProcedureCall.GetRpcResult(true, call1Uid, TimeSpan.FromSeconds(1), out call1Result);
                 Assert.That(call1Result, Is.Not.Null);
                 var res = clientRemoteProcedureCall.UnpackRpcValues(call1Result, new[] { NtType.Double });
@@ -430,7 +430,7 @@ namespace NetworkTables.Test.ConnectionTesting
             Console.WriteLine(sw.Elapsed);
         }
 
-        private static IList<byte> Callback2(string names, IList<byte> paramsStr, ConnectionInfo connInfo)
+        private static IList<byte> Callback2(string names, byte[] paramsStr, ConnectionInfo connInfo)
         {
             var param = RemoteProcedureCall.UnpackRpcValues(paramsStr, new[] { NtType.Boolean, NtType.BooleanArray, NtType.Double, NtType.DoubleArray, NtType.Raw, NtType.String, NtType.StringArray });
 
@@ -476,7 +476,7 @@ namespace NetworkTables.Test.ConnectionTesting
                 Value.MakeRaw(new byte[] { 52, 0, 89, 0, 0, 98 }), Value.MakeString("NewString"), Value.MakeStringArray(new[] { "String1", "String2" })}));
 
             Console.WriteLine("Waiting for RPC Result");
-            IList<byte> result = null;
+            byte[] result = null;
             clientRemoteProcedureCall.GetRpcResult(true, call1Uid, out result);
             var call1Result = clientRemoteProcedureCall.UnpackRpcValues(result, new[] { NtType.Boolean, NtType.BooleanArray, NtType.Double, NtType.DoubleArray, NtType.Raw, NtType.String, NtType.StringArray });
             Assert.AreNotEqual(0, call1Result.Count, "RPC Result empty");

@@ -97,7 +97,7 @@ namespace NetworkTables
 
         internal static string PersistentFilename { get; private set; } = DefaultPersistentFileName;
 
-        internal static IList<string> GetIPAddresses()
+        internal static string[] GetIPAddresses()
         {
             string[] tmp = new string[s_ipAddresses.Length];
             for (int i = 0; i < s_ipAddresses.Length; i++)
@@ -639,14 +639,14 @@ namespace NetworkTables
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public IList<string> GetStringArray(string key)
+        public string[] GetStringArray(string key)
         {
 
             return NtCore.GetEntryStringArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
-        public IList<string> GetStringArray(string key, IList<string> defaultValue)
+        public string[] GetStringArray(string key, IList<string> defaultValue)
         {
 
             return NtCore.GetEntryStringArray(m_pathWithSeperator + key, defaultValue);
@@ -662,14 +662,14 @@ namespace NetworkTables
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public IList<double> GetNumberArray(string key)
+        public double[] GetNumberArray(string key)
         {
 
             return NtCore.GetEntryDoubleArray(m_pathWithSeperator + key);
         }
 
         ///<inheritdoc/>
-        public IList<double> GetNumberArray(string key, IList<double> defaultValue)
+        public double[] GetNumberArray(string key, IList<double> defaultValue)
         {
 
             return NtCore.GetEntryDoubleArray(m_pathWithSeperator + key, defaultValue);
@@ -684,7 +684,7 @@ namespace NetworkTables
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public IList<bool> GetBooleanArray(string key)
+        public bool[] GetBooleanArray(string key)
         {
 
             return NtCore.GetEntryBooleanArray(m_pathWithSeperator + key);
@@ -698,20 +698,20 @@ namespace NetworkTables
         }
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]
-        public IList<byte> GetRaw(string key)
+        public byte[] GetRaw(string key)
         {
 
             return NtCore.GetEntryRaw(m_pathWithSeperator + key);
         }
         ///<inheritdoc/>
-        public IList<byte> GetRaw(string key, IList<byte> defaultValue)
+        public byte[] GetRaw(string key, IList<byte> defaultValue)
         {
 
             return NtCore.GetEntryRaw(m_pathWithSeperator + key, defaultValue);
         }
 
         ///<inheritdoc/>
-        public IList<bool> GetBooleanArray(string key, IList<bool> defaultValue)
+        public bool[] GetBooleanArray(string key, IList<bool> defaultValue)
         {
 
             return NtCore.GetEntryBooleanArray(m_pathWithSeperator + key, defaultValue);

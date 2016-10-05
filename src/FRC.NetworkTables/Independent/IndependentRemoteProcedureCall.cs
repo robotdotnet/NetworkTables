@@ -101,20 +101,20 @@ namespace NetworkTables.Independent
             return await GetRpcResultAsync(id, token).ConfigureAwait(false);
         }
 
-        /// <inheritdoc cref="RemoteProcedureCall.GetRpcResult(bool, long, TimeSpan, out IList{byte})"/>
-        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out IList<byte> result)
+        /// <inheritdoc cref="RemoteProcedureCall.GetRpcResult(bool, long, TimeSpan, out byte[])"/>
+        public bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
         {
             return m_ntCore.m_storage.GetRpcResult(blocking, callUid, timeout, out result);
         }
 
-        /// <inheritdoc cref="RemoteProcedureCall.GetRpcResult(bool, long, out IList{byte})"/>
-        public bool GetRpcResult(bool blocking, long callUid, out IList<byte> result)
+        /// <inheritdoc cref="RemoteProcedureCall.GetRpcResult(bool, long, out byte[])"/>
+        public bool GetRpcResult(bool blocking, long callUid, out byte[] result)
         {
             return m_ntCore.m_storage.GetRpcResult(blocking, callUid, out result);
         }
 
         /// <inheritdoc cref="RemoteProcedureCall.PackRpcDefinition(RpcDefinition)"/>
-        public IList<byte> PackRpcDefinition(RpcDefinition def)
+        public byte[] PackRpcDefinition(RpcDefinition def)
         {
             return RemoteProcedureCall.PackRpcDefinition(def);
         }
@@ -126,13 +126,13 @@ namespace NetworkTables.Independent
         }
 
         /// <inheritdoc cref="RemoteProcedureCall.PackRpcValues(IList{Value})"/>
-        public IList<byte> PackRpcValues(IList<Value> values)
+        public byte[] PackRpcValues(IList<Value> values)
         {
             return RemoteProcedureCall.PackRpcValues(values);
         }
 
         /// <inheritdoc cref="RemoteProcedureCall.UnpackRpcValues(IList{byte}, IList{NtType})"/>
-        public IList<Value> UnpackRpcValues(IList<byte> packed, IList<NtType> types)
+        public List<Value> UnpackRpcValues(IList<byte> packed, IList<NtType> types)
         {
             return RemoteProcedureCall.UnpackRpcValues(packed, types);
         }
