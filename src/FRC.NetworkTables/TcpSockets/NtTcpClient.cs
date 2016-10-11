@@ -116,7 +116,7 @@ namespace NetworkTables.TcpSockets
                                 if (DateTime.UtcNow >= waitUntil)
                                 {
                                     // We have timed out
-                                    Info($"Connect() to {ipAddresses[0]} port {port} timed out");
+                                    Info($"Connect() to {ipAddresses[0]} port {port.ToString()} timed out");
                                     break;
                                 }
                             }
@@ -132,7 +132,7 @@ namespace NetworkTables.TcpSockets
                                 return true;
                             }
                         }
-                        Error($"Select() to {ipAddresses[0]} port {port} error {ex2.SocketErrorCode}");
+                        Error($"Select() to {ipAddresses[0]} port {port.ToString()} error {ex2.SocketErrorCode}");
                     }
                 }
                 else
@@ -140,9 +140,9 @@ namespace NetworkTables.TcpSockets
                     if (ex.SocketErrorCode == SocketError.ConnectionRefused)
                     {
                         // A connection refused is an unexceptional case
-                        Info($"Connect() to {ipAddresses[0]} port {port} timed out");
+                        Info($"Connect() to {ipAddresses[0]} port {port.ToString()} timed out");
                     }
-                    Error($"Connect() to {ipAddresses[0]} port {port} error {ex.SocketErrorCode}");
+                    Error($"Connect() to {ipAddresses[0]} port {port.ToString()} error {ex.SocketErrorCode}");
                 }
 
             }

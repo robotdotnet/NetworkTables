@@ -263,8 +263,13 @@ namespace NetworkTables
                     //Wait for periodic or when flushed
                     timeoutTime += TimeSpan.FromSeconds(m_updateRate);
                     TimeSpan waitTime = timeoutTime - start;
-                    m_flushCv.WaitTimeout(m_flushMutex, ref lockEntered, waitTime,
-                        () => !m_active || m_doFlush);
+                    m_flushCv.WaitTimeout(m_flushMutex, this, ref lockEntered, waitTime,
+                        (s) =>
+                        {
+                            DispatcherBase state = s as DispatcherBase;
+                            if (state == null) return false;
+                            return !state.m_active || state.m_doFlush;
+                        });
                     m_doFlush = false;
                     if (!m_active) break; //in case we were woken up to terminate
 
@@ -348,7 +353,7 @@ namespace NetworkTables
                 var conn = new NetworkConnection(stream, m_notifier, ServerHandshake, m_storage.GetEntryType);
                 conn.SetProcessIncoming(((msg, connection) =>
                 {
-                    m_storage.ProcessIncoming(msg, connection, new WeakReference<NetworkConnection>(conn));
+                    m_storage.ProcessIncoming(msg, connection, new WeakReference<NetworkConnection>(connection));
                 }));
 
                 lock (m_userMutex)
@@ -401,7 +406,7 @@ namespace NetworkTables
                     var conn = new NetworkConnection(stream, m_notifier, ClientHandshake, m_storage.GetEntryType);
                     conn.SetProcessIncoming((msg, connection) =>
                     {
-                        m_storage.ProcessIncoming(msg, connection, new WeakReference<NetworkConnection>(conn));
+                        m_storage.ProcessIncoming(msg, connection, new WeakReference<NetworkConnection>(connection));
                     });
                     foreach (var s in m_connections) //Disconnect any current
                     {
@@ -417,7 +422,12 @@ namespace NetworkTables
                     conn.Start();
 
                     m_doReconnect = false;
-                    m_reconnectCv.Wait(m_userMutex, ref lockEntered, () => !m_active || m_doReconnect);
+                    m_reconnectCv.Wait(m_userMutex, this, ref lockEntered, (s) =>
+                    {
+                        DispatcherBase state = s as DispatcherBase;
+                        if (state == null) return false;
+                        return !state.m_active || state.m_doReconnect;
+                    });
                 }
                 finally
                 {
@@ -477,7 +487,7 @@ namespace NetworkTables
                 {
                     //Unexpected
                     Debug(
-                        $"client: received message ({msg.Type}) other then entry assignment during initial handshake");
+                        $"client: received message ({msg.Type.GetString()}) other then entry assignment during initial handshake");
                     return false;
                 }
 
@@ -567,7 +577,7 @@ namespace NetworkTables
                     if (!msg.Is(Message.MsgType.EntryAssign))
                     {
                         Debug(
-                            $"server: received message ({msg.Type}) other than entry assignment during initial handshake");
+                            $"server: received message ({msg.Type.GetString()}) other than entry assignment during initial handshake");
                         return false;
                     }
 

@@ -39,7 +39,7 @@ namespace NetworkTables.Streams
 
             if (errorCode != 0)
             {
-                string error = $"Send() failed: WSA error={errorCode}\n";
+                string error = $"Send() failed: WSA error={errorCode.ToString()}\n";
                 Debug4(error);
                 return 0;
             }
