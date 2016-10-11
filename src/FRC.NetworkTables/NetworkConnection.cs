@@ -17,24 +17,7 @@ namespace NetworkTables
 {
     internal class NetworkConnection : IDisposable
     {
-        private struct PendingUpdateIds
-        {
-            public int First { get; private set; }
-            public int Second { get; private set; }
-
-            public void SetFirst(int first)
-            {
-                First = first;
-            }
-
-            public void SetSecond(int second)
-            {
-                Second = second;
-            }
-        }
-
         public int ProtoRev { get; set; }
-
 
         public enum State { Created, Init, Handshake, Synchronized, Active, Dead };
 
@@ -77,7 +60,7 @@ namespace NetworkTables
 
         private readonly List<Message> m_pendingOutgoing = new List<Message>();
 
-        private readonly List<PendingUpdateIds> m_pendingUpdate = new List<PendingUpdateIds>();
+        private readonly List<ValueTuple<int, int>> m_pendingUpdate = new List<ValueTuple<int, int>>();
 
         public NetworkConnection(IClient client, Notifier notifier, HandshakeFunc handshake,
             Message.GetEntryTypeFunc getEntryType)
@@ -178,7 +161,7 @@ namespace NetworkTables
             {
                 if (newSize > m_pendingUpdate.Capacity)
                     m_pendingUpdate.Capacity = newSize;
-                m_pendingUpdate.AddRange(Enumerable.Repeat(default(PendingUpdateIds), newSize - currentSize));
+                m_pendingUpdate.AddRange(Enumerable.Repeat(default(ValueTuple<int, int>), newSize - currentSize));
             }
         }
 
@@ -200,21 +183,21 @@ namespace NetworkTables
                                 m_pendingOutgoing.Add(msg);
                                 break;
                             }
-                            if (id < m_pendingUpdate.Count && m_pendingUpdate[id].First != 0)
+                            if (id < m_pendingUpdate.Count && m_pendingUpdate[id].Item1 != 0)
                             {
-                                var oldmsg = m_pendingOutgoing[m_pendingUpdate[id].First - 1];
+                                var oldmsg = m_pendingOutgoing[m_pendingUpdate[id].Item1 - 1];
                                 if (oldmsg != null && oldmsg.Is(Message.MsgType.EntryAssign) &&
                                     msg.Is(Message.MsgType.EntryUpdate))
                                 {
                                     // need to update assignement
-                                    m_pendingOutgoing[m_pendingUpdate[id].First] = Message.EntryAssign(oldmsg.Str, (uint)id, msg.SeqNumUid, msg.Val,
+                                    m_pendingOutgoing[m_pendingUpdate[id].Item1] = Message.EntryAssign(oldmsg.Str, (uint)id, msg.SeqNumUid, msg.Val,
                                         (EntryFlags)oldmsg.Flags);
 
                                 }
                                 else
                                 {
                                     // new but remember it
-                                    m_pendingOutgoing[m_pendingUpdate[id].First] = msg;
+                                    m_pendingOutgoing[m_pendingUpdate[id].Item1] = msg;
                                 }
                             }
                             else
@@ -223,7 +206,7 @@ namespace NetworkTables
                                 int pos = m_pendingOutgoing.Count;
                                 m_pendingOutgoing.Add(msg);
                                 if (id >= m_pendingUpdate.Count) ResizePendingUpdate(id + 1);
-                                m_pendingUpdate[id].SetFirst(pos + 1);
+                                m_pendingUpdate[id] = new ValueTuple<int, int>(pos + 1, m_pendingUpdate[id].Item2);
                             }
                             break;
                         }
@@ -239,15 +222,15 @@ namespace NetworkTables
 
                             if (id < m_pendingUpdate.Count)
                             {
-                                if (m_pendingUpdate[id].First != 0)
+                                if (m_pendingUpdate[id].Item1 != 0)
                                 {
-                                    m_pendingOutgoing[m_pendingUpdate[id].First - 1] = new Message();
-                                    m_pendingUpdate[id].SetFirst(0);
+                                    m_pendingOutgoing[m_pendingUpdate[id].Item1 - 1] = new Message();
+                                    m_pendingUpdate[id] = new ValueTuple<int, int>(0, m_pendingUpdate[id].Item2);
                                 }
-                                if (m_pendingUpdate[id].Second != 0)
+                                if (m_pendingUpdate[id].Item2 != 0)
                                 {
-                                    m_pendingOutgoing[m_pendingUpdate[id].Second - 1] = new Message();
-                                    m_pendingUpdate[id].SetSecond(0);
+                                    m_pendingOutgoing[m_pendingUpdate[id].Item2 - 1] = new Message();
+                                    m_pendingUpdate[id] = new ValueTuple<int, int>(m_pendingUpdate[id].Item1, 0);
                                 }
                             }
                             //Add deletion
@@ -264,17 +247,17 @@ namespace NetworkTables
                                 break;
                             }
 
-                            if (id < m_pendingUpdate.Count && m_pendingUpdate[id].Second != 0)
+                            if (id < m_pendingUpdate.Count && m_pendingUpdate[id].Item2 != 0)
                             {
                                 //Overwrite the previous one for this uid
-                                m_pendingOutgoing[m_pendingUpdate[id].Second - 1] = msg;
+                                m_pendingOutgoing[m_pendingUpdate[id].Item2 - 1] = msg;
                             }
                             else
                             {
                                 int pos = m_pendingOutgoing.Count;
                                 m_pendingOutgoing.Add(msg);
                                 if (id > m_pendingUpdate.Count) ResizePendingUpdate(id + 1);
-                                m_pendingUpdate[id].SetSecond(pos + 1);
+                                m_pendingUpdate[id] = new ValueTuple<int, int>(m_pendingUpdate[id].Item1, pos + 1);
 
                             }
                             break;

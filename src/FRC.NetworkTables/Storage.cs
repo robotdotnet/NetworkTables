@@ -13,23 +13,6 @@ namespace NetworkTables
 {
     internal partial class Storage : IDisposable
     {
-        internal struct StoragePair : IComparable<StoragePair>
-        {
-            public string First { get; }
-            public Value Second { get; }
-
-            public StoragePair(string first, Value second)
-            {
-                First = first;
-                Second = second;
-            }
-
-            public int CompareTo(StoragePair other)
-            {
-                return string.Compare(First, other.First, StringComparison.Ordinal);
-            }
-        }
-
         private static Storage s_instance;
 
         public static Storage Instance
