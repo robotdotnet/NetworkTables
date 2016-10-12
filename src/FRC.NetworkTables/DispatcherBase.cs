@@ -263,13 +263,8 @@ namespace NetworkTables
                     //Wait for periodic or when flushed
                     timeoutTime += TimeSpan.FromSeconds(m_updateRate);
                     TimeSpan waitTime = timeoutTime - start;
-                    m_flushCv.WaitTimeout(m_flushMutex, this, ref lockEntered, waitTime,
-                        (s) =>
-                        {
-                            DispatcherBase state = s as DispatcherBase;
-                            if (state == null) return false;
-                            return !state.m_active || state.m_doFlush;
-                        });
+                    m_flushCv.WaitTimeout(m_flushMutex, ref lockEntered, waitTime,
+                        () => !m_active || m_doFlush);
                     m_doFlush = false;
                     if (!m_active) break; //in case we were woken up to terminate
 
@@ -422,12 +417,7 @@ namespace NetworkTables
                     conn.Start();
 
                     m_doReconnect = false;
-                    m_reconnectCv.Wait(m_userMutex, this, ref lockEntered, (s) =>
-                    {
-                        DispatcherBase state = s as DispatcherBase;
-                        if (state == null) return false;
-                        return !state.m_active || state.m_doReconnect;
-                    });
+                    m_reconnectCv.Wait(m_userMutex, ref lockEntered, () => !m_active || m_doReconnect);
                 }
                 finally
                 {

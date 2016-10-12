@@ -12,13 +12,12 @@ namespace NetworkTables.Extensions
         /// </summary>
         /// <param name="e"></param>
         /// <param name="mutex"></param>
-        /// <param name="state"></param>
         /// <param name="lockEntered"></param>
         /// <param name="timeout"></param>
         /// <param name="pred"></param>
         /// <returns></returns>
-        public static bool WaitTimeout(this AutoResetEvent e, object mutex, object state, 
-            ref bool lockEntered, TimeSpan timeout, Func<object, bool> pred)
+        public static bool WaitTimeout(this AutoResetEvent e, object mutex,  
+            ref bool lockEntered, TimeSpan timeout, Func<bool> pred)
         {
             //Throw if thread currently doesn't own the lock
             if (!Monitor.IsEntered(mutex))
@@ -29,7 +28,7 @@ namespace NetworkTables.Extensions
                 timeout = TimeSpan.Zero;
             //While pred is false.
             // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
-            while (!pred(state))
+            while (!pred())
             {
                 Monitor.Exit(mutex);
                 lockEntered = false;
@@ -37,7 +36,7 @@ namespace NetworkTables.Extensions
                 {
                     //Timed out
                     Monitor.Enter(mutex, ref lockEntered);
-                    return pred(state);
+                    return pred();
                 }
                 Monitor.Enter(mutex, ref lockEntered);
             }
@@ -66,7 +65,7 @@ namespace NetworkTables.Extensions
             return true;
         }
 
-        public static void Wait(this AutoResetEvent e, object mutex, object state, ref bool lockEntered, Func<object, bool> pred)
+        public static void Wait(this AutoResetEvent e, object mutex, ref bool lockEntered, Func<bool> pred)
         {
             //Throw if thread currently doesn't own the lock
             if (!Monitor.IsEntered(mutex))
@@ -75,7 +74,7 @@ namespace NetworkTables.Extensions
             }
             //While pred is false.
             // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
-            while (!pred(state))
+            while (!pred())
             {
                 Monitor.Exit(mutex);
                 lockEntered = false;
