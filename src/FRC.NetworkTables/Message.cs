@@ -218,7 +218,7 @@ namespace NetworkTables
                     {
                         type = getEntryType(msg.Id);
                     }
-                    Debug4($"update message data tyepe: {type}");
+                    Debug4($"update message data type: {type.GetString()}");
                     msg.Val = decoder.ReadValue(type);
                     if (msg.Val == null) return null;
                     break;

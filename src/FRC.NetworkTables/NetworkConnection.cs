@@ -367,7 +367,7 @@ namespace NetworkTables
 
             m_state = State.Handshake;
 
-            if (!m_handshake(this, () =>
+            if (!m_handshake(this,() =>
             {
                 decoder.ProtoRev = ProtoRev;
                 var msg = Message.Read(decoder, m_getEntryType);
@@ -402,7 +402,7 @@ namespace NetworkTables
                     break;
                 }
                 // ToString on the enum type does not stop the boxing
-                Debug3($"received type={msg.Type} with str={msg.Str} id={msg.Id.ToString()} seqNum={msg.SeqNumUid.ToString()}");
+                Debug3($"received type={msg.Type.GetString()} with str={msg.Str} id={msg.Id.ToString()} seqNum={msg.SeqNumUid.ToString()}");
                 LastUpdate = Timestamp.Now();
                 m_processIncoming(msg, this);
             }
@@ -430,7 +430,7 @@ namespace NetworkTables
                 {
                     if (message != null)
                     {
-                        Debug3($"sending type={message.Type} with str={message.Str} id={message.Id.ToString()} seqNum={message.SeqNumUid.ToString()}");
+                        Debug3($"sending type={message.Type.GetString()} with str={message.Str} id={message.Id.ToString()} seqNum={message.SeqNumUid.ToString()}");
                         message.Write(encoder);
                     }
                 }

@@ -71,7 +71,7 @@ namespace NetworkTables.TcpSockets
                 }
                 catch (SocketException ex)
                 {
-                    Error($"Connect() to {server} port {port} failed: {ex.SocketErrorCode}");
+                    Error($"Connect() to {server} port {port.ToString()} failed: {ex.SocketErrorCode}");
                     ((IDisposable)client).Dispose();
                     return null;
                 }

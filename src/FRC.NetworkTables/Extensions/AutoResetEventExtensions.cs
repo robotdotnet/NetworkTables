@@ -16,8 +16,8 @@ namespace NetworkTables.Extensions
         /// <param name="timeout"></param>
         /// <param name="pred"></param>
         /// <returns></returns>
-        public static bool WaitTimeout(this AutoResetEvent e, object mutex, ref bool lockEntered,
-            TimeSpan timeout, Func<bool> pred)
+        public static bool WaitTimeout(this AutoResetEvent e, object mutex,  
+            ref bool lockEntered, TimeSpan timeout, Func<bool> pred)
         {
             //Throw if thread currently doesn't own the lock
             if (!Monitor.IsEntered(mutex))

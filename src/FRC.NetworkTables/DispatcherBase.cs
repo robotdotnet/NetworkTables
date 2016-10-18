@@ -348,7 +348,7 @@ namespace NetworkTables
                 var conn = new NetworkConnection(stream, m_notifier, ServerHandshake, m_storage.GetEntryType);
                 conn.SetProcessIncoming(((msg, connection) =>
                 {
-                    m_storage.ProcessIncoming(msg, connection, new WeakReference<NetworkConnection>(conn));
+                    m_storage.ProcessIncoming(msg, connection, new WeakReference<NetworkConnection>(connection));
                 }));
 
                 lock (m_userMutex)
@@ -401,7 +401,7 @@ namespace NetworkTables
                     var conn = new NetworkConnection(stream, m_notifier, ClientHandshake, m_storage.GetEntryType);
                     conn.SetProcessIncoming((msg, connection) =>
                     {
-                        m_storage.ProcessIncoming(msg, connection, new WeakReference<NetworkConnection>(conn));
+                        m_storage.ProcessIncoming(msg, connection, new WeakReference<NetworkConnection>(connection));
                     });
                     foreach (var s in m_connections) //Disconnect any current
                     {
@@ -477,7 +477,7 @@ namespace NetworkTables
                 {
                     //Unexpected
                     Debug(
-                        $"client: received message ({msg.Type}) other then entry assignment during initial handshake");
+                        $"client: received message ({msg.Type.GetString()}) other then entry assignment during initial handshake");
                     return false;
                 }
 
@@ -567,7 +567,7 @@ namespace NetworkTables
                     if (!msg.Is(Message.MsgType.EntryAssign))
                     {
                         Debug(
-                            $"server: received message ({msg.Type}) other than entry assignment during initial handshake");
+                            $"server: received message ({msg.Type.GetString()}) other than entry assignment during initial handshake");
                         return false;
                     }
 
