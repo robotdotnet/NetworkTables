@@ -90,7 +90,7 @@ namespace NetworkTables.Core.NativeLibraryUtilities
                 throw new InvalidOperationException(
                     "OS type is unknown. Must use the overload to manually load the file");
 
-            if (!m_nativeLibraryName.ContainsKey(OsType))
+            if (!m_nativeLibraryName.ContainsKey(OsType) && !directLoad)
                 throw new InvalidOperationException("OS Type not contained in dictionary");
 
             switch (OsType)
@@ -124,7 +124,7 @@ namespace NetworkTables.Core.NativeLibraryUtilities
                 throw new InvalidOperationException(
                     "OS type is unknown. Must use the overload to manually load the file");
 
-            if (!m_nativeLibraryName.ContainsKey(OsType))
+            if (!m_nativeLibraryName.ContainsKey(OsType) && !directLoad)
                 throw new InvalidOperationException("OS Type not contained in dictionary");
 
             switch (OsType)
