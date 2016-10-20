@@ -473,6 +473,11 @@ namespace NetworkTables
                 Debug4($"received init str={msg.Str} id={msg.Id.ToString()} seqNum={msg.SeqNumUid.ToString()}");
 
                 if (msg.Is(Message.MsgType.ServerHelloDone)) break;
+                if (msg.Is(Message.MsgType.KeepAlive))
+                {
+                    msg = getMsg();
+                    continue;
+                }
                 if (!msg.Is(Message.MsgType.EntryAssign))
                 {
                     //Unexpected
@@ -564,6 +569,11 @@ namespace NetworkTables
                     }
 
                     if (msg.Is(Message.MsgType.ClientHelloDone)) break;
+                    if (msg.Is(Message.MsgType.KeepAlive))
+                    {
+                        msg = getMsg();
+                        continue;
+                    }
                     if (!msg.Is(Message.MsgType.EntryAssign))
                     {
                         Debug(
