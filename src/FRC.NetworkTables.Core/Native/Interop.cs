@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 using NetworkTables.Core.NativeLibraryUtilities;
+using NetworkTables.Tables;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable NotAccessedField.Global
@@ -89,17 +90,20 @@ namespace NetworkTables.Core.Native
                     
                     const string resourceRoot = "FRC.NetworkTables.Core.NativeLibraries.";
 
-                    if (s_useCommandLineFile)
-                    {
-                        NativeLoader = new NativeLibraryLoader();
-                        NativeLoader.LoadNativeLibrary<Interop>(s_libraryLocation, true);
-                    }
-                    else if (File.Exists("/usr/local/frc/bin/frcRunRobot.sh"))
+                    
+                    if (File.Exists("/usr/local/frc/bin/frcRunRobot.sh"))
                     {
                         NativeLoader = new NativeLibraryLoader();
                         // RoboRIO
-                        NativeLoader.LoadNativeLibrary<Interop>(new RoboRioLibraryLoader(), resourceRoot + "roborio.libntcore.so");
-                        s_libraryLocation = NativeLoader.LibraryLocation;
+                        if (s_useCommandLineFile)
+                        {
+                            NativeLoader.LoadNativeLibrary<Interop>(new RoboRioLibraryLoader(), s_libraryLocation, true);
+                        }
+                        else
+                        {
+                            NativeLoader.LoadNativeLibrary<Interop>(new RoboRioLibraryLoader(), resourceRoot + "roborio.libntcore.so");
+                            s_libraryLocation = NativeLoader.LibraryLocation;
+                        }
                     }
                     else
                     {
@@ -117,8 +121,15 @@ namespace NetworkTables.Core.Native
                         NativeLoader.AddLibraryLocation(OsType.MacOs64,
                             resourceRoot + "amd64.libntcore.dylib");
 
-                        NativeLoader.LoadNativeLibrary<Interop>();
-                        s_libraryLocation = NativeLoader.LibraryLocation;
+                        if (s_useCommandLineFile)
+                        {
+                            NativeLoader.LoadNativeLibrary<Interop>(new RoboRioLibraryLoader(), s_libraryLocation, true);
+                        }
+                        else
+                        {
+                            NativeLoader.LoadNativeLibrary<Interop>();
+                            s_libraryLocation = NativeLoader.LibraryLocation;
+                        }
                     }
 
                     NativeDelegateInitializer.SetupNativeDelegates<Interop>(NativeLoader);
@@ -133,7 +144,6 @@ namespace NetworkTables.Core.Native
                 s_libraryLoaded = true;
             }
         }
-
 
         //Callback Typedefs
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
