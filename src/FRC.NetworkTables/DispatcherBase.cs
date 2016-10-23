@@ -234,10 +234,10 @@ namespace NetworkTables
         {
             lock (m_userMutex)
             {
+                
                 foreach (var conn in m_connections)
                 {
-                    if (conn.GetState() != NetworkConnection.State.Active) continue;
-                    m_notifier.NotifyConnection(true, conn.GetConnectionInfo(), callback);
+                    conn.NotifyIfActive(callback);
                 }
             }
         }

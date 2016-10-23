@@ -163,6 +163,40 @@ namespace NetworkTables
             return new ConnectionInfo(RemoteId, PeerIP, PeerPort, LastUpdate, ProtoRev);
         }
 
+        private readonly object m_stateMutex = new object();
+
+        public void NotifyIfActive(ConnectionListenerCallback callback)
+        {
+            lock (m_stateMutex)
+            {
+                if (m_state == State.Active) m_notifier.NotifyConnection(true, GetConnectionInfo(), callback);
+            }
+        }
+
+        public State GetState()
+        {
+            lock (m_stateMutex)
+            {
+                return m_state;
+            }
+        }
+
+        public void SetState(State state)
+        {
+            lock (m_stateMutex)
+            {
+                // Don't update state any more once we've died
+                if (m_state == State.Dead) return;
+                // One-shot notify state changes
+                if (m_state != State.Active && state == State.Active)
+                    m_notifier.NotifyConnection(true, GetConnectionInfo());
+                if (m_state != State.Dead && state == State.Dead)
+                    m_notifier.NotifyConnection(false, GetConnectionInfo());
+                m_state = state;
+
+            }
+        }
+
         public bool Active { get; private set; }
 
         public Stream GetStream()
@@ -330,16 +364,6 @@ namespace NetworkTables
 
         public uint Uid { get; }
 
-        public State GetState()
-        {
-            return m_state;
-        }
-
-        public void SetState(State state)
-        {
-            m_state = state;
-        }
-
         public string RemoteId
         {
             get
@@ -365,7 +389,7 @@ namespace NetworkTables
         {
             WireDecoder decoder = new WireDecoder(m_stream, ProtoRev);
 
-            m_state = State.Handshake;
+            SetState(State.Handshake);
 
             if (!m_handshake(this,() =>
             {
@@ -381,12 +405,12 @@ namespace NetworkTables
                 m_outgoing.Add(messages);
             }))
             {
-                m_state = State.Dead;
+                SetState(State.Dead);
                 Active = false;
                 return;
             }
 
-            m_state = State.Active;
+            SetState(State.Active);
             m_notifier.NotifyConnection(true, GetConnectionInfo());
             while (Active)
             {
@@ -409,7 +433,7 @@ namespace NetworkTables
 
             Debug2($"read thread died ({this})");
             if (m_state != State.Dead) m_notifier.NotifyConnection(false, GetConnectionInfo());
-            m_state = State.Dead;
+            SetState(State.Dead);
             Active = false;
             m_outgoing.Add(new List<Message>()); // Also kill write thread
         }
@@ -440,8 +464,7 @@ namespace NetworkTables
                 Debug4($"sent {encoder.Count.ToString()} bytes");
             }
             Debug2($"write thread died ({this})");
-            if (m_state != State.Dead) m_notifier.NotifyConnection(false, GetConnectionInfo());
-            m_state = State.Dead;
+            SetState(State.Dead);
             Active = false;
             m_stream?.Dispose(); // Also kill read thread
         }
