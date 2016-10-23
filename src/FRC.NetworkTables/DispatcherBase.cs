@@ -253,7 +253,6 @@ namespace NetworkTables
             bool lockEntered = false;
             try
             {
-                Monitor.Enter(m_flushMutex, ref lockEntered);
                 while (m_active)
                 {
                     //Handle loop taking too long
@@ -263,9 +262,12 @@ namespace NetworkTables
                     //Wait for periodic or when flushed
                     timeoutTime += TimeSpan.FromSeconds(m_updateRate);
                     TimeSpan waitTime = timeoutTime - start;
+                    Monitor.Enter(m_flushMutex, ref lockEntered);
                     m_flushCv.WaitTimeout(m_flushMutex, ref lockEntered, waitTime,
                         () => !m_active || m_doFlush);
                     m_doFlush = false;
+                    Monitor.Exit(m_flushMutex);
+                    lockEntered = false;
                     if (!m_active) break; //in case we were woken up to terminate
 
                     if (m_server && !string.IsNullOrEmpty(m_persistFilename) && start > nextSaveTime)
