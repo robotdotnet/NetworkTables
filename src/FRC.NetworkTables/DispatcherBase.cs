@@ -381,7 +381,6 @@ namespace NetworkTables
                 //Sleep between retries
                 Task.Delay(TimeSpan.FromMilliseconds(250)).Wait();
 
-                //Thread.Sleep(TimeSpan.FromMilliseconds(250));
                 Connector connect;
 
                 lock (m_userMutex)
@@ -417,6 +416,9 @@ namespace NetworkTables
                     conn.ProtoRev = m_reconnectProtoRev;
 
                     conn.Start();
+
+                    // reconnect the next time starting with latest protocol revision
+                    m_reconnectProtoRev = 0x0300;
 
                     m_doReconnect = false;
                     m_reconnectCv.Wait(m_userMutex, ref lockEntered, () => !m_active || m_doReconnect);
