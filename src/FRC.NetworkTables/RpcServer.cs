@@ -37,7 +37,7 @@ namespace NetworkTables
         {
             Logger.Instance.SetDefaultLogger();
             m_terminating = true;
-            m_cancellationTokenSource.Cancel();
+            //m_cancellationTokenSource.Cancel();
             using (m_lockObject.Lock())
             {
                 m_callCond.NotifyAll();
@@ -208,7 +208,7 @@ namespace NetworkTables
             var pair = new ImmutablePair<uint, uint>((uint)rpcId, (uint)callId);
             if (!m_responseMap.TryGetValue(pair, out func))
             {
-                Warning("posting PRC response to nonexistent call (or duplicate response)");
+                Warning(Logger.Instance, "posting PRC response to nonexistent call (or duplicate response)");
                 return;
             }
             func(Message.RpcResponse((uint)rpcId, (uint)callId, result));
@@ -241,7 +241,7 @@ namespace NetworkTables
                     {
                         if (!Active) return;
                         var item = m_callQueue.Dequeue();
-                        Debug4($"rpc calling {item.Name}");
+                        Debug4(Logger.Instance, $"rpc calling {item.Name}");
 
                         if (string.IsNullOrEmpty(item.Name) || item.Msg == null | item.Func == null ||
                             item.SendResponse == null)
@@ -262,7 +262,7 @@ namespace NetworkTables
         }
 
         private bool m_terminating;
-        private readonly CancellationTokenSource m_cancellationTokenSource = new CancellationTokenSource();
+        //private readonly CancellationTokenSource m_cancellationTokenSource = new CancellationTokenSource();
 
         private struct RpcCall
         {

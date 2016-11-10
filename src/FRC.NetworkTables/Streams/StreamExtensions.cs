@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using NetworkTables.Logging;
+using System.IO;
 using System.Net.Sockets;
 using static NetworkTables.Logging.Logger;
 
@@ -40,7 +41,7 @@ namespace NetworkTables.Streams
             if (errorCode != 0)
             {
                 string error = $"Send() failed: WSA error={errorCode.ToString()}\n";
-                Debug4(error);
+                Debug4(Logger.Instance, error);
                 return 0;
             }
             return len;

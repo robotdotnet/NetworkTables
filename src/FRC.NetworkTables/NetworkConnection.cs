@@ -12,6 +12,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Nito.AsyncEx.Synchronous;
+using NetworkTables.Logging;
 
 namespace NetworkTables
 {
@@ -140,7 +141,7 @@ namespace NetworkTables
 
         public void Stop()
         {
-            Debug2($"NetworkConnection stopping ({this})");
+            Debug2(Logger.Instance, $"NetworkConnection stopping ({this})");
             m_state = State.Dead;
 
             Active = false;
@@ -397,7 +398,7 @@ namespace NetworkTables
                 var msg = Message.Read(decoder, m_getEntryType);
                 if (msg == null && decoder.Error != null)
                 {
-                    Debug($"error reading in handshake: {decoder.Error}");
+                    Debug(Logger.Instance, $"error reading in handshake: {decoder.Error}");
                 }
                 return msg;
             }, messages =>
@@ -420,18 +421,18 @@ namespace NetworkTables
                 var msg = Message.Read(decoder, m_getEntryType);
                 if (msg == null)
                 {
-                    if (decoder.Error != null) Info($"read error: {decoder.Error}");
+                    if (decoder.Error != null) Info(Logger.Instance, $"read error: {decoder.Error}");
                     //terminate connection on bad message
                     m_stream?.Dispose();
                     break;
                 }
                 // ToString on the enum type does not stop the boxing
-                Debug3($"received type={msg.Type.GetString()} with str={msg.Str} id={msg.Id.ToString()} seqNum={msg.SeqNumUid.ToString()}");
+                Debug3(Logger.Instance, $"received type={msg.Type.GetString()} with str={msg.Str} id={msg.Id.ToString()} seqNum={msg.SeqNumUid.ToString()}");
                 LastUpdate = Timestamp.Now();
                 m_processIncoming(msg, this);
             }
 
-            Debug2($"read thread died ({this})");
+            Debug2(Logger.Instance, $"read thread died ({this})");
             if (m_state != State.Dead) m_notifier.NotifyConnection(false, GetConnectionInfo());
             SetState(State.Dead);
             Active = false;
@@ -445,25 +446,25 @@ namespace NetworkTables
             while (Active)
             {
                 var msgs = m_outgoing.Take();
-                Debug4("write thread woke up");
+                Debug4(Logger.Instance, "write thread woke up");
                 if (msgs.Count == 0) continue;
                 encoder.ProtoRev = ProtoRev;
                 encoder.Reset();
-                Debug3($"sending {msgs.Count.ToString()} messages");
+                Debug3(Logger.Instance, $"sending {msgs.Count.ToString()} messages");
                 foreach (var message in msgs)
                 {
                     if (message != null)
                     {
-                        Debug3($"sending type={message.Type.GetString()} with str={message.Str} id={message.Id.ToString()} seqNum={message.SeqNumUid.ToString()}");
+                        Debug3(Logger.Instance, $"sending type={message.Type.GetString()} with str={message.Str} id={message.Id.ToString()} seqNum={message.SeqNumUid.ToString()}");
                         message.Write(encoder);
                     }
                 }
                 if (m_stream == null) break;
                 if (encoder.Count == 0) continue;
                 if (m_stream.Send(encoder.Buffer, 0, encoder.Count) == 0) break;
-                Debug4($"sent {encoder.Count.ToString()} bytes");
+                Debug4(Logger.Instance, $"sent {encoder.Count.ToString()} bytes");
             }
-            Debug2($"write thread died ({this})");
+            Debug2(Logger.Instance, $"write thread died ({this})");
             SetState(State.Dead);
             Active = false;
             m_stream?.Dispose(); // Also kill read thread

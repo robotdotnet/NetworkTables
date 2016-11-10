@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.IO;
 using static NetworkTables.Logging.Logger;
+using NetworkTables.Logging;
 
 namespace NetworkTables.TcpSockets
 {
@@ -68,7 +69,7 @@ namespace NetworkTables.TcpSockets
             m_active = true;
         }
 
-        public bool ConnectWithTimeout(IPAddress[] ipAddresses, int port, int timeout)
+        public bool ConnectWithTimeout(IPAddress[] ipAddresses, int port, Logger logger, int timeout)
         {
             if (ipAddresses == null)
                 throw new ArgumentNullException(nameof(ipAddresses), "IP Addresses cannot be null");
@@ -116,7 +117,7 @@ namespace NetworkTables.TcpSockets
                                 if (DateTime.UtcNow >= waitUntil)
                                 {
                                     // We have timed out
-                                    Info($"Connect() to {ipAddresses[0]} port {port.ToString()} timed out");
+                                    Info(logger, $"Connect() to {ipAddresses[0]} port {port.ToString()} timed out");
                                     break;
                                 }
                             }
@@ -132,7 +133,7 @@ namespace NetworkTables.TcpSockets
                                 return true;
                             }
                         }
-                        Error($"Select() to {ipAddresses[0]} port {port.ToString()} error {ex2.SocketErrorCode}");
+                        Error(logger, $"Select() to {ipAddresses[0]} port {port.ToString()} error {ex2.SocketErrorCode}");
                     }
                 }
                 else
@@ -140,9 +141,9 @@ namespace NetworkTables.TcpSockets
                     if (ex.SocketErrorCode == SocketError.ConnectionRefused)
                     {
                         // A connection refused is an unexceptional case
-                        Info($"Connect() to {ipAddresses[0]} port {port.ToString()} timed out");
+                        Info(logger, $"Connect() to {ipAddresses[0]} port {port.ToString()} timed out");
                     }
-                    Error($"Connect() to {ipAddresses[0]} port {port.ToString()} error {ex.SocketErrorCode}");
+                    Error(logger, $"Connect() to {ipAddresses[0]} port {port.ToString()} error {ex.SocketErrorCode}");
                 }
 
             }

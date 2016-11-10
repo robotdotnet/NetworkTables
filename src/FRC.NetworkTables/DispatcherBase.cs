@@ -7,6 +7,7 @@ using NetworkTables.Extensions;
 using System.Net;
 using System.Threading.Tasks;
 using Nito.AsyncEx.Synchronous;
+using NetworkTables.Logging;
 
 namespace NetworkTables
 {
@@ -118,9 +119,9 @@ namespace NetworkTables
                     if (first)
                     {
                         first = false;
-                        Warning($"When reading initial persistent values from \" {persistentFilename} \":");
+                        Warning(Logger.Instance, $"When reading initial persistent values from \" {persistentFilename} \":");
                     }
-                    Warning($"{persistentFilename} : {line.ToString()} : {msg}");
+                    Warning(Logger.Instance, $"{persistentFilename} : {line.ToString()} : {msg}");
                 });
             }
 
@@ -278,7 +279,7 @@ namespace NetworkTables
                         string err = m_storage.SavePersistent(m_persistFilename, true);
                         if (err != null)
                         {
-                            Warning($"periodic persistent save: {err}");
+                            Warning(Logger.Instance, $"periodic persistent save: {err}");
                         }
                     }
 
@@ -288,7 +289,7 @@ namespace NetworkTables
 
                         if (++count > 10)
                         {
-                            Debug($"dispatch running {m_connections.Count.ToString()} connections");
+                            Debug(Logger.Instance, $"dispatch running {m_connections.Count.ToString()} connections");
                             count = 0;
                         }
 
@@ -340,11 +341,11 @@ namespace NetworkTables
                 IPEndPoint ipEp = stream.RemoteEndPoint as IPEndPoint;
                 if (ipEp != null)
                 {
-                    Debug($"server: client connection from {ipEp.Address} port {ipEp.Port.ToString()}");
+                    Debug(Logger.Instance, $"server: client connection from {ipEp.Address} port {ipEp.Port.ToString()}");
                 }
                 else
                 {
-                    Warning("server: client connection from unknown IP address and Port");
+                    Warning(Logger.Instance, "server: client connection from unknown IP address and Port");
                 }
 
                 var conn = new NetworkConnection(stream, m_notifier, ServerHandshake, m_storage.GetEntryType);
@@ -390,10 +391,10 @@ namespace NetworkTables
                     connect = m_clientConnectors[i++];
                 }
 
-                Debug("client trying to connect");
+                Debug(Logger.Instance, "client trying to connect");
                 var stream = connect();
                 if (stream == null) continue; //keep retrying
-                Debug("client connected");
+                Debug(Logger.Instance, "client connected");
 
                 bool lockEntered = false;
                 try
@@ -438,14 +439,14 @@ namespace NetworkTables
                 selfId = m_identity;
             }
 
-            Debug("client: sending hello");
+            Debug(Logger.Instance, "client: sending hello");
             sendMsgs(new List<Message> { Message.ClientHello(selfId) });
 
             var msg = getMsg();
             if (msg == null)
             {
                 //Disconnected
-                Debug("client: server disconnected before first response");
+                Debug(Logger.Instance, "client: server disconnected before first response");
                 return false;
             }
 
@@ -471,10 +472,10 @@ namespace NetworkTables
                 if (msg == null)
                 {
                     //disconnected, retry
-                    Debug("client: server disconnected during initial entries");
+                    Debug(Logger.Instance, "client: server disconnected during initial entries");
                     return false;
                 }
-                Debug4($"received init str={msg.Str} id={msg.Id.ToString()} seqNum={msg.SeqNumUid.ToString()}");
+                Debug4(Logger.Instance, $"received init str={msg.Str} id={msg.Id.ToString()} seqNum={msg.SeqNumUid.ToString()}");
 
                 if (msg.Is(Message.MsgType.ServerHelloDone)) break;
                 if (msg.Is(Message.MsgType.KeepAlive))
@@ -485,7 +486,7 @@ namespace NetworkTables
                 if (!msg.Is(Message.MsgType.EntryAssign))
                 {
                     //Unexpected
-                    Debug(
+                    Debug(Logger.Instance,
                         $"client: received message ({msg.Type.GetString()}) other then entry assignment during initial handshake");
                     return false;
                 }
@@ -505,7 +506,7 @@ namespace NetworkTables
 
             if (outgoing.Count != 0) sendMsgs(outgoing);
 
-            Info($"client: CONNECTED to server {conn.PeerIP} port {conn.PeerPort.ToString()}");
+            Info(Logger.Instance, $"client: CONNECTED to server {conn.PeerIP} port {conn.PeerPort.ToString()}");
 
             return true;
         }
@@ -516,13 +517,13 @@ namespace NetworkTables
 
             if (msg == null)
             {
-                Debug("server: client disconnected before sending hello");
+                Debug(Logger.Instance, "server: client disconnected before sending hello");
                 return false;
             }
 
             if (!msg.Is(Message.MsgType.ClientHello))
             {
-                Debug("server: client initial message was not client hello");
+                Debug(Logger.Instance, "server: client initial message was not client hello");
                 return false;
             }
 
@@ -530,14 +531,14 @@ namespace NetworkTables
 
             if (protoRev > 0x0300)
             {
-                Debug("server: client requested proto > 0x0300");
+                Debug(Logger.Instance, "server: client requested proto > 0x0300");
                 sendMsgs(new List<Message> { Message.ProtoUnsup() });
                 return false;
             }
 
             if (protoRev >= 0x0300) conn.RemoteId = msg.Str;
 
-            Debug($"server: client protocol {protoRev.ToString()}");
+            Debug(Logger.Instance, $"server: client protocol {protoRev.ToString()}");
             conn.ProtoRev = protoRev;
 
             List<Message> outgoing = new List<Message>();
@@ -554,7 +555,7 @@ namespace NetworkTables
 
             outgoing.Add(Message.ServerHelloDone());
 
-            Debug("server: sending initial assignments");
+            Debug(Logger.Instance, "server: sending initial assignments");
             sendMsgs(outgoing);
 
             if (protoRev >= 0x0300)
@@ -568,7 +569,7 @@ namespace NetworkTables
                     if (msg == null)
                     {
                         //Disconnected Retry
-                        Debug("server: disconnected waiting for initial entries");
+                        Debug(Logger.Instance, "server: disconnected waiting for initial entries");
                         return false;
                     }
 
@@ -580,7 +581,7 @@ namespace NetworkTables
                     }
                     if (!msg.Is(Message.MsgType.EntryAssign))
                     {
-                        Debug(
+                        Debug(Logger.Instance,
                             $"server: received message ({msg.Type.GetString()}) other than entry assignment during initial handshake");
                         return false;
                     }
@@ -596,7 +597,7 @@ namespace NetworkTables
                 }
             }
 
-            Info($"server: client CONNECTED: {conn.PeerIP} port {conn.PeerPort.ToString()}");
+            Info(Logger.Instance, $"server: client CONNECTED: {conn.PeerIP} port {conn.PeerPort.ToString()}");
             return true;
         }
 
