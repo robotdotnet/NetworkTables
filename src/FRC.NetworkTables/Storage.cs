@@ -208,7 +208,7 @@ namespace NetworkTables
                                 {
                                     monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                                     monitorToUnlock.Dispose();
-                                    Debug("server: received assignment to unknown entry");
+                                    Debug(Logger.Instance, "server: received assignment to unknown entry");
                                     return;
                                 }
                                 entry = m_idMap[(int)id];
@@ -219,7 +219,7 @@ namespace NetworkTables
                                 {
                                     monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                                     monitorToUnlock.Dispose();
-                                    Debug("client: received entry assignment request?");
+                                    Debug(Logger.Instance, "client: received entry assignment request?");
                                     return;
                                 }
                                 if (id >= m_idMap.Count) ResizeIdMap(id + 1);
@@ -281,7 +281,7 @@ namespace NetworkTables
                             {
                                 monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                                 monitorToUnlock.Dispose();
-                                Debug("entry assignment for same id with different name?");
+                                Debug(Logger.Instance, "entry assignment for same id with different name?");
                                 return;
                             }
 
@@ -326,7 +326,7 @@ namespace NetworkTables
                         {
                             monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                             monitorToUnlock.Dispose();
-                            Debug("received update to unknown entyr");
+                            Debug(Logger.Instance, "received update to unknown entyr");
                             return;
                         }
 
@@ -357,7 +357,7 @@ namespace NetworkTables
                             {
                                 monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                                 monitorToUnlock.Dispose();
-                                Debug("reeived flags update to unknown entry");
+                                Debug(Logger.Instance, "reeived flags update to unknown entry");
                                 return;
                             }
 
@@ -388,7 +388,7 @@ namespace NetworkTables
                             {
                                 monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                                 monitorToUnlock.Dispose();
-                                Debug("received delete to unknown entry");
+                                Debug(Logger.Instance, "received delete to unknown entry");
                                 return;
                             }
 
@@ -435,7 +435,7 @@ namespace NetworkTables
                         {
                             monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                             monitorToUnlock.Dispose();
-                            Debug("received RPC call to unknown entry");
+                            Debug(Logger.Instance, "received RPC call to unknown entry");
                             return;
                         }
                         entry = m_idMap[(int)id];
@@ -443,7 +443,7 @@ namespace NetworkTables
                         {
                             monitorToUnlock = Interlocked.Exchange(ref monitor, null);
                             monitorToUnlock.Dispose();
-                            Debug("received RPC call to non-RPC entry");
+                            Debug(Logger.Instance, "received RPC call to non-RPC entry");
                             return;
                         }
                         ConnectionInfo connInfo = conn.GetConnectionInfo();
@@ -514,7 +514,7 @@ namespace NetworkTables
                 {
                     if (!msg.Is(EntryAssign))
                     {
-                        Debug("client: received non-entry assignment request?");
+                        Debug(Logger.Instance, "client: received non-entry assignment request?");
                         continue;
                     }
 
@@ -522,7 +522,7 @@ namespace NetworkTables
 
                     if (id == 0xffff)
                     {
-                        Debug("client: received entry assignment request?");
+                        Debug(Logger.Instance, "client: received entry assignment request?");
                         continue;
                     }
 

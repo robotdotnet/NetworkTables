@@ -85,6 +85,7 @@ namespace NetworkTables.Test.NetworkTablesApi
             Assert.Throws<InvalidOperationException>(NetworkTable.SetClientMode);
         }
 
+        /*
         [Test]
         public void TestSetTeam()
         {
@@ -99,6 +100,7 @@ namespace NetworkTables.Test.NetworkTablesApi
             NetworkTable.SetIPAddress("10.12.34.2");
             Assert.That(NetworkTable.GetIPAddresses()[0], Is.EqualTo("10.12.34.2"));
         }
+        */
 
         [Test]
         public void TestGetTableCausesInitialization()

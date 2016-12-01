@@ -684,6 +684,11 @@ namespace NetworkTables.Core.Native
             Interop.NT_SetNetworkIdentity(namePtr, size);
         }
 
+        internal static void StartClient()
+        {
+            Interop.NT_StartClientNone();
+        }
+
         internal static void StartClient(string serverName, uint port)
         {
             if (serverName == null)
@@ -714,6 +719,48 @@ namespace NetworkTables.Core.Native
             {
                 DeleteUTF8StringPointer(s);
             }
+        }
+
+        internal static void SetServer(string serverName, int port)
+        {
+            if (serverName == null)
+            {
+                throw new ArgumentNullException(nameof(serverName), "Server cannot be null");
+            }
+            UIntPtr size;
+            byte[] serverNamePtr = CreateUTF8String(serverName, out size);
+            Interop.NT_SetServer(serverNamePtr, (uint)port);
+        }
+
+        internal static void SetServer(IList<NtIPAddress> servers)
+        {
+            uint[] uPorts = new uint[servers.Count];
+            for (int i = 0; i < uPorts.Length; i++)
+            {
+                uPorts[i] = (uint)servers[i].Port;
+            }
+            IntPtr[] serv = new IntPtr[servers.Count];
+            UIntPtr len;
+            for (int i = 0; i < serv.Length; i++)
+            {
+                serv[i] = CreateUTF8StringPointer(servers[i].IpAddress, out len);
+            }
+            len = (UIntPtr)servers.Count;
+            Interop.NT_SetServerMulti(len, serv, uPorts);
+            foreach (var s in serv)
+            {
+                DeleteUTF8StringPointer(s);
+            }
+        }
+
+        internal static void StartDSClient(int port)
+        {
+            Interop.NT_StartDSClient((uint)port);
+        }
+
+        internal static void StopDSClient()
+        {
+            Interop.NT_StopDSClient();
         }
 
         internal static void StartServer(string fileName, string listenAddress, int port)

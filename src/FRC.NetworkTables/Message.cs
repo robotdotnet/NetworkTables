@@ -2,6 +2,7 @@
 using NetworkTables.Wire;
 using static NetworkTables.Message.MsgType;
 using static NetworkTables.Logging.Logger;
+using NetworkTables.Logging;
 
 namespace NetworkTables
 {
@@ -218,7 +219,7 @@ namespace NetworkTables
                     {
                         type = getEntryType(msg.Id);
                     }
-                    Debug4($"update message data type: {type.GetString()}");
+                    Debug4(Logger.Instance, $"update message data type: {type.GetString()}");
                     msg.Val = decoder.ReadValue(type);
                     if (msg.Val == null) return null;
                     break;
@@ -290,7 +291,7 @@ namespace NetworkTables
                     break;
                 default:
                     decoder.Error = "unrecognized message type";
-                    Info($"unrecognized message type: {msgType.ToString()}");
+                    Info(Logger.Instance, $"unrecognized message type: {msgType.ToString()}");
                     return null;
             }
             return msg;

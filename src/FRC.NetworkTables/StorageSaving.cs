@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx.Synchronous;
 using static NetworkTables.Logging.Logger;
+using NetworkTables.Logging;
 
 namespace NetworkTables
 {
@@ -291,7 +292,7 @@ namespace NetworkTables
                     using (FileStream fStream = File.Open(tmp, FileMode.Create, FileAccess.Write, FileShare.Read))
                     using (StreamWriter writer = new StreamWriter(fStream))
                     {
-                        Debug($"saving persistent file '{filename}'");
+                        Debug(Logger.Instance, $"saving persistent file '{filename}'");
                         Task task = SavePersistentImpl(writer, entries);
                         task.WaitAndUnwrapException();
                         writer.Flush();
@@ -359,7 +360,7 @@ namespace NetworkTables
                 using (FileStream fStream = File.Open(tmp, FileMode.Create, FileAccess.Write, FileShare.Read))
                 using (StreamWriter writer = new StreamWriter(fStream))
                 {
-                    Debug($"saving persistent file '{filename}'");
+                    Debug(Logger.Instance, $"saving persistent file '{filename}'");
                     await SavePersistentImpl(writer, entries).ConfigureAwait(false);
                     await writer.FlushAsync().ConfigureAwait(false);
                 }

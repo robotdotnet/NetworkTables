@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using NetworkTables.Logging;
+using System.IO;
 using System.Net.Sockets;
 using static NetworkTables.Logging.Logger;
 
@@ -40,10 +41,35 @@ namespace NetworkTables.Streams
             if (errorCode != 0)
             {
                 string error = $"Send() failed: WSA error={errorCode.ToString()}\n";
-                Debug4(error);
+                Debug4(Logger.Instance, error);
                 return 0;
             }
             return len;
+        }
+
+        public static bool ReceiveByte(this Stream stream, out byte data)
+        {
+            data = 0;
+            if (!stream.CanRead) return false;
+
+            try
+            {
+                int ret = stream.ReadByte();
+                if (ret < 0) return false;
+                data = (byte)ret;
+                return true;
+            }
+            catch (IOException ex)
+            {
+                SocketException sx = ex.InnerException as SocketException;
+                if (sx == null)
+                {
+                    //Not socket exception is real error. Rethrow
+                    throw;
+                }
+                //Return false on socket exception
+                return false;
+            }
         }
 
         public static int Receive(this Stream stream, byte[] buffer, int offset, int size)

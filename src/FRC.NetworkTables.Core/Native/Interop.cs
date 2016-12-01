@@ -40,6 +40,7 @@ namespace NetworkTables.Core.Native
             //Sets logger to null so no logger gets called back.
             NT_SetLogger(null, 0);
 
+            NT_StopDSClient();
             NT_StopClient();
             NT_StopServer();
             NT_StopRpcServer();
@@ -193,11 +194,21 @@ namespace NetworkTables.Core.Native
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_StopServerDelegate();
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void NT_StartClientNoneDelegate();
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_StartClientDelegate(byte[] server_name, uint port);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_StartClientMultiDelegate(UIntPtr count, IntPtr[] server_names, uint[] port);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_StopClientDelegate();
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void NT_SetServerDelegate(byte[] server_name, uint port);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void NT_SetServerMultiDelegate(UIntPtr count, IntPtr[] server_names, uint[] ports);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void NT_StartDSClientDelegate(uint port);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void NT_StopDSClientDelegate();
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate uint NT_StopRpcServerDelegate();
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -330,9 +341,18 @@ namespace NetworkTables.Core.Native
         [NativeDelegate] internal static NT_SetNetworkIdentityDelegate NT_SetNetworkIdentity;
         [NativeDelegate] internal static NT_StartServerDelegate NT_StartServer;
         [NativeDelegate] internal static NT_StopServerDelegate NT_StopServer;
+        [NativeDelegate] internal static NT_StartClientNoneDelegate NT_StartClientNone;
         [NativeDelegate] internal static NT_StartClientDelegate NT_StartClient;
         [NativeDelegate] internal static NT_StartClientMultiDelegate NT_StartClientMulti;
         [NativeDelegate] internal static NT_StopClientDelegate NT_StopClient;
+        [NativeDelegate]
+        internal static NT_SetServerDelegate NT_SetServer;
+        [NativeDelegate]
+        internal static NT_SetServerMultiDelegate NT_SetServerMulti;
+        [NativeDelegate]
+        internal static NT_StartDSClientDelegate NT_StartDSClient;
+        [NativeDelegate]
+        internal static NT_StopDSClientDelegate NT_StopDSClient;
         [NativeDelegate] internal static NT_StopRpcServerDelegate NT_StopRpcServer;
         [NativeDelegate] internal static NT_StopNotifierDelegate NT_StopNotifier;
         [NativeDelegate] internal static NT_NotifierDestroyedDelegate NT_NotifierDestroyed;

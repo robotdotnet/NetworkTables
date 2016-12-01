@@ -11,7 +11,7 @@ namespace NetworkTables.Logging
 
         public static Logger Instance => s_instance ?? (s_instance = new Logger());
 
-        private Logger()
+        internal Logger()
         {
             m_func = DefLogFunc;
         }
@@ -63,12 +63,12 @@ namespace NetworkTables.Logging
 
 
         // ReSharper disable once UnusedParameter.Global
-        public static void Log(LogLevel level, string msg, [CallerMemberName] string memberName = "",
+        public static void Log(Logger logger, LogLevel level, string msg, [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
+            if (logger == null) return;
             do
             {
-                Logger logger = Instance;
                 if (logger.MinLevel <= level && logger.HasLogger())
                 {
                     logger.Log(level, filePath, lineNumber, msg);
@@ -77,52 +77,52 @@ namespace NetworkTables.Logging
             while (false);
         }
 
-        public static void Error(string msg, [CallerMemberName] string memberName = "",
+        public static void Error(Logger logger, string msg, [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
-            Log(LogLevel.LogError, msg, memberName, filePath, lineNumber);
+            Log(logger, LogLevel.LogError, msg, memberName, filePath, lineNumber);
         }
 
-        public static void Warning(string msg, [CallerMemberName] string memberName = "",
+        public static void Warning(Logger logger, string msg, [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
-            Log(LogLevel.LogWarning, msg, memberName, filePath, lineNumber);
+            Log(logger, LogLevel.LogWarning, msg, memberName, filePath, lineNumber);
         }
 
-        public static void Info(string msg, [CallerMemberName] string memberName = "",
+        public static void Info(Logger logger, string msg, [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
-            Log(LogLevel.LogInfo, msg, memberName, filePath, lineNumber);
+            Log(logger, LogLevel.LogInfo, msg, memberName, filePath, lineNumber);
         }
 
-        public static void Debug(string msg, [CallerMemberName] string memberName = "",
+        public static void Debug(Logger logger, string msg, [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
-            Log(LogLevel.LogDebug, msg, memberName, filePath, lineNumber);
+            Log(logger, LogLevel.LogDebug, msg, memberName, filePath, lineNumber);
         }
 
-        public static void Debug1(string msg, [CallerMemberName] string memberName = "",
+        public static void Debug1(Logger logger, string msg, [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
-            Log(LogLevel.LogDebug1, msg, memberName, filePath, lineNumber);
+            Log(logger, LogLevel.LogDebug1, msg, memberName, filePath, lineNumber);
         }
 
-        public static void Debug2(string msg, [CallerMemberName] string memberName = "",
+        public static void Debug2(Logger logger, string msg, [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
-            Log(LogLevel.LogDebug2, msg, memberName, filePath, lineNumber);
+            Log(logger, LogLevel.LogDebug2, msg, memberName, filePath, lineNumber);
         }
 
-        public static void Debug3(string msg, [CallerMemberName] string memberName = "",
+        public static void Debug3(Logger logger, string msg, [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
-            Log(LogLevel.LogDebug3, msg, memberName, filePath, lineNumber);
+            Log(logger, LogLevel.LogDebug3, msg, memberName, filePath, lineNumber);
         }
 
-        public static void Debug4(string msg, [CallerMemberName] string memberName = "",
+        public static void Debug4(Logger logger, string msg, [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
-            Log(LogLevel.LogDebug4, msg, memberName, filePath, lineNumber);
+            Log(logger, LogLevel.LogDebug4, msg, memberName, filePath, lineNumber);
         }
     }
 

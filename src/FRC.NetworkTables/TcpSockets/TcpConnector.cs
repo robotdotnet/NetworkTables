@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetworkTables.Logging;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -43,7 +44,7 @@ namespace NetworkTables.TcpSockets
             return 0;
         }
 
-        public static NtTcpClient Connect(string server, int port, int timeout = 0)
+        public static NtTcpClient Connect(string server, int port, Logger logger, int timeout = 0)
         {
             IPAddress[] addr;
             if (ResolveHostName(server, out addr) != 0)
@@ -55,7 +56,7 @@ namespace NetworkTables.TcpSockets
                 }
                 catch (FormatException)
                 {
-                    Error($"could not resolve {server} address");
+                    Error(logger, $"could not resolve {server} address");
                     return null;
                 }
             }
@@ -71,7 +72,7 @@ namespace NetworkTables.TcpSockets
                 }
                 catch (SocketException ex)
                 {
-                    Error($"Connect() to {server} port {port.ToString()} failed: {ex.SocketErrorCode}");
+                    Error(logger, $"Connect() to {server} port {port.ToString()} failed: {ex.SocketErrorCode}");
                     ((IDisposable)client).Dispose();
                     return null;
                 }
@@ -79,7 +80,7 @@ namespace NetworkTables.TcpSockets
             }
 
             //Connect with time limit
-            bool connectedWithTimeout = client.ConnectWithTimeout(addr, port, timeout);
+            bool connectedWithTimeout = client.ConnectWithTimeout(addr, port, logger, timeout);
             if (!connectedWithTimeout)
             {
                 ((IDisposable)client).Dispose();

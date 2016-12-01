@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetworkTables.Logging;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using static NetworkTables.Logging.Logger;
@@ -46,7 +47,7 @@ namespace NetworkTables.TcpSockets
             }
             catch (SocketException ex)
             {
-                Error($"TcpListener Start(): failed {ex.SocketErrorCode}");
+                Error(Logger.Instance, $"TcpListener Start(): failed {ex.SocketErrorCode}");
                 return (int)ex.SocketErrorCode;
             }
 
@@ -101,7 +102,7 @@ namespace NetworkTables.TcpSockets
             Socket socket = m_server.Accept(out error);
             if (socket == null)
             {
-                if (!m_shutdown) Error($"Accept() failed: {error}");
+                if (!m_shutdown) Error(Logger.Instance, $"Accept() failed: {error}");
                 return null;
             }
             if (m_shutdown)
