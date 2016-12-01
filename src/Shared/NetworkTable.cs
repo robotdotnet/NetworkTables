@@ -84,7 +84,7 @@ namespace NetworkTables
         // String version of seperater char to avoid allocations
         internal const string PathSeperatorCharString = "/";
 
-        internal static bool s_enableDs = false;
+        internal static bool s_enableDs = true;
 
         private static readonly object s_lockObject = new object();
 

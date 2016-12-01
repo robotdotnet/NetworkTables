@@ -43,8 +43,9 @@ namespace NetworkTables
             lock (m_mutex)
             {
                 m_port = port;
-                if (m_task != null)
+                if (m_task == null)
                 {
+                    m_active = true;
                     m_task = Task.Factory.StartNew(TaskMain, TaskCreationOptions.LongRunning);
                 }
             }
@@ -153,12 +154,17 @@ namespace NetworkTables
                             break;
                         }
                     }
-                    string ipString = jsonString.Substring(pos + 1, endpos);
+                    string ipString = jsonString.Substring(pos + 1, endpos - (pos + 1));
                     Debug3(Logger.Instance, $"found robotIP={ipString}");
 
                     // Parse into number
                     uint ip;
                     if (!uint.TryParse(ipString, out ip)) continue;
+
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        ip = (uint)IPAddress.NetworkToHostOrder((int)ip);
+                    }
 
                     // If 0 clear the override
                     if (ip == 0)
