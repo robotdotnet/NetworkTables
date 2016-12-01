@@ -47,6 +47,31 @@ namespace NetworkTables.Streams
             return len;
         }
 
+        public static bool ReceiveByte(this Stream stream, out byte data)
+        {
+            data = 0;
+            if (!stream.CanRead) return false;
+
+            try
+            {
+                int ret = stream.ReadByte();
+                if (ret < 0) return false;
+                data = (byte)ret;
+                return true;
+            }
+            catch (IOException ex)
+            {
+                SocketException sx = ex.InnerException as SocketException;
+                if (sx == null)
+                {
+                    //Not socket exception is real error. Rethrow
+                    throw;
+                }
+                //Return false on socket exception
+                return false;
+            }
+        }
+
         public static int Receive(this Stream stream, byte[] buffer, int offset, int size)
         {
             if (!stream.CanRead) return 0;

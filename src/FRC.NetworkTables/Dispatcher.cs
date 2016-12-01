@@ -40,19 +40,30 @@ namespace NetworkTables
             StartServer(persistentFilename, new TcpAcceptor(port, listenAddress));
         }
 
-        public void StartClient(string serverName, int port)
+
+        public void SetServer(string serverName, int port)
         {
-            StartClient(() => TcpConnector.Connect(serverName, port, Logger.Instance, 1));
+            SetConnector(() => TcpConnector.Connect(serverName, port, Logger.Instance, 1));
         }
 
-        public void StartClient(IList<NtIPAddress> servers)
+        public void SetServer(IList<NtIPAddress> servers)
         {
             List<Connector> connectors = new List<Connector>();
             foreach (var server in servers)
             {
                 connectors.Add(() => TcpConnector.Connect(server.IpAddress, server.Port, Logger.Instance, 1));
             }
-            StartClient(connectors);
+            SetConnector(connectors);
+        }
+
+        public void SetServerOverride(string serverName, int port)
+        {
+            SetConnectorOverride(() => TcpConnector.Connect(serverName, port, Logger.Instance, 1));
+        }
+
+        public void ClearServerOverride()
+        {
+            ClearConnectorOverride();
         }
     }
 }

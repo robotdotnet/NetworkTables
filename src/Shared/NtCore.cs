@@ -896,6 +896,18 @@ namespace NetworkTables
         }
 
         /// <summary>
+        /// Starts this table in client mode, potentially using the DS to get IP
+        /// </summary>
+        public static void StartClient()
+        {
+#if CORE
+            CoreMethods.StartClient();
+#else
+            Dispatcher.Instance.StartClient();
+#endif
+        }
+
+        /// <summary>
         /// Starts this table in client mode
         /// </summary>
         /// <param name="serverName">The server name</param>
@@ -905,7 +917,9 @@ namespace NetworkTables
 #if CORE
             CoreMethods.StartClient(serverName, (uint)port);
 #else
-            Dispatcher.Instance.StartClient(serverName, port);
+            var d = Dispatcher.Instance;
+            d.SetServer(serverName, port);
+            d.StartClient();
 #endif
         }
 
@@ -919,7 +933,9 @@ namespace NetworkTables
 #if CORE
             CoreMethods.StartClient(servers);
 #else
-            Dispatcher.Instance.StartClient(servers);
+            var d = Dispatcher.Instance;
+            d.SetServer(servers);
+            d.StartClient();
 #endif
         }
 
@@ -932,6 +948,42 @@ namespace NetworkTables
             CoreMethods.StopClient();
 #else
             Dispatcher.Instance.Stop();
+#endif
+        }
+
+        public static void SetServer(string serverName, int port)
+        {
+#if CORE
+            CoreMethods.SetServer(serverName, port);
+#else
+            Dispatcher.Instance.SetServer(serverName, port);
+#endif
+        }
+
+        public static void SetServer(IList<NtIPAddress> servers)
+        {
+#if CORE
+            CoreMethods.SetServer(servers);
+#else
+            Dispatcher.Instance.SetServer(servers);
+#endif
+        }
+
+        public static void StartDSClient(int port)
+        {
+#if CORE
+            CoreMethods.StartDSClient(port);
+#else
+            DsClient.Instance.Start(port);
+#endif
+        }
+
+        public static void StopDSClient()
+        {
+#if CORE
+            CoreMethods.StopDSClient();
+#else
+            DsClient.Instance.Stop();
 #endif
         }
 

@@ -50,6 +50,8 @@ namespace NetworkTables
         private INetworkAcceptor m_serverAccepter;
         private double m_updateRate;
 
+        private Connector m_clientConnectorOverride;
+
         protected DispatcherBase(Storage storage, Notifier notifier)
         {
             m_storage = storage;
@@ -133,20 +135,12 @@ namespace NetworkTables
             m_clientServerThread = Task.Factory.StartNew(ServerThreadMain, TaskCreationOptions.LongRunning);
         }
 
-
-        public void StartClient(Connector connector)
-        {
-            List<Connector> connectors = new List<Connector>(1) {connector};
-            StartClient(connectors);
-        }
-
-        public void StartClient(IList<Connector> connectors)
+        public void StartClient()
         {
             lock (m_userMutex)
             {
                 if (m_active) return;
                 m_active = true;
-                m_clientConnectors = connectors;
             }
             m_server = false;
 
@@ -158,6 +152,34 @@ namespace NetworkTables
             m_clientServerThread = Task.Factory.StartNew(ClientThreadMain, TaskCreationOptions.LongRunning);
         }
 
+        public void SetConnector(Connector connector)
+        {
+            SetConnector(new List<Connector>() { connector });
+        }
+
+        public void SetConnector(IList<Connector> connectors)
+        {
+            lock (m_userMutex)
+            {
+                m_clientConnectors = connectors;
+            }
+        }
+
+        public void SetConnectorOverride(Connector connector)
+        {
+            lock (m_userMutex)
+            {
+                m_clientConnectorOverride = connector;
+            }
+        }
+
+        public void ClearConnectorOverride()
+        {
+            lock (m_userMutex)
+            {
+                m_clientConnectorOverride = null;
+            }
+        }
 
         public void Stop()
         {
@@ -386,9 +408,16 @@ namespace NetworkTables
 
                 lock (m_userMutex)
                 {
-                    if (m_clientConnectors.Count == 0) continue;
-                    if (i >= m_clientConnectors.Count) i = 0;
-                    connect = m_clientConnectors[i++];
+                    if (m_clientConnectorOverride != null)
+                    {
+                        connect = m_clientConnectorOverride;
+                    }
+                    else
+                    {
+                        if (m_clientConnectors.Count == 0) continue;
+                        if (i >= m_clientConnectors.Count) i = 0;
+                        connect = m_clientConnectors[i++];
+                    }
                 }
 
                 Debug(Logger.Instance, "client trying to connect");

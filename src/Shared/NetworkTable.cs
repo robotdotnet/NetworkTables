@@ -84,6 +84,8 @@ namespace NetworkTables
         // String version of seperater char to avoid allocations
         internal const string PathSeperatorCharString = "/";
 
+        internal static bool s_enableDs = false;
+
         private static readonly object s_lockObject = new object();
 
         /// <summary>
@@ -91,21 +93,10 @@ namespace NetworkTables
         /// </summary>
         public const string DefaultPersistentFileName = "networktables.ini";
         internal static int Port { get; private set; } = DefaultPort;
-        internal static string[] s_ipAddresses = new string[0];
         internal static bool Client { get; private set; }
         internal static bool Running { get; private set; }
 
         internal static string PersistentFilename { get; private set; } = DefaultPersistentFileName;
-
-        internal static string[] GetIPAddresses()
-        {
-            string[] tmp = new string[s_ipAddresses.Length];
-            for (int i = 0; i < s_ipAddresses.Length; i++)
-            {
-                tmp[i] = s_ipAddresses[i];
-            }
-            return tmp;
-        }
 
         private static void CheckInit()
         {
@@ -132,9 +123,11 @@ namespace NetworkTables
                     Shutdown();
                 if (Client)
                 {
-                    List<NtIPAddress> servers = new List<NtIPAddress>(s_ipAddresses.Length);
-                    servers.AddRange(s_ipAddresses.Select(ipAddress => new NtIPAddress(ipAddress, Port)));
-                    NtCore.StartClient(servers);
+                    NtCore.StartClient();
+                    if (s_enableDs)
+                    {
+                        NtCore.StartDSClient(Port);
+                    }
                 }
                 else
                 {
@@ -155,6 +148,7 @@ namespace NetworkTables
                     return;
                 if (Client)
                 {
+                    NtCore.StopDSClient();
                     NtCore.StopClient();
                 }
                 else
@@ -212,7 +206,12 @@ namespace NetworkTables
         {
             lock (s_lockObject)
             {
-                SetIPAddress($"roboRIO-{team}-FRC.local");
+                string[] addresses = new string[4];
+                addresses[0] = "10." + (int)(team / 100) + "." + (int)(team % 100) + ".2";
+                addresses[1] = "172.22.11.2";
+                addresses[2] = "roboRIO-" + team + "-FRC.local";
+                addresses[3] = "roboRIO-" + team + "-FRC.lan";
+                SetIPAddress(addresses);
             }
         }
 
@@ -224,11 +223,9 @@ namespace NetworkTables
         {
             lock (s_lockObject)
             {
-                if (s_ipAddresses.Length == 1 && s_ipAddresses[0] == address)
-                    return;
-                CheckInit();
-                s_ipAddresses = new string[1];
-                s_ipAddresses[0] = address;
+                string[] addresses = new string[1];
+                addresses[0] = address;
+                SetIPAddress(addresses);
             }
         }
 
@@ -238,14 +235,27 @@ namespace NetworkTables
         /// <param name="addresses">The IP address to connect to in client mode using round robin order.</param>
         public static void SetIPAddress(IList<string> addresses)
         {
-            if (s_ipAddresses.Length == addresses.Count)
+            int port = 0;
+            lock (s_lockObject)
             {
-                bool match = !addresses.Where((t, i) => s_ipAddresses[i] != t).Any();
-                if (match)
-                    return;
+                port = Port;
             }
-            CheckInit();
-            s_ipAddresses = addresses.ToArray();
+            List<NtIPAddress> laddresses = new List<NtIPAddress>(addresses.Count);
+            foreach (string s in addresses)
+            {
+                laddresses.Add(new NtIPAddress(s, port));
+            }
+
+            NtCore.SetServer(laddresses);
+
+            if (addresses.Count > 0 && (addresses[0] == "localhost" || addresses[0] == "127.0.0.1"))
+            {
+                NtCore.StopDSClient();
+            }
+            else if (s_enableDs)
+            {
+                NtCore.StartDSClient(port);
+            }
         }
 
         /// <summary>
@@ -277,6 +287,27 @@ namespace NetworkTables
                 return;
             CheckInit();
             Port = port;
+        }
+
+        /// <summary>
+        /// Set true to enable connection to the local robot IP address
+        /// (defaults to enabled)
+        /// </summary>
+        /// <param name="enabled">True to enabled using the DS connection</param>
+        public static void SetDSClientEnabled(bool enabled)
+        {
+            lock (s_lockObject)
+            {
+                s_enableDs = enabled;
+                if (s_enableDs)
+                {
+                    NtCore.StartDSClient(Port);
+                }
+                else
+                {
+                    NtCore.StopDSClient();
+                }
+            }
         }
 
         /// <summary>

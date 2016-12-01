@@ -448,7 +448,8 @@ namespace NetworkTables.Independent
                 Running = true;
             }
 
-            m_dispatcher.StartClient(servers);
+            m_dispatcher.StartClient();
+            m_dispatcher.SetServer(servers);
         }
 
         /// <inheritdoc cref="NtCore.StartServer"/>
@@ -515,7 +516,8 @@ namespace NetworkTables.Independent
                 CheckInit();
                 Client = true;
                 Running = true;
-                m_dispatcher.StartClient(serverName, port);
+                m_dispatcher.StartClient();
+                m_dispatcher.SetServer(serverName, port);
             }
         }
 
