@@ -27,7 +27,6 @@
   },
   "buildOptions": {
     "embed": [
-      "NativeLibraries/roborio/libntcore.so",
       "NativeLibraries/amd64/libntcore.dylib",
       "NativeLibraries/amd64/libntcore.so",
       "NativeLibraries/amd64/ntcore.dll",

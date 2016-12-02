@@ -102,7 +102,7 @@ namespace NetworkTables.Core.Native
                         }
                         else
                         {
-                            NativeLoader.LoadNativeLibrary<Interop>(new RoboRioLibraryLoader(), resourceRoot + "roborio.libntcore.so");
+                            NativeLoader.LoadNativeLibrary<Interop>(new RoboRioLibraryLoader(), "libntcore.so", true);
                             s_libraryLocation = NativeLoader.LibraryLocation;
                         }
                     }
