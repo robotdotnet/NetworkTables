@@ -2,7 +2,6 @@
 # http://andrewlock.net/publishing-your-first-nuget-package-with-appveyor-and-myget/
 
 param (
-  [switch]$release = $false,
   [switch]$build = $false,
   [switch]$test = $false,
   [switch]$skipNtCore = $false,
@@ -62,21 +61,32 @@ function Exec
 }
 
 If (Test-Path Env:APPVEYOR_REPO_TAG_NAME) {
+  $version = ($env:APPVEYOR_REPO_TAG_NAME).Substring(1)
   if (($env:APPVEYOR_REPO_TAG_NAME).Contains("-") -eq $false) {
-     $release = $true
+    #Building a Full Release
+     $type = ""
+     $buildNumber = ""
      echo "Tagged Release"
+    } Else {
+      #Building a Beta
+      $version = ($version).Substring(0, (($env:APPVEYOR_REPO_TAG_NAME).IndexOf("-") - 1))
+      $type = ($env:APPVEYOR_REPO_TAG_NAME).Substring((($env:APPVEYOR_REPO_TAG_NAME).IndexOf("-") + 1))
+      $buildNumber = ""
+      echo "Tag but not release"
     }
-    echo "Tag but not release"
-}
-echo "Not Release"
-
-
-If ($release) {
- $revision =  ""
 } Else {
- $revision = @{ $true = $env:APPVEYOR_BUILD_NUMBER; $false = 1 }[$env:APPVEYOR_BUILD_NUMBER -ne $NULL];
- $revision = "--version-suffix={0:D4}" -f [convert]::ToInt32($revision, 10)
+  $version = "3.0.0"
+  $type = "ci-"
+  $buildNumber = @{ $true = $env:APPVEYOR_BUILD_NUMBER; $false = 1 }[$env:APPVEYOR_BUILD_NUMBER -ne $NULL];
+  $buildNumber = "{0:D4}" -f [convert]::ToInt32($buildNumber, 10), $buildNumber
 }
+
+
+echo $version
+echo $type
+echo $buildNumber
+
+$revision = "--version-suffix=" + $type + $buildNumber
 
 If ($debug) {
  $configuration = "-c=Debug"
@@ -209,25 +219,21 @@ function UpdateXml {
    Copy-Item Sandcastle\Help\FRC.NetworkTables.Core.xml src\FRC.NetworkTables.Core\$libLoc\net45\FRC.NetworkTables.Core.xml
    Copy-Item Sandcastle\Help\FRC.NetworkTables.Core.xml src\FRC.NetworkTables.Core\$libLoc\netstandard1.5\FRC.NetworkTables.Core.xml
 }
-
-if ($release) {
  if ((Test-Path .\buildTemp) -eq $false) {
   md .\buildTemp
  }
 
- # Remove beta defintion from project.json files
-  Copy-Item src\FRC.NetworkTables\project.json buildTemp\FRC.NetworkTables.projectjson
-  Copy-Item src\FRC.NetworkTables.Core\project.json buildTemp\FRC.NetworkTables.Core.projectjson
-  
-  $netTablesJson = Get-Content 'src\FRC.NetworkTables\project.json' -raw | ConvertFrom-Json
-  $netTablesJson.version = $netTablesJson.version.Substring(0, $netTablesJson.version.IndexOf("-"))
-  $netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.NetworkTables\project.json'
-  
-  $netTablesJson = Get-Content 'src\FRC.NetworkTables.Core\project.json' -raw | ConvertFrom-Json
-  $netTablesJson.version = $netTablesJson.version.Substring(0, $netTablesJson.version.IndexOf("-"))
-  $netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.NetworkTables.Core\project.json'
- 
-}
+# Remove beta defintion from project.json files
+Copy-Item src\FRC.NetworkTables\project.json buildTemp\FRC.NetworkTables.projectjson
+Copy-Item src\FRC.NetworkTables.Core\project.json buildTemp\FRC.NetworkTables.Core.projectjson
+
+$netTablesJson = Get-Content 'src\FRC.NetworkTables\project.json' -raw | ConvertFrom-Json
+$netTablesJson.version = $version + "-*"
+$netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.NetworkTables\project.json'
+
+$netTablesJson = Get-Content 'src\FRC.NetworkTables.Core\project.json' -raw | ConvertFrom-Json
+$netTablesJson.version = $version  + "-*"
+$netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.NetworkTables.Core\project.json'
 
 if ($build) {
  Build
@@ -245,11 +251,9 @@ if ($pack) {
  Pack
 }
 
-if ($release) {
- # Add beta definition back into project.json
- Copy-Item buildTemp\FRC.NetworkTables.projectjson src\FRC.NetworkTables\project.json
- Copy-Item buildTemp\FRC.NetworkTables.Core.projectjson src\FRC.NetworkTables.Core\project.json
- 
- Remove-Item buildTemp\FRC.NetworkTables.projectjson
- Remove-Item buildTemp\FRC.NetworkTables.Core.projectjson
-}
+# Add beta definition back into project.json
+Copy-Item buildTemp\FRC.NetworkTables.projectjson src\FRC.NetworkTables\project.json
+Copy-Item buildTemp\FRC.NetworkTables.Core.projectjson src\FRC.NetworkTables.Core\project.json
+
+Remove-Item buildTemp\FRC.NetworkTables.projectjson
+Remove-Item buildTemp\FRC.NetworkTables.Core.projectjson
