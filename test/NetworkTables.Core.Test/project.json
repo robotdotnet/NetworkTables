@@ -8,6 +8,9 @@
     "FRC.NetworkTables.Core": {
       "target": "project"
     },
+    "FRC.NetworkTables.Core.DesktopLibraries": {
+      "target": "project"
+    },
     "NUnit": "3.5.0"
   },
   "frameworks": {

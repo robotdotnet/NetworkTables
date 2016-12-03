@@ -119,6 +119,8 @@ function Build {
   exec { & dotnet build src\FRC.NetworkTables $configuration $revision }
   
   exec { & dotnet build src\FRC.NetworkTables.Core $configuration $revision }
+
+  exec { & dotnet build src\FRC.NetworkTables.Core.DesktopLibraries $configuration $revision }
 }
 
 function Test {
@@ -180,6 +182,8 @@ function Pack {
   
   exec { & dotnet pack src\FRC.NetworkTables.Core $configuration $revision --no-build -o .\artifacts }
 
+  exec { & dotnet pack src\FRC.NetworkTables.Core.DesktopLibraries $configuration $revision --no-build -o .\artifacts }
+
   if ($env:APPVEYOR) {
     Get-ChildItem .\artifacts\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
   }
@@ -226,6 +230,7 @@ function UpdateXml {
 # Remove beta defintion from project.json files
 Copy-Item src\FRC.NetworkTables\project.json buildTemp\FRC.NetworkTables.projectjson
 Copy-Item src\FRC.NetworkTables.Core\project.json buildTemp\FRC.NetworkTables.Core.projectjson
+Copy-Item src\FRC.NetworkTables.Core.DesktopLibraries\project.json buildTemp\FRC.NetworkTables.Core.DesktopLibraries.projectjson
 
 $netTablesJson = Get-Content 'src\FRC.NetworkTables\project.json' -raw | ConvertFrom-Json
 $netTablesJson.version = $version + "-*"
@@ -234,6 +239,10 @@ $netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.NetworkTables\pr
 $netTablesJson = Get-Content 'src\FRC.NetworkTables.Core\project.json' -raw | ConvertFrom-Json
 $netTablesJson.version = $version  + "-*"
 $netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.NetworkTables.Core\project.json'
+
+$netTablesJson = Get-Content 'src\FRC.NetworkTables.Core.DesktopLibraries\project.json' -raw | ConvertFrom-Json
+$netTablesJson.version = $version  + "-*"
+$netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.NetworkTables.Core.DesktopLibraries\project.json'
 
 if ($build) {
  Build
@@ -254,6 +263,8 @@ if ($pack) {
 # Add beta definition back into project.json
 Copy-Item buildTemp\FRC.NetworkTables.projectjson src\FRC.NetworkTables\project.json
 Copy-Item buildTemp\FRC.NetworkTables.Core.projectjson src\FRC.NetworkTables.Core\project.json
+Copy-Item buildTemp\FRC.NetworkTables.Core.DesktopLibraries.projectjson src\FRC.NetworkTables.Core.DesktopLibraries\project.json
 
 Remove-Item buildTemp\FRC.NetworkTables.projectjson
 Remove-Item buildTemp\FRC.NetworkTables.Core.projectjson
+Remove-Item buildTemp\FRC.NetworkTables.Core.DesktopLibraries.projectjson

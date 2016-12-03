@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 using NetworkTables.Core.NativeLibraryUtilities;
@@ -89,7 +90,7 @@ namespace NetworkTables.Core.Native
                         }
                     }
                     
-                    const string resourceRoot = "FRC.NetworkTables.Core.NativeLibraries.";
+                    const string resourceRoot = "FRC.NetworkTables.Core.DesktopLibraries.Libraries.";
 
                     
                     if (File.Exists("/usr/local/frc/bin/frcRunRobot.sh"))
@@ -128,7 +129,22 @@ namespace NetworkTables.Core.Native
                         }
                         else
                         {
-                            NativeLoader.LoadNativeLibrary<Interop>();
+                            // Load Reflection type from Native Libraries
+                            AssemblyName name = new AssemblyName("FRC.NetworkTables.Core.DesktopLibraries");
+                            Assembly asm;
+                            try
+                            {
+                                asm = Assembly.Load(name);
+                            }
+                            catch(Exception)
+                            {
+                                Console.WriteLine("Failed to load desktop libraries. Please ensure that the FRC.NetworkTables.Core.DesktopLibraries is installed and referenced by your project");
+                                throw;
+                            }
+
+                            Type type = asm.GetType("NetworkTables.DesktopLibraries.Natives");
+
+                            NativeLoader.LoadNativeLibraryFromReflectedAssembly(type);
                             s_libraryLocation = NativeLoader.LibraryLocation;
                         }
                     }

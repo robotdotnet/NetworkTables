@@ -139,16 +139,16 @@ namespace NetworkTables.Core.Test.SpecScanners
             var pathToSolution = FindRootSolutionDirectory();
             var ps = Path.DirectorySeparatorChar;
             Assert.That(pathToSolution, Is.Not.Null);
-            var dirToNetworkTablesLib = $"{pathToSolution}{ps}src{ps}FRC.NetworkTables.Core";
+            var dirToNetworkTablesLib = $"{pathToSolution}{ps}src{ps}FRC.NetworkTables.Core.DesktopLibraries";
 
             // Start the child process.
             Process p = new Process();
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.CreateNoWindow = true;
-            p.StartInfo.FileName = $"{dirToNetworkTablesLib}\\NativeLibraries\\roborio\\frcnm.exe";
+            p.StartInfo.FileName = $"{dirToNetworkTablesLib}\\Libraries\\roborio\\frcnm.exe";
             Console.WriteLine(p.StartInfo.FileName);
-            p.StartInfo.Arguments = $"{dirToNetworkTablesLib}\\NativeLibraries\\roborio\\libntcore.so";
+            p.StartInfo.Arguments = $"{dirToNetworkTablesLib}\\Libraries\\roborio\\libntcore.so";
             p.Start();
             string output = p.StandardOutput.ReadToEnd();
             p.WaitForExit();

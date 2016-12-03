@@ -60,7 +60,7 @@ namespace NetworkTables.Core.NativeLibraryUtilities
             // If we are loading from extraction, extract then load
             if (!directLoad)
             {
-                ExtractNativeLibrary<T>(location, extractLocation);
+                ExtractNativeLibrary(location, extractLocation, typeof(T));
                 LibraryLoader = loader;
                 loader.LoadLibrary(extractLocation);
                 LibraryLocation = extractLocation;
@@ -147,11 +147,47 @@ namespace NetworkTables.Core.NativeLibraryUtilities
 
         }
 
-        private void ExtractNativeLibrary<T>(string resourceLocation, string extractLocation)
+        internal void LoadNativeLibraryFromReflectedAssembly(Type asmType)
+        {
+            if (OsType == OsType.None)
+                throw new InvalidOperationException(
+                    "OS type is unknown. Must use the overload to manually load the file");
+
+            if (!m_nativeLibraryName.ContainsKey(OsType))
+                throw new InvalidOperationException("OS Type not contained in dictionary");
+
+            switch (OsType)
+            {
+                case OsType.Windows32:
+                case OsType.Windows64:
+                    LibraryLoader = new WindowsLibraryLoader();
+                    break;
+                case OsType.Linux32:
+                case OsType.Linux64:
+                    LibraryLoader = new LinuxLibraryLoader();
+                    break;
+                case OsType.MacOs32:
+                case OsType.MacOs64:
+                    LibraryLoader = new LinuxLibraryLoader();
+                    break;
+            }
+
+            if (LibraryLoader == null)
+                throw new ArgumentNullException(nameof(LibraryLoader), "Library loader cannot be null");
+
+            string extractLocation = Path.GetTempFileName();
+            UsingTempFile = true;
+
+            ExtractNativeLibrary(m_nativeLibraryName[OsType], extractLocation, asmType);
+            LibraryLoader.LoadLibrary(extractLocation);
+            LibraryLocation = extractLocation;
+        }
+
+        private void ExtractNativeLibrary(string resourceLocation, string extractLocation, Type type)
         {
             byte[] bytes;
             //Load our resource file into memory
-            using (Stream s = typeof(T).GetTypeInfo().Assembly.GetManifestResourceStream(resourceLocation))
+            using (Stream s = type.GetTypeInfo().Assembly.GetManifestResourceStream(resourceLocation))
             {
                 if (s == null || s.Length == 0)
                     throw new InvalidOperationException("File to extract cannot be null or empty");
