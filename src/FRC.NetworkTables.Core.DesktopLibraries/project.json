@@ -1,0 +1,55 @@
+{
+  "version": "3.0.0-local-*",
+  "title": "FRC NetworkTables.Core.NativeLibraries",
+  "description": "Native desktop libraries for NetworkTables",
+  "copyright": "Copyright 2016 RobotDotNet",
+  "authors": [
+    "RobotDotNet"
+  ],
+  "packOptions": {
+    "owners": [
+      "RobotDotNet"
+    ],
+    "authors": [
+      "RobotDotNet"
+    ],
+    "id": "FRC.NetworkTables.Core.DesktopLibraries",
+    "tags": [ "WPILib", "FRC", "FIRST", "RoboRio" ],
+    "title": "FRC NetworkTables.Core",
+    "requireLicenseAcceptance": false,
+    "projectUrl": "https://github.com/robotdotnet/NetworkTables",
+    "summary": "Native Desktop Libraries for FRC.NetworkTables.Core",
+    "licenseUrl": "https://github.com/robotdotnet/NetworkTables/blob/master/LICENSE.txt",
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/robotdotnet/NetworkTables"
+    }
+  },
+  "buildOptions": {
+    "embed": [
+      "Libraries/amd64/libntcore.dylib",
+      "Libraries/amd64/libntcore.so",
+      "Libraries/amd64/ntcore.dll",
+      "Libraries/x86/libntcore.dylib",
+      "Libraries/x86/libntcore.so",
+      "Libraries/x86/ntcore.dll"
+    ],
+    "define": [ "CORE" ]
+  },
+  "frameworks": {
+    "net45": {},
+    "netstandard1.5": {
+      "buildOptions": {
+        "define": [ "NETSTANDARD" ]
+      },
+      "dependencies": {
+        "System.Net.Primitives": "4.0.11"
+      }
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "define": [ "DEBUG" ]
+    }
+  }
+}

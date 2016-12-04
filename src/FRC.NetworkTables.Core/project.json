@@ -26,14 +26,6 @@
     }
   },
   "buildOptions": {
-    "embed": [
-      "NativeLibraries/amd64/libntcore.dylib",
-      "NativeLibraries/amd64/libntcore.so",
-      "NativeLibraries/amd64/ntcore.dll",
-      "NativeLibraries/x86/libntcore.dylib",
-      "NativeLibraries/x86/libntcore.so",
-      "NativeLibraries/x86/ntcore.dll"
-    ],
     "compile": {
       "exclude": [
         "Output/",
