@@ -1,6 +1,6 @@
 {
   "version": "3.0.0-local-*",
-  "title": "FRC NetworkTables.Core.NativeLibraries",
+  "title": "FRC NetworkTables.Core.DesktopLibraries",
   "description": "Native desktop libraries for NetworkTables",
   "copyright": "Copyright 2016 RobotDotNet",
   "authors": [
