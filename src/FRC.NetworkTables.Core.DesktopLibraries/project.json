@@ -15,7 +15,7 @@
     ],
     "id": "FRC.NetworkTables.Core.DesktopLibraries",
     "tags": [ "WPILib", "FRC", "FIRST", "RoboRio" ],
-    "title": "FRC NetworkTables.Core",
+    "title": "FRC NetworkTables.Core.DesktopLibraries",
     "requireLicenseAcceptance": false,
     "projectUrl": "https://github.com/robotdotnet/NetworkTables",
     "summary": "Native Desktop Libraries for FRC.NetworkTables.Core",
