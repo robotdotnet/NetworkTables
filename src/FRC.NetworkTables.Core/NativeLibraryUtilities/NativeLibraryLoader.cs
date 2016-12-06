@@ -105,7 +105,7 @@ namespace NetworkTables.Core.NativeLibraryUtilities
                     break;
                 case OsType.MacOs32:
                 case OsType.MacOs64:
-                    LibraryLoader = new LinuxLibraryLoader();
+                    LibraryLoader = new MacOsLibraryLoader();
                     break;
             }
 
@@ -139,7 +139,7 @@ namespace NetworkTables.Core.NativeLibraryUtilities
                     break;
                 case OsType.MacOs32:
                 case OsType.MacOs64:
-                    LibraryLoader = new LinuxLibraryLoader();
+                    LibraryLoader = new MacOsLibraryLoader();
                     break;
             }
 
@@ -168,7 +168,7 @@ namespace NetworkTables.Core.NativeLibraryUtilities
                     break;
                 case OsType.MacOs32:
                 case OsType.MacOs64:
-                    LibraryLoader = new LinuxLibraryLoader();
+                    LibraryLoader = new MacOsLibraryLoader();
                     break;
             }
 
