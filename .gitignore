@@ -221,3 +221,4 @@ coverage.xml
 *.project.lock.json
 src/FRC.NetworkTables.Core/NativeLibraries/temp/
 src/FRC.NetworkTables.Core.DesktopLibraries/Libraries/temp/
+.gradle/
