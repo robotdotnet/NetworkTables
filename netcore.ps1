@@ -113,7 +113,7 @@ function UploadAppVeyorTestResults {
 }
 
 function Build {
-  exec { & gradlew build }
+  exec { & ./gradlew build }
 
   exec { & dotnet restore }
   echo $configuration
