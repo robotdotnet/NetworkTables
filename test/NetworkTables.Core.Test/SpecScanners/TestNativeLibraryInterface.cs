@@ -146,9 +146,9 @@ namespace NetworkTables.Core.Test.SpecScanners
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.CreateNoWindow = true;
-            p.StartInfo.FileName = $"{dirToNetworkTablesLib}\\Libraries\\roborio\\frcnm.exe";
+            p.StartInfo.FileName = $"{dirToNetworkTablesLib}\\Libraries\\frcnm.exe";
             Console.WriteLine(p.StartInfo.FileName);
-            p.StartInfo.Arguments = $"{dirToNetworkTablesLib}\\Libraries\\roborio\\libntcore.so";
+            p.StartInfo.Arguments = $"{dirToNetworkTablesLib}\\Libraries\\Linux\\arm\\libntcore.so";
             p.Start();
             string output = p.StandardOutput.ReadToEnd();
             p.WaitForExit();
