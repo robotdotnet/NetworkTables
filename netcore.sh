@@ -19,6 +19,7 @@ else
 fi  
 
 function Build {
+  ./gradlew build
   dotnet restore
 
   dotnet build ./src/FRC.NetworkTables $configuration

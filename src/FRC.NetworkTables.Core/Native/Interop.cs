@@ -111,17 +111,17 @@ namespace NetworkTables.Core.Native
                     {
                         NativeLoader = new NativeLibraryLoader();
                         NativeLoader.AddLibraryLocation(OsType.Windows32,
-                            resourceRoot + "x86.ntcore.dll");
+                            resourceRoot + "Windows.x86.ntcore.dll");
                         NativeLoader.AddLibraryLocation(OsType.Windows64,
-                            resourceRoot + "amd64.ntcore.dll");
+                            resourceRoot + "Windows.amd64.ntcore.dll");
                         NativeLoader.AddLibraryLocation(OsType.Linux32,
-                            resourceRoot + "x86.libntcore.so");
+                            resourceRoot + "Linux.x86.libntcore.so");
                         NativeLoader.AddLibraryLocation(OsType.Linux64,
-                            resourceRoot + "amd64.libntcore.so");
+                            resourceRoot + "Linux.amd64.libntcore.so");
                         NativeLoader.AddLibraryLocation(OsType.MacOs32,
-                            resourceRoot + "x86.libntcore.dylib");
+                            resourceRoot + "Mac OS X.x86.libntcore.dylib");
                         NativeLoader.AddLibraryLocation(OsType.MacOs64,
-                            resourceRoot + "amd64.libntcore.dylib");
+                            resourceRoot + "Mac OS X.x86_64.libntcore.dylib");
 
                         if (s_useCommandLineFile)
                         {

@@ -82,6 +82,28 @@ task unzipNetworkTablesDT(type: Copy) {
     into netTablesDtUnzipLocation
 }
 
+def nativeLibLocation = "src/FRC.NetworkTables.Core.DesktopLibraries/Libraries"
+
+task copyNetworkTablesArm(type: Copy) {
+    dependsOn unzipNetworkTablesArm
+
+    from (netTablesArmUnzipLocation)
+    include "**/*.so"
+    exclude "include/"
+    into nativeLibLocation
+}
+
+task copyNetworkTablesDT(type: Copy) {
+    dependsOn unzipNetworkTablesDT
+
+    from (netTablesDtUnzipLocation)
+    include "**/*.so"
+    include "**/*.dll"
+    include "**/*.dylib"
+    exclude "include/"
+    into nativeLibLocation
+}
+
 task build() {
 
 }
@@ -92,8 +114,8 @@ task clean(type: Delete) {
     delete buildDir
 }
 
-build.dependsOn unzipNetworkTablesArm
-build.dependsOn unzipNetworkTablesDT
+build.dependsOn copyNetworkTablesArm
+build.dependsOn copyNetworkTablesDT
 
 task wrapper(type: Wrapper) {
     gradleVersion = '3.2.1'
