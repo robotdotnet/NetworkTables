@@ -119,9 +119,9 @@ namespace NetworkTables.Core.Native
                         NativeLoader.AddLibraryLocation(OsType.Linux64,
                             resourceRoot + "Linux.amd64.libntcore.so");
                         NativeLoader.AddLibraryLocation(OsType.MacOs32,
-                            resourceRoot + "Mac OS X.x86.libntcore.dylib");
+                            resourceRoot + "Mac_OS_X.x86.libntcore.dylib");
                         NativeLoader.AddLibraryLocation(OsType.MacOs64,
-                            resourceRoot + "Mac OS X.x86_64.libntcore.dylib");
+                            resourceRoot + "Mac_OS_X.x86_64.libntcore.dylib");
 
                         if (s_useCommandLineFile)
                         {
