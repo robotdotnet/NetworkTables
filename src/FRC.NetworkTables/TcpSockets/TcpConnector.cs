@@ -3,18 +3,33 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
+using System.Runtime.ExceptionServices;
 using static NetworkTables.Logging.Logger;
 
 namespace NetworkTables.TcpSockets
 {
     internal class TcpConnector
     {
+        private static bool WaitAndUnwrapException(Task task, int timeout)
+        {
+            try
+            {
+                return task.Wait(timeout);
+            }
+            catch (AggregateException ex)
+            {
+                ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                throw ex.InnerException;
+            }
+        }
+
         private static int ResolveHostName(string hostName, out IPAddress[] addr)
         {
             try
             {
                 var entries = Dns.GetHostAddressesAsync(hostName);
-                var success = entries.Wait(1000);
+                var success = WaitAndUnwrapException(entries, 1000);
                 if (!success)
                 {
                     addr = null;
