@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using NetworkTables.Core.Native;
-using NetworkTables.Core.NativeLibraryUtilities;
+using NativeLibraryUtilities;
 using NUnit.Framework;
 using static NetworkTables.Core.Test.SpecScanners.InteropForTesting;
 using static NetworkTables.Core.Native.CoreMethods;

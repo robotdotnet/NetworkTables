@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NetworkTables.Core.Native;
-using NetworkTables.Core.NativeLibraryUtilities;
+using NativeLibraryUtilities;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable NotAccessedField.Global
