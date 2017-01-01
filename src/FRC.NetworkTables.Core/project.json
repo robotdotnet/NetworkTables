@@ -66,6 +66,9 @@
       }
     }
   },
+  "dependencies": {
+    "NativeLibraryUtilities": "1.0.0-rc3"
+  },
   "configurations": {
     "Debug": {
       "define": [ "DEBUG" ]
