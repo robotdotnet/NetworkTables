@@ -951,6 +951,11 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets the server to connect to as a client
+        /// </summary>
+        /// <param name="serverName">The server name</param>
+        /// <param name="port">The port</param>
         public static void SetServer(string serverName, int port)
         {
 #if CORE
@@ -960,6 +965,10 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Sets the list of servers to connect to as a client
+        /// </summary>
+        /// <param name="servers">List of servers to try to connect to</param>
         public static void SetServer(IList<NtIPAddress> servers)
         {
 #if CORE
@@ -969,6 +978,10 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Starts the DS client to look for the robot IP
+        /// </summary>
+        /// <param name="port">The NetworkTables port to connect to</param>
         public static void StartDSClient(int port)
         {
 #if CORE
@@ -978,6 +991,9 @@ namespace NetworkTables
 #endif
         }
 
+        /// <summary>
+        /// Stops the DS client
+        /// </summary>
         public static void StopDSClient()
         {
 #if CORE
