@@ -1,8 +1,8 @@
 **Build Status**
 
-| Windows                 |  Linux/Mac              | Code Coverage         | NuGet                 | NuGet (Core)          |
-| ------------------------|-------------------------|-----------------------|-----------------------|-----------------------|
-| [![Build status][1]][2] | [![Build Status][3]][4] | [![codecov][5]][6]    | [![NuGet][7]][8]      | [![NuGet][9]][10]      |
+| Windows                 |  Linux/Mac              | Code Coverage         | NuGet                 | NuGet (Core)          |  NuGet (Core DesktopLibraries) |
+| ------------------------|-------------------------|-----------------------|-----------------------|-----------------------|--------------------------------|
+| [![Build status][1]][2] | [![Build Status][3]][4] | [![codecov][5]][6]    | [![NuGet][7]][8]      | [![NuGet][9]][10]     | [![NuGet][11]][12]             |
 
 [1]: https://ci.appveyor.com/api/projects/status/35aclclri0mf4juk/branch/master?svg=true
 [2]: https://ci.appveyor.com/project/robotdotnet/networktables/branch/master
@@ -10,10 +10,12 @@
 [4]: https://travis-ci.org/robotdotnet/NetworkTables
 [5]: https://codecov.io/gh/robotdotnet/NetworkTables/branch/master/graph/badge.svg
 [6]: https://codecov.io/gh/robotdotnet/NetworkTables
-[7]: https://img.shields.io/nuget/v/FRC.NetworkTables.svg
+[7]: https://img.shields.io/nuget/vpre/FRC.NetworkTables.svg
 [8]: https://www.nuget.org/packages/FRC.NetworkTables
 [9]: https://img.shields.io/nuget/vpre/FRC.NetworkTables.Core.svg
 [10]: https://www.nuget.org/packages/FRC.NetworkTables.Core
+[11]: https://img.shields.io/nuget/vpre/FRC.NetworkTables.Core.DesktopLibraries.svg
+[12]: https://www.nuget.org/packages/FRC.NetworkTables.Core.DesktopLibraries
 
 NetworkTables is a DotNet implementation of the NetworkTables protocol commonly used in FRC. Currently implements v3 of the NetworkTables spec.
 
@@ -21,7 +23,7 @@ This repository contains two seperate release projects.
 
 The first is NetworkTables, which is a complete port of the ntcore library from C++ to DotNet. This library is recommended for any clients that you wish to create, as the dependancies are very low, and supported by most platforms.
 
-The second project is NetworkTables.Core. This is a wrapper around the official ntcore library. This means that the networking code has been tested more by the community, and is recommended for running on an FRC robot as the server. 
+The second project is NetworkTables.Core. This is a wrapper around the official [ntcore](https://github.com/wpilibsuite/ntcore) library. This means that the networking code has been tested more by the community, and is recommended for running on an FRC robot as the server. 
 
 
 
@@ -42,6 +44,7 @@ Supported Platforms - NetworkTables.Core
   * Linux x86 and amd64
   * Mac OS x86 and x86-64
   * RoboRio (Soft Float Arm v7)
+  Note to be used on Desktop, you must install the *FRC.NetworkTables.Core.DesktopLibraries* package as well.
 
 Installation
 ------------
@@ -68,5 +71,7 @@ Contributors
 ============
 
 Thad House (@thadhouse)
+
+[ntcore](https://github.com/wpilibsuite/ntcore)
 
 Peter Johnson (@peterjohnson) wrote the original ntcore library, which was heavily used to port to native
