@@ -92,61 +92,29 @@ namespace NetworkTables.Core.Native
                     
                     const string resourceRoot = "FRC.NetworkTables.Core.DesktopLibraries.Libraries.";
 
-                    
-                    if (File.Exists("/usr/local/frc/bin/frcRunRobot.sh"))
+                    NativeLoader = new NativeLibraryLoader();
+                    NativeLoader.AddLibraryLocation(OsType.Windows32,
+                        resourceRoot + "Windows.x86.ntcore.dll");
+                    NativeLoader.AddLibraryLocation(OsType.Windows64,
+                        resourceRoot + "Windows.amd64.ntcore.dll");
+                    NativeLoader.AddLibraryLocation(OsType.Linux32,
+                        resourceRoot + "Linux.x86.libntcore.so");
+                    NativeLoader.AddLibraryLocation(OsType.Linux64,
+                        resourceRoot + "Linux.amd64.libntcore.so");
+                    NativeLoader.AddLibraryLocation(OsType.MacOs32,
+                        resourceRoot + "Mac_OS_X.x86.libntcore.dylib");
+                    NativeLoader.AddLibraryLocation(OsType.MacOs64,
+                        resourceRoot + "Mac_OS_X.x86_64.libntcore.dylib");
+                    NativeLoader.AddLibraryLocation(OsType.roboRIO, "libntcore.so");
+
+                    if (s_useCommandLineFile)
                     {
-                        NativeLoader = new NativeLibraryLoader();
-                        // RoboRIO
-                        if (s_useCommandLineFile)
-                        {
-                            NativeLoader.LoadNativeLibrary<Interop>(new RoboRioLibraryLoader(), s_libraryLocation, true);
-                        }
-                        else
-                        {
-                            NativeLoader.LoadNativeLibrary<Interop>(new RoboRioLibraryLoader(), "libntcore.so", true);
-                            s_libraryLocation = NativeLoader.LibraryLocation;
-                        }
+                        NativeLoader.LoadNativeLibrary<Interop>(s_libraryLocation, true);
                     }
                     else
                     {
-                        NativeLoader = new NativeLibraryLoader();
-                        NativeLoader.AddLibraryLocation(OsType.Windows32,
-                            resourceRoot + "Windows.x86.ntcore.dll");
-                        NativeLoader.AddLibraryLocation(OsType.Windows64,
-                            resourceRoot + "Windows.amd64.ntcore.dll");
-                        NativeLoader.AddLibraryLocation(OsType.Linux32,
-                            resourceRoot + "Linux.x86.libntcore.so");
-                        NativeLoader.AddLibraryLocation(OsType.Linux64,
-                            resourceRoot + "Linux.amd64.libntcore.so");
-                        NativeLoader.AddLibraryLocation(OsType.MacOs32,
-                            resourceRoot + "Mac_OS_X.x86.libntcore.dylib");
-                        NativeLoader.AddLibraryLocation(OsType.MacOs64,
-                            resourceRoot + "Mac_OS_X.x86_64.libntcore.dylib");
-
-                        if (s_useCommandLineFile)
-                        {
-                            NativeLoader.LoadNativeLibrary<Interop>(new RoboRioLibraryLoader(), s_libraryLocation, true);
-                        }
-                        else
-                        {
-                            // Load Reflection type from Native Libraries
-                            AssemblyName name = new AssemblyName("FRC.NetworkTables.Core.DesktopLibraries");
-                            Assembly asm;
-                            try
-                            {
-                                asm = Assembly.Load(name);
-                            }
-                            catch(Exception)
-                            {
-                                Console.WriteLine("Failed to load desktop libraries. Please ensure that the FRC.NetworkTables.Core.DesktopLibraries is installed and referenced by your project");
-                                throw;
-                            }
-
-                            Type type = asm.GetType("NetworkTables.DesktopLibraries.Natives");
-
-                            NativeLoader.LoadNativeLibraryFromReflectedAssembly(type);
-                            s_libraryLocation = NativeLoader.LibraryLocation;
-                        }
+                        NativeLoader.LoadNativeLibraryFromReflectedAssembly("FRC.NetworkTables.Core.DesktopLibraries", "NetworkTables.DesktopLibraries.Natives");
+                        s_libraryLocation = NativeLoader.LibraryLocation;
                     }
 
                     NativeDelegateInitializer.SetupNativeDelegates<Interop>(NativeLoader);

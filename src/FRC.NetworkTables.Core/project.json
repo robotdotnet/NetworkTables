@@ -67,7 +67,7 @@
     }
   },
   "dependencies": {
-    "NativeLibraryUtilities": "1.0.0-rc3"
+    "NativeLibraryUtilities": "1.0.0-rc5"
   },
   "configurations": {
     "Debug": {
