@@ -113,7 +113,7 @@ namespace NetworkTables.Core.Native
                     }
                     else
                     {
-                        NativeLoader.LoadNativeLibraryFromReflectedAssembly("FRC.NetworkTables.Core.DesktopLibraries", "NetworkTables.DesktopLibraries.Natives");
+                        NativeLoader.LoadNativeLibraryFromReflectedAssembly("FRC.NetworkTables.Core.DesktopLibraries");
                         s_libraryLocation = NativeLoader.LibraryLocation;
                     }
 
