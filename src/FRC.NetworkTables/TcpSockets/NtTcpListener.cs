@@ -41,7 +41,14 @@ namespace NetworkTables.TcpSockets
             {
                 return;
             }
-            m_serverSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
+            try
+            {
+                m_serverSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
+            }
+            catch (SocketException)
+            {
+                // Raspberry Pi does not support setting the socket option, so must catch.
+            }
             m_serverSocket.Bind(m_serverSocketEp);
             try
             {
