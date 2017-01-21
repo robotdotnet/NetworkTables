@@ -1089,6 +1089,7 @@ namespace NetworkTables.Core.Native
             }
         }
 
+#if !NET40
         internal static async Task<byte[]> GetRpcResultAsync(long callUid, CancellationToken token)
         {
             token.Register(() =>
@@ -1118,7 +1119,7 @@ namespace NetworkTables.Core.Native
                 return null;
             }
         }
-
+#endif //NET40
         internal static bool GetRpcResult(bool blocking, long callUid, TimeSpan timeout, out byte[] result)
         {
             UIntPtr size = UIntPtr.Zero;

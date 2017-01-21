@@ -533,6 +533,7 @@ namespace NetworkTables
             return NtCore.SavePersistent(filename);
         }
 
+#if !NET40
         /// <summary>
         /// Saves persistent keys to a file asynchronously. The server does this automatically.
         /// </summary>
@@ -544,6 +545,7 @@ namespace NetworkTables
         {
             return await NtCore.SavePersistentAsync(filename).ConfigureAwait(false);
         }
+#endif //NET40
 
         /// <summary>
         /// Loads persistent keys from a file. The server does this automatically.
@@ -557,6 +559,7 @@ namespace NetworkTables
             return NtCore.LoadPersistent(filename);
         }
 
+#if !NET40
         /// <summary>
         /// Loads persistent keys from a file asynchronously. The server does this automatically.
         /// </summary>
@@ -568,6 +571,7 @@ namespace NetworkTables
         {
             return await NtCore.LoadPersistentAsync(filename).ConfigureAwait(false);
         }
+#endif // NET40
 
         ///<inheritdoc/>
         [Obsolete("Please use the Default Value Get... Methods instead.")]

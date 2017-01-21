@@ -45,6 +45,11 @@
   },
   "frameworks": {
     "net45": {},
+    "net40": {
+      "buildOptions": {
+        "define": [ "NET40" ]
+      }
+    },
     "netstandard1.5": {
       "buildOptions": {
         "define": [ "NETSTANDARD" ]
@@ -67,7 +72,7 @@
     }
   },
   "dependencies": {
-    "NativeLibraryUtilities": "1.0.0"
+    "NativeLibraryUtilities": "1.0.3"
   },
   "configurations": {
     "Debug": {

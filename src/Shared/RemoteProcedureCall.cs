@@ -179,6 +179,7 @@ namespace NetworkTables
 #endif
         }
 
+#if !NET40
         /// <summary>
         /// Calls a procedure on a remote server, and awaits a response asynchronously
         /// </summary>
@@ -219,6 +220,7 @@ namespace NetworkTables
             return await Storage.Instance.GetRpcResultAsync(callUid, token).ConfigureAwait(false);
 #endif
         }
+#endif // NET40
 
         /// <summary>
         /// Gets the result of an Rpc request

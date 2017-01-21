@@ -38,7 +38,7 @@
     "define": [ "CORE" ]
   },
   "frameworks": {
-    "net45": {},
+    "net40": {},
     "netstandard1.5": {
       "buildOptions": {
         "define": [ "NETSTANDARD" ]

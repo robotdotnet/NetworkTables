@@ -1067,6 +1067,7 @@ namespace NetworkTables
 #endif
         }
 
+#if !NET40
         /// <summary>
         /// Saves all persistent variables to the files specified asynchronously
         /// </summary>
@@ -1080,6 +1081,7 @@ namespace NetworkTables
             return await Storage.Instance.SavePersistentAsync(filename, false).ConfigureAwait(false);
 #endif
         }
+#endif // NET40
 
         /// <summary>
         /// Loads persistent variables from a specified file
@@ -1096,6 +1098,7 @@ namespace NetworkTables
 #endif
         }
 
+#if !NET40
         /// <summary>
         /// Loads persistent variables from a specified file asynchronously
         /// </summary>
@@ -1110,6 +1113,7 @@ namespace NetworkTables
             return await Storage.Instance.LoadPersistentAsync(filename, warn).ConfigureAwait(false);
 #endif
         }
+#endif // NET40
 
         /// <summary>
         /// Gets the current timestamp of the library to be used for value time comparisons 
@@ -1152,6 +1156,7 @@ namespace NetworkTables
             return warns.ToArray();
         }
 
+#if !NET40
         /// <summary>
         /// Loads persistent variables from a specified file asynchronously
         /// </summary>
@@ -1167,5 +1172,6 @@ namespace NetworkTables
             if (err != null) throw new PersistentException($"Load Persistent Failed: {err}");
             return warns.ToArray();
         }
+#endif
     }
 }
