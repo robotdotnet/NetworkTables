@@ -78,6 +78,7 @@ namespace NetworkTables
         {
             uint oldIp = 0;
             Logger logger = new Logger(); // To silence log messages
+            logger.SetLogger(null);
 
             while (m_active)
             {
