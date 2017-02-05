@@ -1,17 +1,13 @@
 ﻿using NetworkTables.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NetworkTables.Extensions;
-using NetworkTables.TcpSockets;
 using System.Net.Sockets;
 using System.IO;
-using NetworkTables.Streams;
 using System.Text;
 using static NetworkTables.Logging.Logger;
 using System.Net;
+using Nito.AsyncEx;
 using Nito.AsyncEx.Synchronous;
 
 namespace NetworkTables
@@ -33,171 +29,218 @@ namespace NetworkTables
             }
         }
 
-        public void Dispose()
-        {
-            Stop();
-        }
+        //private IServerOverridable m_serverOverridable;
 
-        public void Start(int port)
+        public DsClient(/*IServerOverridable serverOverridable*/)
         {
-            lock (m_mutex)
-            {
-                m_port = port;
-                if (m_task == null)
-                {
-                    m_active = true;
-                    m_task = Task.Factory.StartNew(TaskMain, TaskCreationOptions.LongRunning);
-                }
-            }
-        }
-
-        public void Stop()
-        {
-            m_active = false;
-            m_task?.WaitAndUnwrapException();
-            m_task = null;
-        }
-
-        private DsClient()
-        {
-
+            //m_serverOverridable = serverOverridable;
         }
 
         private int m_port;
 
         private Task m_task;
+        private CancellationTokenSource m_tokenSource;
 
-        private bool m_active;
-
-        private readonly object m_mutex = new object();
-        private readonly AutoResetEvent m_cond = new AutoResetEvent(false);
-
-        NtTcpClient m_client; 
-
-        private void TaskMain()
+        public void Dispose()
         {
-            uint oldIp = 0;
-            Logger logger = new Logger(); // To silence log messages
-            logger.SetLogger(null);
+            Stop();
+        }
 
-            while (m_active)
+        public void Stop()
+        {
+            m_tokenSource?.Cancel();
+            m_task?.WaitAndUnwrapException();
+            m_task = null;
+            m_tokenSource = null;
+        }
+
+        public void Start(int port)
+        {
+            Interlocked.Exchange(ref m_port, port);
+            if (m_task == null)
             {
-                int port;
-                bool lockEntered = false;
+                if (m_tokenSource == null || m_tokenSource.IsCancellationRequested)
+                {
+                    m_tokenSource = new CancellationTokenSource();
+                }
+                m_task = Task.Factory.StartNew(ThreadMain, m_tokenSource.Token, TaskCreationOptions.LongRunning);
+            }
+        }
+
+        public void ThreadMain(object token)
+        {
+
+            if (token is CancellationToken)
+            {
                 try
                 {
-                    Monitor.Enter(m_mutex, ref lockEntered);
-                    m_cond.WaitTimeout(m_mutex, ref lockEntered, TimeSpan.FromMilliseconds(500), () => !m_active);
-                    port = m_port;
+                    AsyncContext.Run(async () =>
+                    {
+                        await ThreadMainAsync((CancellationToken)token);
+                    });
                 }
-                finally
+                catch (OperationCanceledException)
                 {
-                    if (lockEntered) Monitor.Exit(m_mutex);
+                    // Ignore operation cancelled
                 }
+            }
+        }
 
-                if (!m_active) goto done;
-
-                m_client = TcpConnector.Connect("127.0.0.1", 1742, logger, 1);
-                if (!m_active) goto done;
-                if (m_client == null) continue;
-
-                Logger.Debug3(Logger.Instance, "connected to DS");
-                Stream stream = m_client.GetStream();
-                while (m_active && stream.CanRead)
+        public async Task ThreadMainAsync(CancellationToken token)
+        {
+            uint oldIp = 0;
+            try
+            {
+                while (!token.IsCancellationRequested)
                 {
-                    StringBuilder json = new StringBuilder(128);
-                    byte ch = 0;
-                    do
-                    {
-                        bool success = stream.ReceiveByte(out ch);
-                        if (!success) break;
-                        if (!m_active) goto done;
-                    } while (ch != (byte)'{');
-                    json.Append('{');
+                    int port;
 
-                    if (!stream.CanRead)
+                    using (TcpClient client = new TcpClient())
                     {
-                        m_client = null;
-                        break;
-                    }
+                        Task connection = client.ConnectAsync("127.0.0.1", 1742);
+                        Task delayTask = Task.Delay(2000, token);
 
-                    // Read characters until }
-                    do
-                    {
-                        bool success = stream.ReceiveByte(out ch);
-                        if (!success) break;
-                        if (!m_active) goto done;
-                        json.Append((char)ch);
-                    } while (ch != (byte)'}');
-
-                    if (!stream.CanRead)
-                    {
-                        m_client = null;
-                        break;
-                    }
-
-                    string jsonString = json.ToString();
-                    Debug3(Logger.Instance, $"json={jsonString}");
-
-                    // Look for "robotIP":12345, and get 12345 portion
-                    int pos = jsonString.IndexOf("\"robotIP\"");
-                    if (pos < 0) continue; // could not find?
-                    pos += 9;
-                    pos = jsonString.IndexOf(':', pos);
-                    if (pos < 0) continue; // could not find?
-                    // Find first not of
-                    int endpos = -1;
-                    for (int i = pos + 1; i < jsonString.Length; i++)
-                    {
-                        if (jsonString[i] < '0' || jsonString[i] > '9')
+                        try
                         {
-                            endpos = i;
-                            break;
+                            var finished = await Task.WhenAny(connection, delayTask);
+                            if (finished == delayTask)
+                            {
+                                // Timed Out
+                                continue;
+                            }
+                            if (!finished.IsCompleted || finished.IsFaulted || finished.IsCanceled)
+                            {
+                                continue;
+                            }
+                        }
+
+                        catch (OperationCanceledException)
+                        {
+                            goto done;
+                        }
+
+                        if (token.IsCancellationRequested)
+                        {
+                            goto done;
+                        }
+
+                        Logger.Debug3(Logger.Instance, "Connected to DS");
+                        Stream stream = client.GetStream();
+
+                        while (!token.IsCancellationRequested && stream.CanRead)
+                        {
+                            StringBuilder json = new StringBuilder();
+                            int chars = 0;
+                            byte[] ch = new byte[1];
+                            do
+                            {
+                                chars = 0;
+                                try
+                                {
+                                    chars = await stream.ReadAsync(ch, 0, 1, token);
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                    goto done;
+                                }
+                                if (chars != 1) break;
+                                if (token.IsCancellationRequested) goto done;
+                            } while (ch[0] != (byte)'{');
+                            json.Append('{');
+
+                            if (!stream.CanRead || !client.Connected || chars != 1)
+                            {
+                                break;
+                            }
+                            
+                            do
+                            {
+                                chars = 0;
+                                try
+                                {
+                                    chars = await stream.ReadAsync(ch, 0, 1, token);
+                                    if (chars != 1) break;
+                                    if (token.IsCancellationRequested) goto done;
+                                    json.Append((char)ch[0]);
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                    goto done;
+                                }
+                            } while (ch[0] != (byte)'}');
+
+                            if (!stream.CanRead || !client.Connected || chars != 1)
+                            {
+                                break;
+                            }
+
+                            string jsonString = json.ToString();
+                            Debug3(Logger.Instance, $"json={jsonString}");
+
+                            // Look for "robotIP":12345, and get 12345 portion
+                            int pos = jsonString.IndexOf("\"robotIP\"");
+                            if (pos < 0) continue; // could not find?
+                            pos += 9;
+                            pos = jsonString.IndexOf(':', pos);
+                            if (pos < 0) continue; // could not find?
+                                                   // Find first not of
+                            int endpos = -1;
+                            for (int i = pos + 1; i < jsonString.Length; i++)
+                            {
+                                if (jsonString[i] < '0' || jsonString[i] > '9')
+                                {
+                                    endpos = i;
+                                    break;
+                                }
+                            }
+                            string ipString = jsonString.Substring(pos + 1, endpos - (pos + 1));
+                            Debug3(Logger.Instance, $"found robotIP={ipString}");
+
+                            // Parse into number
+                            uint ip;
+                            if (!uint.TryParse(ipString, out ip)) continue;
+
+                            if (BitConverter.IsLittleEndian)
+                            {
+                                ip = (uint)IPAddress.NetworkToHostOrder((int)ip);
+                            }
+
+                            if (ip == 0)
+                            {
+                                //m_serverOverridable.ClearServerOverride();
+                                Dispatcher.Instance.ClearServerOverride();
+                                oldIp = 0;
+                                continue;
+                            }
+
+                            if (ip == oldIp) continue;
+                            oldIp = ip;
+
+                            json.Clear();
+
+                            IPAddress address = new IPAddress(oldIp);
+                            Info(Logger.Instance, $"client: DS overriding server IP to {address.ToString()}");
+                            port = Interlocked.CompareExchange(ref m_port, 0, 0);
+                            //m_serverOverridable.SetServerOverride(address, port);
+                            Dispatcher.Instance.SetServerOverride(address, port);
                         }
                     }
-                    string ipString = jsonString.Substring(pos + 1, endpos - (pos + 1));
-                    Debug3(Logger.Instance, $"found robotIP={ipString}");
 
-                    // Parse into number
-                    uint ip;
-                    if (!uint.TryParse(ipString, out ip)) continue;
-
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        ip = (uint)IPAddress.NetworkToHostOrder((int)ip);
-                    }
-
-                    // If 0 clear the override
-                    if (ip == 0)
-                    {
-                        Dispatcher.Instance.ClearServerOverride();
-                        oldIp = 0;
-                        continue;
-                    }
-
-                    // If unchanged, don't reconnect
-                    if (ip == oldIp) continue;
-                    oldIp = ip;
-
-                    json.Clear();
-
-                    IPAddress address = new IPAddress(oldIp);
-                    Info(Logger.Instance, $"client: DS overriding server IP to {address.ToString()}");
-                    Dispatcher.Instance.SetServerOverride(address.ToString(), port);
-
-
+                    Dispatcher.Instance.ClearServerOverride();
+                    //m_serverOverridable.ClearServerOverride();
+                    oldIp = 0;
                 }
-
-                Dispatcher.Instance.ClearServerOverride();
-                oldIp = 0;
-
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+            catch (NullReferenceException)
+            {
             }
 
             done:
-            {
-                Dispatcher.Instance.ClearServerOverride();
-            }
-
+            Dispatcher.Instance.ClearServerOverride();
+            //m_serverOverridable.ClearServerOverride();
         }
     }
 }

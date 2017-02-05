@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading;
+using NetworkTables.Interfaces;
 using NetworkTables.TcpSockets;
 using NetworkTables.Logging;
 
 namespace NetworkTables
 {
-    internal class Dispatcher : DispatcherBase
+    internal class Dispatcher : DispatcherBase, IServerOverridable
     {
         private static Dispatcher s_instance;
 
@@ -56,9 +58,9 @@ namespace NetworkTables
             SetConnector(connectors);
         }
 
-        public void SetServerOverride(string serverName, int port)
+        public void SetServerOverride(IPAddress address, int port)
         {
-            SetConnectorOverride(() => TcpConnector.Connect(serverName, port, Logger.Instance, 1));
+            SetConnectorOverride(() => TcpConnector.Connect(address.ToString(), port, Logger.Instance, 1));
         }
 
         public void ClearServerOverride()
