@@ -206,11 +206,12 @@ namespace NetworkTables
         {
             lock (s_lockObject)
             {
-                string[] addresses = new string[4];
+                string[] addresses = new string[5];
                 addresses[0] = "10." + (int)(team / 100) + "." + (int)(team % 100) + ".2";
                 addresses[1] = "172.22.11.2";
                 addresses[2] = "roboRIO-" + team + "-FRC.local";
                 addresses[3] = "roboRIO-" + team + "-FRC.lan";
+                addresses[4] = "roboRIO-" + team + "-FRC.frc-field.local";
                 SetIPAddress(addresses);
             }
         }
