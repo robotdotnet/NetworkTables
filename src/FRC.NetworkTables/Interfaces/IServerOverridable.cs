@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NetworkTables.Interfaces
 {
-    public interface IServerOverridable
+    internal interface IServerOverridable
     {
         void SetServerOverride(IPAddress address, int port);
         void ClearServerOverride();
