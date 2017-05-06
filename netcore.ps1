@@ -86,7 +86,7 @@ echo $version
 echo $type
 echo $buildNumber
 
-$revision = "--version-suffix=" + $type + $buildNumber
+$revision = "" + $type + $buildNumber
 
 If ($debug) {
  $configuration = "-c=Debug"
@@ -118,11 +118,11 @@ function Build {
   exec { & dotnet restore }
   echo $configuration
   
-  exec { & dotnet build src\FRC.NetworkTables $configuration $revision }
+  exec { & dotnet build src\FRC.NetworkTables $configuration /p:VersionPrefix=$version /p:VersionSuffix=$revision }
   
-  exec { & dotnet build src\FRC.NetworkTables.Core $configuration $revision }
+  exec { & dotnet build src\FRC.NetworkTables.Core $configuration /p:VersionPrefix=$version /p:VersionSuffix=$revision }
 
-  exec { & dotnet build src\FRC.NetworkTables.Core.DesktopLibraries $configuration $revision }
+  exec { & dotnet build src\FRC.NetworkTables.Core.DesktopLibraries $configuration /p:VersionPrefix=$version /p:VersionSuffix=$revision }
 }
 
 function Test {
@@ -178,16 +178,16 @@ function Test {
 }
 
 function Pack { 
-  if (Test-Path .\artifacts) { Remove-Item .\artifacts -Force -Recurse }
+  if (Test-Path $pwd\artifacts) { Remove-Item $pwd\artifacts -Force -Recurse }
 
-  exec { & dotnet pack src\FRC.NetworkTables $configuration $revision --no-build -o .\artifacts }
+  exec { & dotnet pack src\FRC.NetworkTables $configuration --no-build -o $pwd\artifacts --include-source /p:VersionPrefix=$version /p:VersionSuffix=$revision }
   
-  exec { & dotnet pack src\FRC.NetworkTables.Core $configuration $revision --no-build -o .\artifacts }
+  exec { & dotnet pack src\FRC.NetworkTables.Core $configuration --no-build -o $pwd\artifacts --include-source /p:VersionPrefix=$version /p:VersionSuffix=$revision }
 
-  exec { & dotnet pack src\FRC.NetworkTables.Core.DesktopLibraries $configuration $revision --no-build -o .\artifacts }
+  exec { & dotnet pack src\FRC.NetworkTables.Core.DesktopLibraries $configuration --no-build -o $pwd\artifacts /p:VersionPrefix=$version /p:VersionSuffix=$revision }
 
   if ($env:APPVEYOR) {
-    Get-ChildItem .\artifacts\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+    Get-ChildItem $pwd\artifacts\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
   }
 }
 
@@ -225,26 +225,6 @@ function UpdateXml {
    Copy-Item Sandcastle\Help\FRC.NetworkTables.Core.xml src\FRC.NetworkTables.Core\$libLoc\net45\FRC.NetworkTables.Core.xml
    Copy-Item Sandcastle\Help\FRC.NetworkTables.Core.xml src\FRC.NetworkTables.Core\$libLoc\netstandard1.5\FRC.NetworkTables.Core.xml
 }
- if ((Test-Path .\buildTemp) -eq $false) {
-  md .\buildTemp
- }
-
-# Remove beta defintion from project.json files
-Copy-Item src\FRC.NetworkTables\project.json buildTemp\FRC.NetworkTables.projectjson
-Copy-Item src\FRC.NetworkTables.Core\project.json buildTemp\FRC.NetworkTables.Core.projectjson
-Copy-Item src\FRC.NetworkTables.Core.DesktopLibraries\project.json buildTemp\FRC.NetworkTables.Core.DesktopLibraries.projectjson
-
-$netTablesJson = Get-Content 'src\FRC.NetworkTables\project.json' -raw | ConvertFrom-Json
-$netTablesJson.version = $version + "-*"
-$netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.NetworkTables\project.json'
-
-$netTablesJson = Get-Content 'src\FRC.NetworkTables.Core\project.json' -raw | ConvertFrom-Json
-$netTablesJson.version = $version  + "-*"
-$netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.NetworkTables.Core\project.json'
-
-$netTablesJson = Get-Content 'src\FRC.NetworkTables.Core.DesktopLibraries\project.json' -raw | ConvertFrom-Json
-$netTablesJson.version = $version  + "-*"
-$netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.NetworkTables.Core.DesktopLibraries\project.json'
 
 if ($build) {
  Build
@@ -261,12 +241,3 @@ if ($updatexml) {
 if ($pack) {
  Pack
 }
-
-# Add beta definition back into project.json
-Copy-Item buildTemp\FRC.NetworkTables.projectjson src\FRC.NetworkTables\project.json
-Copy-Item buildTemp\FRC.NetworkTables.Core.projectjson src\FRC.NetworkTables.Core\project.json
-Copy-Item buildTemp\FRC.NetworkTables.Core.DesktopLibraries.projectjson src\FRC.NetworkTables.Core.DesktopLibraries\project.json
-
-Remove-Item buildTemp\FRC.NetworkTables.projectjson
-Remove-Item buildTemp\FRC.NetworkTables.Core.projectjson
-Remove-Item buildTemp\FRC.NetworkTables.Core.DesktopLibraries.projectjson
