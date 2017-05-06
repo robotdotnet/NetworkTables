@@ -117,8 +117,9 @@ Task("Test")
                 {
                     Configuration = configuration,
                     NoBuild = true,
+                    /*
                     ArgumentCustomization = args => args
-                        .Append("--logger trx;LogFileName="+ MakeAbsolute(artifactsDirectory).CombineWithFilePath(project.GetFilenameWithoutExtension()).FullPath + ".trx\"\"")
+                        .Append("--logger trx;LogFileName="+ MakeAbsolute(artifactsDirectory).CombineWithFilePath(project.GetFilenameWithoutExtension()).FullPath + ".trx\"\"")*/
                 });
         }
     });
