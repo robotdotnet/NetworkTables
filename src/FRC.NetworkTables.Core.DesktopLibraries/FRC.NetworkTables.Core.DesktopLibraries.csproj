@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Libraries\Mac OS X\x86_64\libntcore.dylib;Libraries\Linux\amd64\libntcore.so;Libraries\Windows\amd64\ntcore.dll;Libraries\Mac OS X\x86\libntcore.dylib;Libraries\Linux\x86\libntcore.so;Libraries\Windows\x86\ntcore.dll;Libraries\Linux\arm\libntcore.so" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+    <EmbeddedResource Include="Libraries\Mac OS X\x86_64\libntcore.dylib;Libraries\Linux\amd64\libntcore.so;Libraries\Windows\amd64\ntcore.dll;Libraries\Mac OS X\x86\libntcore.dylib;Libraries\Linux\i386\libntcore.so;Libraries\Windows\x86\ntcore.dll;Libraries\Linux\arm\libntcore.so" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
