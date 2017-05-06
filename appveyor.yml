@@ -24,18 +24,14 @@ install:
 - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
 
 build_script:
-- ps: ./netcore.ps1 -build
-test_script:
-- ps: >-
-
-    ./netcore.ps1 -test
-    
-    If (($env:APPVEYOR_REPO_BRANCH -eq "master") -and (!$env:APPVEYOR_PULL_REQUEST_NUMBER)) {
-
-    .\netcore.ps1 -updatexml -pack 
-
-
-    }
+- ps: .\build.ps1
+ 
+test: off
+ 
+artifacts:
+# Store NuGet packages
+- path: .\Artifacts\**\*.nupkg
+  name: NuGet
 
 cache:
   - C:\Users\appveyor\.gradle
