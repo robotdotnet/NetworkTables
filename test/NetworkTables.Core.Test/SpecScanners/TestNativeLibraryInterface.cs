@@ -418,7 +418,7 @@ namespace NetworkTables.Core.Test.SpecScanners
                 "WarmFunction", "NT_LogFunc", "NT_ConnectionListenerCallback", "NT_EntryListenerCallback", "NT_RPCCallback",
 
                 //Also allow any structs known to be blittable
-                "NtStringRead", "NtStringWrite", "NtConnectionInfo", "NtRpcCallInfo",
+                "NtStringRead", "DisposableNativeString", "NtConnectionInfo", "NtRpcCallInfo",
 
                 //For now allow bool, since it marshalls easily
                 //This will change if the native windows HAL is not 1 byte bools
