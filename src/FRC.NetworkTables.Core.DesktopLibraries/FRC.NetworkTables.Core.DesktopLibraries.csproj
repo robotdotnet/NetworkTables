@@ -4,6 +4,7 @@
     <Description>Native desktop libraries for NetworkTables</Description>
     <Copyright>Copyright 2016 RobotDotNet</Copyright>
     <AssemblyTitle>FRC NetworkTables.Core.DesktopLibraries</AssemblyTitle>
+    <Title>FRC NetworkTables.Core.DesktopLibraries</Title>
     <VersionPrefix>3.0.0-local</VersionPrefix>
     <Authors>RobotDotNet</Authors>
     <TargetFrameworks>net40;netstandard1.5</TargetFrameworks>

@@ -4,6 +4,7 @@
     <Description>NetworkTables using the ntcore library.</Description>
     <Copyright>Copyright 2016 RobotDotNet</Copyright>
     <AssemblyTitle>FRC NetworkTables.Core</AssemblyTitle>
+    <Title>FRC NetworkTables.Core</Title>
     <VersionPrefix>3.0.0-local</VersionPrefix>
     <Authors>RobotDotNet</Authors>
     <TargetFrameworks>net45;net40;netstandard1.5</TargetFrameworks>

@@ -3,6 +3,7 @@
     <Description>A Managed version of the NetworkTables3 Protocol.</Description>
     <Copyright>Copyright 2016 RobotDotNet</Copyright>
     <AssemblyTitle>FRC NetworkTables</AssemblyTitle>
+    <Title>FRC NetworkTables</Title>
     <VersionPrefix>3.0.0-local</VersionPrefix>
     <Authors>RobotDotNet</Authors>
     <TargetFrameworks>net46;netstandard1.3</TargetFrameworks>
