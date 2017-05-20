@@ -11,7 +11,7 @@ namespace NetworkTables
 {
     internal class RpcServer : IDisposable
     {
-        private readonly Dictionary<ImmutablePair<uint, uint>, SendMsgFunc> m_responseMap = new Dictionary<ImmutablePair<uint, uint>, SendMsgFunc>();
+        private readonly Dictionary<(uint First, uint Second), SendMsgFunc> m_responseMap = new Dictionary<(uint First, uint Second), SendMsgFunc>();
 
         private static RpcServer s_instance;
 
@@ -120,7 +120,7 @@ namespace NetworkTables
                     callUid = item.Msg.SeqNumUid;
                 if (!item.Msg.Val.IsRpc()) return null;
                 RpcCallInfo callInfo = new RpcCallInfo(item.Msg.Id, callUid, item.Name, item.Msg.Val.GetRpc());
-                m_responseMap.Add(new ImmutablePair<uint, uint>(item.Msg.Id, callUid), item.SendResponse);
+                m_responseMap.Add((item.Msg.Id, callUid), item.SendResponse);
                 return callInfo;
             }
             catch (OperationCanceledException)
@@ -193,7 +193,7 @@ namespace NetworkTables
                     return false;
                 }
                 callInfo = new RpcCallInfo(item.Msg.Id, callUid, item.Name, item.Msg.Val.GetRpc());
-                m_responseMap.Add(new ImmutablePair<uint, uint>(item.Msg.Id, callUid), item.SendResponse);
+                m_responseMap.Add((item.Msg.Id, callUid), item.SendResponse);
                 return true;
             }
             finally
@@ -204,9 +204,8 @@ namespace NetworkTables
 
         public void PostRpcResponse(long rpcId, long callId, IList<byte> result)
         {
-            SendMsgFunc func;
-            var pair = new ImmutablePair<uint, uint>((uint)rpcId, (uint)callId);
-            if (!m_responseMap.TryGetValue(pair, out func))
+            var pair = ((uint)rpcId, (uint)callId);
+            if (!m_responseMap.TryGetValue(pair, out SendMsgFunc func))
             {
                 Warning(Logger.Instance, "posting PRC response to nonexistent call (or duplicate response)");
                 return;

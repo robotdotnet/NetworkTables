@@ -100,7 +100,7 @@ namespace NetworkTables
 
         private Dictionary<string, Entry> m_entries = new Dictionary<string, Entry>();
         private readonly List<Entry> m_idMap = new List<Entry>();
-        internal readonly Dictionary<ImmutablePair<uint, uint>, byte[]> m_rpcResults = new Dictionary<ImmutablePair<uint, uint>, byte[]>();
+        internal readonly Dictionary<(uint, uint), byte[]> m_rpcResults = new Dictionary<(uint, uint), byte[]>();
         private readonly HashSet<long> m_blockingRpcCalls = new HashSet<long>();
 
         private bool m_terminating;
@@ -449,8 +449,7 @@ namespace NetworkTables
                         ConnectionInfo connInfo = conn.GetConnectionInfo();
                         m_rpcServer.ProcessRpc(entry.Name, msg, entry.RpcCallback, conn.Uid, message =>
                         {
-                            NetworkConnection c;
-                            connWeak.TryGetTarget(out c);
+                            connWeak.TryGetTarget(out NetworkConnection c);
                             if (c != null && !c.Disposed)
                                 c.QueueOutgoing(message);
                         }, ref connInfo);
@@ -458,7 +457,7 @@ namespace NetworkTables
                     case RpcResponse:
                         if (m_server) return;
                         if (!msg.Val.IsRpc()) return; //Not an RPC message
-                        m_rpcResults.Add(new ImmutablePair<uint, uint>(msg.Id, msg.SeqNumUid), msg.Val.GetRpc());
+                        m_rpcResults.Add((msg.Id, msg.SeqNumUid), msg.Val.GetRpc());
                         m_monitor.PulseAll();
                         break;
                 }
@@ -530,13 +529,12 @@ namespace NetworkTables
                     string name = msg.Str;
 
 
-                    Entry entry;
-                    if (!m_entries.TryGetValue(name, out entry))
+                    if (!m_entries.TryGetValue(name, out Entry entry))
                     {
                         entry = new Entry(name)
                         {
                             Value = msg.Val,
-                            Flags = (EntryFlags) msg.Flags,
+                            Flags = (EntryFlags)msg.Flags,
                             SeqNum = seqNum
                         };
                         m_notifier.NotifyEntry(name, entry.Value, NotifyFlags.NotifyNew);
@@ -591,8 +589,7 @@ namespace NetworkTables
         {
             using(m_monitor.Enter())
             {
-                Entry entry;
-                if (m_entries.TryGetValue(name, out entry))
+                if (m_entries.TryGetValue(name, out Entry entry))
                 {
                     //Grabbed
                     return entry.Value;
@@ -612,8 +609,7 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                Entry newEntry;
-                if (m_entries.TryGetValue(name, out newEntry)) // entry already exists
+                if (m_entries.TryGetValue(name, out Entry newEntry)) // entry already exists
                 {
                     var oldValue = newEntry.Value;
                     if (oldValue != null && oldValue.Type == value.Type) return true;
@@ -668,8 +664,7 @@ namespace NetworkTables
             {
                 monitor = m_monitor.Enter();
                 IDisposable monitorToUnlock;
-                Entry entry;
-                if (!m_entries.TryGetValue(name, out entry))
+                if (!m_entries.TryGetValue(name, out Entry entry))
                 {
                     entry = new Entry(name);
                     m_entries.Add(name, entry);
@@ -739,8 +734,7 @@ namespace NetworkTables
             {
                 monitor = m_monitor.Enter();
                 IDisposable monitorToUnlock;
-                Entry entry;
-                if (!m_entries.TryGetValue(name, out entry))
+                if (!m_entries.TryGetValue(name, out Entry entry))
                 {
                     entry = new Entry(name);
                     m_entries.Add(name, entry);
@@ -805,8 +799,7 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                Entry entry;
-                if (!m_entries.TryGetValue(name, out entry))
+                if (!m_entries.TryGetValue(name, out Entry entry))
                 {
                     //Key does not exist. Return
                     return;
@@ -840,8 +833,7 @@ namespace NetworkTables
         {
             using(m_monitor.Enter())
             {
-                Entry entry;
-                if (m_entries.TryGetValue(name, out entry))
+                if (m_entries.TryGetValue(name, out Entry entry))
                 {
                     //Grabbed
                     return entry.Flags;
@@ -859,8 +851,7 @@ namespace NetworkTables
             try
             {
                 monitor = m_monitor.Enter();
-                Entry entry;
-                if (!m_entries.TryGetValue(name, out entry)) return;
+                if (!m_entries.TryGetValue(name, out Entry entry)) return;
                 uint id = entry.Id;
                 if (entry.IsPersistent()) m_persistentDirty = true;
 
@@ -984,8 +975,7 @@ namespace NetworkTables
                 IDisposable monitorToUnlock;
                 if (!m_server) return;
 
-                Entry entry;
-                if (!m_entries.TryGetValue(name, out entry))
+                if (!m_entries.TryGetValue(name, out Entry entry))
                 {
                     entry = new Entry(name);
                     m_entries.Add(name, entry);
@@ -1042,8 +1032,7 @@ namespace NetworkTables
                 IDisposable monitorToUnlock;
                 if (!m_server) return;
 
-                Entry entry;
-                if (!m_entries.TryGetValue(name, out entry))
+                if (!m_entries.TryGetValue(name, out Entry entry))
                 {
                     entry = new Entry(name);
                     m_entries.Add(name, entry);
@@ -1096,8 +1085,7 @@ namespace NetworkTables
             {
                 monitor = m_monitor.Enter();
                 IDisposable monitorToUnlock;
-                Entry entry;
-                if (!m_entries.TryGetValue(name, out entry))
+                if (!m_entries.TryGetValue(name, out Entry entry))
                 {
                     return 0;
                 }
@@ -1118,7 +1106,7 @@ namespace NetworkTables
                     {
                         using(m_monitor.Enter())
                         {
-                            m_rpcResults.Add(new ImmutablePair<uint, uint>(message.Id, message.SeqNumUid), message.Val.GetRpc());
+                            m_rpcResults.Add((message.Id, message.SeqNumUid), message.Val.GetRpc());
                             m_monitor.PulseAll();
                         }
                     }, ref connInfo);
@@ -1148,16 +1136,15 @@ namespace NetworkTables
                 if (!m_blockingRpcCalls.Add(callUid)) return null;
                 for (;;)
                 {
-                    var pair = new ImmutablePair<uint, uint>((uint)callUid >> 16, (uint)callUid & 0xffff);
-                    byte[] str;
-                    if (!m_rpcResults.TryGetValue(pair, out str))
+                    var pair = ((uint)callUid >> 16, (uint)callUid & 0xffff);
+                    if (!m_rpcResults.TryGetValue(pair, out byte[] str))
                     {
                         if (m_terminating)
                         {
                             m_blockingRpcCalls.Remove(callUid);
                             return null;
                         }
-                        
+
                         await m_monitor.WaitAsync(token).ConfigureAwait(false);
                         if (token.IsCancellationRequested)
                         {
@@ -1209,9 +1196,8 @@ namespace NetworkTables
 
                 for (;;)
                 {
-                    var pair = new ImmutablePair<uint, uint>((uint)callUid >> 16, (uint)callUid & 0xffff);
-                    byte[] str;
-                    if (!m_rpcResults.TryGetValue(pair, out str))
+                    var pair = ((uint)callUid >> 16, (uint)callUid & 0xffff);
+                    if (!m_rpcResults.TryGetValue(pair, out byte[] str))
                     {
                         if (!blocking || m_terminating)
                         {

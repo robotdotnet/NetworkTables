@@ -416,8 +416,7 @@ namespace NetworkTables.Independent
         ///<inheritdoc/>
         public void AddTableListenerEx(ITableListener listener, NotifyFlags flags)
         {
-            List<int> adapters;
-            if (!m_listenerMap.TryGetValue(listener, out adapters))
+            if (!m_listenerMap.TryGetValue(listener, out List<int> adapters))
             {
                 adapters = new List<int>();
                 m_listenerMap.Add(listener, adapters);
@@ -442,8 +441,7 @@ namespace NetworkTables.Independent
         ///<inheritdoc/>
         public void AddTableListenerEx(string key, ITableListener listener, NotifyFlags flags)
         {
-            List<int> adapters;
-            if (!m_listenerMap.TryGetValue(listener, out adapters))
+            if (!m_listenerMap.TryGetValue(listener, out List<int> adapters))
             {
                 adapters = new List<int>();
                 m_listenerMap.Add(listener, adapters);
@@ -465,8 +463,7 @@ namespace NetworkTables.Independent
         ///<inheritdoc/>
         public void AddSubTableListener(ITableListener listener, bool localNotify)
         {
-            List<int> adapters;
-            if (!m_listenerMap.TryGetValue(listener, out adapters))
+            if (!m_listenerMap.TryGetValue(listener, out List<int> adapters))
             {
                 adapters = new List<int>();
                 m_listenerMap.Add(listener, adapters);
@@ -520,8 +517,7 @@ namespace NetworkTables.Independent
         ///<inheritdoc/>
         public void RemoveTableListener(ITableListener listener)
         {
-            List<int> adapters;
-            if (m_listenerMap.TryGetValue(listener, out adapters))
+            if (m_listenerMap.TryGetValue(listener, out List<int> adapters))
             {
                 foreach (int t in adapters)
                 {
@@ -535,8 +531,7 @@ namespace NetworkTables.Independent
         ///<inheritdoc/>
         public void AddTableListenerEx(Action<ITable, string, Value, NotifyFlags> listenerDelegate, NotifyFlags flags)
         {
-            List<int> adapters;
-            if (!m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+            if (!m_actionListenerMap.TryGetValue(listenerDelegate, out List<int> adapters))
             {
                 adapters = new List<int>();
                 m_actionListenerMap.Add(listenerDelegate, adapters);
@@ -561,8 +556,7 @@ namespace NetworkTables.Independent
         ///<inheritdoc/>
         public void AddTableListenerEx(string key, Action<ITable, string, Value, NotifyFlags> listenerDelegate, NotifyFlags flags)
         {
-            List<int> adapters;
-            if (!m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+            if (!m_actionListenerMap.TryGetValue(listenerDelegate, out List<int> adapters))
             {
                 adapters = new List<int>();
                 m_actionListenerMap.Add(listenerDelegate, adapters);
@@ -584,8 +578,7 @@ namespace NetworkTables.Independent
         ///<inheritdoc/>
         public void AddSubTableListener(Action<ITable, string, Value, NotifyFlags> listenerDelegate, bool localNotify)
         {
-            List<int> adapters;
-            if (!m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+            if (!m_actionListenerMap.TryGetValue(listenerDelegate, out List<int> adapters))
             {
                 adapters = new List<int>();
                 m_actionListenerMap.Add(listenerDelegate, adapters);
@@ -639,8 +632,7 @@ namespace NetworkTables.Independent
         ///<inheritdoc/>
         public void RemoveTableListener(Action<ITable, string, Value, NotifyFlags> listenerDelegate)
         {
-            List<int> adapters;
-            if (m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+            if (m_actionListenerMap.TryGetValue(listenerDelegate, out List<int> adapters))
             {
                 foreach (int t in adapters)
                 {
@@ -678,8 +670,7 @@ namespace NetworkTables.Independent
         ///<inheritdoc/>
         public void RemoveConnectionListener(IRemoteConnectionListener listener)
         {
-            int val;
-            if (m_connectionListenerMap.TryGetValue(listener, out val))
+            if (m_connectionListenerMap.TryGetValue(listener, out int val))
             {
                 m_ntCore.RemoveConnectionListener(val);
             }
@@ -704,8 +695,7 @@ namespace NetworkTables.Independent
         /// <inheritdoc/>
         public void RemoveConnectionListener(Action<IRemote, ConnectionInfo, bool> listener)
         {
-            int val;
-            if (m_actionConnectionListenerMap.TryGetValue(listener, out val))
+            if (m_actionConnectionListenerMap.TryGetValue(listener, out int val))
             {
                 m_ntCore.RemoveConnectionListener(val);
             }

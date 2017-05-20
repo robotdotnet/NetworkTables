@@ -409,8 +409,7 @@ namespace NetworkTables
             stringArray.Clear();
             while (!string.IsNullOrEmpty(line))
             {
-                string elemTok;
-                ReadStringToken(out elemTok, out line, line);
+                ReadStringToken(out string elemTok, out line, line);
                 if (string.IsNullOrEmpty(elemTok))
                 {
                     warn?.Invoke(lineNum, "missing string value");
@@ -421,8 +420,7 @@ namespace NetworkTables
                     warn?.Invoke(lineNum, "unterminated string value");
                     return null;
                 }
-                string str;
-                UnescapeString(elemTok, out str);
+                UnescapeString(elemTok, out string str);
                 stringArray.Add(str);
 
                 line = line.TrimStart(' ', '\t');
@@ -447,8 +445,7 @@ namespace NetworkTables
                 string[] spl = line.Split(new[] { ',' }, 2);
                 line = spl.Length == 1 ? string.Empty : spl[1];
                 string strTok = spl[0].Trim(' ', '\t');
-                double tmpDouble;
-                bool tmpBoolean = double.TryParse(strTok, out tmpDouble);
+                bool tmpBoolean = double.TryParse(strTok, out double tmpDouble);
                 if (!tmpBoolean)
                 {
                     warn?.Invoke(lineNum, "invalid double value");
@@ -584,15 +581,13 @@ namespace NetworkTables
                         continue;
                     }
 
-                    string nameTok;
-                    ReadStringToken(out nameTok, out line, line);
+                    ReadStringToken(out string nameTok, out line, line);
                     if (string.IsNullOrEmpty(nameTok))
                     {
                         warn?.Invoke(lineNum, "unterminated name string");
                         continue;
                     }
-                    string name;
-                    UnescapeString(nameTok, out name);
+                    UnescapeString(nameTok, out string name);
 
                     line = line.TrimStart('\t');
                     if (string.IsNullOrEmpty(line) || line[0] != '=')
@@ -675,8 +670,7 @@ namespace NetworkTables
                     monitor = await m_monitor.EnterAsync().ConfigureAwait(false);
                     foreach (var i in entries)
                     {
-                        Entry entry;
-                        if (!m_entries.TryGetValue(i.First, out entry))
+                        if (!m_entries.TryGetValue(i.First, out Entry entry))
                         {
                             entry = new Entry(i.First);
                             m_entries.Add(i.First, entry);

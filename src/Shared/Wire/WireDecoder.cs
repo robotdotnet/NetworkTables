@@ -257,8 +257,7 @@ namespace NetworkTables.Wire
         /// <returns>True if the byte was read</returns>
         public bool Read8(ref byte val)
         {
-            byte[] buf;
-            if (!Read(out buf, 1)) return false;
+            if (!Read(out byte[] buf, 1)) return false;
             val = (byte)(buf[0] & 0xff);
             return true;
         }
@@ -270,8 +269,7 @@ namespace NetworkTables.Wire
         /// <returns>True if the ushort was read</returns>
         public bool Read16(ref ushort val)
         {
-            byte[] buf;
-            if (!Read(out buf, 2)) return false;
+            if (!Read(out byte[] buf, 2)) return false;
             val = (ushort)IPAddress.NetworkToHostOrder((short)BitConverter.ToUInt16(buf, 0));
             return true;
         }
@@ -283,8 +281,7 @@ namespace NetworkTables.Wire
         /// <returns>True if the uint was read</returns>
         public bool Read32(ref uint val)
         {
-            byte[] buf;
-            if (!Read(out buf, 4)) return false;
+            if (!Read(out byte[] buf, 4)) return false;
             val = (uint)IPAddress.NetworkToHostOrder((int)BitConverter.ToUInt32(buf, 0));
             return true;
         }
@@ -296,8 +293,7 @@ namespace NetworkTables.Wire
         /// <returns>True if the double was read</returns>
         public bool ReadDouble(ref double val)
         {
-            byte[] buf;
-            if (!Read(out buf, 8)) return false;
+            if (!Read(out byte[] buf, 8)) return false;
             val = ReadDouble(buf, 0);
             return true;
         }
@@ -318,12 +314,10 @@ namespace NetworkTables.Wire
             }
             else
             {
-                ulong v;
-                if (!ReadUleb128(out v)) return false;
+                if (!ReadUleb128(out ulong v)) return false;
                 len = (int)v;
             }
-            byte[] buf;
-            if (!Read(out buf, len)) return false;
+            if (!Read(out byte[] buf, len)) return false;
             val = Encoding.UTF8.GetString(buf, 0, len);
             return true;
         }
@@ -335,12 +329,10 @@ namespace NetworkTables.Wire
         /// <returns>True if the raw array was read</returns>
         public bool ReadRaw(ref byte[] val)
         {
-            ulong v;
-            if (!ReadUleb128(out v)) return false;
+            if (!ReadUleb128(out ulong v)) return false;
             var len = (int)v;
 
-            byte[] buf;
-            if (!Read(out buf, len)) return false;
+            if (!Read(out byte[] buf, len)) return false;
 
             val = new byte[len];
             Array.Copy(m_buffer, 0, val, 0, len);

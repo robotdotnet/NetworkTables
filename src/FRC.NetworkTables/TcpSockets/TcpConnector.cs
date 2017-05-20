@@ -61,8 +61,7 @@ namespace NetworkTables.TcpSockets
 
         public static NtTcpClient Connect(string server, int port, Logger logger, int timeout = 0)
         {
-            IPAddress[] addr;
-            if (ResolveHostName(server, out addr) != 0)
+            if (ResolveHostName(server, out IPAddress[] addr) != 0)
             {
                 try
                 {

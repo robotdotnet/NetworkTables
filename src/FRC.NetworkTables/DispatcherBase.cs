@@ -360,8 +360,7 @@ namespace NetworkTables
                 }
                 if (!m_active) return;
 
-                IPEndPoint ipEp = stream.RemoteEndPoint as IPEndPoint;
-                if (ipEp != null)
+                if (stream.RemoteEndPoint is IPEndPoint ipEp)
                 {
                     Debug(Logger.Instance, $"server: client connection from {ipEp.Address} port {ipEp.Port.ToString()}");
                 }

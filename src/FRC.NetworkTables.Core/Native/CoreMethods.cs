@@ -970,8 +970,7 @@ namespace NetworkTables.Core.Native
                     return retPtr;
                 };
             var nameB = CreateCachedUTF8String(name);
-            byte[] bArr = def as byte[];
-            if (bArr != null)
+            if (def is byte[] bArr)
             {
                 Interop.NT_CreateRpc(nameB.Buffer, nameB.Length, bArr, (UIntPtr)def.Count, IntPtr.Zero, modCallback);
             }
@@ -986,8 +985,7 @@ namespace NetworkTables.Core.Native
         internal static void CreatePolledRpc(string name, IList<byte> def)
         {
             var nameB = CreateCachedUTF8String(name);
-            byte[] bArr = def as byte[];
-            if (bArr != null)
+            if (def is byte[] bArr)
             {
                 Interop.NT_CreatePolledRpc(nameB.Buffer, nameB.Length, bArr, (UIntPtr)def.Count);
             }
@@ -999,9 +997,7 @@ namespace NetworkTables.Core.Native
 
         internal static bool PollRpc(bool blocking, TimeSpan timeout, out RpcCallInfo callInfo)
         {
-            NtRpcCallInfo nativeInfo;
-            int retVal = Interop.NT_PollRpcTimeout(blocking ? 1 : 0, timeout.TotalSeconds, out nativeInfo);
-            if (retVal == 0)
+            if (Interop.NT_PollRpcTimeout(blocking ? 1 : 0, timeout.TotalSeconds, out NtRpcCallInfo nativeInfo) == 0)
             {
                 callInfo = new RpcCallInfo();
                 return false;
@@ -1012,8 +1008,7 @@ namespace NetworkTables.Core.Native
 
         internal static bool PollRpc(bool blocking, out RpcCallInfo callInfo)
         {
-            NtRpcCallInfo nativeInfo;
-            int retVal = Interop.NT_PollRpc(blocking ? 1 : 0, out nativeInfo);
+            int retVal = Interop.NT_PollRpc(blocking ? 1 : 0, out var nativeInfo);
             if (retVal == 0)
             {
                 callInfo = new RpcCallInfo();
@@ -1025,8 +1020,7 @@ namespace NetworkTables.Core.Native
 
         internal static void PostRpcResponse(long rpcId, long callUid, IList<byte> result)
         {
-            var bArr = result as byte[];
-            if (bArr != null)
+            if (result is byte[] bArr)
             {
                 Interop.NT_PostRpcResponse((uint)rpcId, (uint)callUid, bArr, (UIntPtr)result.Count);
             }
@@ -1039,8 +1033,7 @@ namespace NetworkTables.Core.Native
         internal static long CallRpc(string name, IList<byte> param)
         {
             var nameB = CreateCachedUTF8String(name);
-            var bArr = param as byte[];
-            if (bArr != null)
+            if (param is byte[] bArr)
             {
                 return Interop.NT_CallRpc(nameB.Buffer, nameB.Length, bArr, (UIntPtr)param.Count);
             }
@@ -1062,8 +1055,7 @@ namespace NetworkTables.Core.Native
             {
                 var result = await Task.Run(() =>
                 {
-                    byte[] results;
-                    bool success = GetRpcResult(true, callUid, out results);
+                    bool success = GetRpcResult(true, callUid, out byte[] results);
                     if (success)
                     {
                         return results;

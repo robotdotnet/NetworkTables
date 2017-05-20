@@ -197,8 +197,7 @@ namespace NetworkTables
                             Debug3(Logger.Instance, $"found robotIP={ipString}");
 
                             // Parse into number
-                            uint ip;
-                            if (!uint.TryParse(ipString, out ip)) continue;
+                            if (!uint.TryParse(ipString, out uint ip)) continue;
 
                             if (BitConverter.IsLittleEndian)
                             {

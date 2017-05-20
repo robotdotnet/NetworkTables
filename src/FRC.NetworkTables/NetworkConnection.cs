@@ -18,22 +18,6 @@ namespace NetworkTables
 {
     internal class NetworkConnection : IDisposable
     {
-        private struct PendingUpdateIds
-        {
-            public int First { get; private set; }
-            public int Second { get; private set; }
-
-            public void SetFirst(int first)
-            {
-                First = first;
-            }
-
-            public void SetSecond(int second)
-            {
-                Second = second;
-            }
-        }
-
         public int ProtoRev { get; set; }
 
 
@@ -78,7 +62,7 @@ namespace NetworkTables
 
         private readonly List<Message> m_pendingOutgoing = new List<Message>();
 
-        private readonly List<PendingUpdateIds> m_pendingUpdate = new List<PendingUpdateIds>();
+        private readonly List<(int First, int Second)> m_pendingUpdate = new List<(int First, int Second)>();
 
         public NetworkConnection(IClient client, Notifier notifier, HandshakeFunc handshake,
             Message.GetEntryTypeFunc getEntryType)
@@ -95,8 +79,7 @@ namespace NetworkTables
             m_state = State.Created;
             LastUpdate = 0;
 
-            IPEndPoint ipEp = m_client.RemoteEndPoint as IPEndPoint;
-            if (ipEp != null)
+            if (m_client.RemoteEndPoint is IPEndPoint ipEp)
             {
                 PeerIP = ipEp.Address.ToString();
                 PeerPort = ipEp.Port;
@@ -213,7 +196,7 @@ namespace NetworkTables
             {
                 if (newSize > m_pendingUpdate.Capacity)
                     m_pendingUpdate.Capacity = newSize;
-                m_pendingUpdate.AddRange(Enumerable.Repeat(default(PendingUpdateIds), newSize - currentSize));
+                m_pendingUpdate.AddRange(Enumerable.Repeat(default((int First, int Second)), newSize - currentSize));
             }
         }
 
@@ -258,7 +241,7 @@ namespace NetworkTables
                                 int pos = m_pendingOutgoing.Count;
                                 m_pendingOutgoing.Add(msg);
                                 if (id >= m_pendingUpdate.Count) ResizePendingUpdate(id + 1);
-                                m_pendingUpdate[id].SetFirst(pos + 1);
+                                m_pendingUpdate[id] = (pos + 1, m_pendingUpdate[id].Second);
                             }
                             break;
                         }
@@ -277,12 +260,12 @@ namespace NetworkTables
                                 if (m_pendingUpdate[id].First != 0)
                                 {
                                     m_pendingOutgoing[m_pendingUpdate[id].First - 1] = new Message();
-                                    m_pendingUpdate[id].SetFirst(0);
+                                    m_pendingUpdate[id] = (0, m_pendingUpdate[id].Second);
                                 }
                                 if (m_pendingUpdate[id].Second != 0)
                                 {
                                     m_pendingOutgoing[m_pendingUpdate[id].Second - 1] = new Message();
-                                    m_pendingUpdate[id].SetSecond(0);
+                                    m_pendingUpdate[id] = (m_pendingUpdate[id].First, 0);
                                 }
                             }
                             //Add deletion
@@ -309,7 +292,7 @@ namespace NetworkTables
                                 int pos = m_pendingOutgoing.Count;
                                 m_pendingOutgoing.Add(msg);
                                 if (id > m_pendingUpdate.Count) ResizePendingUpdate(id + 1);
-                                m_pendingUpdate[id].SetSecond(pos + 1);
+                                m_pendingUpdate[id] = (m_pendingUpdate[id].First, pos + 1);
 
                             }
                             break;

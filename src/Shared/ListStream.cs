@@ -12,8 +12,7 @@ namespace NetworkTables
 
         public ListStream(IList<byte> list)
         {
-            if (list == null) throw new ArgumentNullException(nameof(list), "List cannot be null");
-            m_buffer = list;
+            m_buffer = list ?? throw new ArgumentNullException(nameof(list), "List cannot be null");
             m_position = 0;
         }
 

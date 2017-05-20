@@ -98,8 +98,7 @@ namespace NetworkTables.TcpSockets
         {
             if (!m_listening || m_shutdown) return null;
 
-            SocketError error;
-            Socket socket = m_server.Accept(out error);
+            Socket socket = m_server.Accept(out SocketError error);
             if (socket == null)
             {
                 if (!m_shutdown) Error(Logger.Instance, $"Accept() failed: {error}");

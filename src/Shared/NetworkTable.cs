@@ -762,8 +762,7 @@ namespace NetworkTables
         {
             lock (m_listenerMap)
             {
-                List<int> adapters;
-                if (!m_listenerMap.TryGetValue(listener, out adapters))
+                if (!m_listenerMap.TryGetValue(listener, out List<int> adapters))
                 {
                     adapters = new List<int>();
                     m_listenerMap.Add(listener, adapters);
@@ -791,8 +790,7 @@ namespace NetworkTables
         {
             lock (m_listenerMap)
             {
-                List<int> adapters;
-                if (!m_listenerMap.TryGetValue(listener, out adapters))
+                if (!m_listenerMap.TryGetValue(listener, out List<int> adapters))
                 {
                     adapters = new List<int>();
                     m_listenerMap.Add(listener, adapters);
@@ -817,8 +815,7 @@ namespace NetworkTables
         {
             lock (m_listenerMap)
             {
-                List<int> adapters;
-                if (!m_listenerMap.TryGetValue(listener, out adapters))
+                if (!m_listenerMap.TryGetValue(listener, out List<int> adapters))
                 {
                     adapters = new List<int>();
                     m_listenerMap.Add(listener, adapters);
@@ -875,8 +872,7 @@ namespace NetworkTables
         {
             lock (m_listenerMap)
             {
-                List<int> adapters;
-                if (m_listenerMap.TryGetValue(listener, out adapters))
+                if (m_listenerMap.TryGetValue(listener, out List<int> adapters))
                 {
                     foreach (int t in adapters)
                     {
@@ -893,8 +889,7 @@ namespace NetworkTables
         {
             lock (m_actionListenerMap)
             {
-                List<int> adapters;
-                if (!m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+                if (!m_actionListenerMap.TryGetValue(listenerDelegate, out List<int> adapters))
                 {
                     adapters = new List<int>();
                     m_actionListenerMap.Add(listenerDelegate, adapters);
@@ -922,8 +917,7 @@ namespace NetworkTables
         {
             lock (m_actionListenerMap)
             {
-                List<int> adapters;
-                if (!m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+                if (!m_actionListenerMap.TryGetValue(listenerDelegate, out List<int> adapters))
                 {
                     adapters = new List<int>();
                     m_actionListenerMap.Add(listenerDelegate, adapters);
@@ -948,8 +942,7 @@ namespace NetworkTables
         {
             lock (m_actionListenerMap)
             {
-                List<int> adapters;
-                if (!m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+                if (!m_actionListenerMap.TryGetValue(listenerDelegate, out List<int> adapters))
                 {
                     adapters = new List<int>();
                     m_actionListenerMap.Add(listenerDelegate, adapters);
@@ -1006,8 +999,7 @@ namespace NetworkTables
         {
             lock (m_actionListenerMap)
             {
-                List<int> adapters;
-                if (m_actionListenerMap.TryGetValue(listenerDelegate, out adapters))
+                if (m_actionListenerMap.TryGetValue(listenerDelegate, out List<int> adapters))
                 {
                     foreach (int t in adapters)
                     {
@@ -1050,8 +1042,7 @@ namespace NetworkTables
         {
             lock (m_connectionListenerMap)
             {
-                int val;
-                if (m_connectionListenerMap.TryGetValue(listener, out val))
+                if (m_connectionListenerMap.TryGetValue(listener, out int val))
                 {
                     NtCore.RemoveConnectionListener(val);
                     m_connectionListenerMap.Remove(listener);
@@ -1084,8 +1075,7 @@ namespace NetworkTables
         {
             lock (m_actionConnectionListenerMap)
             {
-                int val;
-                if (m_actionConnectionListenerMap.TryGetValue(listener, out val))
+                if (m_actionConnectionListenerMap.TryGetValue(listener, out int val))
                 {
                     NtCore.RemoveConnectionListener(val);
                     m_actionConnectionListenerMap.Remove(listener);
@@ -1128,8 +1118,7 @@ namespace NetworkTables
         {
             lock (s_connectionListenerMap)
             {
-                int val;
-                if (s_connectionListenerMap.TryGetValue(listener, out val))
+                if (s_connectionListenerMap.TryGetValue(listener, out int val))
                 {
                     NtCore.RemoveConnectionListener(val);
                     s_connectionListenerMap.Remove(listener);
@@ -1161,8 +1150,7 @@ namespace NetworkTables
         {
             lock (s_actionConnectionListenerMap)
             {
-                int val;
-                if (s_actionConnectionListenerMap.TryGetValue(listener, out val))
+                if (s_actionConnectionListenerMap.TryGetValue(listener, out int val))
                 {
                     NtCore.RemoveConnectionListener(val);
                     s_actionConnectionListenerMap.Remove(listener);

@@ -16,6 +16,37 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkTables.Core.Test", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkTables.Test", "test\NetworkTables.Test\NetworkTables.Test.csproj", "{06EBE437-BE46-4225-95DA-250472C7BEA3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{88646071-EBE3-46F7-9DA6-64FF32464975}"
+	ProjectSection(SolutionItems) = preProject
+		src\Shared\ConnectionInfo.cs = src\Shared\ConnectionInfo.cs
+		src\Shared\Delegates.cs = src\Shared\Delegates.cs
+		src\Shared\EntryInfo.cs = src\Shared\EntryInfo.cs
+		src\Shared\Enumerations.cs = src\Shared\Enumerations.cs
+		src\Shared\Wire\FastBitConverterBE.cs = src\Shared\Wire\FastBitConverterBE.cs
+		src\Shared\Wire\FastBitConverterCache.cs = src\Shared\Wire\FastBitConverterCache.cs
+		src\Shared\Wire\FastBitConverterLE.cs = src\Shared\Wire\FastBitConverterLE.cs
+		src\Shared\Wire\IFastBitConverter.cs = src\Shared\Wire\IFastBitConverter.cs
+		src\Shared\Tables\IRemote.cs = src\Shared\Tables\IRemote.cs
+		src\Shared\Tables\IRemoteConnectionListener.cs = src\Shared\Tables\IRemoteConnectionListener.cs
+		src\Shared\Tables\ITable.cs = src\Shared\Tables\ITable.cs
+		src\Shared\Tables\ITableListener.cs = src\Shared\Tables\ITableListener.cs
+		src\Shared\Wire\Leb128.cs = src\Shared\Wire\Leb128.cs
+		src\Shared\ListStream.cs = src\Shared\ListStream.cs
+		src\Shared\NetworkTable.cs = src\Shared\NetworkTable.cs
+		src\Shared\NtCore.cs = src\Shared\NtCore.cs
+		src\Shared\NtIPAddress.cs = src\Shared\NtIPAddress.cs
+		src\Shared\NtType.cs = src\Shared\NtType.cs
+		src\Shared\Exceptions\PersistentException.cs = src\Shared\Exceptions\PersistentException.cs
+		src\Shared\RemoteProcedureCall.cs = src\Shared\RemoteProcedureCall.cs
+		src\Shared\RpcStructs.cs = src\Shared\RpcStructs.cs
+		src\Shared\StaticRemote.cs = src\Shared\StaticRemote.cs
+		src\Shared\Exceptions\TableKeyDifferentTypeException.cs = src\Shared\Exceptions\TableKeyDifferentTypeException.cs
+		src\Shared\Exceptions\TableKeyNotDefinedException.cs = src\Shared\Exceptions\TableKeyNotDefinedException.cs
+		src\Shared\Value.cs = src\Shared\Value.cs
+		src\Shared\Wire\WireDecoder.cs = src\Shared\Wire\WireDecoder.cs
+		src\Shared\Wire\WireEncoder.cs = src\Shared\Wire\WireEncoder.cs
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,5 +127,6 @@ Global
 		{EE176693-9FBA-43C6-B97A-D7A79DEE16B6} = {9C2F4909-9BE2-437D-862C-4E23155C2A7A}
 		{070CCC8C-ECEE-4B59-A94A-A4BD1E330803} = {44BF4692-6DAD-4EEA-9A02-63920115AF2B}
 		{06EBE437-BE46-4225-95DA-250472C7BEA3} = {44BF4692-6DAD-4EEA-9A02-63920115AF2B}
+		{88646071-EBE3-46F7-9DA6-64FF32464975} = {9C2F4909-9BE2-437D-862C-4E23155C2A7A}
 	EndGlobalSection
 EndGlobal
