@@ -16,16 +16,6 @@ namespace NetworkTables.Core.Test
         }
 
         [Test]
-        public void TestNtStringWriteToString()
-        {
-            const string testStr = "TestString";
-            using (DisposableNativeString write = new DisposableNativeString(testStr))
-            {
-                Assert.AreEqual(testStr, write.ToString());
-            }
-        }
-
-        [Test]
         public void TestNtStringReadToString()
         {
             const string testStr = "TestString";
