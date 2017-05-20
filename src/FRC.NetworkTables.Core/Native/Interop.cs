@@ -3,8 +3,9 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
-using NativeLibraryUtilities;
+using FRC.NativeLibraryUtilities;
 using NetworkTables.Tables;
+using FRC;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable NotAccessedField.Global
@@ -276,7 +277,7 @@ namespace NetworkTables.Core.Native
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int NT_SetEntryDoubleArrayDelegate(IntPtr name, UIntPtr name_len, double[] arr, UIntPtr size, int force);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetEntryStringArrayDelegate(IntPtr name, UIntPtr name_len, NtStringWrite[] arr, UIntPtr size, int force);
+        internal delegate int NT_SetEntryStringArrayDelegate(IntPtr name, UIntPtr name_len, DisposableNativeString[] arr, UIntPtr size, int force);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int NT_SetDefaultEntryBooleanDelegate(IntPtr name, UIntPtr name_len, int v_boolean);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -290,7 +291,7 @@ namespace NetworkTables.Core.Native
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int NT_SetDefaultEntryDoubleArrayDelegate(IntPtr name, UIntPtr name_len, double[] arr, UIntPtr size);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int NT_SetDefaultEntryStringArrayDelegate(IntPtr name, UIntPtr name_len, NtStringWrite[] arr, UIntPtr size);
+        internal delegate int NT_SetDefaultEntryStringArrayDelegate(IntPtr name, UIntPtr name_len, DisposableNativeString[] arr, UIntPtr size);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void NT_CreateRpcDelegate(IntPtr name, UIntPtr name_len, byte[] def, UIntPtr def_len, IntPtr data, NT_RPCCallback callback);

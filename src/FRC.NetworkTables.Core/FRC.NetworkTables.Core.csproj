@@ -28,10 +28,6 @@
     <Compile Include="..\Shared\*.cs;..\Shared\Tables\*.cs;..\Shared\Wire\*.cs;..\Shared\Exceptions\*.cs" Exclude="Output\**\*;Exceptions\**\*;Tables\**\*;Wire\**\*;bin\**;obj\**;**\*.xproj;packages\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="NativeLibraryUtilities" Version="1.0.3" />
-  </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
@@ -40,6 +36,10 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FRC.Utilities" Version="2.0.0-alpha2" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">

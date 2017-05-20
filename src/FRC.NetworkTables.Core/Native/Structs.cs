@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using FRC;
 
 namespace NetworkTables.Core.Native
 {
-
     [StructLayout(LayoutKind.Sequential)]
     internal struct NtStringRead
     {
@@ -29,35 +29,6 @@ namespace NetworkTables.Core.Native
             byte[] arr = new byte[len.ToUInt64()];
             Marshal.Copy(str, arr, 0, (int)len.ToUInt64());
             return arr;
-        }
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct NtStringWrite : IDisposable
-    {
-        internal readonly IntPtr str;
-        internal readonly UIntPtr len;
-
-        public NtStringWrite(string vStr)
-        {
-            int bytes = Encoding.UTF8.GetByteCount(vStr);
-            str = Marshal.AllocHGlobal(bytes * sizeof(byte));
-            byte[] buffer = new byte[bytes];
-            Encoding.UTF8.GetBytes(vStr, 0, vStr.Length, buffer, 0);
-            Marshal.Copy(buffer, 0, str, bytes);
-            len = (UIntPtr)bytes;
-        }
-
-        public override string ToString()
-        {
-            byte[] arr = new byte[len.ToUInt64()];
-            Marshal.Copy(str, arr, 0, (int)len.ToUInt64());
-            return Encoding.UTF8.GetString(arr);
-        }
-
-        public void Dispose()
-        {
-            Marshal.FreeHGlobal(str);
         }
     }
 

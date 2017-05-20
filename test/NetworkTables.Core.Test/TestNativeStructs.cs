@@ -1,6 +1,7 @@
 ﻿using System;
 using NetworkTables.Core.Native;
 using NUnit.Framework;
+using FRC;
 
 namespace NetworkTables.Core.Test
 {
@@ -10,7 +11,7 @@ namespace NetworkTables.Core.Test
         [Test]
         public void TestNtStringWriteCreateAndDispose()
         {
-            NtStringWrite write = new NtStringWrite("TestString");
+            DisposableNativeString write = new DisposableNativeString("TestString");
             write.Dispose();
         }
 
@@ -18,7 +19,7 @@ namespace NetworkTables.Core.Test
         public void TestNtStringWriteToString()
         {
             const string testStr = "TestString";
-            using (NtStringWrite write = new NtStringWrite(testStr))
+            using (DisposableNativeString write = new DisposableNativeString(testStr))
             {
                 Assert.AreEqual(testStr, write.ToString());
             }
@@ -28,9 +29,9 @@ namespace NetworkTables.Core.Test
         public void TestNtStringReadToString()
         {
             const string testStr = "TestString";
-            using (NtStringWrite write = new NtStringWrite(testStr))
+            using (DisposableNativeString write = new DisposableNativeString(testStr))
             {
-                NtStringRead read = new NtStringRead(write.str, write.len);
+                NtStringRead read = new NtStringRead(write.Buffer, write.Length);
                 Assert.AreEqual(testStr, read.ToString());
                 GC.KeepAlive(write);
             }

@@ -12,8 +12,10 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using NetworkTables.Core.Native;
-using NativeLibraryUtilities;
+using FRC.NativeLibraryUtilities;
 using NUnit.Framework;
+using FRC;
+using static FRC.UTF8String;
 using static NetworkTables.Core.Test.SpecScanners.InteropForTesting;
 using static NetworkTables.Core.Native.CoreMethods;
 using static NetworkTables.Core.Native.Interop;
@@ -235,22 +237,20 @@ namespace NetworkTables.Core.Test.SpecScanners
             uint protoRev = 0x0300;
             int nativeSize = 0;
 
-            UIntPtr nameLen;
-            byte[] nameArr = CreateUTF8String(name, out nameLen);
-            UIntPtr ipLen;
-            byte[] ipArr = CreateUTF8String(ip, out ipLen);
+            byte[] nameArr = CreateUTF8String(name);
+            byte[] ipArr = CreateUTF8String(ip);
             IntPtr connectionInfoPtr = NT_GetConnectionInfoForTesting(nameArr, ipArr, port, lastUpdate, protoRev,
                 ref nativeSize);
             Assert.That(Marshal.SizeOf(typeof(NtConnectionInfo)), Is.EqualTo(nativeSize));
             Assert.That(IsBlittable(typeof(NtConnectionInfo)));
 
-            using (NtStringWrite nameToWrite = new NtStringWrite(name))
-            using (NtStringWrite ipToWrite = new NtStringWrite(ip))
+            using (DisposableNativeString nameToWrite = new DisposableNativeString(name))
+            using (DisposableNativeString ipToWrite = new DisposableNativeString(ip))
             {
 
 
-                NtConnectionInfo managedInfo = new NtConnectionInfo(new NtStringRead(nameToWrite.str, nameToWrite.len),
-                    new NtStringRead(ipToWrite.str, ipToWrite.len), port, lastUpdate, protoRev);
+                NtConnectionInfo managedInfo = new NtConnectionInfo(new NtStringRead(nameToWrite.Buffer, nameToWrite.Length),
+                    new NtStringRead(ipToWrite.Buffer, ipToWrite.Length), port, lastUpdate, protoRev);
 
                 Assert.That(managedInfo.RemoteId.ToString(), Is.EqualTo(name));
                 Assert.That(managedInfo.RemoteIp.ToString(), Is.EqualTo(ip));
@@ -317,8 +317,8 @@ namespace NetworkTables.Core.Test.SpecScanners
             int pointerSize = Marshal.SizeOf(typeof(IntPtr));
 
             int pointerTotal = numberPointers * pointerSize;
-            Assert.That(Marshal.SizeOf(typeof(NtStringWrite)), Is.EqualTo(pointerTotal + numberNonChangingBytes));
-            Assert.That(IsBlittable(typeof(NtStringWrite)));
+            Assert.That(Marshal.SizeOf(typeof(DisposableNativeString)), Is.EqualTo(pointerTotal + numberNonChangingBytes));
+            Assert.That(IsBlittable(typeof(DisposableNativeString)));
         }
 
         [Test]
@@ -329,26 +329,24 @@ namespace NetworkTables.Core.Test.SpecScanners
             string name = "TestName";
             string param = "Params\0Others";
 
-            UIntPtr nameLen;
-            byte[] nameArr = CreateUTF8String(name, out nameLen);
-            UIntPtr paramLen;
-            byte[] paramArr = CreateUTF8String(param, out paramLen);
+            byte[] nameArr = CreateUTF8String(name);
+            byte[] paramArr = CreateUTF8String(param);
             int nativeSize = 0;
 
-            IntPtr rpcCallInfoPtr = NT_GetRpcCallInfoForTesting(rpcId, callUid, nameArr, paramArr, paramLen, ref nativeSize);
+            IntPtr rpcCallInfoPtr = NT_GetRpcCallInfoForTesting(rpcId, callUid, nameArr, paramArr, (UIntPtr)(paramArr.Length - 1), ref nativeSize);
 
 
 
             Assert.That(Marshal.SizeOf(typeof(NtRpcCallInfo)), Is.EqualTo(nativeSize));
             Assert.That(IsBlittable(typeof(NtRpcCallInfo)));
 
-            using (NtStringWrite nameToWrite = new NtStringWrite(name))
-            using (NtStringWrite paramToWrite = new NtStringWrite(param))
+            using (DisposableNativeString nameToWrite = new DisposableNativeString(name))
+            using (DisposableNativeString paramToWrite = new DisposableNativeString(param))
             {
 
 
-                NtRpcCallInfo managedInfo = new NtRpcCallInfo(new NtStringRead(nameToWrite.str, nameToWrite.len),
-                    new NtStringRead(paramToWrite.str, paramToWrite.len), rpcId, callUid);
+                NtRpcCallInfo managedInfo = new NtRpcCallInfo(new NtStringRead(nameToWrite.Buffer, nameToWrite.Length),
+                    new NtStringRead(paramToWrite.Buffer, paramToWrite.Length), rpcId, callUid);
 
                 Assert.That(managedInfo.Name.ToString(), Is.EqualTo(name));
                 Assert.That(managedInfo.Param.ToString(), Is.EqualTo(param));
@@ -396,7 +394,7 @@ namespace NetworkTables.Core.Test.SpecScanners
         [Test]
         public void TestNtStringWriteArray()
         {
-            object obj = new NtStringWrite[6];
+            object obj = new DisposableNativeString[6];
             Assert.DoesNotThrow(() => GCHandle.Alloc(obj, GCHandleType.Pinned).Free());
         }
 #if !NETCOREAPP1_0
