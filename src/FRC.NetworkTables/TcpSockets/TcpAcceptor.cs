@@ -1,4 +1,5 @@
 ﻿using NetworkTables.Logging;
+using Nito.AsyncEx;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -8,7 +9,7 @@ namespace NetworkTables.TcpSockets
 {
     internal class TcpAcceptor : INetworkAcceptor
     {
-        private NtTcpListener m_server;
+        private TcpListener m_server;
 
         private readonly int m_port;
         private readonly string m_address;
@@ -35,11 +36,11 @@ namespace NetworkTables.TcpSockets
             if (m_listening) return 0;
             var address = !string.IsNullOrEmpty(m_address) ? IPAddress.Parse(m_address) : IPAddress.Any;
 
-            m_server = new NtTcpListener(address, m_port);
+            m_server = new TcpListener(address, m_port);
 
             try
             {
-                m_server.Start(5);
+                m_server.Start();
             }
             catch (ObjectDisposedException)
             {
@@ -94,22 +95,11 @@ namespace NetworkTables.TcpSockets
             m_server = null;
         }
 
-        public IClient Accept()
+        public TcpClient Accept()
         {
             if (!m_listening || m_shutdown) return null;
 
-            Socket socket = m_server.Accept(out SocketError error);
-            if (socket == null)
-            {
-                if (!m_shutdown) Error(Logger.Instance, $"Accept() failed: {error}");
-                return null;
-            }
-            if (m_shutdown)
-            {
-                socket.Dispose();
-                return null;
-            }
-            return new NtTcpClient(socket);
+            return AsyncContext.Run(() => m_server.AcceptTcpClientAsync());
         }
     }
 }

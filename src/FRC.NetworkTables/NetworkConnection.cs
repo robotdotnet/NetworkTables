@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using NetworkTables.Streams;
 using NetworkTables.Support;
-using NetworkTables.TcpSockets;
 using NetworkTables.Wire;
 using static NetworkTables.Logging.Logger;
 using System.IO;
@@ -13,6 +12,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Nito.AsyncEx.Synchronous;
 using NetworkTables.Logging;
+using System.Net.Sockets;
 
 namespace NetworkTables
 {
@@ -32,7 +32,7 @@ namespace NetworkTables
         private readonly Stream m_stream;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-        private readonly IClient m_client;
+        private readonly TcpClient m_client;
 
         public int PeerPort { get; }
         public string PeerIP { get; }
@@ -64,7 +64,7 @@ namespace NetworkTables
 
         private readonly List<(int First, int Second)> m_pendingUpdate = new List<(int First, int Second)>();
 
-        public NetworkConnection(IClient client, Notifier notifier, HandshakeFunc handshake,
+        public NetworkConnection(TcpClient client, Notifier notifier, HandshakeFunc handshake,
             Message.GetEntryTypeFunc getEntryType)
         {
             Uid = (uint)Interlocked.Increment(ref s_uid) - 1;
@@ -79,7 +79,7 @@ namespace NetworkTables
             m_state = State.Created;
             LastUpdate = 0;
 
-            if (m_client.RemoteEndPoint is IPEndPoint ipEp)
+            if (m_client.Client.RemoteEndPoint is IPEndPoint ipEp)
             {
                 PeerIP = ipEp.Address.ToString();
                 PeerPort = ipEp.Port;

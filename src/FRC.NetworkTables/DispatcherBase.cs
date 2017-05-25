@@ -8,12 +8,13 @@ using System.Net;
 using System.Threading.Tasks;
 using Nito.AsyncEx.Synchronous;
 using NetworkTables.Logging;
+using System.Net.Sockets;
 
 namespace NetworkTables
 {
     internal class DispatcherBase : IDisposable
     {
-        public delegate NtTcpClient Connector();
+        public delegate TcpClient Connector();
 
         public const double MinimumUpdateTime = 0.01; //100ms
         public const double MaximumUpdateTime = 1.0; //1 second
@@ -38,7 +39,7 @@ namespace NetworkTables
         private bool m_doReconnect = true;
         private string m_identity = "";
 
-        private IList<Connector> m_clientConnectors = new List<Connector>(); 
+        private Connector m_clientConnector;
 
         private DateTime m_lastFlush;
 
@@ -154,14 +155,9 @@ namespace NetworkTables
 
         public void SetConnector(Connector connector)
         {
-            SetConnector(new List<Connector>() { connector });
-        }
-
-        public void SetConnector(IList<Connector> connectors)
-        {
             lock (m_userMutex)
             {
-                m_clientConnectors = connectors;
+                m_clientConnector = connector;
             }
         }
 
@@ -191,7 +187,7 @@ namespace NetworkTables
             //Wake up client thread with a reconnect
             lock (m_userMutex)
             {
-                m_clientConnectors.Clear();
+                m_clientConnector = null;
             }
             ClientReconnect();
 
@@ -360,7 +356,7 @@ namespace NetworkTables
                 }
                 if (!m_active) return;
 
-                if (stream.RemoteEndPoint is IPEndPoint ipEp)
+                if (stream.Client.RemoteEndPoint is IPEndPoint ipEp)
                 {
                     Debug(Logger.Instance, $"server: client connection from {ipEp.Address} port {ipEp.Port.ToString()}");
                 }
@@ -397,7 +393,6 @@ namespace NetworkTables
 
         private void ClientThreadMain()
         {
-            int i = 0;
             while (m_active)
             {
                 //Sleep between retries
@@ -407,16 +402,7 @@ namespace NetworkTables
 
                 lock (m_userMutex)
                 {
-                    if (m_clientConnectorOverride != null)
-                    {
-                        connect = m_clientConnectorOverride;
-                    }
-                    else
-                    {
-                        if (m_clientConnectors.Count == 0) continue;
-                        if (i >= m_clientConnectors.Count) i = 0;
-                        connect = m_clientConnectors[i++];
-                    }
+                    connect = m_clientConnectorOverride ?? m_clientConnector;
                 }
 
                 Debug(Logger.Instance, "client trying to connect");
