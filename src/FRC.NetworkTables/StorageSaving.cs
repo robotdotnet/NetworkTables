@@ -12,7 +12,7 @@ namespace NetworkTables
 {
     internal partial class Storage
     {
-        private bool GetPersistentEntries(bool periodic, List<(string key, Value value)> entries)
+        private bool GetPersistentEntries(bool periodic, List<StoragePair> entries)
         {
             using (m_monitor.Enter())
             {
@@ -22,19 +22,19 @@ namespace NetworkTables
                 {
                     Entry entry = i.Value;
                     if (!entry.IsPersistent()) continue;
-                    entries.Add((i.Key, entry.Value));
+                    entries.Add(new StoragePair(i.Key, entry.Value));
                 }
             }
             entries.Sort();
             return true;
         }
 
-        private static async Task SavePersistentImpl(StreamWriter stream, IEnumerable<(string key, Value value)> entries)
+        private static async Task SavePersistentImpl(StreamWriter stream, IEnumerable<StoragePair> entries)
         {
             await stream.WriteAsync("[NetworkTables Storage 3.0]\n").ConfigureAwait(false);
             foreach (var i in entries)
             {
-                var v = i.value;
+                var v = i.Second;
                 if (v == null) continue;
                 switch (v.Type)
                 {
@@ -63,7 +63,7 @@ namespace NetworkTables
                         continue;
                 }
 
-                await WriteStringAsync(stream, i.key).ConfigureAwait(false);
+                await WriteStringAsync(stream, i.First).ConfigureAwait(false);
 
                 await stream.WriteAsync('=').ConfigureAwait(false);
 
@@ -260,7 +260,7 @@ namespace NetworkTables
 
         public void SavePersistent(Stream stream, bool periodic)
         {
-            List<(string key, Value value)> entries = new List<(string key, Value value)>();
+            List<StoragePair> entries = new List<StoragePair>();
             if (!GetPersistentEntries(periodic, entries)) return;
             StreamWriter w = new StreamWriter(stream);
             Task task = SavePersistentImpl(w, entries);
@@ -281,7 +281,7 @@ namespace NetworkTables
                 bak += ".bak";
 
                 //Get entries before creating files
-                List<(string key, Value value)> entries = new List<(string key, Value value)>();
+                List<StoragePair> entries = new List<StoragePair>();
                 if (!GetPersistentEntries(periodic, entries)) return null;
 
 
@@ -349,7 +349,7 @@ namespace NetworkTables
             bak += ".bak";
 
             //Get entries before creating files
-            List<(string key, Value value)> entries = new List<(string key, Value value)>();
+            List<StoragePair> entries = new List<StoragePair>();
             if (!GetPersistentEntries(periodic, entries)) return null;
 
             string err = null;
@@ -523,7 +523,7 @@ namespace NetworkTables
         {
             int lineNum = 1;
 
-            List<(string key, Value value)> entries = new List<(string key, Value value)>();
+            List<StoragePair> entries = new List<StoragePair>();
 
             List<bool> boolArray = new List<bool>();
             List<double> doubleArray = new List<double>();
@@ -657,7 +657,7 @@ namespace NetworkTables
                     }
                     if (name.Length != 0 && value != null)
                     {
-                        entries.Add((name, value));
+                        entries.Add(new StoragePair(name, value));
                     }
 
                 }
@@ -670,13 +670,13 @@ namespace NetworkTables
                     monitor = await m_monitor.EnterAsync().ConfigureAwait(false);
                     foreach (var i in entries)
                     {
-                        if (!m_entries.TryGetValue(i.key, out Entry entry))
+                        if (!m_entries.TryGetValue(i.First, out Entry entry))
                         {
-                            entry = new Entry(i.key);
-                            m_entries.Add(i.key, entry);
+                            entry = new Entry(i.First);
+                            m_entries.Add(i.First, entry);
                         }
                         var oldValue = entry.Value;
-                        entry.Value = i.value;
+                        entry.Value = i.Second;
                         bool wasPersist = entry.IsPersistent();
                         if (!wasPersist) entry.Flags |= EntryFlags.Persistent;
 
@@ -691,28 +691,28 @@ namespace NetworkTables
                         {
                             if (oldValue != null)
                             {
-                                m_notifier.NotifyEntry(i.key, i.value, (NotifyFlags.NotifyNew | NotifyFlags.NotifyLocal));
+                                m_notifier.NotifyEntry(i.First, i.Second, (NotifyFlags.NotifyNew | NotifyFlags.NotifyLocal));
                             }
-                            else if (oldValue != i.value)
+                            else if (oldValue != i.Second)
                             {
                                 NotifyFlags notifyFlags = NotifyFlags.NotifyUpdate | NotifyFlags.NotifyLocal;
                                 if (!wasPersist) notifyFlags |= NotifyFlags.NotifyFlagsChanged;
-                                m_notifier.NotifyEntry(i.key, i.value, notifyFlags);
+                                m_notifier.NotifyEntry(i.First, i.Second, notifyFlags);
                             }
                         }
 
                         if (m_queueOutgoing == null) continue;
                         ++entry.SeqNum;
 
-                        if (oldValue == null || oldValue.Type != i.value.Type)
+                        if (oldValue == null || oldValue.Type != i.Second.Type)
                         {
-                            msgs.Add(Message.EntryAssign(i.key, entry.Id, entry.SeqNum.Value, i.value, entry.Flags));
+                            msgs.Add(Message.EntryAssign(i.First, entry.Id, entry.SeqNum.Value, i.Second, entry.Flags));
                         }
                         else if (entry.Id != 0xffff)
                         {
-                            if (oldValue != i.value)
+                            if (oldValue != i.Second)
                             {
-                                msgs.Add(Message.EntryUpdate(entry.Id, entry.SeqNum.Value, i.value));
+                                msgs.Add(Message.EntryUpdate(entry.Id, entry.SeqNum.Value, i.Second));
                             }
                             if (!wasPersist)
                                 msgs.Add(Message.FlagsUpdate(entry.Id, entry.Flags));
