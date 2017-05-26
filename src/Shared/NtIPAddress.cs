@@ -24,5 +24,25 @@ namespace NetworkTables {
             IpAddress = ip;
             Port = port;
         }
+
+#if !CORE
+        /// <summary>
+        /// Implicitly converts an NtIPAddress to a tuple
+        /// </summary>
+        /// <param name="address">The address to convert from</param>
+        public static implicit operator (string server, int port) (NtIPAddress address)
+        {
+            return (address.IpAddress, address.Port);
+        }
+
+        /// <summary>
+        /// Implicitly converts a tuple to an NtIPAddress
+        /// </summary>
+        /// <param name="address">The address to convert from</param>
+        public static implicit operator NtIPAddress((string server, int port) address)
+        {
+            return new NtIPAddress(address.server, address.port);
+        }
+#endif
     }
 }

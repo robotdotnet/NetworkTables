@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Sockets;
 
 namespace NetworkTables.TcpSockets
 {
@@ -6,6 +7,6 @@ namespace NetworkTables.TcpSockets
     {
         int Start();
         void Shutdown();
-        IClient Accept();
+        TcpClient Accept();
     }
 }
