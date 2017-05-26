@@ -46,6 +46,15 @@ namespace NetworkTables.TcpSockets
             }
         }
 
+        private static void PrintConnectFailList(IList<(string server, int port)> servers, Logger logger)
+        {
+            Logger.Error(logger, "Failed to connect to the following IP Addresses:");
+            foreach (var item in servers)
+            {
+                Logger.Error(logger, $"    Server: {item.server} Port: {item.port}");
+            }
+        }
+
         public static IClient Connect(IList<(string server, int port)> servers, Logger logger, TimeSpan timeout)
         {
             if (servers.Count == 0)
@@ -55,7 +64,7 @@ namespace NetworkTables.TcpSockets
 
             TcpClient c = AsyncContext.Run(async () => {
                 TcpClient toReturn = null;
-                var clientTcp = new List<TcpClient>();
+                var clientTcp = new List<(TcpClient tcpCient, (string server, int port) remote)>();
                 var clientTask = new List<Task>();
                 try
                 {
@@ -63,7 +72,7 @@ namespace NetworkTables.TcpSockets
                     {
                         TcpClient client = new TcpClient();
                         Task connectTask = client.ConnectAsync(servers[i].server, servers[i].port);
-                        clientTcp.Add(client);
+                        clientTcp.Add((client, servers[i]));
                         clientTask.Add(connectTask);
                     }
 
@@ -79,31 +88,33 @@ namespace NetworkTables.TcpSockets
                         var index = clientTask.IndexOf(finished);
                         if (finished == delayTask)
                         {
+                            PrintConnectFailList(servers, logger);
                             return null;
                         }
                         else if (finished.IsCompleted && !finished.IsFaulted && !finished.IsCanceled)
                         {
-                            toReturn = clientTcp[index];
+                            toReturn = clientTcp[index].tcpCient;
                             return toReturn;
                         }
                         var remove = clientTcp[index];
                         clientTcp.RemoveAt(index);
-                        remove.Dispose();
+                        remove.tcpCient.Dispose();
                         clientTask.RemoveAt(index);
                     }
+                    PrintConnectFailList(servers, logger);
                     return null;
                 }
                 finally
                 {
                     for (int i = 0; i < clientTcp.Count; i++)
                     {
-                        if (clientTcp[i] != toReturn)
+                        if (clientTcp[i].tcpCient != toReturn)
                         {
                             try
                             {
-                                clientTcp[i].Dispose();
+                                clientTcp[i].tcpCient.Dispose();
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
                                 // Ignore exception
                             }
