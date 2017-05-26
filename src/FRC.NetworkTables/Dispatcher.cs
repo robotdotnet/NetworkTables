@@ -4,6 +4,7 @@ using System.Threading;
 using NetworkTables.Interfaces;
 using NetworkTables.TcpSockets;
 using NetworkTables.Logging;
+using System;
 
 namespace NetworkTables
 {
@@ -18,7 +19,7 @@ namespace NetworkTables
         public Dispatcher(Storage storage, Notifier notifier)
             : base(storage, notifier)
         {
-            
+
         }
 
         /// <summary>
@@ -45,22 +46,26 @@ namespace NetworkTables
 
         public void SetServer(string serverName, int port)
         {
-            SetConnector(() => TcpConnector.Connect(serverName, port, Logger.Instance, 1));
+            SetConnector(() =>
+            {
+                return TcpConnector.Connect(new List<(string server, int port)> { (serverName, port) }, Logger.Instance, TimeSpan.FromSeconds(1));
+            });
         }
 
         public void SetServer(IList<NtIPAddress> servers)
         {
-            List<Connector> connectors = new List<Connector>();
+            List<(string server, int port)> addresses = new List<(string server, int port)>(servers.Count);
             foreach (var server in servers)
             {
-                connectors.Add(() => TcpConnector.Connect(server.IpAddress, server.Port, Logger.Instance, 1));
+                addresses.Add((server.IpAddress, server.Port));
             }
-            SetConnector(connectors);
+
+            SetConnector(() => TcpConnector.Connect(addresses, Logger.Instance, TimeSpan.FromSeconds(1)));
         }
 
         public void SetServerOverride(IPAddress address, int port)
         {
-            SetConnectorOverride(() => TcpConnector.Connect(address.ToString(), port, Logger.Instance, 1));
+            SetConnectorOverride(() => TcpConnector.Connect(new List<(string server, int port)> { (address.ToString(), port) }, Logger.Instance, TimeSpan.FromSeconds(1)));
         }
 
         public void ClearServerOverride()

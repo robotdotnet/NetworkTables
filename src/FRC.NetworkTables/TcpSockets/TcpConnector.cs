@@ -6,59 +6,117 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Runtime.ExceptionServices;
 using static NetworkTables.Logging.Logger;
+using Nito.AsyncEx;
+using System.IO;
 
 namespace NetworkTables.TcpSockets
 {
     internal class TcpConnector
     {
-        private static bool WaitAndUnwrapException(Task task, int timeout)
+        public class TcpClientNt : IClient
         {
-            try
+            private readonly TcpClient m_client;
+
+            internal TcpClientNt(TcpClient client)
             {
-                return task.Wait(timeout);
+                m_client = client;
             }
-            catch (AggregateException ex)
+
+            public Stream GetStream()
             {
-                ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-                throw ex.InnerException;
+                return m_client.GetStream();
+            }
+            public EndPoint RemoteEndPoint
+            {
+                get
+                {
+                    return m_client.Client.RemoteEndPoint;
+                }
+            }
+            public bool NoDelay
+            {
+                set
+                {
+                }
+            }
+
+            public void Dispose()
+            {
+                m_client.Dispose();
             }
         }
 
-        private static int ResolveHostName(string hostName, out IPAddress[] addr)
+        public static IClient Connect(IList<(string server, int port)> servers, Logger logger, TimeSpan timeout)
         {
-            try
+            if (servers.Count == 0)
             {
-                var entries = Dns.GetHostAddressesAsync(hostName);
-                var success = WaitAndUnwrapException(entries, 1000);
-                if (!success)
+                return null;
+            }
+
+            TcpClient c = AsyncContext.Run(async () => {
+                TcpClient toReturn = null;
+                var clientTcp = new List<TcpClient>();
+                var clientTask = new List<Task>();
+                try
                 {
-                    addr = null;
-                    return 1;
-                }
-                List<IPAddress> addresses = new List<IPAddress>();
-                foreach (var ipAddress in entries.Result)
-                {
-                    // Only allow IPV4 addresses for now
-                    // Sockets don't all support IPV6
-                    if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+                    for (int i = 0; i < servers.Count; i++)
                     {
-                        if (!addresses.Contains(ipAddress))
+                        TcpClient client = new TcpClient();
+                        Task connectTask = client.ConnectAsync(servers[i].server, servers[i].port);
+                        clientTcp.Add(client);
+                        clientTask.Add(connectTask);
+                    }
+
+                    // 10 second timeout
+                    var delayTask = Task.Delay(timeout);
+
+                    clientTask.Add(delayTask);
+
+                    while (clientTcp.Count != 0)
+                    {
+                        var finished = await Task.WhenAny(clientTask);
+
+                        var index = clientTask.IndexOf(finished);
+                        if (finished == delayTask)
                         {
-                            addresses.Add(ipAddress);
+                            return null;
+                        }
+                        else if (finished.IsCompleted && !finished.IsFaulted && !finished.IsCanceled)
+                        {
+                            toReturn = clientTcp[index];
+                            return toReturn;
+                        }
+                        var remove = clientTcp[index];
+                        clientTcp.RemoveAt(index);
+                        remove.Dispose();
+                        clientTask.RemoveAt(index);
+                    }
+                    return null;
+                }
+                finally
+                {
+                    for (int i = 0; i < clientTcp.Count; i++)
+                    {
+                        if (clientTcp[i] != toReturn)
+                        {
+                            try
+                            {
+                                clientTcp[i].Dispose();
+                            }
+                            catch (Exception e)
+                            {
+                                // Ignore exception
+                            }
                         }
                     }
                 }
-                addr = addresses.ToArray();
+            });
 
-            }
-            catch (SocketException e)
-            {
-                addr = null;
-                return (int)e.SocketErrorCode;
-            }
-            return 0;
+            if (c == null) return null;
+            return new TcpClientNt(c);
         }
 
+        /*
         public static NtTcpClient Connect(string server, int port, Logger logger, int timeout = 0)
         {
             if (ResolveHostName(server, out IPAddress[] addr) != 0)
@@ -102,5 +160,6 @@ namespace NetworkTables.TcpSockets
             }
             return client;
         }
+        */
     }
 }
