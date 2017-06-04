@@ -1184,6 +1184,26 @@ namespace NetworkTables
             return NtCore.GetConnections();
         }
 
+        /// <summary>
+        /// Adds a connection listener to the table
+        /// </summary>
+        /// <param name="callback">The callback to call when a new remote connects or disconnects</param>
+        /// <param name="immediateNotify">True to notify immediately with all connected remotes</param>
+        /// <returns>The id of the connection listener</returns>
+        public static int AddConnectionListener(ConnectionListenerCallback callback, bool immediateNotify)
+        {
+            return NtCore.AddConnectionListener(callback, immediateNotify);
+        }
+
+        /// <summary>
+        /// Removes a connection listener from the table
+        /// </summary>
+        /// <param name="uid">The connection listener id</param>
+        public static void RemoveConnectionListener(int uid)
+        {
+            NtCore.RemoveConnectionListener(uid);
+        }
+
         /// <inheritdoc/>
         public bool SetDefaultValue(string key, Value defaultValue)
         {
