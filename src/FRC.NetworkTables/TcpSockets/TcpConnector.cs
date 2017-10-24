@@ -55,122 +55,67 @@ namespace NetworkTables.TcpSockets
             }
         }
 
-        public static IClient Connect(IList<(string server, int port)> servers, Logger logger, TimeSpan timeout)
+        public static IClient ConnectParallel(IList<(string ip, int port)> conns, Logger logger, TimeSpan timeout)
         {
-            if (servers.Count == 0)
+            return ConnectParallelAsync(conns, logger, timeout).Result;
+        }
+
+        public static Task<IClient> ConnectParallelAsync(IList<(string ip, int port)> conns, Logger logger, TimeSpan timeout)
+        {
+            List<TcpClient> clients = new List<TcpClient>();
+            List<Task> tasks = new List<Task>();
+
+            foreach (var item in conns)
             {
+                var client = new TcpClient();
+                Task connectTask;
+                try
+                {
+                    connectTask = client.ConnectAsync(item.ip, item.port);
+
+                }
+                catch (ArgumentOutOfRangeException aore)
+                {
+                    // TODO: Log
+                    Logger.Error(logger, $"Bad argument {aore}");
+                    continue;
+                }
+                catch (SocketException se)
+                {
+                    // TODO: Log
+                    Logger.Warning(logger, $"Socket connect failed {se}");
+                    continue;
+                }
+                clients.Add(client);
+                tasks.Add(connectTask);
+            }
+
+            var delayTask = Task.Delay(timeout);
+            tasks.Add(delayTask);
+
+            async Task<IClient> ConnectAsyncInternal()
+            {
+                while (tasks.Count > 0)
+                {
+                    var task = await Task.WhenAny(tasks);
+                    if (task == delayTask)
+                    {
+                        return null;
+                    }
+                    var index = tasks.IndexOf(task);
+                    var client = clients[index];
+                    if (client.Connected)
+                    {
+                        return new TcpClientNt(client);
+                    }
+                    clients.RemoveAt(index);
+                    tasks.RemoveAt(index);
+                }
                 return null;
             }
 
-            TcpClient c = AsyncContext.Run(async () => {
-                TcpClient toReturn = null;
-                var clientTcp = new List<(TcpClient tcpCient, (string server, int port) remote)>();
-                var clientTask = new List<Task>();
-                try
-                {
-                    for (int i = 0; i < servers.Count; i++)
-                    {
-                        TcpClient client = new TcpClient();
-                        Task connectTask = client.ConnectAsync(servers[i].server, servers[i].port);
-                        clientTcp.Add((client, servers[i]));
-                        clientTask.Add(connectTask);
-                    }
-
-                    // 10 second timeout
-                    var delayTask = Task.Delay(timeout);
-
-                    clientTask.Add(delayTask);
-
-                    while (clientTcp.Count != 0)
-                    {
-                        var finished = await Task.WhenAny(clientTask);
-
-                        var index = clientTask.IndexOf(finished);
-                        if (finished == delayTask)
-                        {
-                            PrintConnectFailList(servers, logger);
-                            return null;
-                        }
-                        else if (finished.IsCompleted && !finished.IsFaulted && !finished.IsCanceled)
-                        {
-                            toReturn = clientTcp[index].tcpCient;
-                            return toReturn;
-                        }
-                        var remove = clientTcp[index];
-                        clientTcp.RemoveAt(index);
-                        remove.tcpCient.Dispose();
-                        clientTask.RemoveAt(index);
-                    }
-                    PrintConnectFailList(servers, logger);
-                    return null;
-                }
-                finally
-                {
-                    for (int i = 0; i < clientTcp.Count; i++)
-                    {
-                        if (clientTcp[i].tcpCient != toReturn)
-                        {
-                            try
-                            {
-                                clientTcp[i].tcpCient.Dispose();
-                            }
-                            catch (Exception)
-                            {
-                                // Ignore exception
-                            }
-                        }
-                    }
-                }
-            });
-
-            if (c == null) return null;
-            return new TcpClientNt(c);
+            return ConnectAsyncInternal();
         }
 
-        /*
-        public static NtTcpClient Connect(string server, int port, Logger logger, int timeout = 0)
-        {
-            if (ResolveHostName(server, out IPAddress[] addr) != 0)
-            {
-                try
-                {
-                    addr = new IPAddress[1];
-                    addr[0] = IPAddress.Parse(server);
-                }
-                catch (FormatException)
-                {
-                    Error(logger, $"could not resolve {server} address");
-                    return null;
-                }
-            }
-
-            //Create out client
-            NtTcpClient client = new NtTcpClient(AddressFamily.InterNetwork);
-            // No time limit, connect forever
-            if (timeout == 0)
-            {
-                try
-                {
-                    client.Connect(addr, port);
-                }
-                catch (SocketException ex)
-                {
-                    Error(logger, $"Connect() to {server} port {port.ToString()} failed: {ex.SocketErrorCode}");
-                    ((IDisposable)client).Dispose();
-                    return null;
-                }
-                return client;
-            }
-
-            //Connect with time limit
-            bool connectedWithTimeout = client.ConnectWithTimeout(addr, port, logger, timeout);
-            if (!connectedWithTimeout)
-            {
-                ((IDisposable)client).Dispose();
-                return null;
-            }
-            return client;
-        }
-        */
     }
 }

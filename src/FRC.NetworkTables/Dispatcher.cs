@@ -48,7 +48,7 @@ namespace NetworkTables
         {
             SetConnector(() =>
             {
-                return TcpConnector.Connect(new List<(string server, int port)> { (serverName, port) }, Logger.Instance, TimeSpan.FromSeconds(1));
+                return TcpConnector.ConnectParallel(new List<(string server, int port)> { (serverName, port) }, Logger.Instance, TimeSpan.FromSeconds(3));
             });
         }
 
@@ -60,12 +60,12 @@ namespace NetworkTables
                 addresses.Add((server.IpAddress, server.Port));
             }
 
-            SetConnector(() => TcpConnector.Connect(addresses, Logger.Instance, TimeSpan.FromSeconds(1)));
+            SetConnector(() => TcpConnector.ConnectParallel(addresses, Logger.Instance, TimeSpan.FromSeconds(3)));
         }
 
         public void SetServerOverride(IPAddress address, int port)
         {
-            SetConnectorOverride(() => TcpConnector.Connect(new List<(string server, int port)> { (address.ToString(), port) }, Logger.Instance, TimeSpan.FromSeconds(1)));
+            SetConnectorOverride(() => TcpConnector.ConnectParallel(new List<(string server, int port)> { (address.ToString(), port) }, Logger.Instance, TimeSpan.FromSeconds(3)));
         }
 
         public void ClearServerOverride()
