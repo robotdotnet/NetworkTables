@@ -11,7 +11,7 @@ namespace FRC.NetworkTables
         public NT_EntryListener Listener { get; }
         public NT_Entry EntryHandle { get; }
         public string Name { get; }
-        public NetworkTableValue Value { get; }
+        public readonly NetworkTableValue Value;
         public NotifyFlags Flags { get; }
         public NetworkTableEntry Entry => new NetworkTableEntry(m_instance, EntryHandle);
         private readonly NetworkTableInstance m_instance;

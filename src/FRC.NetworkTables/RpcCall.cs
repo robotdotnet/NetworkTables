@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FRC.NetworkTables
 {
@@ -14,7 +16,7 @@ namespace FRC.NetworkTables
         }
 
         public NT_RpcCall Handle { get; }
-        public NetworkTableEntry Entry { get; }
+        public readonly NetworkTableEntry Entry;
 
         public bool IsValid => Handle.Get() != 0;
 
@@ -36,6 +38,19 @@ namespace FRC.NetworkTables
         {
             byte[] result = NtCore.GetRpcResult(Entry.Handle, Handle, timeout);
             return result;
+        }
+
+        public Task<byte[]> GetResultAsync(CancellationToken token = default)
+        {
+            NT_Entry handle = Entry.Handle;
+            NT_RpcCall call = Handle;
+            token.Register(() => {
+                NtCore.CancelRpcResult(handle, call);
+            });
+            return Task.Run(() =>
+            {
+                return NtCore.GetRpcResult(handle, call);
+            });
         }
 
         public void CancelResult()
