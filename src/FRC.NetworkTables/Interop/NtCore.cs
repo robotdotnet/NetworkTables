@@ -19,6 +19,11 @@ namespace FRC.NetworkTables.Interop
             m_ntcore = library;
         }
 
+        public static ulong Now()
+        {
+            return m_ntcore.NT_Now();
+        }
+
         public static NT_Inst GetDefaultInstance()
         {
             return m_ntcore.NT_GetDefaultInstance();
