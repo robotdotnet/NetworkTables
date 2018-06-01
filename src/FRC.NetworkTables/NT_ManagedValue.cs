@@ -126,6 +126,13 @@ namespace FRC.NetworkTables
             Data = new NT_EntryUnion(v);
         }
 
+        internal unsafe NT_ManagedValue(byte[] v, ulong t, bool r)
+        {
+            LastChange = t;
+            Type = r ? NtType.Rpc : NtType.Raw;
+            Data = new NT_EntryUnion(v);
+        }
+
         internal unsafe NT_ManagedValue(bool[] v, ulong t)
         {
             LastChange = t;
