@@ -9,15 +9,15 @@ namespace FRC.NetworkTables
     public readonly struct ConnectionInfo
     {
         /// <summary>Gets the Remote Id of the Connection.</summary>
-        public string RemoteId { get; }
+        public readonly string RemoteId;
         /// <summary>Gets the Remote IP Address of the Connection.</summary>
-        public string RemoteIp { get; }
+        public readonly string RemoteIp;
         /// <summary>Gets the Remote Port of the Connection.</summary>
-        public int RemotePort { get; }
+        public readonly int RemotePort;
         /// <summary>Gets the last update time of the Connection.</summary>
-        public long LastUpdate { get; }
+        public readonly long LastUpdate;
         /// <summary>Gets the Protocol Version of the Connection.</summary>
-        public int ProtocolVersion { get; }
+        public readonly int ProtocolVersion;
 
         internal unsafe ConnectionInfo(NT_ConnectionInfo* info)
         {

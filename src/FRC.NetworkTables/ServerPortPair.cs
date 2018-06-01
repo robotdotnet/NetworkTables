@@ -6,8 +6,8 @@ namespace FRC.NetworkTables
 {
     public readonly struct ServerPortPair
     {
-        public string Server { get; }
-        public int Port { get; }
+        public readonly string Server;
+        public readonly int Port;
         public ServerPortPair(string server, int port)
         {
             Server = server;

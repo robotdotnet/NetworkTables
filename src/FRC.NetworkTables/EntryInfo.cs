@@ -10,15 +10,15 @@ namespace FRC.NetworkTables
     /// </summary>
     public readonly struct EntryInfo
     {
-        public NT_Entry EntryHandle { get; }
+        public readonly NT_Entry EntryHandle;
         /// <summary>Gets the Name of the entry.</summary>
-        public string Name { get; }
+        public readonly string Name;
         /// <summary>Gets the Type of the entry.</summary>
-        public NtType Type { get; }
+        public readonly NtType Type;
         /// <summary>Gets the Flags attached to the entry.</summary>
-        public EntryFlags Flags { get; }
+        public readonly EntryFlags Flags;
         /// <summary>Gets the last change time of the entry.</summary>
-        public long LastChange { get; }
+        public readonly long LastChange;
         /// <summary>Gets the entry object for this entry.</summary>
         public NetworkTableEntry Entry => new NetworkTableEntry(m_instance, EntryHandle);
         private readonly NetworkTableInstance m_instance;
