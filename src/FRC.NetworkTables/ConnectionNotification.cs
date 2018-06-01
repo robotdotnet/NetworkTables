@@ -6,7 +6,7 @@ namespace FRC.NetworkTables
     {
         public NT_ConnectionListener Listener { get; }
         public bool Connected { get; }
-        public ConnectionInfo Conn { get; }
+        public readonly ConnectionInfo Conn;
         public NetworkTableInstance Instance { get; }
 
         internal unsafe ConnectionNotification(NetworkTableInstance inst, NT_ConnectionNotification* notification)

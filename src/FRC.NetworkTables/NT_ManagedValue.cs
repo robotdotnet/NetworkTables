@@ -9,7 +9,7 @@ namespace FRC.NetworkTables
     {
         public NtType Type { get; }
         public ulong LastChange { get; }
-        public NT_EntryUnion Data { get; }
+        public readonly NT_EntryUnion Data;
 
         internal unsafe void CreateNativeFromManaged(NT_Value* value)
         {
@@ -95,7 +95,7 @@ namespace FRC.NetworkTables
             LastChange = v->last_change;
             Type = v->type;
             Data = new NT_EntryUnion(v);
-            
+
         }
 
         internal unsafe NT_ManagedValue(bool v, ulong t)

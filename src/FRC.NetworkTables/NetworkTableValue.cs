@@ -9,7 +9,7 @@ namespace FRC.NetworkTables
     public readonly struct NetworkTableValue
     {
         public NtType Type => Value.Type;
-        public NT_ManagedValue Value { get; }
+        public readonly NT_ManagedValue Value;
         public bool IsValid => Type != NtType.Unassigned;
 
         internal NetworkTableValue(in NT_ManagedValue value)
