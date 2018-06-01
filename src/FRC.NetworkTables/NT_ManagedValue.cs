@@ -7,8 +7,8 @@ namespace FRC.NetworkTables
 {
     public readonly struct NT_ManagedValue
     {
-        public NtType Type { get; }
-        public ulong LastChange { get; }
+        public readonly NtType Type;
+        public readonly ulong LastChange;
         public readonly NT_EntryUnion Data;
 
         internal unsafe void CreateNativeFromManaged(NT_Value* value)

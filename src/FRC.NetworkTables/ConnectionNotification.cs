@@ -4,10 +4,10 @@ namespace FRC.NetworkTables
 {
     public readonly struct ConnectionNotification
     {
-        public NT_ConnectionListener Listener { get; }
-        public bool Connected { get; }
+        public readonly NT_ConnectionListener Listener;
+        public readonly bool Connected;
         public readonly ConnectionInfo Conn;
-        public NetworkTableInstance Instance { get; }
+        public readonly NetworkTableInstance Instance;
 
         internal unsafe ConnectionNotification(NetworkTableInstance inst, NT_ConnectionNotification* notification)
         {

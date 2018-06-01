@@ -8,11 +8,11 @@ namespace FRC.NetworkTables
 {
     public readonly struct LogMessage
     {
-        public NT_Logger Logger { get; }
-        public LogLevel Level { get; }
-        public string Filename { get; }
-        public int Line { get; }
-        public string Message { get; }
+        public readonly NT_Logger Logger;
+        public readonly LogLevel Level;
+        public readonly string Filename;
+        public readonly int Line;
+        public readonly string Message;
         internal NetworkTableInstance Instance { get; }
 
         internal unsafe LogMessage(NetworkTableInstance inst, NT_LogMessage* log)

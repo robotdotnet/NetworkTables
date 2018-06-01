@@ -6,10 +6,10 @@ namespace FRC.NetworkTables
 {
     public readonly struct RpcAnswer
     {
-        public NT_Entry EntryHandle { get; }
-        public NT_RpcCall Call { get; }
-        public string Name { get; }
-        public byte[] Params { get; }
+        public readonly NT_Entry EntryHandle;
+        public readonly NT_RpcCall Call;
+        public readonly string Name;
+        public readonly byte[] Params;
         public readonly ConnectionInfo Conn;
         public NetworkTableEntry Entry => new NetworkTableEntry(m_instance, EntryHandle);
         private readonly NetworkTableInstance m_instance;

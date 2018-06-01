@@ -8,11 +8,11 @@ namespace FRC.NetworkTables
 {
     public readonly struct EntryNotification
     {
-        public NT_EntryListener Listener { get; }
-        public NT_Entry EntryHandle { get; }
-        public string Name { get; }
+        public readonly NT_EntryListener Listener;
+        public readonly NT_Entry EntryHandle;
+        public readonly string Name;
         public readonly NetworkTableValue Value;
-        public NotifyFlags Flags { get; }
+        public readonly NotifyFlags Flags;
         public NetworkTableEntry Entry => new NetworkTableEntry(m_instance, EntryHandle);
         private readonly NetworkTableInstance m_instance;
 

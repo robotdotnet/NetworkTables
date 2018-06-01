@@ -1,7 +1,5 @@
 ﻿using FRC.NetworkTables.Interop;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,7 +13,7 @@ namespace FRC.NetworkTables
             Entry = entry;
         }
 
-        public NT_RpcCall Handle { get; }
+        public readonly NT_RpcCall Handle;
         public readonly NetworkTableEntry Entry;
 
         public bool IsValid => Handle.Get() != 0;

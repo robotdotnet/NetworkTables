@@ -17,9 +17,9 @@ namespace FRC.NetworkTables
 
         public bool IsValid => Handle.Get() != 0;
 
-        public NT_Entry Handle { get; }
+        public readonly NT_Entry Handle;
 
-        public NetworkTableInstance Instance { get; }
+        public readonly NetworkTableInstance Instance;
 
         public bool Exists() => GetEntryType() != NtType.Unassigned;
 
