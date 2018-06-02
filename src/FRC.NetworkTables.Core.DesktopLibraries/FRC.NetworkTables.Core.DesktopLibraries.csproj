@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Native desktop libraries for NetworkTables</Description>
+    <Copyright>Copyright 2018 RobotDotNet</Copyright>
+    <AssemblyTitle>FRC NetworkTables.Core.DesktopLibraries</AssemblyTitle>
+    <Title>FRC NetworkTables.Core.DesktopLibraries</Title>
+    <VersionPrefix>3.0.0-local</VersionPrefix>
+    <Authors>RobotDotNet</Authors>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>FRC.NetworkTables.Core.DesktopLibraries</AssemblyName>
+    <PackageId>FRC.NetworkTables.Core.DesktopLibraries</PackageId>
+    <PackageTags>WPILib;FRC;FIRST;RoboRio</PackageTags>
+    <PackageProjectUrl>https://github.com/robotdotnet/NetworkTables</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/robotdotnet/NetworkTables/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>git://github.com/robotdotnet/NetworkTables</RepositoryUrl>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--<EmbeddedResource Include="Libraries\osx\x86_64\libntcore.dylib;Libraries\Linux\amd64\libntcore.so;Libraries\Windows\amd64\ntcore.dll;Libraries\Mac OS X\x86\libntcore.dylib;Libraries\Linux\i386\libntcore.so;Libraries\Windows\x86\ntcore.dll;Libraries\Linux\arm\libntcore.so" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />-->
+  </ItemGroup>
+</Project>

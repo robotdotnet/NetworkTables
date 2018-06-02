@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FRC.NetworkTables\FRC.NetworkTables.csproj" />
+    <ProjectReference Include="..\FRC.NetworkTables.Core\FRC.NetworkTables.Core.csproj" />
   </ItemGroup>
 
 </Project>

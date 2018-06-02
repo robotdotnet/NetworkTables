@@ -5,11 +5,13 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FCA2625C-F670-47C8-A57C-0CDDA75191D5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRC.NetworkTables", "src\FRC.NetworkTables\FRC.NetworkTables.csproj", "{967E5110-A79D-4BBF-A039-29646474B141}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRC.NetworkTables.Core", "src\FRC.NetworkTables.Core\FRC.NetworkTables.Core.csproj", "{967E5110-A79D-4BBF-A039-29646474B141}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRC.NetworkTables.Dev", "src\FRC.NetworkTables.Dev\FRC.NetworkTables.Dev.csproj", "{3CE96B29-8A19-44E8-A90D-E104A2811C38}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRC.NetworkTables.NativeDev", "src\FRC.NetworkTables.NativeDev\FRC.NetworkTables.NativeDev.csproj", "{E05F34D3-6475-477C-B569-B241B077EEFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRC.NetworkTables.Core.DesktopLibraries", "src\FRC.NetworkTables.Core.DesktopLibraries\FRC.NetworkTables.Core.DesktopLibraries.csproj", "{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,18 @@ Global
 		{E05F34D3-6475-477C-B569-B241B077EEFA}.Release|x64.Build.0 = Release|Any CPU
 		{E05F34D3-6475-477C-B569-B241B077EEFA}.Release|x86.ActiveCfg = Release|Any CPU
 		{E05F34D3-6475-477C-B569-B241B077EEFA}.Release|x86.Build.0 = Release|Any CPU
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Debug|x64.Build.0 = Debug|Any CPU
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Debug|x86.Build.0 = Debug|Any CPU
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Release|x64.ActiveCfg = Release|Any CPU
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Release|x64.Build.0 = Release|Any CPU
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Release|x86.ActiveCfg = Release|Any CPU
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,6 +79,7 @@ Global
 		{967E5110-A79D-4BBF-A039-29646474B141} = {FCA2625C-F670-47C8-A57C-0CDDA75191D5}
 		{3CE96B29-8A19-44E8-A90D-E104A2811C38} = {FCA2625C-F670-47C8-A57C-0CDDA75191D5}
 		{E05F34D3-6475-477C-B569-B241B077EEFA} = {FCA2625C-F670-47C8-A57C-0CDDA75191D5}
+		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED} = {FCA2625C-F670-47C8-A57C-0CDDA75191D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EA46B082-AED4-4EA9-BAD9-924D6448AABE}
