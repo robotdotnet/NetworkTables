@@ -9,10 +9,10 @@ namespace FRC.NetworkTables
     public readonly struct NetworkTableValue
     {
         public NtType Type => Value.Type;
-        public readonly NT_ManagedValue Value;
+        public readonly ManagedValue Value;
         public bool IsValid => Type != NtType.Unassigned;
 
-        internal NetworkTableValue(in NT_ManagedValue value)
+        internal NetworkTableValue(in ManagedValue value)
         {
             this.Value = value;
         }
@@ -98,13 +98,13 @@ namespace FRC.NetworkTables
         /// <returns>string contained in type</returns>
         /// <exception cref="InvalidCastException">Thrown if
         /// type is not string.</exception>
-        public string GetString()
+        public ReadOnlySpan<char> GetString()
         {
             if (Type != NtType.String)
             {
                 throw new InvalidCastException($"cannot convert {Type} to string");
             }
-            return Value.Data.VString;
+            return Value.Data.VString.Span;
         }
 
         //For reference types (other then strings) return copies;
@@ -115,13 +115,13 @@ namespace FRC.NetworkTables
         /// <returns>raw byte array contained in type</returns>
         /// <exception cref="InvalidCastException">Thrown if
         /// type is not raw.</exception>
-        public byte[] GetRaw()
+        public ReadOnlySpan<byte> GetRaw()
         {
             if (Type != NtType.Raw)
             {
                 throw new InvalidCastException($"cannot convert {Type} to raw");
             }
-            return Value.Data.VRaw;
+            return Value.Data.VRaw.Span;
         }
 
         /// <summary>
@@ -130,13 +130,13 @@ namespace FRC.NetworkTables
         /// <returns>rpc byte array contained in type</returns>
         /// <exception cref="InvalidCastException">Thrown if
         /// type is not rpc.</exception>
-        public byte[] GetRpc()
+        public ReadOnlySpan<byte> GetRpc()
         {
             if (Type != NtType.Rpc)
             {
                 throw new InvalidCastException($"cannot convert {Type} to Rpc");
             }
-            return Value.Data.VRaw;
+            return Value.Data.VRaw.Span;
         }
 
         /// <summary>
@@ -145,13 +145,13 @@ namespace FRC.NetworkTables
         /// <returns>boolean array contained in type</returns>
         /// <exception cref="InvalidCastException">Thrown if
         /// type is not boolean array.</exception>
-        public bool[] GetBooleanArray()
+        public ReadOnlySpan<bool> GetBooleanArray()
         {
             if (Type != NtType.BooleanArray)
             {
                 throw new InvalidCastException($"cannot convert {Type} to boolean array");
             }
-            return Value.Data.VBooleanArray;
+            return Value.Data.VBooleanArray.Span;
         }
 
         /// <summary>
@@ -160,13 +160,13 @@ namespace FRC.NetworkTables
         /// <returns>double array contained in type</returns>
         /// <exception cref="InvalidCastException">Thrown if
         /// type is not double array.</exception>
-        public double[] GetDoubleArray()
+        public ReadOnlySpan<double> GetDoubleArray()
         {
             if (Type != NtType.DoubleArray)
             {
                 throw new InvalidCastException($"cannot convert {Type} to double array");
             }
-            return Value.Data.VDoubleArray;
+            return Value.Data.VDoubleArray.Span;
         }
 
         /// <summary>
@@ -175,53 +175,91 @@ namespace FRC.NetworkTables
         /// <returns>string array contained in type</returns>
         /// <exception cref="InvalidCastException">Thrown if
         /// type is not string arrya.</exception>
-        public string[] GetStringArray()
+        public ReadOnlySpan<string> GetStringArray()
         {
             if (Type != NtType.StringArray)
             {
                 throw new InvalidCastException($"cannot convert {Type} to string array");
             }
-            return Value.Data.VStringArray;
+            return Value.Data.VStringArray.Span;
         }
 
         public static NetworkTableValue MakeBoolean(bool value)
         {
-            return new NetworkTableValue(new NT_ManagedValue(value, NtCore.Now()));
+            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
         }
 
         public static NetworkTableValue MakeDouble(double value)
         {
-            return new NetworkTableValue(new NT_ManagedValue(value, NtCore.Now()));
+            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
         }
 
         public static NetworkTableValue MakeString(string value)
         {
-            return new NetworkTableValue(new NT_ManagedValue(value, NtCore.Now()));
+            return new NetworkTableValue(new ManagedValue(value.AsSpan(), NtCore.Now()));
         }
 
-        public static NetworkTableValue MakeRaw(byte[] value)
+        public static NetworkTableValue MakeString(ReadOnlySpan<char> value)
         {
-            return new NetworkTableValue(new NT_ManagedValue(value, NtCore.Now()));
+            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
         }
 
-        public static NetworkTableValue MakeRpc(byte[] value)
+        public static NetworkTableValue MakeRaw(ReadOnlySpan<byte> value)
         {
-            return new NetworkTableValue(new NT_ManagedValue(value, NtCore.Now(), true));
+            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
         }
 
-        public static NetworkTableValue MakeBooleanArray(bool[] value)
+        public static NetworkTableValue MakeRpc(ReadOnlySpan<byte> value)
         {
-            return new NetworkTableValue(new NT_ManagedValue(value, NtCore.Now()));
+            return new NetworkTableValue(new ManagedValue(value, NtCore.Now(), true));
         }
 
-        public static NetworkTableValue MakeDoubleArray(double[] value)
+        public static NetworkTableValue MakeBooleanArray(ReadOnlySpan<bool> value)
         {
-            return new NetworkTableValue(new NT_ManagedValue(value, NtCore.Now()));
+            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
         }
 
-        public static NetworkTableValue MakeStringArray(string[] value)
+        public static NetworkTableValue MakeDoubleArray(ReadOnlySpan<double> value)
         {
-            return new NetworkTableValue(new NT_ManagedValue(value, NtCore.Now()));
+            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
+        }
+
+        public static NetworkTableValue MakeStringArray(ReadOnlySpan<string> value)
+        {
+            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
+        }
+
+        public override bool Equals(object obj)
+        { 
+            return false;
+        }
+
+        public bool Equals(NetworkTableValue other)
+        {
+            if (Type != other.Type) return false;
+            switch (Type)
+            {
+                case NtType.Unassigned:
+                    return true;
+                case NtType.Boolean:
+                    return Value.Data.VBoolean == other.Value.Data.VBoolean;
+                case NtType.Double:
+                    return Value.Data.VDouble == other.Value.Data.VDouble;
+                case NtType.String:
+                    break;
+                case NtType.Raw:
+                case NtType.Rpc:
+                    break;
+                case NtType.BooleanArray:
+                    break;
+                case NtType.DoubleArray:
+                    break;
+                case NtType.StringArray:
+                    break;
+                default:
+                    return false;
+            }
+            return true;
         }
     }
 }

@@ -19,7 +19,7 @@ namespace FRC.NetworkTables
         /// <summary>Gets the Protocol Version of the Connection.</summary>
         public readonly int ProtocolVersion;
 
-        internal unsafe ConnectionInfo(NT_ConnectionInfo* info)
+        internal unsafe ConnectionInfo(NtConnectionInfo* info)
         {
             RemoteId = UTF8String.ReadUTF8String(info->remote_id);
             RemoteIp = UTF8String.ReadUTF8String(info->remote_ip);

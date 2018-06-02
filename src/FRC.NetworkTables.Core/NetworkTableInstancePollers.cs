@@ -7,10 +7,10 @@ namespace FRC.NetworkTables
 {
     public partial class NetworkTableInstance
     {
-        private readonly ConcurrentDictionary<NT_EntryListener, InAction<EntryNotification>> m_entryListeners = new ConcurrentDictionary<NT_EntryListener, InAction<EntryNotification>>();
+        private readonly ConcurrentDictionary<EntryListener, InAction<EntryNotification>> m_entryListeners = new ConcurrentDictionary<EntryListener, InAction<EntryNotification>>();
         private readonly Lazy<CancellationTokenSource> m_entryListenerToken;
         private Thread m_entryListenerThread;
-        private NT_EntryListenerPoller m_entryListenerPoller;
+        private EntryListenerPoller m_entryListenerPoller;
         private readonly object m_entryListenerWaitQueueLock = new object();
         private bool m_entryListenerWaitQueue = false;
 
@@ -34,7 +34,7 @@ namespace FRC.NetworkTables
                     {
                         break;
                     }
-                    if (events == null)
+                    if (events.Length == 0)
                     {
                         lock (m_entryListenerWaitQueueLock)
                         {
@@ -66,7 +66,7 @@ namespace FRC.NetworkTables
                     {
                         NtCore.DestroyEntryListenerPoller(m_entryListenerPoller);
                     }
-                    m_entryListenerPoller = new NT_EntryListenerPoller();
+                    m_entryListenerPoller = new EntryListenerPoller();
                 }
             })
             {
@@ -78,7 +78,7 @@ namespace FRC.NetworkTables
             return source;
         }
 
-        public NT_EntryListener AddEntryListener(string prefix, InAction<EntryNotification> listener, NotifyFlags flags)
+        public EntryListener AddEntryListener(string prefix, InAction<EntryNotification> listener, NotifyFlags flags)
         {
             var token = m_entryListenerToken.Value;
             var handle = NtCore.AddPolledEntryListener(m_entryListenerPoller, prefix, flags);
@@ -86,7 +86,7 @@ namespace FRC.NetworkTables
             return handle;
         }
 
-        public NT_EntryListener AddEntryListener(in NetworkTableEntry entry, InAction<EntryNotification> listener, NotifyFlags flags)
+        public EntryListener AddEntryListener(in NetworkTableEntry entry, InAction<EntryNotification> listener, NotifyFlags flags)
         {
             var token = m_entryListenerToken.Value;
             var handle = NtCore.AddPolledEntryListener(m_entryListenerPoller, entry, flags);
@@ -94,7 +94,7 @@ namespace FRC.NetworkTables
             return handle;
         }
 
-        public void RemoveEntryListener(NT_EntryListener listener)
+        public void RemoveEntryListener(EntryListener listener)
         {
             NtCore.RemoveEntryListener(listener);
         }
@@ -128,10 +128,10 @@ namespace FRC.NetworkTables
 
 
 
-        private readonly ConcurrentDictionary<NT_ConnectionListener, InAction<ConnectionNotification>> m_connectionListeners = new ConcurrentDictionary<NT_ConnectionListener, InAction<ConnectionNotification>>();
+        private readonly ConcurrentDictionary<ConnectionListener, InAction<ConnectionNotification>> m_connectionListeners = new ConcurrentDictionary<ConnectionListener, InAction<ConnectionNotification>>();
         private readonly Lazy<CancellationTokenSource> m_connectionListenerToken;
         private Thread m_connectionListenerThread;
-        private NT_ConnectionListenerPoller m_connectionListenerPoller;
+        private ConnectionListenerPoller m_connectionListenerPoller;
         private readonly object m_connectionListenerWaitQueueLock = new object();
         private bool m_connectionListenerWaitQueue = false;
 
@@ -187,7 +187,7 @@ namespace FRC.NetworkTables
                     {
                         NtCore.DestroyConnectionListenerPoller(m_connectionListenerPoller);
                     }
-                    m_connectionListenerPoller = new NT_ConnectionListenerPoller();
+                    m_connectionListenerPoller = new ConnectionListenerPoller();
                 }
             })
             {
@@ -199,7 +199,7 @@ namespace FRC.NetworkTables
             return source;
         }
 
-        public NT_ConnectionListener AddConnectionListener(InAction<ConnectionNotification> listener, bool immediateNotify)
+        public ConnectionListener AddConnectionListener(InAction<ConnectionNotification> listener, bool immediateNotify)
         {
             var token = m_connectionListenerToken.Value;
             var handle = NtCore.AddPolledConnectionListener(m_connectionListenerPoller, immediateNotify);
@@ -207,7 +207,7 @@ namespace FRC.NetworkTables
             return handle;
         }
 
-        public void RemoveConnectionListener(NT_ConnectionListener listener)
+        public void RemoveConnectionListener(ConnectionListener listener)
         {
             m_connectionListeners.TryRemove(listener, out var _);
             NtCore.RemoveConnectionListener(listener);
@@ -239,10 +239,10 @@ namespace FRC.NetworkTables
             return true;
         }
 
-        private readonly ConcurrentDictionary<NT_Entry, InAction<RpcAnswer>> m_rpcCalls = new ConcurrentDictionary<NT_Entry, InAction<RpcAnswer>>();
+        private readonly ConcurrentDictionary<Entry, InAction<RpcAnswer>> m_rpcCalls = new ConcurrentDictionary<Entry, InAction<RpcAnswer>>();
         private readonly Lazy<CancellationTokenSource> m_rpcListenerToken;
         private Thread m_rpcListenerThread;
-        private NT_RpcCallPoller m_rpcListenerPoller;
+        private RpcCallPoller m_rpcListenerPoller;
         private readonly object m_rpcListenerWaitQueueLock = new object();
         private bool m_rpcListenerWaitQueue = false;
 
@@ -298,7 +298,7 @@ namespace FRC.NetworkTables
                     {
                         NtCore.DestroyRpcCallPoller(m_rpcListenerPoller);
                     }
-                    m_rpcListenerPoller = new NT_RpcCallPoller();
+                    m_rpcListenerPoller = new RpcCallPoller();
                 }
             })
             {
@@ -350,10 +350,10 @@ namespace FRC.NetworkTables
 
 
 
-        private readonly ConcurrentDictionary<NT_Logger, InAction<LogMessage>> m_loggerListeners = new ConcurrentDictionary<NT_Logger, InAction<LogMessage>>();
+        private readonly ConcurrentDictionary<Logger, InAction<LogMessage>> m_loggerListeners = new ConcurrentDictionary<Logger, InAction<LogMessage>>();
         private readonly Lazy<CancellationTokenSource> m_loggerListenerToken;
         private Thread m_loggerListenerThread;
-        private NT_LoggerPoller m_loggerListenerPoller;
+        private LoggerPoller m_loggerListenerPoller;
         private readonly object m_loggerListenerWaitQueueLock = new object();
         private bool m_loggerListenerWaitQueue = false;
 
@@ -409,7 +409,7 @@ namespace FRC.NetworkTables
                     {
                         NtCore.DestroyLoggerPoller(m_loggerListenerPoller);
                     }
-                    m_loggerListenerPoller = new NT_LoggerPoller();
+                    m_loggerListenerPoller = new LoggerPoller();
                 }
             })
             {
@@ -421,7 +421,7 @@ namespace FRC.NetworkTables
             return source;
         }
 
-        public NT_Logger AddLogger(InAction<LogMessage> listener, int minLevel, int maxLevel)
+        public Logger AddLogger(InAction<LogMessage> listener, int minLevel, int maxLevel)
         {
             var token = m_loggerListenerToken.Value;
             var handle = NtCore.AddPolledLogger(m_loggerListenerPoller, minLevel, maxLevel);
@@ -429,7 +429,7 @@ namespace FRC.NetworkTables
             return handle;
         }
 
-        public void RemoveLogger(NT_Logger listener)
+        public void RemoveLogger(Logger listener)
         {
             m_loggerListeners.TryRemove(listener, out var _);
             NtCore.RemoveLogger(listener);

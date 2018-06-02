@@ -10,7 +10,7 @@ namespace FRC.NetworkTables
     /// </summary>
     public readonly struct EntryInfo
     {
-        public readonly NT_Entry EntryHandle;
+        public readonly Entry EntryHandle;
         /// <summary>Gets the Name of the entry.</summary>
         public readonly string Name;
         /// <summary>Gets the Type of the entry.</summary>
@@ -23,7 +23,7 @@ namespace FRC.NetworkTables
         public NetworkTableEntry Entry => new NetworkTableEntry(m_instance, EntryHandle);
         private readonly NetworkTableInstance m_instance;
 
-        internal unsafe EntryInfo(NetworkTableInstance instance, NT_EntryInfo* entryInfo)
+        internal unsafe EntryInfo(NetworkTableInstance instance, NtEntryInfo* entryInfo)
         {
             EntryHandle = entryInfo->entry;
             Type = (NtType)entryInfo->type;

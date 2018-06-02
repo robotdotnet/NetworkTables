@@ -5,16 +5,16 @@ using System.Text;
 
 namespace FRC.NetworkTables.Interop
 {
-    public readonly struct NT_Bool
+    public readonly struct NtBool
     {
         private readonly int m_value;
 
-        public NT_Bool(int value)
+        public NtBool(int value)
         {
             this.m_value = value;
         }
 
-        public NT_Bool(bool value)
+        public NtBool(bool value)
         {
             this.m_value = value ? 1 : 0;
         }
@@ -24,13 +24,13 @@ namespace FRC.NetworkTables.Interop
             return m_value != 0;
         }
 
-        public static implicit operator NT_Bool(bool value)
+        public static implicit operator NtBool(bool value)
         {
-            return new NT_Bool(value);
+            return new NtBool(value);
         }
     }
 
-    public unsafe struct NT_String
+    public unsafe struct NtString
     {
         public byte* str;
         public UIntPtr len;
@@ -38,7 +38,7 @@ namespace FRC.NetworkTables.Interop
 
     public unsafe struct BoolArr
     {
-        public NT_Bool* arr;
+        public NtBool* arr;
         public UIntPtr len;
     }
 
@@ -50,7 +50,7 @@ namespace FRC.NetworkTables.Interop
 
     public unsafe struct StringArr
     {
-        public NT_String* arr;
+        public NtString* arr;
         public UIntPtr len;
     }
 
@@ -58,13 +58,13 @@ namespace FRC.NetworkTables.Interop
     public struct DataUnion
     {
         [FieldOffset(0)]
-        public NT_Bool v_boolean;
+        public NtBool v_boolean;
         [FieldOffset(0)]
         public double v_double;
         [FieldOffset(0)]
-        public NT_String v_string;
+        public NtString v_string;
         [FieldOffset(0)]
-        public NT_String v_raw;
+        public NtString v_raw;
         [FieldOffset(0)]
         public BoolArr arr_boolean;
         [FieldOffset(0)]
@@ -73,81 +73,81 @@ namespace FRC.NetworkTables.Interop
         public StringArr arr_string;
     }
 
-    public struct NT_Value
+    public struct NtValue
     {
         public NtType type;
         public ulong last_change;
         public DataUnion data;
     }
 
-    public struct NT_EntryInfo
+    public struct NtEntryInfo
     {
-        public NT_Entry entry;
-        public NT_String name;
+        public Entry entry;
+        public NtString name;
         public NtType type;
         public uint flags;
         public ulong last_change;
     }
 
-    public struct NT_ConnectionInfo
+    public struct NtConnectionInfo
     {
-        public NT_String remote_id;
-        public NT_String remote_ip;
+        public NtString remote_id;
+        public NtString remote_ip;
         public uint remote_port;
         public ulong last_update;
         public uint protocol_version;
     }
 
-    public struct NT_RpcParamDef
+    public struct NtRpcParamDef
     {
-        public NT_String name;
+        public NtString name;
         public NtType type;
     }
 
-    public struct NT_RpcResultDef
+    public struct NtRpcResultDef
     {
-        public NT_String name;
+        public NtString name;
         public NtType type;
     }
 
-    public unsafe struct NT_RpcDefinition
+    public unsafe struct NtRpcDefinition
     {
         public uint version;
-        public NT_String name;
+        public NtString name;
         public UIntPtr num_params;
-        public NT_RpcParamDef* @params;
+        public NtRpcParamDef* @params;
         public UIntPtr num_results;
-        public NT_RpcResultDef* results;
+        public NtRpcResultDef* results;
     }
 
-    public struct NT_RpcAnswer
+    public struct NtRpcAnswer
     {
-        public NT_Entry entry;
-        public NT_RpcCall call;
-        public NT_String name;
-        public NT_String @params;
-        public NT_ConnectionInfo conn;
+        public Entry entry;
+        public RpcCall call;
+        public NtString name;
+        public NtString @params;
+        public NtConnectionInfo conn;
     }
 
-    public struct NT_EntryNotification
+    public struct NtEntryNotification
     {
-        public NT_EntryListener listener;
-        public NT_Entry entry;
-        public NT_String name;
-        public NT_Value value;
+        public EntryListener listener;
+        public Entry entry;
+        public NtString name;
+        public NtValue value;
         public uint flags;
     }
 
-    public struct NT_ConnectionNotification
+    public struct NtConnectionNotification
     {
-        public NT_ConnectionListener listener;
-        public NT_Bool connected;
-        public NT_ConnectionInfo conn;
+        public ConnectionListener listener;
+        public NtBool connected;
+        public NtConnectionInfo conn;
     }
 
-    public unsafe struct NT_LogMessage
+    public unsafe struct NtLogMessage
     {
-        public NT_Logger logger;
+        public Logger logger;
         public uint level;
         public byte* filename;
         public uint line;

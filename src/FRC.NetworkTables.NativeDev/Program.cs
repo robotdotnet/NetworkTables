@@ -18,7 +18,7 @@ namespace FRC.NetworkTables.NativeDev
 
             unsafe
             {
-                Console.WriteLine(sizeof(NT_EntryNotification));
+                Console.WriteLine(sizeof(NtEntryNotification));
             }
 
             inst.AddEntryListener("", (in EntryNotification notify) =>
@@ -28,7 +28,7 @@ namespace FRC.NetworkTables.NativeDev
                    Console.WriteLine($"{notify.Name} : {notify.Value.GetDouble()}");
                 }
 
-            }, NotifyFlags.NotifyUpdate);
+            }, NotifyFlags.Update);
 
             inst.StartClientTeam(9999);
 

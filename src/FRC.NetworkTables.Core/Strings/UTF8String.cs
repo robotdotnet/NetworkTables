@@ -65,7 +65,7 @@ namespace FRC.NetworkTables.Strings
         /// <param name="str">The pointer to read from</param>
         /// <param name="size">The length of the string</param>
         /// <returns>The managed string</returns>
-        public static unsafe string ReadUTF8String(NT_String str)
+        public static unsafe string ReadUTF8String(NtString str)
         {
             return Encoding.UTF8.GetString(str.str, (int)str.len);
         }

@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRC.NetworkTables.NativeDev
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRC.NetworkTables.Core.DesktopLibraries", "src\FRC.NetworkTables.Core.DesktopLibraries\FRC.NetworkTables.Core.DesktopLibraries.csproj", "{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{540AC47D-3009-4CE1-8052-31639DF3E962}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRC.NetworkTables.Core.Test", "test\FRC.NetworkTables.Core.Test\FRC.NetworkTables.Core.Test.csproj", "{59184BE7-93CE-4416-94B8-F0CA32C1949B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +75,18 @@ Global
 		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Release|x64.Build.0 = Release|Any CPU
 		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Release|x86.ActiveCfg = Release|Any CPU
 		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Release|x86.Build.0 = Release|Any CPU
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B}.Debug|x64.Build.0 = Debug|Any CPU
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B}.Debug|x86.Build.0 = Debug|Any CPU
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B}.Release|x64.ActiveCfg = Release|Any CPU
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B}.Release|x64.Build.0 = Release|Any CPU
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B}.Release|x86.ActiveCfg = Release|Any CPU
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,6 +96,7 @@ Global
 		{3CE96B29-8A19-44E8-A90D-E104A2811C38} = {FCA2625C-F670-47C8-A57C-0CDDA75191D5}
 		{E05F34D3-6475-477C-B569-B241B077EEFA} = {FCA2625C-F670-47C8-A57C-0CDDA75191D5}
 		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED} = {FCA2625C-F670-47C8-A57C-0CDDA75191D5}
+		{59184BE7-93CE-4416-94B8-F0CA32C1949B} = {540AC47D-3009-4CE1-8052-31639DF3E962}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EA46B082-AED4-4EA9-BAD9-924D6448AABE}

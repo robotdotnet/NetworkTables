@@ -9,7 +9,7 @@ namespace FRC.NetworkTables
     {
         public const int kPersistent = 0x01;
 
-        public NetworkTableEntry(NetworkTableInstance inst, NT_Entry handle)
+        public NetworkTableEntry(NetworkTableInstance inst, Entry handle)
         {
             Instance = inst;
             Handle = handle;
@@ -17,7 +17,7 @@ namespace FRC.NetworkTables
 
         public bool IsValid => Handle.Get() != 0;
 
-        public readonly NT_Entry Handle;
+        public readonly Entry Handle;
 
         public readonly NetworkTableInstance Instance;
 
@@ -61,52 +61,62 @@ namespace FRC.NetworkTables
             return defaultValue;
         }
 
-        public string GetString(string defaultValue)
+        public ReadOnlySpan<char> GetString(string defaultValue)
         {
             var entry = NtCore.GetEntryValue(Handle);
             if (entry.Type == NtType.String)
             {
-                return entry.Data.VString;
+                return entry.Data.VString.Span;
+            }
+            return defaultValue.AsSpan();
+        }
+
+        public ReadOnlySpan<char> GetString(ReadOnlySpan<char> defaultValue)
+        {
+            var entry = NtCore.GetEntryValue(Handle);
+            if (entry.Type == NtType.String)
+            {
+                return entry.Data.VString.Span;
             }
             return defaultValue;
         }
 
-        public byte[] GetRaw(byte[] defaultValue)
+        public ReadOnlySpan<byte> GetRaw(ReadOnlySpan<byte> defaultValue)
         {
             var entry = NtCore.GetEntryValue(Handle);
             if (entry.Type == NtType.Raw)
             {
-                return entry.Data.VRaw;
+                return entry.Data.VRaw.Span;
             }
             return defaultValue;
         }
 
-        public bool[] GetBooleanArray(bool[] defaultValue)
+        public ReadOnlySpan<bool> GetBooleanArray(ReadOnlySpan<bool> defaultValue)
         {
             var entry = NtCore.GetEntryValue(Handle);
             if (entry.Type == NtType.BooleanArray)
             {
-                return entry.Data.VBooleanArray;
+                return entry.Data.VBooleanArray.Span;
             }
             return defaultValue;
         }
 
-        public double[] GetDoubleArray(double[] defaultValue)
+        public ReadOnlySpan<double> GetDoubleArray(ReadOnlySpan<double> defaultValue)
         {
             var entry = NtCore.GetEntryValue(Handle);
             if (entry.Type == NtType.DoubleArray)
             {
-                return entry.Data.VDoubleArray;
+                return entry.Data.VDoubleArray.Span;
             }
             return defaultValue;
         }
 
-        public string[] GetStringArray(string[] defaultValue)
+        public ReadOnlySpan<string> GetStringArray(ReadOnlySpan<string> defaultValue)
         {
             var entry = NtCore.GetEntryValue(Handle);
             if (entry.Type == NtType.StringArray)
             {
-                return entry.Data.VStringArray;
+                return entry.Data.VStringArray.Span;
             }
             return defaultValue;
         }
@@ -142,16 +152,19 @@ namespace FRC.NetworkTables
             }
         }
 
+        public bool SetDefaultValue(in NetworkTableValue value)
+        {
+            return NtCore.SetDefaultEntryValue(Handle, value.Value);
+        }
+
         public bool SetDefaultValue<T>(T defaultValue)
         {
             switch(defaultValue)
             {
-                case NetworkTableValue v:
-                    return NtCore.SetDefaultEntryValue(Handle, v.Value);
                 case bool v:
                     return SetDefaultBoolean(v);
                 case string v:
-                    return SetDefaultString(v);
+                    return SetDefaultString(v.AsSpan());
                 case byte[] v:
                     return SetDefaultRaw(v);
                 case bool[] v:
@@ -173,49 +186,57 @@ namespace FRC.NetworkTables
 
         public bool SetDefaultBoolean(bool defaultValue)
         {
-            return NtCore.SetDefaultEntryValue(Handle, new NT_ManagedValue(defaultValue, 0));
+            return NtCore.SetDefaultEntryValue(Handle, new RefManagedValue(defaultValue, 0));
         }
 
         public bool SetDefaultDouble(double defaultValue)
         {
-            return NtCore.SetDefaultEntryValue(Handle, new NT_ManagedValue(defaultValue, 0));
+            return NtCore.SetDefaultEntryValue(Handle, new RefManagedValue(defaultValue, 0));
         }
 
         public bool SetDefaultString(string defaultValue)
         {
-            return NtCore.SetDefaultEntryValue(Handle, new NT_ManagedValue(defaultValue, 0));
+            return NtCore.SetDefaultEntryValue(Handle, new RefManagedValue(defaultValue.AsSpan(), 0));
         }
 
-        public bool SetDefaultRaw(byte[] defaultValue)
+        public bool SetDefaultString(ReadOnlySpan<char> defaultValue)
         {
-            return NtCore.SetDefaultEntryValue(Handle, new NT_ManagedValue(defaultValue, 0));
+            return NtCore.SetDefaultEntryValue(Handle, new RefManagedValue(defaultValue, 0));
         }
 
-        public bool SetDefaultBooleanArray(bool[] defaultValue)
+        public bool SetDefaultRaw(ReadOnlySpan<byte> defaultValue)
         {
-            return NtCore.SetDefaultEntryValue(Handle, new NT_ManagedValue(defaultValue, 0));
+            return NtCore.SetDefaultEntryValue(Handle, new RefManagedValue(defaultValue, 0));
         }
 
-        public bool SetDefaultDoubleArray(double[] defaultValue)
+        public bool SetDefaultBooleanArray(ReadOnlySpan<bool> defaultValue)
         {
-            return NtCore.SetDefaultEntryValue(Handle, new NT_ManagedValue(defaultValue, 0));
+            return NtCore.SetDefaultEntryValue(Handle, new RefManagedValue(defaultValue, 0));
         }
 
-        public bool SetDefaultStringArray(string[] defaultValue)
+        public bool SetDefaultDoubleArray(ReadOnlySpan<double> defaultValue)
         {
-            return NtCore.SetDefaultEntryValue(Handle, new NT_ManagedValue(defaultValue, 0));
+            return NtCore.SetDefaultEntryValue(Handle, new RefManagedValue(defaultValue, 0));
+        }
+
+        public bool SetDefaultStringArray(ReadOnlySpan<string> defaultValue)
+        {
+            return NtCore.SetDefaultEntryValue(Handle, new RefManagedValue(defaultValue, 0));
+        }
+
+        public bool SetValue(in NetworkTableValue value)
+        {
+            return NtCore.SetDefaultEntryValue(Handle, value.Value);
         }
 
         public bool SetValue<T>(T value)
         {
             switch (value)
             {
-                case NetworkTableValue v:
-                    return NtCore.SetDefaultEntryValue(Handle, v.Value);
                 case bool v:
                     return SetBoolean(v);
                 case string v:
-                    return SetString(v);
+                    return SetString(v.AsSpan());
                 case byte[] v:
                     return SetRaw(v);
                 case bool[] v:
@@ -237,51 +258,58 @@ namespace FRC.NetworkTables
 
         public bool SetBoolean(bool value)
         {
-            return NtCore.SetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            return NtCore.SetEntryValue(Handle, new RefManagedValue(value, 0));
         }
 
         public bool SetDouble(double value)
         {
-            return NtCore.SetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            return NtCore.SetEntryValue(Handle, new RefManagedValue(value, 0));
         }
 
         public bool SetString(string value)
         {
-            return NtCore.SetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            return NtCore.SetEntryValue(Handle, new RefManagedValue(value.AsSpan(), 0));
         }
 
-        public bool SetRaw(byte[] value)
+        public bool SetString(ReadOnlySpan<char> value)
         {
-            return NtCore.SetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            return NtCore.SetEntryValue(Handle, new RefManagedValue(value, 0));
         }
 
-        public bool SetBooleanArray(bool[] value)
+        public bool SetRaw(ReadOnlySpan<byte> value)
         {
-            return NtCore.SetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            return NtCore.SetEntryValue(Handle, new RefManagedValue(value, 0));
         }
 
-        public bool SetDoubleArray(double[] value)
+        public bool SetBooleanArray(ReadOnlySpan<bool> value)
         {
-            return NtCore.SetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            return NtCore.SetEntryValue(Handle, new RefManagedValue(value, 0));
         }
 
-        public bool SetStringArray(string[] value)
+        public bool SetDoubleArray(ReadOnlySpan<double> value)
         {
-            return NtCore.SetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            return NtCore.SetEntryValue(Handle, new RefManagedValue(value, 0));
+        }
+
+        public bool SetStringArray(ReadOnlySpan<string> value)
+        {
+            return NtCore.SetEntryValue(Handle, new RefManagedValue(value, 0));
+        }
+
+        public void ForceSetValue(in NetworkTableValue value)
+        {
+            NtCore.SetDefaultEntryValue(Handle, value.Value);
         }
 
         public void ForceSetValue<T>(T value)
         {
             switch (value)
             {
-                case NetworkTableValue v:
-                    NtCore.SetDefaultEntryValue(Handle, v.Value);
-                    break;
                 case bool v:
                     ForceSetBoolean(v);
                     break;
                 case string v:
-                    ForceSetString(v);
+                    ForceSetString(v.AsSpan());
                     break;
                 case byte[] v:
                     ForceSetRaw(v);
@@ -309,37 +337,42 @@ namespace FRC.NetworkTables
 
         public void ForceSetBoolean(bool value)
         {
-            NtCore.ForceSetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            NtCore.SetEntryTypeValue(Handle, new RefManagedValue(value, 0));
         }
 
         public void ForceSetDouble(double value)
         {
-            NtCore.ForceSetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            NtCore.SetEntryTypeValue(Handle, new RefManagedValue(value, 0));
         }
 
         public void ForceSetString(string value)
         {
-            NtCore.ForceSetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            NtCore.SetEntryTypeValue(Handle, new RefManagedValue(value.AsSpan(), 0));
         }
 
-        public void ForceSetRaw(byte[] value)
+        public void ForceSetString(ReadOnlySpan<char> value)
         {
-            NtCore.ForceSetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            NtCore.SetEntryTypeValue(Handle, new RefManagedValue(value, 0));
         }
 
-        public void ForceSetBooleanArray(bool[] value)
+        public void ForceSetRaw(ReadOnlySpan<byte> value)
         {
-            NtCore.ForceSetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            NtCore.SetEntryTypeValue(Handle, new RefManagedValue(value, 0));
         }
 
-        public void ForceSetDoubleArray(double[] value)
+        public void ForceSetBooleanArray(ReadOnlySpan<bool> value)
         {
-            NtCore.ForceSetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            NtCore.SetEntryTypeValue(Handle, new RefManagedValue(value, 0));
         }
 
-        public void ForceSetStringArray(string[] value)
+        public void ForceSetDoubleArray(ReadOnlySpan<double> value)
         {
-            NtCore.ForceSetEntryValue(Handle, new NT_ManagedValue(value, 0));
+            NtCore.SetEntryTypeValue(Handle, new RefManagedValue(value, 0));
+        }
+
+        public void ForceSetStringArray(ReadOnlySpan<string> value)
+        {
+            NtCore.SetEntryTypeValue(Handle, new RefManagedValue(value, 0));
         }
 
         public void SetFlags(EntryFlags flags)
@@ -382,12 +415,12 @@ namespace FRC.NetworkTables
             return new RpcCall(this, NtCore.CallRpc(Handle, @params));
         }
 
-        public NT_EntryListener AddListener(InAction<EntryNotification> listener, NotifyFlags flags)
+        public EntryListener AddListener(InAction<EntryNotification> listener, NotifyFlags flags)
         {
             return Instance.AddEntryListener(this, listener, flags);
         }
 
-        public void RemoveListener(NT_EntryListener listener)
+        public void RemoveListener(EntryListener listener)
         {
             Instance.RemoveEntryListener(listener);
         }

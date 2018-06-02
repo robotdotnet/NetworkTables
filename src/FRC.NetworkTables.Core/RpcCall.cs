@@ -7,13 +7,13 @@ namespace FRC.NetworkTables
 {
     public readonly struct RpcCall : IDisposable
     {
-        public RpcCall(NetworkTableEntry entry, NT_RpcCall call)
+        public RpcCall(NetworkTableEntry entry, Interop.RpcCall call)
         {
             Handle = call;
             Entry = entry;
         }
 
-        public readonly NT_RpcCall Handle;
+        public readonly Interop.RpcCall Handle;
         public readonly NetworkTableEntry Entry;
 
         public bool IsValid => Handle.Get() != 0;
@@ -54,8 +54,8 @@ namespace FRC.NetworkTables
 
         public Task<byte[]> GetResultAsync(CancellationToken token = default)
         {
-            NT_Entry handle = Entry.Handle;
-            NT_RpcCall call = Handle;
+            Entry handle = Entry.Handle;
+            Interop.RpcCall call = Handle;
             token.Register(() => {
                 NtCore.CancelRpcResult(handle, call);
             });

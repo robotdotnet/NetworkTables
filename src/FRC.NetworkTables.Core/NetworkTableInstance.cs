@@ -11,7 +11,7 @@ namespace FRC.NetworkTables
         public const int DefaultPort = 1735;
         private bool m_owned;
 
-        private NetworkTableInstance(NT_Inst handle)
+        private NetworkTableInstance(Instance handle)
         {
             m_owned = false;
             Handle = handle;
@@ -27,7 +27,7 @@ namespace FRC.NetworkTables
             if (m_owned && Handle.Get() != 0)
             {
                 NtCore.DestroyInstance(Handle);
-                Handle = new NT_Inst();
+                Handle = new Instance();
             }
         }
 
@@ -47,7 +47,7 @@ namespace FRC.NetworkTables
             return inst;
         }
 
-        public NT_Inst Handle { get; private set; }
+        public Instance Handle { get; private set; }
 
         public NetworkTableEntry GetEntry(string name)
         {

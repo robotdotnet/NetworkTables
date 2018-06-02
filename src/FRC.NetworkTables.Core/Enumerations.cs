@@ -55,31 +55,31 @@ namespace FRC.NetworkTables
         /// <summary>
         ///  Notify nobody
         /// </summary>
-        NotifyNone = 0x00,
+        None = 0x00,
         /// <summary>
         /// Initial listener addition
         /// </summary>
-        NotifyImmediate = 0x01,
+        Immediate = 0x01,
         /// <summary>
         /// Changed locally
         /// </summary>
-        NotifyLocal = 0x02,
+        Local = 0x02,
         /// <summary>
         /// Newly created entry
         /// </summary>
-        NotifyNew = 0x04,
+        New = 0x04,
         /// <summary>
         /// Deleted entry
         /// </summary>
-        NotifyDelete = 0x08,
+        Delete = 0x08,
         /// <summary>
         /// Value changed for entry
         /// </summary>
-        NotifyUpdate = 0x10,
+        Update = 0x10,
         /// <summary>
         /// Flags changed for entry
         /// </summary>
-        NotifyFlagsChanged = 0x20
+        FlagsChanged = 0x20
     };
 
     /// <summary>
@@ -104,23 +104,23 @@ namespace FRC.NetworkTables
     public enum LogLevel
     {
         ///
-        LogCritical = 50,
+        Critical = 50,
         ///
-        LogError = 40,
+        Error = 40,
         ///
-        LogWarning = 30,
+        Warning = 30,
         ///
-        LogInfo = 20,
+        Info = 20,
         ///
-        LogDebug = 10,
+        Debug = 10,
         ///
-        LogDebug1 = 9,
+        Debug1 = 9,
         ///
-        LogDebug2 = 8,
+        Debug2 = 8,
         ///
-        LogDebug3 = 7,
+        Debug3 = 7,
         ///
-        LogDebug4 = 6
+        Debug4 = 6
     }
 
     public enum NetworkMode
