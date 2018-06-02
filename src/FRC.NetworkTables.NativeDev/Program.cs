@@ -21,7 +21,7 @@ namespace FRC.NetworkTables.NativeDev
                 Console.WriteLine(sizeof(NtEntryNotification));
             }
 
-            inst.AddEntryListener("", (in EntryNotification notify) =>
+            inst.AddEntryListener("", (in RefEntryNotification notify) =>
             {
                 if (notify.Value.Type == NtType.Double)
                 {

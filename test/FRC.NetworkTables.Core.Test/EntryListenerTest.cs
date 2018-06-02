@@ -19,7 +19,10 @@ namespace FRC.NetworkTables.Core.Test
 
             var poller = NtCore.CreateConnectionListenerPoller(client.Handle);
             NtCore.AddPolledConnectionListener(poller, false);
-            Assert.NotEqual(0, NtCore.PollConnectionListenerTimeout(client, poller, 1.0, out var timedOut, Span<ConnectionNotification>.Empty).Length);
+            var polled = NtCore.PollConnectionListenerTimeout(poller, 1.0, out var timedOut);
+            var len = polled.Length;
+            NtCore.DisposeConnectionListenerSpan(polled);
+            Assert.NotEqual(0, len);
         }
 
         [Fact]
@@ -30,9 +33,9 @@ namespace FRC.NetworkTables.Core.Test
             {
                 Connect(server, client);
                 List<EntryNotification> events = new List<EntryNotification>();
-                var handle = server.AddEntryListener("/foo", (in EntryNotification n) =>
+                var handle = server.AddEntryListener("/foo", (in RefEntryNotification n) =>
                 {
-                    events.Add(n);
+                    events.Add(n.CopyNotification);
                 }, NotifyFlags.New);
 
                 client.GetEntry("/foo/bar").SetDouble(1.0);
