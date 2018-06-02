@@ -25,7 +25,7 @@ namespace FRC.NetworkTables.NativeDev
             {
                 if (notify.Value.Type == NtType.Double)
                 {
-                   Console.WriteLine($"{notify.Name} : {notify.Value.GetDouble()}");
+                   Console.WriteLine($"{notify.Name.ToString()} : {notify.Value.GetDouble()}");
                 }
 
             }, NotifyFlags.Update);

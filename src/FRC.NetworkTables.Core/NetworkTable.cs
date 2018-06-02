@@ -1,15 +1,13 @@
 ﻿using FRC.NetworkTables.Interop;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text;
 
 namespace FRC.NetworkTables
 {
-    public class NetworkTable
+    public class NetworkTable : IEquatable<NetworkTable>
     {
         public static readonly char PathSeparator = '/';
-        private readonly String m_pathWithSep;
+        private readonly string m_pathWithSep;
 
         public static string BasenameKey(string key)
         {
@@ -21,15 +19,12 @@ namespace FRC.NetworkTables
             return key.Substring(slash + 1);
         }
 
-        internal NetworkTable(NetworkTableInstance inst, string path)
+        internal NetworkTable(NetworkTableInstance inst, ReadOnlySpan<char> path)
         {
-            Path = path;
-            m_pathWithSep = path + PathSeparator;
+            var str = path.ToString();
+            Path = str;
+            m_pathWithSep = str + PathSeparator;
             Instance = inst;
-            m_entryFactory = (s) =>
-            {
-                return inst.GetEntry(m_pathWithSep + s);
-            };
         }
 
         public NetworkTableInstance Instance { get; }
@@ -39,13 +34,14 @@ namespace FRC.NetworkTables
             return $"NetworkTable: {Path}";
         }
 
-        private readonly ConcurrentDictionary<string, NetworkTableEntry> m_entries = new ConcurrentDictionary<string, NetworkTableEntry>();
-
-        private readonly Func<string, NetworkTableEntry> m_entryFactory;
-
         public NetworkTableEntry GetEntry(string key)
         {
-            return m_entries.GetOrAdd(key, m_entryFactory);
+            return Instance.GetEntry(m_pathWithSep + key);
+        }
+
+        public NetworkTableEntry GetEntry(ReadOnlySpan<char> key)
+        {
+            return Instance.GetEntry(m_pathWithSep + key.ToString());
         }
 
         public NtEntryListener AddEntryListener(TableEntryListener listener, NotifyFlags flags)
@@ -53,12 +49,23 @@ namespace FRC.NetworkTables
             int prefixLen = Path.Length + 1;
             return Instance.AddEntryListener(m_pathWithSep, (in RefEntryNotification evnt) =>
             {
-                ReadOnlySpan<char> relativeKey = evnt.Name.AsSpan().Slice(prefixLen);
+                ReadOnlySpan<char> relativeKey = evnt.Name.Slice(prefixLen);
                 if (relativeKey.IndexOf(PathSeparator) != -1)
                 {
                     return;
                 }
-                listener(this, relativeKey.ToString(), evnt.Entry, evnt.Value, evnt.Flags);
+                listener(this, relativeKey, evnt.Entry, evnt.Value, evnt.Flags);
+            }, flags);
+        }
+
+        public NtEntryListener AddEntryListener(ReadOnlySpan<char> key, TableEntryListener listener, NotifyFlags flags)
+        {
+            var entry = GetEntry(key);
+            int prefixLen = Path.Length + 1;
+            return Instance.AddEntryListener(entry, (in RefEntryNotification evnt) =>
+            {
+                ReadOnlySpan<char> relativeKey = evnt.Name.Slice(prefixLen);
+                listener(this, relativeKey, evnt.Entry, evnt.Value, evnt.Flags);
             }, flags);
         }
 
@@ -67,7 +74,7 @@ namespace FRC.NetworkTables
             var entry = GetEntry(key);
             return Instance.AddEntryListener(entry, (in RefEntryNotification evnt) =>
             {
-                listener(this, key, evnt.Entry, evnt.Value, evnt.Flags);
+                listener(this, key.AsSpan(), evnt.Entry, evnt.Value, evnt.Flags);
             }, flags);
         }
 
@@ -89,20 +96,21 @@ namespace FRC.NetworkTables
 
             return Instance.AddEntryListener(m_pathWithSep, (in RefEntryNotification evnt) =>
             {
-                ReadOnlySpan<char> relativeKey = evnt.Name.AsSpan().Slice(prefixLen);
+                ReadOnlySpan<char> relativeKey = evnt.Name.Slice(prefixLen);
                 int endSubTable = relativeKey.IndexOf(PathSeparator);
                 if (endSubTable == -1)
                 {
                     return;
                 }
                 relativeKey.Slice(0, endSubTable).ToString();
-                string subTableKey = relativeKey.Slice(0, endSubTable).ToString();
-                if (notifiedTable.Contains(subTableKey))
+                ReadOnlySpan<char> subTableKeySpan = relativeKey.Slice(0, endSubTable);
+                string subTableKeyStr = subTableKeySpan.ToString();
+                if (notifiedTable.Contains(subTableKeyStr))
                 {
                     return;
                 }
-                notifiedTable.Add(subTableKey);
-                listener(this, subTableKey, this.GetSubTable(subTableKey));
+                notifiedTable.Add(subTableKeyStr);
+                listener(this, subTableKeySpan, this.GetSubTable(subTableKeySpan));
             }, flags);
         }
 
@@ -113,7 +121,12 @@ namespace FRC.NetworkTables
 
         public NetworkTable GetSubTable(string key)
         {
-            return new NetworkTable(Instance, m_pathWithSep + key);
+            return new NetworkTable(Instance, (m_pathWithSep + key).AsSpan());
+        }
+
+        public NetworkTable GetSubTable(ReadOnlySpan<char> key)
+        {
+            return new NetworkTable(Instance, (m_pathWithSep + key.ToString()).AsSpan());
         }
 
         public bool ContainsKey(string key)
@@ -121,11 +134,21 @@ namespace FRC.NetworkTables
             return !(string.IsNullOrWhiteSpace(key)) && GetEntry(key).Exists();
         }
 
+        public bool ContainsKey(ReadOnlySpan<char> key)
+        {
+            return !key.IsEmpty && GetEntry(key).Exists();
+        }
+
         public bool ContainsSubTable(string key)
         {
             return NtCore.GetEntryCount(Instance.Handle, m_pathWithSep + key + PathSeparator, 0) != 0;
         }
-        
+
+        public bool ContainsSubTable(ReadOnlySpan<char> key)
+        {
+            return NtCore.GetEntryCount(Instance.Handle, m_pathWithSep + key.ToString() + PathSeparator, 0) != 0;
+        }
+
 
         public HashSet<string> GetKeys(NtType types)
         {
@@ -140,7 +163,6 @@ namespace FRC.NetworkTables
                 }
                 string rKey = relativeKey.ToString();
                 keys.Add(rKey);
-                m_entries.GetOrAdd(rKey, new NetworkTableEntry(Instance, info.EntryHandle));
             }
             return keys;
         }
@@ -172,14 +194,9 @@ namespace FRC.NetworkTables
             GetEntry(key).Delete();
         }
 
-        internal bool PutValue(string key, in NetworkTableValue value)
+        public void Delete(ReadOnlySpan<char> key)
         {
-            return GetEntry(key).SetValue(value);
-        }
-
-        internal bool SetDefaultValue(string key, in NetworkTableValue value)
-        {
-            return GetEntry(key).SetDefaultValue(value);
+            GetEntry(key).Delete();
         }
 
         internal NetworkTableValue GetValue(string key)
@@ -199,6 +216,40 @@ namespace FRC.NetworkTables
             return Instance.LoadEntries(filename, m_pathWithSep);
         }
 
-        // TODO: Equals
+        public bool Equals(NetworkTable other)
+        {
+            return Path.Equals(other.Path) && Instance.Equals(other.Instance);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is NetworkTable v)
+            {
+                return Equals(v);
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 13;
+                hash = (hash * 7) + Path.GetHashCode();
+                hash = (hash * 7) + Instance.GetHashCode();
+                return hash;
+            }
+        }
+
+        public static bool operator==(NetworkTable lhs, NetworkTable rhs)
+        {
+            return lhs?.Equals(rhs) ?? false;
+        }
+
+        public static bool operator !=(NetworkTable lhs, NetworkTable rhs)
+        {
+            return !lhs?.Equals(rhs) ?? true;
+        }
+
     }
 }

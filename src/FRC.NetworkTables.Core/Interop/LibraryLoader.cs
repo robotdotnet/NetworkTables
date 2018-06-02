@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace FRC.NetworkTables.Interop
 {
-    public class LibraryLoader
+    internal class LibraryLoader
     {
         private readonly Dictionary<OsType, string> m_nativeLibraryName = new Dictionary<OsType, string>();
 

@@ -11,6 +11,9 @@ using FRC.NetworkTables.Strings;
 
 namespace FRC.NetworkTables.Interop
 {
+    /// <summary>
+    /// Raw NT Core access function
+    /// </summary>
     public static class NtCore
     {
         private static INtCore m_ntcore;
@@ -91,47 +94,154 @@ namespace FRC.NetworkTables.Interop
             return m_ntcore.NT_GetInstanceFromHandle(handle);
         }
 
+        public static unsafe NtEntry GetEntry(NtInst inst, ReadOnlySpan<char> name)
+        {
+            fixed (char* p = name)
+            {
+                var dLen = Encoding.UTF8.GetByteCount(p, name.Length);
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                fixed (byte* d = dSpan)
+                {
+                    Encoding.UTF8.GetBytes(p, name.Length, d, dLen);
+                    return m_ntcore.NT_GetEntry(inst, d, (UIntPtr)dLen);
+                }
+            }
+        }
+
         public static unsafe NtEntry GetEntry(NtInst inst, string name)
         {
-            CachedNativeString ns = UTF8String.CreateCachedUTF8String(name);
-            return m_ntcore.NT_GetEntry(inst, ns.Buffer, ns.Length);
+            fixed (char* p = name)
+            {
+                var dLen = Encoding.UTF8.GetByteCount(p, name.Length);
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                fixed (byte* d = dSpan)
+                {
+                    Encoding.UTF8.GetBytes(p, name.Length, d, dLen);
+                    return m_ntcore.NT_GetEntry(inst, d, (UIntPtr)dLen);
+                }
+            }
+        }
+
+        public static unsafe int GetEntryCount(NtInst inst, ReadOnlySpan<char> prefix, NtType types)
+        {
+            fixed (char* p = prefix)
+            {
+                var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                fixed (byte* d = dSpan)
+                {
+                    Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
+                    UIntPtr count = UIntPtr.Zero;
+                    var data = m_ntcore.NT_GetEntries(inst, d, (UIntPtr)dLen, (uint)types, &count);
+                    int len = (int)count;
+                    m_ntcore.NT_DisposeEntryArray(data, count);
+                    return len;
+                }
+            }
         }
 
         public static unsafe int GetEntryCount(NtInst inst, string prefix, NtType types)
         {
-            var ns = UTF8String.CreateCachedUTF8String(prefix);
-            UIntPtr count = UIntPtr.Zero;
-            var data = m_ntcore.NT_GetEntries(inst, ns.Buffer, ns.Length, (uint)types, &count);
-            int len = (int)count;
-            m_ntcore.NT_DisposeEntryArray(data, count);
-            return len;
-        }
-
-        public static unsafe Span<NtEntry> GetEntries(NtInst inst, string prefix, NtType types, Span<NtEntry> store)
-        {
-            var ns = UTF8String.CreateCachedUTF8String(prefix);
-            UIntPtr count = UIntPtr.Zero;
-            var data = m_ntcore.NT_GetEntries(inst, ns.Buffer, ns.Length, (uint)types, &count);
-            int len = (int)count;
-            Span<NtEntry> entries = GetSpanOrBuffer(store, len);
-            new Span<NtEntry>(data, len).CopyTo(entries);
-            m_ntcore.NT_DisposeEntryArray(data, count);
-            return entries;
-        }
-
-        public static unsafe Span<NetworkTableEntry> GetEntriesManaged(NetworkTableInstance inst, string prefix, NtType types, Span<NetworkTableEntry> store)
-        {
-            var ns = UTF8String.CreateCachedUTF8String(prefix);
-            UIntPtr count = UIntPtr.Zero;
-            var data = m_ntcore.NT_GetEntries(inst.Handle, ns.Buffer, ns.Length, (uint)types, &count);
-            int len = (int)count;
-            Span<NetworkTableEntry> entries = GetSpanOrBuffer(store, len);
-            for (int i = 0; i < entries.Length; i++)
+            fixed (char* p = prefix)
             {
-                entries[i] = new NetworkTableEntry(inst, data[i]);
+                var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                fixed (byte* d = dSpan)
+                {
+                    Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
+                    UIntPtr count = UIntPtr.Zero;
+                    var data = m_ntcore.NT_GetEntries(inst, d, (UIntPtr)dLen, (uint)types, &count);
+                    int len = (int)count;
+                    m_ntcore.NT_DisposeEntryArray(data, count);
+                    return len;
+                }
             }
-            m_ntcore.NT_DisposeEntryArray(data, count);
-            return entries;
+        }
+
+        public static unsafe ReadOnlySpan<NtEntry> GetEntries(NtInst inst, ReadOnlySpan<char> prefix, NtType types, Span<NtEntry> store)
+        {
+            fixed (char* p = prefix)
+            {
+                var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                fixed (byte* d = dSpan)
+                {
+                    Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
+                    UIntPtr count = UIntPtr.Zero;
+                    var data = m_ntcore.NT_GetEntries(inst, d, (UIntPtr)dLen, (uint)types, &count);
+                    int len = (int)count;
+                    Span<NtEntry> entries = GetSpanOrBuffer(store, len);
+                    new Span<NtEntry>(data, len).CopyTo(entries);
+                    m_ntcore.NT_DisposeEntryArray(data, count);
+                    return entries;
+                }
+            }
+        }
+
+        public static unsafe ReadOnlySpan<NtEntry> GetEntries(NtInst inst, string prefix, NtType types, Span<NtEntry> store)
+        {
+            fixed (char* p = prefix)
+            {
+                var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                fixed (byte* d = dSpan)
+                {
+                    Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
+                    UIntPtr count = UIntPtr.Zero;
+                    var data = m_ntcore.NT_GetEntries(inst, d, (UIntPtr)dLen, (uint)types, &count);
+                    int len = (int)count;
+                    Span<NtEntry> entries = GetSpanOrBuffer(store, len);
+                    new Span<NtEntry>(data, len).CopyTo(entries);
+                    m_ntcore.NT_DisposeEntryArray(data, count);
+                    return entries;
+                }
+            }
+        }
+
+        public static unsafe ReadOnlySpan<NetworkTableEntry> GetEntriesManaged(NetworkTableInstance inst, ReadOnlySpan<char> prefix, NtType types, Span<NetworkTableEntry> store)
+        {
+            fixed (char* p = prefix)
+            {
+                var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                fixed (byte* d = dSpan)
+                {
+                    Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
+                    UIntPtr count = UIntPtr.Zero;
+                    var data = m_ntcore.NT_GetEntries(inst.Handle, d, (UIntPtr)dLen, (uint)types, &count);
+                    int len = (int)count;
+                    Span<NetworkTableEntry> entries = GetSpanOrBuffer(store, len);
+                    for (int i = 0; i < entries.Length; i++)
+                    {
+                        entries[i] = new NetworkTableEntry(inst, data[i]);
+                    }
+                    m_ntcore.NT_DisposeEntryArray(data, count);
+                    return entries;
+                }
+            }
+        }
+
+        public static unsafe ReadOnlySpan<NetworkTableEntry> GetEntriesManaged(NetworkTableInstance inst, string prefix, NtType types, Span<NetworkTableEntry> store)
+        {
+            fixed (char* p = prefix)
+            {
+                var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                fixed (byte* d = dSpan)
+                {
+                    Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
+                    UIntPtr count = UIntPtr.Zero;
+                    var data = m_ntcore.NT_GetEntries(inst.Handle, d, (UIntPtr)dLen, (uint)types, &count);
+                    int len = (int)count;
+                    Span<NetworkTableEntry> entries = GetSpanOrBuffer(store, len);
+                    for (int i = 0; i < entries.Length; i++)
+                    {
+                        entries[i] = new NetworkTableEntry(inst, data[i]);
+                    }
+                    m_ntcore.NT_DisposeEntryArray(data, count);
+                    return entries;
+                }
+            }
         }
 
         public static unsafe string GetEntryName(NtEntry entry)
@@ -641,19 +751,50 @@ namespace FRC.NetworkTables.Interop
             m_ntcore.NT_DeleteAllEntries(inst);
         }
 
-        public static unsafe Span<EntryInfo> GetEntryInfo(NetworkTableInstance inst, string prefix, NtType types, Span<EntryInfo> store)
+        public static unsafe ReadOnlySpan<EntryInfo> GetEntryInfo(NetworkTableInstance inst, ReadOnlySpan<char> prefix, NtType types, Span<EntryInfo> store)
         {
-            UIntPtr count = UIntPtr.Zero;
-            var ns = UTF8String.CreateCachedUTF8String(prefix);
-            var data = m_ntcore.NT_GetEntryInfo(inst.Handle, ns.Buffer, ns.Length, (uint)types, &count);
-            int len = (int)count;
-            Span<EntryInfo> entries = GetSpanOrBuffer(store, len);
-            for (int i = 0; i < entries.Length; i++)
+            fixed (char* p = prefix)
             {
-                entries[i] = new EntryInfo(inst, &data[i]);
+                var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                fixed (byte* d = dSpan)
+                {
+                    Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
+                    UIntPtr count = UIntPtr.Zero;
+                    var data = m_ntcore.NT_GetEntryInfo(inst.Handle, d, (UIntPtr)dLen, (uint)types, &count);
+                    int len = (int)count;
+                    Span<EntryInfo> entries = GetSpanOrBuffer(store, len);
+                    for (int i = 0; i < entries.Length; i++)
+                    {
+                        entries[i] = new EntryInfo(inst, &data[i]);
+                    }
+                    m_ntcore.NT_DisposeEntryInfoArray(data, count);
+                    return entries;
+                }
             }
-            m_ntcore.NT_DisposeEntryInfoArray(data, count);
-            return entries;
+        }
+
+        public static unsafe ReadOnlySpan<EntryInfo> GetEntryInfo(NetworkTableInstance inst, string prefix, NtType types, Span<EntryInfo> store)
+        {
+            fixed (char* p = prefix)
+            {
+                var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                fixed (byte* d = dSpan)
+                {
+                    Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
+                    UIntPtr count = UIntPtr.Zero;
+                    var data = m_ntcore.NT_GetEntryInfo(inst.Handle, d, (UIntPtr)dLen, (uint)types, &count);
+                    int len = (int)count;
+                    Span<EntryInfo> entries = GetSpanOrBuffer(store, len);
+                    for (int i = 0; i < entries.Length; i++)
+                    {
+                        entries[i] = new EntryInfo(inst, &data[i]);
+                    }
+                    m_ntcore.NT_DisposeEntryInfoArray(data, count);
+                    return entries;
+                }
+            }
         }
 
         public static unsafe EntryInfo? GetEntryInfoHandle(NetworkTableInstance inst, NtEntry entry)
@@ -702,8 +843,17 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe NtEntryListener AddPolledEntryListener(NtEntryListenerPoller poller, string prefix, NotifyFlags flags)
         {
-            var ns = UTF8String.CreateCachedUTF8String(prefix);
-            return m_ntcore.NT_AddPolledEntryListener(poller, ns.Buffer, ns.Length, (uint)flags);
+            fixed (char* p = prefix)
+            {
+                var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                fixed (byte* d = dSpan)
+                {
+                    Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
+                    return m_ntcore.NT_AddPolledEntryListener(poller, d, (UIntPtr)dLen, (uint)flags);
+                }
+            }
+
         }
 
         public static unsafe NtEntryListener AddPolledEntryListener(NtEntryListenerPoller poller, NetworkTableEntry entry, NotifyFlags flags)
@@ -906,7 +1056,7 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        public static unsafe Span<byte> GetRpcResult(NtEntry entry, NtRpcCall call, Span<byte> store)
+        public static unsafe ReadOnlySpan<byte> GetRpcResult(NtEntry entry, NtRpcCall call, Span<byte> store)
         {
             UIntPtr length = UIntPtr.Zero;
             byte* res = m_ntcore.NT_GetRpcResult(entry, call, &length);
@@ -917,7 +1067,7 @@ namespace FRC.NetworkTables.Interop
             return retVal;
         }
 
-        public static unsafe Span<byte> GetRpcResult(NtEntry entry, NtRpcCall call, double timeout, Span<byte> store)
+        public static unsafe ReadOnlySpan<byte> GetRpcResult(NtEntry entry, NtRpcCall call, double timeout, Span<byte> store)
         {
             UIntPtr length = UIntPtr.Zero;
             NtBool timedOut = false;
@@ -1079,7 +1229,7 @@ namespace FRC.NetworkTables.Interop
             m_ntcore.NT_Flush(inst);
         }
 
-        public static unsafe Span<ConnectionInfo> GetConnections(NtInst inst, Span<ConnectionInfo> store)
+        public static unsafe ReadOnlySpan<ConnectionInfo> GetConnections(NtInst inst, Span<ConnectionInfo> store)
         {
             UIntPtr count = UIntPtr.Zero;
             var conns = m_ntcore.NT_GetConnections(inst, &count);

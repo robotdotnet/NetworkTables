@@ -4,5 +4,5 @@ using System.Text;
 
 namespace FRC.NetworkTables
 {
-    public delegate void TableListener(NetworkTable parent, string name, NetworkTable table);
+    public delegate void TableListener(NetworkTable parent, ReadOnlySpan<char> name, NetworkTable table);
 }
