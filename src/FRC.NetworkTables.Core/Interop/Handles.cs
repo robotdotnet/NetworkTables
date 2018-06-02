@@ -4,11 +4,11 @@ using System.Text;
 
 namespace FRC.NetworkTables.Interop
 {
-    public readonly struct Handle
+    public readonly struct NtHandle
     {
         private readonly int m_value;
 
-        public Handle(int value)
+        public NtHandle(int value)
         {
             m_value = value;
         }
@@ -19,13 +19,13 @@ namespace FRC.NetworkTables.Interop
         }
     }
 
-    public readonly struct Instance
+    public readonly struct NtInst
     {
-        private readonly Handle m_value;
+        private readonly NtHandle m_value;
 
-        public Instance(int value)
+        public NtInst(int value)
         {
-            m_value = new Handle(value);
+            m_value = new NtHandle(value);
         }
 
         public int Get()
@@ -33,19 +33,19 @@ namespace FRC.NetworkTables.Interop
             return m_value.Get();
         }
 
-        public static implicit operator Handle(Instance value)
+        public static implicit operator NtHandle(NtInst value)
         {
             return value.m_value;
         }
     }
 
-    public readonly struct Entry
+    public readonly struct NtEntry
     {
-        private readonly Handle m_value;
+        private readonly NtHandle m_value;
 
-        public Entry(int value)
+        public NtEntry(int value)
         {
-            m_value = new Handle(value);
+            m_value = new NtHandle(value);
         }
 
         public int Get()
@@ -53,19 +53,19 @@ namespace FRC.NetworkTables.Interop
             return m_value.Get();
         }
 
-        public static implicit operator Handle(Entry value)
+        public static implicit operator NtHandle(NtEntry value)
         {
             return value.m_value;
         }
     }
 
-    public readonly struct EntryListener
+    public readonly struct NtEntryListener
     {
-        private readonly Handle m_value;
+        private readonly NtHandle m_value;
 
-        public EntryListener(int value)
+        public NtEntryListener(int value)
         {
-            m_value = new Handle(value);
+            m_value = new NtHandle(value);
         }
 
         public int Get()
@@ -73,19 +73,19 @@ namespace FRC.NetworkTables.Interop
             return m_value.Get();
         }
 
-        public static implicit operator Handle(EntryListener value)
+        public static implicit operator NtHandle(NtEntryListener value)
         {
             return value.m_value;
         }
     }
 
-    public readonly struct EntryListenerPoller
+    public readonly struct NtEntryListenerPoller
     {
-        private readonly Handle m_value;
+        private readonly NtHandle m_value;
 
-        public EntryListenerPoller(int value)
+        public NtEntryListenerPoller(int value)
         {
-            m_value = new Handle(value);
+            m_value = new NtHandle(value);
         }
 
         public int Get()
@@ -94,19 +94,19 @@ namespace FRC.NetworkTables.Interop
         }
 
 
-        public static implicit operator Handle(EntryListenerPoller value)
+        public static implicit operator NtHandle(NtEntryListenerPoller value)
         {
             return value.m_value;
         }
     }
 
-    public readonly struct ConnectionListener
+    public readonly struct NtConnectionListener
     {
-        private readonly Handle m_value;
+        private readonly NtHandle m_value;
 
-        public ConnectionListener(int value)
+        public NtConnectionListener(int value)
         {
-            m_value = new Handle(value);
+            m_value = new NtHandle(value);
         }
 
         public int Get()
@@ -115,19 +115,19 @@ namespace FRC.NetworkTables.Interop
         }
 
 
-        public static implicit operator Handle(ConnectionListener value)
+        public static implicit operator NtHandle(NtConnectionListener value)
         {
             return value.m_value;
         }
     }
 
-    public readonly struct ConnectionListenerPoller
+    public readonly struct NtConnectionListenerPoller
     {
-        private readonly Handle m_value;
+        private readonly NtHandle m_value;
 
-        public ConnectionListenerPoller(int value)
+        public NtConnectionListenerPoller(int value)
         {
-            m_value = new Handle(value);
+            m_value = new NtHandle(value);
         }
 
         public int Get()
@@ -136,19 +136,19 @@ namespace FRC.NetworkTables.Interop
         }
 
 
-        public static implicit operator Handle(ConnectionListenerPoller value)
+        public static implicit operator NtHandle(NtConnectionListenerPoller value)
         {
             return value.m_value;
         }
     }
 
-    public readonly struct Logger
+    public readonly struct NtLogger
     {
-        private readonly Handle m_value;
+        private readonly NtHandle m_value;
 
-        public Logger(int value)
+        public NtLogger(int value)
         {
-            m_value = new Handle(value);
+            m_value = new NtHandle(value);
         }
 
         public int Get()
@@ -157,19 +157,19 @@ namespace FRC.NetworkTables.Interop
         }
 
 
-        public static implicit operator Handle(Logger value)
+        public static implicit operator NtHandle(NtLogger value)
         {
             return value.m_value;
         }
     }
 
-    public readonly struct LoggerPoller
+    public readonly struct NtLoggerPoller
     {
-        private readonly Handle m_value;
+        private readonly NtHandle m_value;
 
-        public LoggerPoller(int value)
+        public NtLoggerPoller(int value)
         {
-            m_value = new Handle(value);
+            m_value = new NtHandle(value);
         }
 
         public int Get()
@@ -178,19 +178,19 @@ namespace FRC.NetworkTables.Interop
         }
 
 
-        public static implicit operator Handle(LoggerPoller value)
+        public static implicit operator NtHandle(NtLoggerPoller value)
         {
             return value.m_value;
         }
     }
 
-    public readonly struct RpcCall
+    public readonly struct NtRpcCall
     {
-        private readonly Handle m_value;
+        private readonly NtHandle m_value;
 
-        public RpcCall(int value)
+        public NtRpcCall(int value)
         {
-            m_value = new Handle(value);
+            m_value = new NtHandle(value);
         }
 
         public int Get()
@@ -199,19 +199,19 @@ namespace FRC.NetworkTables.Interop
         }
 
 
-        public static implicit operator Handle(RpcCall value)
+        public static implicit operator NtHandle(NtRpcCall value)
         {
             return value.m_value;
         }
     }
 
-    public readonly struct RpcCallPoller
+    public readonly struct NtRpcCallPoller
     {
-        private readonly Handle m_value;
+        private readonly NtHandle m_value;
 
-        public RpcCallPoller(int value)
+        public NtRpcCallPoller(int value)
         {
-            m_value = new Handle(value);
+            m_value = new NtHandle(value);
         }
 
         public int Get()
@@ -220,7 +220,7 @@ namespace FRC.NetworkTables.Interop
         }
 
 
-        public static implicit operator Handle(RpcCallPoller value)
+        public static implicit operator NtHandle(NtRpcCallPoller value)
         {
             return value.m_value;
         }

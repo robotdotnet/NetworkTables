@@ -9,7 +9,7 @@ namespace FRC.NetworkTables
     {
         public const int kPersistent = 0x01;
 
-        public NetworkTableEntry(NetworkTableInstance inst, Entry handle)
+        public NetworkTableEntry(NetworkTableInstance inst, NtEntry handle)
         {
             Instance = inst;
             Handle = handle;
@@ -17,7 +17,7 @@ namespace FRC.NetworkTables
 
         public bool IsValid => Handle.Get() != 0;
 
-        public readonly Entry Handle;
+        public readonly NtEntry Handle;
 
         public readonly NetworkTableInstance Instance;
 
@@ -405,7 +405,7 @@ namespace FRC.NetworkTables
             NtCore.DeleteEntry(Handle);
         }
 
-        internal void CreateRpc(InAction<RpcAnswer> callback)
+        internal void CreateRpc(RpcAnswerDelegate callback)
         {
             Instance.CreateRpc(this, callback);
         }
@@ -415,12 +415,12 @@ namespace FRC.NetworkTables
             return new RpcCall(this, NtCore.CallRpc(Handle, @params));
         }
 
-        public EntryListener AddListener(InAction<EntryNotification> listener, NotifyFlags flags)
+        public NtEntryListener AddListener(EntryNotificationDelegate listener, NotifyFlags flags)
         {
             return Instance.AddEntryListener(this, listener, flags);
         }
 
-        public void RemoveListener(EntryListener listener)
+        public void RemoveListener(NtEntryListener listener)
         {
             Instance.RemoveEntryListener(listener);
         }

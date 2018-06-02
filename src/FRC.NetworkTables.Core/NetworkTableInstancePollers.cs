@@ -7,10 +7,10 @@ namespace FRC.NetworkTables
 {
     public partial class NetworkTableInstance
     {
-        private readonly ConcurrentDictionary<EntryListener, InAction<EntryNotification>> m_entryListeners = new ConcurrentDictionary<EntryListener, InAction<EntryNotification>>();
+        private readonly ConcurrentDictionary<NtEntryListener, EntryNotificationDelegate> m_entryListeners = new ConcurrentDictionary<NtEntryListener, EntryNotificationDelegate>();
         private readonly Lazy<CancellationTokenSource> m_entryListenerToken;
         private Thread m_entryListenerThread;
-        private EntryListenerPoller m_entryListenerPoller;
+        private NtEntryListenerPoller m_entryListenerPoller;
         private readonly object m_entryListenerWaitQueueLock = new object();
         private bool m_entryListenerWaitQueue = false;
 
@@ -26,16 +26,17 @@ namespace FRC.NetworkTables
                 {
                     NtCore.CancelPollEntryListener(m_entryListenerPoller);
                 });
-                Span<EntryNotification> notificationStore = new EntryNotification[10];
                 while (!token.IsCancellationRequested)
                 {
-                    var events = NtCore.PollEntryListener(this, m_entryListenerPoller, notificationStore);
+                    var events = NtCore.PollEntryListener(m_entryListenerPoller);
                     if (token.IsCancellationRequested)
                     {
+                        NtCore.DisposeEntryListenerSpan(events);
                         break;
                     }
                     if (events.Length == 0)
                     {
+                        NtCore.DisposeEntryListenerSpan(events);
                         lock (m_entryListenerWaitQueueLock)
                         {
                             if (m_entryListenerWaitQueue)
@@ -48,17 +49,18 @@ namespace FRC.NetworkTables
                         wasInterrupted = true;
                         break;
                     }
-                    foreach (var evnt in events)
+                    foreach (ref readonly var evnt in events)
                     {
-                        if (m_entryListeners.TryGetValue(evnt.Listener, out var listener))
+                        if (m_entryListeners.TryGetValue(evnt.listener, out var listener))
                         {
-                            listener(evnt);
+                            listener(new EntryNotification(this, evnt));
                             if (token.IsCancellationRequested)
                             {
                                 break;
                             }
                         }
                     }
+                    NtCore.DisposeEntryListenerSpan(events);
                 }
                 lock (m_entryListenerWaitQueueLock)
                 {
@@ -66,7 +68,7 @@ namespace FRC.NetworkTables
                     {
                         NtCore.DestroyEntryListenerPoller(m_entryListenerPoller);
                     }
-                    m_entryListenerPoller = new EntryListenerPoller();
+                    m_entryListenerPoller = new NtEntryListenerPoller();
                 }
             })
             {
@@ -78,7 +80,7 @@ namespace FRC.NetworkTables
             return source;
         }
 
-        public EntryListener AddEntryListener(string prefix, InAction<EntryNotification> listener, NotifyFlags flags)
+        public NtEntryListener AddEntryListener(string prefix, EntryNotificationDelegate listener, NotifyFlags flags)
         {
             var token = m_entryListenerToken.Value;
             var handle = NtCore.AddPolledEntryListener(m_entryListenerPoller, prefix, flags);
@@ -86,7 +88,7 @@ namespace FRC.NetworkTables
             return handle;
         }
 
-        public EntryListener AddEntryListener(in NetworkTableEntry entry, InAction<EntryNotification> listener, NotifyFlags flags)
+        public NtEntryListener AddEntryListener(in NetworkTableEntry entry, EntryNotificationDelegate listener, NotifyFlags flags)
         {
             var token = m_entryListenerToken.Value;
             var handle = NtCore.AddPolledEntryListener(m_entryListenerPoller, entry, flags);
@@ -94,7 +96,7 @@ namespace FRC.NetworkTables
             return handle;
         }
 
-        public void RemoveEntryListener(EntryListener listener)
+        public void RemoveEntryListener(NtEntryListener listener)
         {
             NtCore.RemoveEntryListener(listener);
         }
@@ -128,10 +130,10 @@ namespace FRC.NetworkTables
 
 
 
-        private readonly ConcurrentDictionary<ConnectionListener, InAction<ConnectionNotification>> m_connectionListeners = new ConcurrentDictionary<ConnectionListener, InAction<ConnectionNotification>>();
+        private readonly ConcurrentDictionary<NtConnectionListener, ConnectionNotificationDelegate> m_connectionListeners = new ConcurrentDictionary<NtConnectionListener, ConnectionNotificationDelegate>();
         private readonly Lazy<CancellationTokenSource> m_connectionListenerToken;
         private Thread m_connectionListenerThread;
-        private ConnectionListenerPoller m_connectionListenerPoller;
+        private NtConnectionListenerPoller m_connectionListenerPoller;
         private readonly object m_connectionListenerWaitQueueLock = new object();
         private bool m_connectionListenerWaitQueue = false;
 
@@ -147,16 +149,17 @@ namespace FRC.NetworkTables
                 {
                     NtCore.CancelPollConnectionListener(m_connectionListenerPoller);
                 });
-                Span<ConnectionNotification> store = new ConnectionNotification[10];
                 while (!token.IsCancellationRequested)
                 {
-                    var events = NtCore.PollConnectionListener(this, m_connectionListenerPoller, store);
+                    var events = NtCore.PollConnectionListener(m_connectionListenerPoller);
                     if (token.IsCancellationRequested)
                     {
+                        NtCore.DisposeConnectionListenerSpan(events);
                         break;
                     }
                     if (events == null)
                     {
+                        NtCore.DisposeConnectionListenerSpan(events);
                         lock (m_connectionListenerWaitQueueLock)
                         {
                             if (m_entryListenerWaitQueue)
@@ -169,17 +172,18 @@ namespace FRC.NetworkTables
                         wasInterrupted = true;
                         break;
                     }
-                    foreach (var evnt in events)
+                    foreach (ref readonly var evnt in events)
                     {
-                        if (m_connectionListeners.TryGetValue(evnt.Listener, out var listener))
+                        if (m_connectionListeners.TryGetValue(evnt.listener, out var listener))
                         {
-                            listener(evnt);
+                            listener(new ConnectionNotification(this, evnt));
                             if (token.IsCancellationRequested)
                             {
                                 break;
                             }
                         }
                     }
+                    NtCore.DisposeConnectionListenerSpan(events);
                 }
                 lock (m_connectionListenerWaitQueueLock)
                 {
@@ -187,7 +191,7 @@ namespace FRC.NetworkTables
                     {
                         NtCore.DestroyConnectionListenerPoller(m_connectionListenerPoller);
                     }
-                    m_connectionListenerPoller = new ConnectionListenerPoller();
+                    m_connectionListenerPoller = new NtConnectionListenerPoller();
                 }
             })
             {
@@ -199,7 +203,7 @@ namespace FRC.NetworkTables
             return source;
         }
 
-        public ConnectionListener AddConnectionListener(InAction<ConnectionNotification> listener, bool immediateNotify)
+        public NtConnectionListener AddConnectionListener(ConnectionNotificationDelegate listener, bool immediateNotify)
         {
             var token = m_connectionListenerToken.Value;
             var handle = NtCore.AddPolledConnectionListener(m_connectionListenerPoller, immediateNotify);
@@ -207,7 +211,7 @@ namespace FRC.NetworkTables
             return handle;
         }
 
-        public void RemoveConnectionListener(ConnectionListener listener)
+        public void RemoveConnectionListener(NtConnectionListener listener)
         {
             m_connectionListeners.TryRemove(listener, out var _);
             NtCore.RemoveConnectionListener(listener);
@@ -239,10 +243,10 @@ namespace FRC.NetworkTables
             return true;
         }
 
-        private readonly ConcurrentDictionary<Entry, InAction<RpcAnswer>> m_rpcCalls = new ConcurrentDictionary<Entry, InAction<RpcAnswer>>();
+        private readonly ConcurrentDictionary<NtEntry, RpcAnswerDelegate> m_rpcCalls = new ConcurrentDictionary<NtEntry, RpcAnswerDelegate>();
         private readonly Lazy<CancellationTokenSource> m_rpcListenerToken;
         private Thread m_rpcListenerThread;
-        private RpcCallPoller m_rpcListenerPoller;
+        private NtRpcCallPoller m_rpcListenerPoller;
         private readonly object m_rpcListenerWaitQueueLock = new object();
         private bool m_rpcListenerWaitQueue = false;
 
@@ -258,16 +262,18 @@ namespace FRC.NetworkTables
                 {
                     NtCore.CancelPollRpc(m_rpcListenerPoller);
                 });
-                Span<RpcAnswer> store = new RpcAnswer[10];
+                Span<bool> respondedStore = stackalloc bool[1] { false };
                 while (!token.IsCancellationRequested)
                 {
-                    var events = NtCore.PollRpc(this, m_rpcListenerPoller, store);
+                    var events = NtCore.PollRpc(m_rpcListenerPoller);
                     if (token.IsCancellationRequested)
                     {
+                        NtCore.DisposeRpcAnswerSpan(events);
                         break;
                     }
-                    if (events == null)
+                    if (events.Length == 0)
                     {
+                        NtCore.DisposeRpcAnswerSpan(events);
                         lock (m_rpcListenerWaitQueueLock)
                         {
                             if (m_entryListenerWaitQueue)
@@ -280,17 +286,25 @@ namespace FRC.NetworkTables
                         wasInterrupted = true;
                         break;
                     }
-                    foreach (var evnt in events)
+                    foreach (ref readonly var nativeEvent in events)
                     {
-                        if (m_rpcCalls.TryGetValue(evnt.EntryHandle, out var listener))
+                        if (m_rpcCalls.TryGetValue(nativeEvent.entry, out var listener))
                         {
+                            respondedStore[0] = false;
+                            var evnt = new RpcAnswer(this, nativeEvent, respondedStore);
                             listener(evnt);
+                            if (!respondedStore[0])
+                            {
+                                evnt.PostResponse(Span<byte>.Empty);
+                            }
+                             
                             if (token.IsCancellationRequested)
                             {
                                 break;
                             }
                         }
                     }
+                    NtCore.DisposeRpcAnswerSpan(events);
                 }
                 lock (m_rpcListenerWaitQueueLock)
                 {
@@ -298,7 +312,7 @@ namespace FRC.NetworkTables
                     {
                         NtCore.DestroyRpcCallPoller(m_rpcListenerPoller);
                     }
-                    m_rpcListenerPoller = new RpcCallPoller();
+                    m_rpcListenerPoller = new NtRpcCallPoller();
                 }
             })
             {
@@ -310,7 +324,7 @@ namespace FRC.NetworkTables
             return source;
         }
 
-        public void CreateRpc(in NetworkTableEntry entry, InAction<RpcAnswer> callback)
+        public void CreateRpc(in NetworkTableEntry entry, RpcAnswerDelegate callback)
         {
             var token = m_rpcListenerToken.Value;
             Span<byte> def = stackalloc byte[1]{ 0 };
@@ -350,10 +364,10 @@ namespace FRC.NetworkTables
 
 
 
-        private readonly ConcurrentDictionary<Logger, InAction<LogMessage>> m_loggerListeners = new ConcurrentDictionary<Logger, InAction<LogMessage>>();
+        private readonly ConcurrentDictionary<NtLogger, LogMessageDelegate> m_loggerListeners = new ConcurrentDictionary<NtLogger, LogMessageDelegate>();
         private readonly Lazy<CancellationTokenSource> m_loggerListenerToken;
         private Thread m_loggerListenerThread;
-        private LoggerPoller m_loggerListenerPoller;
+        private NtLoggerPoller m_loggerListenerPoller;
         private readonly object m_loggerListenerWaitQueueLock = new object();
         private bool m_loggerListenerWaitQueue = false;
 
@@ -369,16 +383,17 @@ namespace FRC.NetworkTables
                 {
                     NtCore.CancelPollLogger(m_loggerListenerPoller);
                 });
-                Span<LogMessage> store = new LogMessage[10];
                 while (!token.IsCancellationRequested)
                 {
-                    var events = NtCore.PollLogger(this, m_loggerListenerPoller, store);
+                    var events = NtCore.PollLogger(m_loggerListenerPoller);
                     if (token.IsCancellationRequested)
                     {
+                        NtCore.DisposeLoggerSpan(events);
                         break;
                     }
                     if (events == null)
                     {
+                        NtCore.DisposeLoggerSpan(events);
                         lock (m_loggerListenerWaitQueueLock)
                         {
                             if (m_entryListenerWaitQueue)
@@ -391,17 +406,18 @@ namespace FRC.NetworkTables
                         wasInterrupted = true;
                         break;
                     }
-                    foreach (var evnt in events)
+                    foreach (ref readonly var evnt in events)
                     {
-                        if (m_loggerListeners.TryGetValue(evnt.Logger, out var listener))
+                        if (m_loggerListeners.TryGetValue(evnt.logger, out var listener))
                         {
-                            listener(evnt);
+                            listener(new LogMessage(this, evnt));
                             if (token.IsCancellationRequested)
                             {
                                 break;
                             }
                         }
                     }
+                    NtCore.DisposeLoggerSpan(events);
                 }
                 lock (m_loggerListenerWaitQueueLock)
                 {
@@ -409,7 +425,7 @@ namespace FRC.NetworkTables
                     {
                         NtCore.DestroyLoggerPoller(m_loggerListenerPoller);
                     }
-                    m_loggerListenerPoller = new LoggerPoller();
+                    m_loggerListenerPoller = new NtLoggerPoller();
                 }
             })
             {
@@ -421,7 +437,7 @@ namespace FRC.NetworkTables
             return source;
         }
 
-        public Logger AddLogger(InAction<LogMessage> listener, int minLevel, int maxLevel)
+        public NtLogger AddLogger(LogMessageDelegate listener, int minLevel, int maxLevel)
         {
             var token = m_loggerListenerToken.Value;
             var handle = NtCore.AddPolledLogger(m_loggerListenerPoller, minLevel, maxLevel);
@@ -429,7 +445,7 @@ namespace FRC.NetworkTables
             return handle;
         }
 
-        public void RemoveLogger(Logger listener)
+        public void RemoveLogger(NtLogger listener)
         {
             m_loggerListeners.TryRemove(listener, out var _);
             NtCore.RemoveLogger(listener);
