@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FRC.NetworkTables.Core.DesktopLibraries\FRC.NetworkTables.Core.DesktopLibraries.csproj" />
     <ProjectReference Include="..\FRC.NetworkTables.Core\FRC.NetworkTables.Core.csproj" />
   </ItemGroup>
 

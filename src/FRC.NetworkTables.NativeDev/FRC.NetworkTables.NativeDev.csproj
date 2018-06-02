@@ -78,6 +78,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FRC.NetworkTables.Core.DesktopLibraries\FRC.NetworkTables.Core.DesktopLibraries.csproj">
+      <Project>{d46fffd8-bf31-48e4-830b-dc3ab705e8ed}</Project>
+      <Name>FRC.NetworkTables.Core.DesktopLibraries</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FRC.NetworkTables.Core\FRC.NetworkTables.Core.csproj">
       <Project>{967e5110-a79d-4bbf-a039-29646474b141}</Project>
       <Name>FRC.NetworkTables</Name>

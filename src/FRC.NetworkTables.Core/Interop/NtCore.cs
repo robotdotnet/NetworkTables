@@ -37,14 +37,14 @@ namespace FRC.NetworkTables.Interop
                 }
             }
 
-            const string resourceRoot = "FRC.NetworkTables.Core.DesktopLibraries.Libraries.";
+            const string resourceRoot = "FRC.NetworkTables.Core.DesktopLibraries.libraries.";
 
             var nativeLoader = new LibraryLoader(activator);
 
             nativeLoader.AddLibraryLocation(OsType.Windows32,
-                resourceRoot + "Windows.x86.ntcore.dll");
+                resourceRoot + "windows.x86.ntcore.dll");
             nativeLoader.AddLibraryLocation(OsType.Windows64,
-                resourceRoot + "Windows.amd64.ntcore.dll");
+                resourceRoot + "windows.x86_64.ntcore.dll");
             nativeLoader.AddLibraryLocation(OsType.Linux32,
                 resourceRoot + "Linux.x86.libntcore.so");
             nativeLoader.AddLibraryLocation(OsType.Linux64,
