@@ -162,48 +162,54 @@ namespace FRC.NetworkTables
         public readonly bool VBoolean;
         [FieldOffset(0)]
         public readonly double VDouble;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly string VString;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly byte[] VRaw;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly bool[] VBooleanArray;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly double[] VDoubleArray;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly string[] VStringArray;
 
         internal NT_EntryUnion(bool v)
         {
-            VBoolean = v;
+            VBoolean = false;
             VDouble = 0;
             VString = null;
             VRaw = null;
             VBooleanArray = null;
             VDoubleArray = null;
             VStringArray = null;
+
+            VBoolean = v;
         }
 
         internal NT_EntryUnion(double v)
         {
             VBoolean = false;
-            VDouble = v;
+            VDouble = 0;
             VString = null;
             VRaw = null;
             VBooleanArray = null;
             VDoubleArray = null;
             VStringArray = null;
+
+            VDouble = v;
         }
 
         internal NT_EntryUnion(string v)
         {
             VBoolean = false;
             VDouble = 0;
-            VString = v;
+            VString = null;
             VRaw = null;
             VBooleanArray = null;
             VDoubleArray = null;
             VStringArray = null;
+
+            VString = v;
         }
 
         internal NT_EntryUnion(byte[] v)
@@ -211,10 +217,12 @@ namespace FRC.NetworkTables
             VBoolean = false;
             VDouble = 0;
             VString = null;
-            VRaw = v;
+            VRaw = null;
             VBooleanArray = null;
             VDoubleArray = null;
             VStringArray = null;
+
+            VRaw = v;
         }
 
         internal NT_EntryUnion(bool[] v)
@@ -223,9 +231,11 @@ namespace FRC.NetworkTables
             VDouble = 0;
             VString = null;
             VRaw = null;
-            VBooleanArray = v;
+            VBooleanArray = null;
             VDoubleArray = null;
             VStringArray = null;
+
+            VBooleanArray = v;
         }
 
         internal NT_EntryUnion(double[] v)
@@ -235,8 +245,10 @@ namespace FRC.NetworkTables
             VString = null;
             VRaw = null;
             VBooleanArray = null;
-            VDoubleArray = v;
+            VDoubleArray = null;
             VStringArray = null;
+
+            VDoubleArray = v;
         }
 
         internal NT_EntryUnion(string[] v)
@@ -247,6 +259,8 @@ namespace FRC.NetworkTables
             VRaw = null;
             VBooleanArray = null;
             VDoubleArray = null;
+            VStringArray = null;
+
             VStringArray = v;
         }
 
