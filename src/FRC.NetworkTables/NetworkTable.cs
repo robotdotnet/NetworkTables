@@ -123,8 +123,7 @@ namespace FRC.NetworkTables
 
         public bool ContainsSubTable(string key)
         {
-            var handles = NtCore.GetEntries(Instance.Handle, m_pathWithSep + key + PathSeparator, 0);
-            return handles.Length != 0;
+            return NtCore.GetEntryCount(Instance.Handle, m_pathWithSep + key + PathSeparator, 0) != 0;
         }
         
 

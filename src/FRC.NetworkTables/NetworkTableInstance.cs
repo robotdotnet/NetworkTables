@@ -54,14 +54,24 @@ namespace FRC.NetworkTables
             return new NetworkTableEntry(this, NtCore.GetEntry(Handle, name));
         }
 
-        public NetworkTableEntry[] GetEntries(string prefix, NtType types)
+        public Span<NetworkTableEntry> GetEntries(string prefix, NtType types)
         {
-            return NtCore.GetEntriesManaged(this, prefix, types);
+            return NtCore.GetEntriesManaged(this, prefix, types, Span<NetworkTableEntry>.Empty);
         }
 
-        public EntryInfo[] GetEntryInfo(string prefix, NtType types)
+        public Span<EntryInfo> GetEntryInfo(string prefix, NtType types)
         {
-            return NtCore.GetEntryInfo(this, prefix, types);
+            return NtCore.GetEntryInfo(this, prefix, types, Span<EntryInfo>.Empty);
+        }
+
+        public Span<NetworkTableEntry> GetEntries(string prefix, NtType types, Span<NetworkTableEntry> store)
+        {
+            return NtCore.GetEntriesManaged(this, prefix, types, store);
+        }
+
+        public Span<EntryInfo> GetEntryInfo(string prefix, NtType types, Span<EntryInfo> store)
+        {
+            return NtCore.GetEntryInfo(this, prefix, types, store);
         }
 
         private readonly ConcurrentDictionary<string, NetworkTable> m_tables = new ConcurrentDictionary<string, NetworkTable>();
@@ -195,9 +205,15 @@ namespace FRC.NetworkTables
             NtCore.Flush(Handle);
         }
 
-        public ConnectionInfo[] GetConnections()
+        public Span<ConnectionInfo> GetConnections()
         {
-            return NtCore.GetConnections(Handle);
+            Span<ConnectionInfo> store = Span<ConnectionInfo>.Empty;
+            return NtCore.GetConnections(Handle, store);
+        }
+
+        public Span<ConnectionInfo> GetConnections(Span<ConnectionInfo> store)
+        {
+            return NtCore.GetConnections(Handle, store);
         }
 
         public bool IsConnected()

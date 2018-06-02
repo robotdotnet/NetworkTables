@@ -26,9 +26,10 @@ namespace FRC.NetworkTables
                 {
                     NtCore.CancelPollEntryListener(m_entryListenerPoller);
                 });
+                Span<EntryNotification> notificationStore = new EntryNotification[10];
                 while (!token.IsCancellationRequested)
                 {
-                    var events = NtCore.PollEntryListener(this, m_entryListenerPoller);
+                    var events = NtCore.PollEntryListener(this, m_entryListenerPoller, notificationStore);
                     if (token.IsCancellationRequested)
                     {
                         break;
@@ -146,9 +147,10 @@ namespace FRC.NetworkTables
                 {
                     NtCore.CancelPollConnectionListener(m_connectionListenerPoller);
                 });
+                Span<ConnectionNotification> store = new ConnectionNotification[10];
                 while (!token.IsCancellationRequested)
                 {
-                    var events = NtCore.PollConnectionListener(this, m_connectionListenerPoller);
+                    var events = NtCore.PollConnectionListener(this, m_connectionListenerPoller, store);
                     if (token.IsCancellationRequested)
                     {
                         break;
@@ -256,9 +258,10 @@ namespace FRC.NetworkTables
                 {
                     NtCore.CancelPollRpc(m_rpcListenerPoller);
                 });
+                Span<RpcAnswer> store = new RpcAnswer[10];
                 while (!token.IsCancellationRequested)
                 {
-                    var events = NtCore.PollRpc(this, m_rpcListenerPoller);
+                    var events = NtCore.PollRpc(this, m_rpcListenerPoller, store);
                     if (token.IsCancellationRequested)
                     {
                         break;
@@ -366,9 +369,10 @@ namespace FRC.NetworkTables
                 {
                     NtCore.CancelPollLogger(m_loggerListenerPoller);
                 });
+                Span<LogMessage> store = new LogMessage[10];
                 while (!token.IsCancellationRequested)
                 {
-                    var events = NtCore.PollLogger(this, m_loggerListenerPoller);
+                    var events = NtCore.PollLogger(this, m_loggerListenerPoller, store);
                     if (token.IsCancellationRequested)
                     {
                         break;

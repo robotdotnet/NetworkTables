@@ -1,3 +1,4 @@
+using AdvancedDLSupport.AOT;
 using System;
 
 namespace FRC.NetworkTables.Interop

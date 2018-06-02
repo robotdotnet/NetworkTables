@@ -26,15 +26,29 @@ namespace FRC.NetworkTables
             }
         }
 
-        public byte[] GetResult()
+        public Span<byte> GetResult()
         {
-            byte[] result = NtCore.GetRpcResult(Entry.Handle, Handle);
+            Span<byte> store = Span<Byte>.Empty;
+            var result = NtCore.GetRpcResult(Entry.Handle, Handle, store);
             return result;
         }
 
-        public byte[] GetResult(double timeout)
+        public Span<byte> GetResult(Span<byte> store)
         {
-            byte[] result = NtCore.GetRpcResult(Entry.Handle, Handle, timeout);
+            var result = NtCore.GetRpcResult(Entry.Handle, Handle, store);
+            return result;
+        }
+
+        public Span<byte> GetResult(double timeout)
+        {
+            Span<byte> store = Span<Byte>.Empty;
+            var result = NtCore.GetRpcResult(Entry.Handle, Handle, timeout, store);
+            return result;
+        }
+
+        public Span<byte> GetResult(double timeout, Span<byte> store)
+        {
+            var result = NtCore.GetRpcResult(Entry.Handle, Handle, timeout, store);
             return result;
         }
 
@@ -47,7 +61,7 @@ namespace FRC.NetworkTables
             });
             return Task.Run(() =>
             {
-                return NtCore.GetRpcResult(handle, call);
+                return NtCore.GetRpcResult(handle, call, Span<byte>.Empty).ToArray();
             });
         }
 
