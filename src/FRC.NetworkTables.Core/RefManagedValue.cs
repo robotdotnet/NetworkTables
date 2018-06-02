@@ -9,7 +9,7 @@ namespace FRC.NetworkTables
     {
         public readonly NtType Type;
         public readonly ulong LastChange;
-        public readonly NT_RefEntryUnion Data;
+        public readonly RefEntryUnion Data;
 
         public override int GetHashCode()
         {
@@ -165,7 +165,7 @@ namespace FRC.NetworkTables
         {
             LastChange = v.last_change;
             Type = v.type;
-            Data = new NT_RefEntryUnion(v);
+            Data = new RefEntryUnion(v);
 
         }
 
@@ -173,78 +173,78 @@ namespace FRC.NetworkTables
         {
             LastChange = t;
             Type = NtType.Boolean;
-            Data = new NT_RefEntryUnion(v);
+            Data = new RefEntryUnion(v);
         }
 
         internal unsafe RefManagedValue(double v, ulong t)
         {
             LastChange = t;
             Type = NtType.Double;
-            Data = new NT_RefEntryUnion(v);
+            Data = new RefEntryUnion(v);
         }
 
         internal unsafe RefManagedValue(ReadOnlySpan<char> v, ulong t)
         {
             LastChange = t;
             Type = NtType.String;
-            Data = new NT_RefEntryUnion(v);
+            Data = new RefEntryUnion(v);
         }
 
         internal unsafe RefManagedValue(ReadOnlySpan<byte> v, ulong t)
         {
             LastChange = t;
             Type = NtType.Raw;
-            Data = new NT_RefEntryUnion(v);
+            Data = new RefEntryUnion(v);
         }
 
         internal unsafe RefManagedValue(ReadOnlySpan<byte> v, ulong t, bool r)
         {
             LastChange = t;
             Type = r ? NtType.Rpc : NtType.Raw;
-            Data = new NT_RefEntryUnion(v);
+            Data = new RefEntryUnion(v);
         }
 
         internal unsafe RefManagedValue(ReadOnlySpan<bool> v, ulong t)
         {
             LastChange = t;
             Type = NtType.BooleanArray;
-            Data = new NT_RefEntryUnion(v);
+            Data = new RefEntryUnion(v);
         }
 
         internal unsafe RefManagedValue(ReadOnlySpan<double> v, ulong t)
         {
             LastChange = t;
             Type = NtType.DoubleArray;
-            Data = new NT_RefEntryUnion(v);
+            Data = new RefEntryUnion(v);
         }
 
         internal unsafe RefManagedValue(ReadOnlySpan<string> v, ulong t)
         {
             LastChange = t;
             Type = NtType.StringArray;
-            Data = new NT_RefEntryUnion(v);
+            Data = new RefEntryUnion(v);
         }
     }
 
     [StructLayout(LayoutKind.Explicit)]
-    public readonly ref struct NT_RefEntryUnion
+    public readonly ref struct RefEntryUnion
     {
         [FieldOffset(0)]
         public readonly bool VBoolean;
         [FieldOffset(0)]
         public readonly double VDouble;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly ReadOnlySpan<char> VString;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly ReadOnlySpan<byte> VRaw;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly ReadOnlySpan<bool> VBooleanArray;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly ReadOnlySpan<double> VDoubleArray;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly ReadOnlySpan<string> VStringArray;
 
-        internal NT_RefEntryUnion(bool v)
+        internal RefEntryUnion(bool v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -257,7 +257,7 @@ namespace FRC.NetworkTables
             VBoolean = v;
         }
 
-        internal NT_RefEntryUnion(double v)
+        internal RefEntryUnion(double v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -270,7 +270,7 @@ namespace FRC.NetworkTables
             VDouble = v;
         }
 
-        internal NT_RefEntryUnion(ReadOnlySpan<char> v)
+        internal RefEntryUnion(ReadOnlySpan<char> v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -283,7 +283,7 @@ namespace FRC.NetworkTables
             VString = v;
         }
 
-        internal NT_RefEntryUnion(ReadOnlySpan<byte> v)
+        internal RefEntryUnion(ReadOnlySpan<byte> v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -296,7 +296,7 @@ namespace FRC.NetworkTables
             VRaw = v;
         }
 
-        internal NT_RefEntryUnion(ReadOnlySpan<bool> v)
+        internal RefEntryUnion(ReadOnlySpan<bool> v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -309,7 +309,7 @@ namespace FRC.NetworkTables
             VBooleanArray = v;
         }
 
-        internal NT_RefEntryUnion(ReadOnlySpan<double> v)
+        internal RefEntryUnion(ReadOnlySpan<double> v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -322,7 +322,7 @@ namespace FRC.NetworkTables
             VDoubleArray = v;
         }
 
-        internal NT_RefEntryUnion(ReadOnlySpan<string> v)
+        internal RefEntryUnion(ReadOnlySpan<string> v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -335,7 +335,7 @@ namespace FRC.NetworkTables
             VStringArray = v;
         }
 
-        internal unsafe NT_RefEntryUnion(in NtValue v)
+        internal unsafe RefEntryUnion(in NtValue v)
         {
             VBoolean = false;
             VDouble = 0;

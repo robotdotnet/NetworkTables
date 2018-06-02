@@ -243,15 +243,15 @@ namespace FRC.NetworkTables
         public readonly bool VBoolean;
         [FieldOffset(0)]
         public readonly double VDouble;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly ReadOnlyMemory<char> VString;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly ReadOnlyMemory<byte> VRaw;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly ReadOnlyMemory<bool> VBooleanArray;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly ReadOnlyMemory<double> VDoubleArray;
-        [FieldOffset(0)]
+        [FieldOffset(8)]
         public readonly ReadOnlyMemory<string> VStringArray;
 
         internal EntryUnion(bool v)

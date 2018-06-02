@@ -53,7 +53,7 @@ namespace FRC.NetworkTables
                     {
                         if (m_entryListeners.TryGetValue(evnt.listener, out var listener))
                         {
-                            listener(new EntryNotification(this, evnt));
+                            listener(new RefEntryNotification(this, evnt));
                             if (token.IsCancellationRequested)
                             {
                                 break;
