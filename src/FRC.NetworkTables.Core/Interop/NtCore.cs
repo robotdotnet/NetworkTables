@@ -56,7 +56,6 @@ namespace FRC.NetworkTables.Interop
             nativeLoader.AddLibraryLocation(OsType.roboRIO, "ntcore");
 
             m_ntcore = nativeLoader.LoadNativeLibraryFromReflectedAssembly<INtCore>("FRC.NetworkTables.Core.DesktopLibraries");
-
         }
 
 
