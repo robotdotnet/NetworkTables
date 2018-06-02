@@ -1,18 +1,15 @@
 ﻿using FRC.NetworkTables.Interop;
 using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace FRC.NetworkTables
 {
-    public readonly ref struct NetworkTableRefValue
+    public readonly ref struct RefNetworkTableValue
     {
         public NtType Type => Value.Type;
         public readonly RefManagedValue Value;
         public bool IsValid => Type != NtType.Unassigned;
 
-        internal NetworkTableRefValue(in RefManagedValue value)
+        internal RefNetworkTableValue(in RefManagedValue value)
         {
             this.Value = value;
         }
@@ -189,49 +186,49 @@ namespace FRC.NetworkTables
             return Value.Data.VStringArray;
         }
 
-        public static NetworkTableRefValue MakeBoolean(bool value)
+        public static RefNetworkTableValue MakeBoolean(bool value)
         {
-            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+            return new RefNetworkTableValue(new RefManagedValue(value, NtCore.Now()));
         }
 
-        public static NetworkTableRefValue MakeDouble(double value)
+        public static RefNetworkTableValue MakeDouble(double value)
         {
-            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+            return new RefNetworkTableValue(new RefManagedValue(value, NtCore.Now()));
         }
 
-        public static NetworkTableRefValue MakeString(string value)
+        public static RefNetworkTableValue MakeString(string value)
         {
-            return new NetworkTableRefValue(new RefManagedValue(value.AsSpan(), NtCore.Now()));
+            return new RefNetworkTableValue(new RefManagedValue(value.AsSpan(), NtCore.Now()));
         }
 
-        public static NetworkTableRefValue MakeString(ReadOnlySpan<char> value)
+        public static RefNetworkTableValue MakeString(ReadOnlySpan<char> value)
         {
-            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+            return new RefNetworkTableValue(new RefManagedValue(value, NtCore.Now()));
         }
 
-        public static NetworkTableRefValue MakeRaw(ReadOnlySpan<byte> value)
+        public static RefNetworkTableValue MakeRaw(ReadOnlySpan<byte> value)
         {
-            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+            return new RefNetworkTableValue(new RefManagedValue(value, NtCore.Now()));
         }
 
-        public static NetworkTableRefValue MakeRpc(ReadOnlySpan<byte> value)
+        public static RefNetworkTableValue MakeRpc(ReadOnlySpan<byte> value)
         {
-            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now(), true));
+            return new RefNetworkTableValue(new RefManagedValue(value, NtCore.Now(), true));
         }
 
-        public static NetworkTableRefValue MakeBooleanArray(ReadOnlySpan<bool> value)
+        public static RefNetworkTableValue MakeBooleanArray(ReadOnlySpan<bool> value)
         {
-            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+            return new RefNetworkTableValue(new RefManagedValue(value, NtCore.Now()));
         }
 
-        public static NetworkTableRefValue MakeDoubleArray(ReadOnlySpan<double> value)
+        public static RefNetworkTableValue MakeDoubleArray(ReadOnlySpan<double> value)
         {
-            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+            return new RefNetworkTableValue(new RefManagedValue(value, NtCore.Now()));
         }
 
-        public static NetworkTableRefValue MakeStringArray(ReadOnlySpan<string> value)
+        public static RefNetworkTableValue MakeStringArray(ReadOnlySpan<string> value)
         {
-            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+            return new RefNetworkTableValue(new RefManagedValue(value, NtCore.Now()));
         }
 
         public override bool Equals(object obj)
@@ -244,17 +241,17 @@ namespace FRC.NetworkTables
             return Value.GetHashCode();
         }
 
-        public bool Equals(NetworkTableRefValue other)
+        public bool Equals(RefNetworkTableValue other)
         {
             return Value.Equals(other.Value);
         }
 
-        public static bool operator ==(NetworkTableRefValue lhs, NetworkTableRefValue rhs)
+        public static bool operator ==(RefNetworkTableValue lhs, RefNetworkTableValue rhs)
         {
             return lhs.Equals(rhs);
         }
 
-        public static bool operator !=(NetworkTableRefValue lhs, NetworkTableRefValue rhs)
+        public static bool operator !=(RefNetworkTableValue lhs, RefNetworkTableValue rhs)
         {
             return !lhs.Equals(rhs);
         }

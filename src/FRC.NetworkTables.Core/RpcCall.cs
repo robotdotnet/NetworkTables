@@ -26,27 +26,27 @@ namespace FRC.NetworkTables
             }
         }
 
-        public Span<byte> GetResult()
+        public ReadOnlySpan<byte> GetResult()
         {
             Span<byte> store = Span<Byte>.Empty;
             var result = NtCore.GetRpcResult(Entry.Handle, Handle, store);
             return result;
         }
 
-        public Span<byte> GetResult(Span<byte> store)
+        public ReadOnlySpan<byte> GetResult(Span<byte> store)
         {
             var result = NtCore.GetRpcResult(Entry.Handle, Handle, store);
             return result;
         }
 
-        public Span<byte> GetResult(double timeout)
+        public ReadOnlySpan<byte> GetResult(double timeout)
         {
             Span<byte> store = Span<Byte>.Empty;
             var result = NtCore.GetRpcResult(Entry.Handle, Handle, timeout, store);
             return result;
         }
 
-        public Span<byte> GetResult(double timeout, Span<byte> store)
+        public ReadOnlySpan<byte> GetResult(double timeout, Span<byte> store)
         {
             var result = NtCore.GetRpcResult(Entry.Handle, Handle, timeout, store);
             return result;

@@ -3,7 +3,7 @@
     /// <summary>
     /// Enumeration of the OS type for this system.
     /// </summary>
-    public enum OsType
+    internal enum OsType
     {
         /// <summary>
         /// OS Type not found

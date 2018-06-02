@@ -9,20 +9,8 @@ namespace FRC.NetworkTables.Interop
         unsafe NtInst NT_CreateInstance();
         unsafe void NT_DestroyInstance(NtInst inst);
         unsafe NtInst NT_GetInstanceFromHandle(NtHandle handle);
-
-
-
-
         unsafe NtEntry NT_GetEntry(NtInst inst, byte* name, UIntPtr name_len);
-
-
-
-
         unsafe NtEntry* NT_GetEntries(NtInst inst, byte* prefix, UIntPtr prefix_len, uint types, UIntPtr* count);
-
-
-
-
         unsafe byte* NT_GetEntryName(NtEntry entry, UIntPtr* name_len);
 
 

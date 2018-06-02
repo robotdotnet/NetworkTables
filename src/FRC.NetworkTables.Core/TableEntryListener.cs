@@ -1,4 +1,6 @@
-﻿namespace FRC.NetworkTables
+﻿using System;
+
+namespace FRC.NetworkTables
 {
-    public delegate void TableEntryListener(NetworkTable table, string key, in NetworkTableEntry entry, in NetworkTableRefValue value, NotifyFlags flags);
+    public delegate void TableEntryListener(NetworkTable table, ReadOnlySpan<char> key, in NetworkTableEntry entry, in RefNetworkTableValue value, NotifyFlags flags);
 }

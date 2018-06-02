@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace FRC.NetworkTables
 {
-    public partial class NetworkTableInstance : IDisposable
+    public partial class NetworkTableInstance : IDisposable, IEquatable<NetworkTableInstance>
     {
         public const int DefaultPort = 1735;
         private bool m_owned;
@@ -54,22 +54,47 @@ namespace FRC.NetworkTables
             return new NetworkTableEntry(this, NtCore.GetEntry(Handle, name));
         }
 
-        public Span<NetworkTableEntry> GetEntries(string prefix, NtType types)
+        public ReadOnlySpan<NetworkTableEntry> GetEntries(string prefix, NtType types)
         {
             return NtCore.GetEntriesManaged(this, prefix, types, Span<NetworkTableEntry>.Empty);
         }
 
-        public Span<EntryInfo> GetEntryInfo(string prefix, NtType types)
+        public ReadOnlySpan<EntryInfo> GetEntryInfo(string prefix, NtType types)
         {
             return NtCore.GetEntryInfo(this, prefix, types, Span<EntryInfo>.Empty);
         }
 
-        public Span<NetworkTableEntry> GetEntries(string prefix, NtType types, Span<NetworkTableEntry> store)
+        public ReadOnlySpan<NetworkTableEntry> GetEntries(string prefix, NtType types, Span<NetworkTableEntry> store)
         {
             return NtCore.GetEntriesManaged(this, prefix, types, store);
         }
 
-        public Span<EntryInfo> GetEntryInfo(string prefix, NtType types, Span<EntryInfo> store)
+        public ReadOnlySpan<EntryInfo> GetEntryInfo(string prefix, NtType types, Span<EntryInfo> store)
+        {
+            return NtCore.GetEntryInfo(this, prefix, types, store);
+        }
+
+        public NetworkTableEntry GetEntry(ReadOnlySpan<char> name)
+        {
+            return new NetworkTableEntry(this, NtCore.GetEntry(Handle, name));
+        }
+
+        public ReadOnlySpan<NetworkTableEntry> GetEntries(ReadOnlySpan<char> prefix, NtType types)
+        {
+            return NtCore.GetEntriesManaged(this, prefix, types, Span<NetworkTableEntry>.Empty);
+        }
+
+        public ReadOnlySpan<EntryInfo> GetEntryInfo(ReadOnlySpan<char> prefix, NtType types)
+        {
+            return NtCore.GetEntryInfo(this, prefix, types, Span<EntryInfo>.Empty);
+        }
+
+        public ReadOnlySpan<NetworkTableEntry> GetEntries(ReadOnlySpan<char> prefix, NtType types, Span<NetworkTableEntry> store)
+        {
+            return NtCore.GetEntriesManaged(this, prefix, types, store);
+        }
+
+        public ReadOnlySpan<EntryInfo> GetEntryInfo(ReadOnlySpan<char> prefix, NtType types, Span<EntryInfo> store)
         {
             return NtCore.GetEntryInfo(this, prefix, types, store);
         }
@@ -94,7 +119,7 @@ namespace FRC.NetworkTables
 
             NetworkTable table = m_tables.GetOrAdd(theKey, (s) =>
             {
-                return new NetworkTable(this, s);
+                return new NetworkTable(this, s.AsSpan());
             });
             return table;
         }
@@ -205,13 +230,13 @@ namespace FRC.NetworkTables
             NtCore.Flush(Handle);
         }
 
-        public Span<ConnectionInfo> GetConnections()
+        public ReadOnlySpan<ConnectionInfo> GetConnections()
         {
             Span<ConnectionInfo> store = Span<ConnectionInfo>.Empty;
             return NtCore.GetConnections(Handle, store);
         }
 
-        public Span<ConnectionInfo> GetConnections(Span<ConnectionInfo> store)
+        public ReadOnlySpan<ConnectionInfo> GetConnections(Span<ConnectionInfo> store)
         {
             return NtCore.GetConnections(Handle, store);
         }
@@ -239,6 +264,35 @@ namespace FRC.NetworkTables
         public List<string> LoadEntries(string filename, string prefix)
         {
             return NtCore.LoadEntries(Handle, filename, prefix);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is NetworkTableInstance v)
+            {
+                return Equals(v);
+            }
+            return false;
+        }
+
+        public bool Equals(NetworkTableInstance other)
+        {
+            return Handle.Get() == other.Handle.Get();
+        }
+
+        public override int GetHashCode()
+        {
+            return Handle.Get().GetHashCode();
+        }
+
+        public static bool operator==(in NetworkTableInstance lhs, in NetworkTableInstance rhs)
+        {
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator!=(in NetworkTableInstance lhs, in NetworkTableInstance rhs)
+        {
+            return !lhs.Equals(rhs);
         }
     }
 }

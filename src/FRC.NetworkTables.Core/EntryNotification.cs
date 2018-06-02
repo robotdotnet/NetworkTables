@@ -17,9 +17,9 @@ namespace FRC.NetworkTables
         {
             Listener = entry.Listener;
             EntryHandle = entry.EntryHandle;
-            Name = entry.Name;
+            Name = entry.Name.ToString();
             Value = new NetworkTableValue(entry.Value.Value);
-            Flags = (NotifyFlags)entry.Flags;
+            Flags = entry.Flags;
             m_instance = inst;
         }
     }
