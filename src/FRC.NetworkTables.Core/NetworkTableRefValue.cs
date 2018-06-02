@@ -189,6 +189,51 @@ namespace FRC.NetworkTables
             return Value.Data.VStringArray;
         }
 
+        public static NetworkTableRefValue MakeBoolean(bool value)
+        {
+            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+        }
+
+        public static NetworkTableRefValue MakeDouble(double value)
+        {
+            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+        }
+
+        public static NetworkTableRefValue MakeString(string value)
+        {
+            return new NetworkTableRefValue(new RefManagedValue(value.AsSpan(), NtCore.Now()));
+        }
+
+        public static NetworkTableRefValue MakeString(ReadOnlySpan<char> value)
+        {
+            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+        }
+
+        public static NetworkTableRefValue MakeRaw(ReadOnlySpan<byte> value)
+        {
+            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+        }
+
+        public static NetworkTableRefValue MakeRpc(ReadOnlySpan<byte> value)
+        {
+            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now(), true));
+        }
+
+        public static NetworkTableRefValue MakeBooleanArray(ReadOnlySpan<bool> value)
+        {
+            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+        }
+
+        public static NetworkTableRefValue MakeDoubleArray(ReadOnlySpan<double> value)
+        {
+            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+        }
+
+        public static NetworkTableRefValue MakeStringArray(ReadOnlySpan<string> value)
+        {
+            return new NetworkTableRefValue(new RefManagedValue(value, NtCore.Now()));
+        }
+
         public override bool Equals(object obj)
         {
             return false;

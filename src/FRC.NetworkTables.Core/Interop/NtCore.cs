@@ -162,67 +162,463 @@ namespace FRC.NetworkTables.Interop
             return ret;
         }
 
-        /*
-        internal static unsafe RefManagedValue GetEntryRefValue(NtEntry entry)
-        {
-            NtValue value = new NtValue();
-            m_ntcore.NT_GetEntryValue(entry, &value);
-            var ret = new RefManagedValue(&value);
-            m_ntcore.NT_DisposeValue(&value);
-            return ret;
-        }
-        */
-
-        public static unsafe bool SetDefaultEntryValue(NtEntry entry, in ManagedValue value)
+        internal static unsafe bool SetDefaultEntryValue(NtEntry entry, in ManagedValue value)
         {
             NtValue v = new NtValue();
-            value.CreateNativeFromManaged(&v);
-            var ret = m_ntcore.NT_SetDefaultEntryValue(entry, &v);
-            ManagedValue.DisposeCreatedNative(&v);
-            return ret.Get();
+            v.type = value.Type;
+
+            switch (value.Type)
+            {
+                case NtType.Boolean:
+                    v.data.v_boolean = value.Data.VBoolean;
+                    return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                case NtType.Double:
+                    v.data.v_double = value.Data.VDouble;
+                    return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                case NtType.String:
+                    fixed (char* p = value.Data.VString.Span)
+                    {
+                        var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
+                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                        fixed (byte* d = dSpan)
+                        {
+                            Encoding.UTF8.GetBytes(p, value.Data.VString.Length, d, dLen);
+                            v.data.v_string.str = d;
+                            v.data.v_string.len = (UIntPtr)dLen;
+                            return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                        }
+                    }
+                case NtType.Raw:
+                case NtType.Rpc:
+                    fixed (byte* p = value.Data.VRaw.Span)
+                    {
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.str = p;
+                        return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                    }
+                case NtType.BooleanArray:
+                    fixed (bool* p = value.Data.VBooleanArray.Span)
+                    {
+                        var len = value.Data.VBooleanArray.Length;
+                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len] : new NtBool[len];
+                        fixed (NtBool* d = dSpan)
+                        {
+                            v.data.arr_boolean.arr = d;
+                            v.data.arr_boolean.len = (UIntPtr)len;
+                            return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                        }
+                    }
+                case NtType.DoubleArray:
+                    fixed (byte* p = value.Data.VRaw.Span)
+                    {
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.str = p;
+                        return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                    }
+                case NtType.StringArray:
+                    v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray.Length * sizeof(NtString));
+                    v.data.arr_string.len = (UIntPtr)value.Data.VStringArray.Length;
+                    var sSpan = value.Data.VStringArray.Span;
+                    for (int i = 0; i < sSpan.Length; i++)
+                    {
+                        Utilities.CreateNtString(sSpan[i], &v.data.arr_string.arr[i]);
+                    }
+                    var ret = m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                    int sLen = (int)v.data.arr_string.len;
+                    for (int i = 0; i < sLen; i++)
+                    {
+                        Utilities.DisposeNtString(&v.data.arr_string.arr[i]);
+                    }
+                    Marshal.FreeHGlobal((IntPtr)v.data.arr_string.arr);
+                    return ret;
+                default:
+                    return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+            }
         }
 
-        public static unsafe bool SetEntryValue(NtEntry entry, in ManagedValue value)
+        internal static unsafe bool SetEntryValue(NtEntry entry, in ManagedValue value)
         {
             NtValue v = new NtValue();
-            value.CreateNativeFromManaged(&v);
-            var ret = m_ntcore.NT_SetEntryValue(entry, &v);
-            ManagedValue.DisposeCreatedNative(&v);
-            return ret.Get();
+            v.type = value.Type;
+
+            switch (value.Type)
+            {
+                case NtType.Boolean:
+                    v.data.v_boolean = value.Data.VBoolean;
+                    return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                case NtType.Double:
+                    v.data.v_double = value.Data.VDouble;
+                    return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                case NtType.String:
+                    fixed (char* p = value.Data.VString.Span)
+                    {
+                        var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
+                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                        fixed (byte* d = dSpan)
+                        {
+                            Encoding.UTF8.GetBytes(p, value.Data.VString.Length, d, dLen);
+                            v.data.v_string.str = d;
+                            v.data.v_string.len = (UIntPtr)dLen;
+                            return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                        }
+                    }
+                case NtType.Raw:
+                case NtType.Rpc:
+                    fixed (byte* p = value.Data.VRaw.Span)
+                    {
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.str = p;
+                        return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                    }
+                case NtType.BooleanArray:
+                    fixed (bool* p = value.Data.VBooleanArray.Span)
+                    {
+                        var len = value.Data.VBooleanArray.Length;
+                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len] : new NtBool[len];
+                        fixed (NtBool* d = dSpan)
+                        {
+                            v.data.arr_boolean.arr = d;
+                            v.data.arr_boolean.len = (UIntPtr)len;
+                            return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                        }
+                    }
+                case NtType.DoubleArray:
+                    fixed (byte* p = value.Data.VRaw.Span)
+                    {
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.str = p;
+                        return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                    }
+                case NtType.StringArray:
+                    v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray.Length * sizeof(NtString));
+                    v.data.arr_string.len = (UIntPtr)value.Data.VStringArray.Length;
+                    var sSpan = value.Data.VStringArray.Span;
+                    for (int i = 0; i < sSpan.Length; i++)
+                    {
+                        Utilities.CreateNtString(sSpan[i], &v.data.arr_string.arr[i]);
+                    }
+                    var ret = m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                    int sLen = (int)v.data.arr_string.len;
+                    for (int i = 0; i < sLen; i++)
+                    {
+                        Utilities.DisposeNtString(&v.data.arr_string.arr[i]);
+                    }
+                    Marshal.FreeHGlobal((IntPtr)v.data.arr_string.arr);
+                    return ret;
+                default:
+                    return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+            }
         }
 
-        public static unsafe void SetEntryTypeValue(NtEntry entry, in ManagedValue value)
+        internal static unsafe void SetEntryTypeValue(NtEntry entry, in ManagedValue value)
         {
             NtValue v = new NtValue();
-            value.CreateNativeFromManaged(&v);
-            m_ntcore.NT_SetEntryTypeValue(entry, &v);
-            ManagedValue.DisposeCreatedNative(&v);
+            v.type = value.Type;
+
+            switch (value.Type)
+            {
+                case NtType.Boolean:
+                    v.data.v_boolean = value.Data.VBoolean;
+                    m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                    break;
+                case NtType.Double:
+                    v.data.v_double = value.Data.VDouble;
+                    m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                    break;
+                case NtType.String:
+                    fixed (char* p = value.Data.VString.Span)
+                    {
+                        var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
+                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                        fixed (byte* d = dSpan)
+                        {
+                            Encoding.UTF8.GetBytes(p, value.Data.VString.Length, d, dLen);
+                            v.data.v_string.str = d;
+                            v.data.v_string.len = (UIntPtr)dLen;
+                            m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                            break;
+                        }
+                    }
+                case NtType.Raw:
+                case NtType.Rpc:
+                    fixed (byte* p = value.Data.VRaw.Span)
+                    {
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.str = p;
+                        m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                        break;
+                    }
+                case NtType.BooleanArray:
+                    fixed (bool* p = value.Data.VBooleanArray.Span)
+                    {
+                        var len = value.Data.VBooleanArray.Length;
+                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len] : new NtBool[len];
+                        fixed (NtBool* d = dSpan)
+                        {
+                            v.data.arr_boolean.arr = d;
+                            v.data.arr_boolean.len = (UIntPtr)len;
+                            m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                            break;
+                        }
+                    }
+                case NtType.DoubleArray:
+                    fixed (byte* p = value.Data.VRaw.Span)
+                    {
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.str = p;
+                        m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                        break;
+                    }
+                case NtType.StringArray:
+                    v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray.Length * sizeof(NtString));
+                    v.data.arr_string.len = (UIntPtr)value.Data.VStringArray.Length;
+                    var sSpan = value.Data.VStringArray.Span;
+                    for (int i = 0; i < sSpan.Length; i++)
+                    {
+                        Utilities.CreateNtString(sSpan[i], &v.data.arr_string.arr[i]);
+                    }
+                    m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                    int sLen = (int)v.data.arr_string.len;
+                    for (int i = 0; i < sLen; i++)
+                    {
+                        Utilities.DisposeNtString(&v.data.arr_string.arr[i]);
+                    }
+                    Marshal.FreeHGlobal((IntPtr)v.data.arr_string.arr);
+                    break;
+                default:
+                    m_ntcore.NT_SetDefaultEntryValue(entry, &v);
+                    break;
+            }
         }
+
 
         internal static unsafe bool SetDefaultEntryValue(NtEntry entry, in RefManagedValue value)
         {
             NtValue v = new NtValue();
-            value.CreateNativeFromManaged(&v);
-            var ret = m_ntcore.NT_SetDefaultEntryValue(entry, &v);
-            ManagedValue.DisposeCreatedNative(&v);
-            return ret.Get();
+            v.type = value.Type;
+
+            switch (value.Type)
+            {
+                case NtType.Boolean:
+                    v.data.v_boolean = value.Data.VBoolean;
+                    return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                case NtType.Double:
+                    v.data.v_double = value.Data.VDouble;
+                    return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                case NtType.String:
+                    fixed (char* p = value.Data.VString)
+                    {
+                        var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
+                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                        fixed (byte* d = dSpan)
+                        {
+                            Encoding.UTF8.GetBytes(p, value.Data.VString.Length, d, dLen);
+                            v.data.v_string.str = d;
+                            v.data.v_string.len = (UIntPtr)dLen;
+                            return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                        }
+                    }
+                case NtType.Raw:
+                case NtType.Rpc:
+                    fixed(byte* p = value.Data.VRaw)
+                    {
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.str = p;
+                        return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                    }
+                case NtType.BooleanArray:
+                    fixed (bool* p = value.Data.VBooleanArray)
+                    {
+                        var len = value.Data.VBooleanArray.Length;
+                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len] : new NtBool[len];
+                        fixed(NtBool* d = dSpan)
+                        {
+                            v.data.arr_boolean.arr = d;
+                            v.data.arr_boolean.len = (UIntPtr)len;
+                            return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                        }
+                    }
+                case NtType.DoubleArray:
+                    fixed (byte* p = value.Data.VRaw)
+                    {
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.str = p;
+                        return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                    }
+                case NtType.StringArray:
+                    v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray.Length * sizeof(NtString));
+                    v.data.arr_string.len = (UIntPtr)value.Data.VStringArray.Length;
+                    var sSpan = value.Data.VStringArray;
+                    for (int i = 0; i < sSpan.Length; i++)
+                    {
+                        Utilities.CreateNtString(sSpan[i], &v.data.arr_string.arr[i]);
+                    }
+                    var ret = m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+                    int sLen = (int)v.data.arr_string.len;
+                    for (int i = 0; i < sLen; i++)
+                    {
+                        Utilities.DisposeNtString(&v.data.arr_string.arr[i]);
+                    }
+                    Marshal.FreeHGlobal((IntPtr)v.data.arr_string.arr);
+                    return ret;
+                default:
+                    return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+            }
         }
 
         internal static unsafe bool SetEntryValue(NtEntry entry, in RefManagedValue value)
         {
             NtValue v = new NtValue();
-            value.CreateNativeFromManaged(&v);
-            var ret = m_ntcore.NT_SetEntryValue(entry, &v);
-            ManagedValue.DisposeCreatedNative(&v);
-            return ret.Get();
+            v.type = value.Type;
+
+            switch (value.Type)
+            {
+                case NtType.Boolean:
+                    v.data.v_boolean = value.Data.VBoolean;
+                    return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                case NtType.Double:
+                    v.data.v_double = value.Data.VDouble;
+                    return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                case NtType.String:
+                    fixed (char* p = value.Data.VString)
+                    {
+                        var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
+                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                        fixed (byte* d = dSpan)
+                        {
+                            Encoding.UTF8.GetBytes(p, value.Data.VString.Length, d, dLen);
+                            v.data.v_string.str = d;
+                            v.data.v_string.len = (UIntPtr)dLen;
+                            return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                        }
+                    }
+                case NtType.Raw:
+                case NtType.Rpc:
+                    fixed (byte* p = value.Data.VRaw)
+                    {
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.str = p;
+                        return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                    }
+                case NtType.BooleanArray:
+                    fixed (bool* p = value.Data.VBooleanArray)
+                    {
+                        var len = value.Data.VBooleanArray.Length;
+                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len] : new NtBool[len];
+                        fixed (NtBool* d = dSpan)
+                        {
+                            v.data.arr_boolean.arr = d;
+                            v.data.arr_boolean.len = (UIntPtr)len;
+                            return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                        }
+                    }
+                case NtType.DoubleArray:
+                    fixed (byte* p = value.Data.VRaw)
+                    {
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.str = p;
+                        return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                    }
+                case NtType.StringArray:
+                    v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray.Length * sizeof(NtString));
+                    v.data.arr_string.len = (UIntPtr)value.Data.VStringArray.Length;
+                    var sSpan = value.Data.VStringArray;
+                    for (int i = 0; i < sSpan.Length; i++)
+                    {
+                        Utilities.CreateNtString(sSpan[i], &v.data.arr_string.arr[i]);
+                    }
+                    var ret = m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                    int sLen = (int)v.data.arr_string.len;
+                    for (int i = 0; i < sLen; i++)
+                    {
+                        Utilities.DisposeNtString(&v.data.arr_string.arr[i]);
+                    }
+                    Marshal.FreeHGlobal((IntPtr)v.data.arr_string.arr);
+                    return ret;
+                default:
+                    return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
+            }
         }
 
         internal static unsafe void SetEntryTypeValue(NtEntry entry, in RefManagedValue value)
         {
             NtValue v = new NtValue();
-            value.CreateNativeFromManaged(&v);
-            m_ntcore.NT_SetEntryTypeValue(entry, &v);
-            ManagedValue.DisposeCreatedNative(&v);
+            v.type = value.Type;
+
+            switch (value.Type)
+            {
+                case NtType.Boolean:
+                    v.data.v_boolean = value.Data.VBoolean;
+                    m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                    break;
+                case NtType.Double:
+                    v.data.v_double = value.Data.VDouble;
+                    m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                    break;
+                case NtType.String:
+                    fixed (char* p = value.Data.VString)
+                    {
+                        var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
+                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                        fixed (byte* d = dSpan)
+                        {
+                            Encoding.UTF8.GetBytes(p, value.Data.VString.Length, d, dLen);
+                            v.data.v_string.str = d;
+                            v.data.v_string.len = (UIntPtr)dLen;
+                            m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                            break;
+                        }
+                    }
+                case NtType.Raw:
+                case NtType.Rpc:
+                    fixed (byte* p = value.Data.VRaw)
+                    {
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.str = p;
+                        m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                        break;
+                    }
+                case NtType.BooleanArray:
+                    fixed (bool* p = value.Data.VBooleanArray)
+                    {
+                        var len = value.Data.VBooleanArray.Length;
+                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len] : new NtBool[len];
+                        fixed (NtBool* d = dSpan)
+                        {
+                            v.data.arr_boolean.arr = d;
+                            v.data.arr_boolean.len = (UIntPtr)len;
+                            m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                            break;
+                        }
+                    }
+                case NtType.DoubleArray:
+                    fixed (byte* p = value.Data.VRaw)
+                    {
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.str = p;
+                        m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                        break;
+                    }
+                case NtType.StringArray:
+                    v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray.Length * sizeof(NtString));
+                    v.data.arr_string.len = (UIntPtr)value.Data.VStringArray.Length;
+                    var sSpan = value.Data.VStringArray;
+                    for (int i = 0; i < sSpan.Length; i++)
+                    {
+                        Utilities.CreateNtString(sSpan[i], &v.data.arr_string.arr[i]);
+                    }
+                    m_ntcore.NT_SetEntryTypeValue(entry, &v);
+                    int sLen = (int)v.data.arr_string.len;
+                    for (int i = 0; i < sLen; i++)
+                    {
+                        Utilities.DisposeNtString(&v.data.arr_string.arr[i]);
+                    }
+                    Marshal.FreeHGlobal((IntPtr)v.data.arr_string.arr);
+                    break;
+                default:
+                    m_ntcore.NT_SetDefaultEntryValue(entry, &v);
+                    break;
+            }
         }
 
         public static void SetEntryFlags(NtEntry entry, EntryFlags flags)
