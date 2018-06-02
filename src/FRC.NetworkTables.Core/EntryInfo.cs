@@ -10,7 +10,7 @@ namespace FRC.NetworkTables
     /// </summary>
     public readonly struct EntryInfo
     {
-        public readonly Entry EntryHandle;
+        public readonly NtEntry EntryHandle;
         /// <summary>Gets the Name of the entry.</summary>
         public readonly string Name;
         /// <summary>Gets the Type of the entry.</summary>

@@ -4,31 +4,34 @@ using System;
 
 namespace FRC.NetworkTables
 {
-    public readonly struct RpcAnswer
+    public readonly ref struct RpcAnswer
     {
-        public readonly Entry EntryHandle;
-        public readonly Interop.RpcCall Call;
+        public readonly NtEntry EntryHandle;
+        public readonly NtRpcCall Call;
         public readonly string Name;
-        public readonly byte[] Params;
+        public readonly ReadOnlySpan<byte> Params;
         public readonly ConnectionInfo Conn;
+        private readonly Span<bool> m_wasRespondedTo;
         public NetworkTableEntry Entry => new NetworkTableEntry(m_instance, EntryHandle);
         private readonly NetworkTableInstance m_instance;
 
-        internal unsafe RpcAnswer(NetworkTableInstance inst, NtRpcAnswer* answer)
+        internal unsafe RpcAnswer(NetworkTableInstance inst, in NtRpcAnswer answer, Span<bool> respondedTo)
         {
-            EntryHandle = answer->entry;
-            Call = answer->call;
-            Name = UTF8String.ReadUTF8String(answer->name);
-            Params = new Span<byte>(answer->@params.str, (int)answer->@params.len).ToArray();
-            Conn = new ConnectionInfo(&answer->conn);
+            EntryHandle = answer.entry;
+            Call = answer.call;
+            Name = UTF8String.ReadUTF8String(answer.name);
+            Params = new Span<byte>(answer.@params.str, (int)answer.@params.len);
+            Conn = new ConnectionInfo(answer.conn);
+            m_wasRespondedTo = respondedTo;
             m_instance = inst;
         }
 
-        public bool IsValid => Call.Get() != 0;
+        public bool IsValid => m_wasRespondedTo[0] == false;
 
         public void PostResponse(ReadOnlySpan<byte> result)
         {
             NtCore.PostRpcResponse(EntryHandle, Call, result);
+            m_wasRespondedTo[0] = true;
         }
     }
 }

@@ -82,7 +82,7 @@ namespace FRC.NetworkTables.Interop
 
     public struct NtEntryInfo
     {
-        public Entry entry;
+        public NtEntry entry;
         public NtString name;
         public NtType type;
         public uint flags;
@@ -122,8 +122,8 @@ namespace FRC.NetworkTables.Interop
 
     public struct NtRpcAnswer
     {
-        public Entry entry;
-        public RpcCall call;
+        public NtEntry entry;
+        public NtRpcCall call;
         public NtString name;
         public NtString @params;
         public NtConnectionInfo conn;
@@ -131,8 +131,8 @@ namespace FRC.NetworkTables.Interop
 
     public struct NtEntryNotification
     {
-        public EntryListener listener;
-        public Entry entry;
+        public NtEntryListener listener;
+        public NtEntry entry;
         public NtString name;
         public NtValue value;
         public uint flags;
@@ -140,14 +140,14 @@ namespace FRC.NetworkTables.Interop
 
     public struct NtConnectionNotification
     {
-        public ConnectionListener listener;
+        public NtConnectionListener listener;
         public NtBool connected;
         public NtConnectionInfo conn;
     }
 
     public unsafe struct NtLogMessage
     {
-        public Logger logger;
+        public NtLogger logger;
         public uint level;
         public byte* filename;
         public uint line;

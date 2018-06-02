@@ -27,5 +27,14 @@ namespace FRC.NetworkTables
             LastUpdate = (long)info->last_update;
             ProtocolVersion = (int)info->protocol_version;
         }
+
+        internal unsafe ConnectionInfo(in NtConnectionInfo info)
+        {
+            RemoteId = UTF8String.ReadUTF8String(info.remote_id);
+            RemoteIp = UTF8String.ReadUTF8String(info.remote_ip);
+            RemotePort = (int)info.remote_port;
+            LastUpdate = (long)info.last_update;
+            ProtocolVersion = (int)info.protocol_version;
+        }
     }
 }

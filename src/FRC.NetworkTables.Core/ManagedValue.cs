@@ -5,11 +5,82 @@ using FRC.NetworkTables.Strings;
 
 namespace FRC.NetworkTables
 {
-    public readonly struct ManagedValue
+    public readonly struct ManagedValue : IEquatable<ManagedValue>
     {
         public readonly NtType Type;
         public readonly ulong LastChange;
         public readonly EntryUnion Data;
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 13;
+                hash = (hash * 7) + Type.GetHashCode();
+                switch (Type)
+                {
+                    case NtType.Boolean:
+                        hash = (hash * 7) + Data.VBoolean.GetHashCode();
+                        break;
+                    case NtType.Double:
+                        hash = (hash * 7) + Data.VDouble.GetHashCode();
+                        break;
+                    case NtType.String:
+                        hash = (hash * 7) + Data.VString.GetHashCode();
+                        break;
+                    case NtType.Rpc:
+                    case NtType.Raw:
+                        hash = (hash * 7) + Data.VRaw.GetHashCode();
+                        break;
+                    case NtType.BooleanArray:
+                        hash = (hash * 7) + Data.VBooleanArray.GetHashCode();
+                        break;
+                    case NtType.DoubleArray:
+                        hash = (hash * 7) + Data.VDoubleArray.GetHashCode();
+                        break;
+                    case NtType.StringArray:
+                        hash = (hash * 7) + Data.VStringArray.GetHashCode();
+                        break;
+                }
+                return hash;
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ManagedValue v)
+            {
+                return Equals(v);
+            }
+            return false;
+        }
+
+        public bool Equals(ManagedValue other)
+        {
+            if (Type != other.Type) return false;
+            switch (Type)
+            {
+                case NtType.Unassigned:
+                    return true;
+                case NtType.Boolean:
+                    return Data.VBoolean == other.Data.VBoolean;
+                case NtType.Double:
+                    return Data.VDouble == other.Data.VDouble;
+                case NtType.String:
+                    return Data.VString.Span.SequenceEqual(other.Data.VString.Span);
+                case NtType.Raw:
+                case NtType.Rpc:
+                    return Data.VRaw.Span.SequenceEqual(other.Data.VRaw.Span);
+                case NtType.BooleanArray:
+                    return Data.VBooleanArray.Span.SequenceEqual(other.Data.VBooleanArray.Span);
+                case NtType.DoubleArray:
+                    return Data.VDoubleArray.Span.SequenceEqual(other.Data.VDoubleArray.Span);
+                case NtType.StringArray:
+                    return Data.VStringArray.Span.SequenceEqual(other.Data.VStringArray.Span);
+                default:
+                    return false;
+            }
+        }
 
         internal unsafe void CreateNativeFromManaged(NtValue* value)
         {
@@ -99,7 +170,13 @@ namespace FRC.NetworkTables
             LastChange = v->last_change;
             Type = v->type;
             Data = new EntryUnion(v);
+        }
 
+        internal unsafe ManagedValue(in RefManagedValue v)
+        {
+            LastChange = v.LastChange;
+            Type = v.Type;
+            Data = new EntryUnion(v);
         }
 
         internal unsafe ManagedValue(bool v, ulong t)
@@ -323,6 +400,45 @@ namespace FRC.NetworkTables
                         sarr[i] = UTF8String.ReadUTF8String(v->data.arr_string.arr[i].str, v->data.arr_string.arr[i].len);
                     }
                     VStringArray = sarr;
+                    break;
+            }
+        }
+
+        internal EntryUnion(in RefManagedValue v)
+        {
+            VBoolean = false;
+            VDouble = 0;
+            VString = null;
+            VRaw = null;
+            VBooleanArray = null;
+            VDoubleArray = null;
+            VStringArray = null;
+
+            switch (v.Type)
+            {
+                case NtType.Unassigned:
+                    break;
+                case NtType.Boolean:
+                    VBoolean = v.Data.VBoolean;
+                    break;
+                case NtType.Double:
+                    VDouble = v.Data.VDouble;
+                    break;
+                case NtType.String:
+                    VString = v.Data.VString.ToArray();
+                    break;
+                case NtType.Rpc:
+                case NtType.Raw:
+                    VRaw = v.Data.VRaw.ToArray();
+                    break;
+                case NtType.BooleanArray:
+                    VBooleanArray = v.Data.VBooleanArray.ToArray();
+                    break;
+                case NtType.DoubleArray:
+                    VDoubleArray = v.Data.VDoubleArray.ToArray();
+                    break;
+                case NtType.StringArray:
+                    VStringArray = v.Data.VStringArray.ToArray();
                     break;
             }
         }

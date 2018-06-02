@@ -6,20 +6,20 @@ using System.Text;
 
 namespace FRC.NetworkTables
 {
-    public readonly struct NetworkTableValue : IEquatable<NetworkTableValue>
+    public readonly ref struct NetworkTableRefValue
     {
         public NtType Type => Value.Type;
-        public readonly ManagedValue Value;
+        public readonly RefManagedValue Value;
         public bool IsValid => Type != NtType.Unassigned;
 
-        internal NetworkTableValue(in ManagedValue value)
+        internal NetworkTableRefValue(in RefManagedValue value)
         {
             this.Value = value;
         }
 
-        internal NetworkTableValue(in RefManagedValue value)
+        public NetworkTableValue ToValue()
         {
-            Value = new ManagedValue(value);
+            return new NetworkTableValue(Value);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace FRC.NetworkTables
             {
                 throw new InvalidCastException($"cannot convert {Type} to string");
             }
-            return Value.Data.VString.Span;
+            return Value.Data.VString;
         }
 
         //For reference types (other then strings) return copies;
@@ -126,7 +126,7 @@ namespace FRC.NetworkTables
             {
                 throw new InvalidCastException($"cannot convert {Type} to raw");
             }
-            return Value.Data.VRaw.Span;
+            return Value.Data.VRaw;
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace FRC.NetworkTables
             {
                 throw new InvalidCastException($"cannot convert {Type} to Rpc");
             }
-            return Value.Data.VRaw.Span;
+            return Value.Data.VRaw;
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace FRC.NetworkTables
             {
                 throw new InvalidCastException($"cannot convert {Type} to boolean array");
             }
-            return Value.Data.VBooleanArray.Span;
+            return Value.Data.VBooleanArray;
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace FRC.NetworkTables
             {
                 throw new InvalidCastException($"cannot convert {Type} to double array");
             }
-            return Value.Data.VDoubleArray.Span;
+            return Value.Data.VDoubleArray;
         }
 
         /// <summary>
@@ -186,60 +186,11 @@ namespace FRC.NetworkTables
             {
                 throw new InvalidCastException($"cannot convert {Type} to string array");
             }
-            return Value.Data.VStringArray.Span;
-        }
-
-        public static NetworkTableValue MakeBoolean(bool value)
-        {
-            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
-        }
-
-        public static NetworkTableValue MakeDouble(double value)
-        {
-            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
-        }
-
-        public static NetworkTableValue MakeString(string value)
-        {
-            return new NetworkTableValue(new ManagedValue(value.AsSpan(), NtCore.Now()));
-        }
-
-        public static NetworkTableValue MakeString(ReadOnlySpan<char> value)
-        {
-            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
-        }
-
-        public static NetworkTableValue MakeRaw(ReadOnlySpan<byte> value)
-        {
-            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
-        }
-
-        public static NetworkTableValue MakeRpc(ReadOnlySpan<byte> value)
-        {
-            return new NetworkTableValue(new ManagedValue(value, NtCore.Now(), true));
-        }
-
-        public static NetworkTableValue MakeBooleanArray(ReadOnlySpan<bool> value)
-        {
-            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
-        }
-
-        public static NetworkTableValue MakeDoubleArray(ReadOnlySpan<double> value)
-        {
-            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
-        }
-
-        public static NetworkTableValue MakeStringArray(ReadOnlySpan<string> value)
-        {
-            return new NetworkTableValue(new ManagedValue(value, NtCore.Now()));
+            return Value.Data.VStringArray;
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is NetworkTableValue v)
-            {
-                return Equals(v);
-            }
             return false;
         }
 
@@ -248,21 +199,19 @@ namespace FRC.NetworkTables
             return Value.GetHashCode();
         }
 
-        public bool Equals(NetworkTableValue other)
+        public bool Equals(NetworkTableRefValue other)
         {
             return Value.Equals(other.Value);
         }
 
-        public static bool operator==(NetworkTableValue lhs, NetworkTableValue rhs)
+        public static bool operator ==(NetworkTableRefValue lhs, NetworkTableRefValue rhs)
         {
             return lhs.Equals(rhs);
         }
 
-        public static bool operator!=(NetworkTableValue lhs, NetworkTableValue rhs)
+        public static bool operator !=(NetworkTableRefValue lhs, NetworkTableRefValue rhs)
         {
             return !lhs.Equals(rhs);
         }
-
-
     }
 }
