@@ -5,445 +5,445 @@ namespace FRC.NetworkTables.Interop
 {
     public interface INtCore
     {
-        unsafe NT_Inst NT_GetDefaultInstance();
-        unsafe NT_Inst NT_CreateInstance();
-        unsafe void NT_DestroyInstance(NT_Inst inst);
-        unsafe NT_Inst NT_GetInstanceFromHandle(NT_Handle handle);
+        unsafe Instance NT_GetDefaultInstance();
+        unsafe Instance NT_CreateInstance();
+        unsafe void NT_DestroyInstance(Instance inst);
+        unsafe Instance NT_GetInstanceFromHandle(Handle handle);
 
 
 
 
-        unsafe NT_Entry NT_GetEntry(NT_Inst inst, byte* name, UIntPtr name_len);
+        unsafe Entry NT_GetEntry(Instance inst, byte* name, UIntPtr name_len);
 
 
 
 
-        unsafe NT_Entry* NT_GetEntries(NT_Inst inst, byte* prefix, UIntPtr prefix_len, uint types, UIntPtr* count);
+        unsafe Entry* NT_GetEntries(Instance inst, byte* prefix, UIntPtr prefix_len, uint types, UIntPtr* count);
 
 
 
 
-        unsafe byte* NT_GetEntryName(NT_Entry entry, UIntPtr* name_len);
+        unsafe byte* NT_GetEntryName(Entry entry, UIntPtr* name_len);
 
 
 
 
-        unsafe NtType NT_GetEntryType(NT_Entry entry);
+        unsafe NtType NT_GetEntryType(Entry entry);
 
 
 
 
-        unsafe ulong NT_GetEntryLastChange(NT_Entry entry);
+        unsafe ulong NT_GetEntryLastChange(Entry entry);
 
 
 
 
-        unsafe void NT_GetEntryValue(NT_Entry entry, NT_Value* value);
+        unsafe void NT_GetEntryValue(Entry entry, NtValue* value);
 
 
 
 
-        unsafe NT_Bool NT_SetDefaultEntryValue(NT_Entry entry, NT_Value* default_value);
+        unsafe NtBool NT_SetDefaultEntryValue(Entry entry, NtValue* default_value);
 
 
 
 
-        unsafe NT_Bool NT_SetEntryValue(NT_Entry entry, NT_Value* value);
+        unsafe NtBool NT_SetEntryValue(Entry entry, NtValue* value);
 
 
 
 
-        unsafe void NT_SetEntryTypeValue(NT_Entry entry, NT_Value* value);
+        unsafe void NT_SetEntryTypeValue(Entry entry, NtValue* value);
 
 
 
 
-        unsafe void NT_SetEntryFlags(NT_Entry entry, uint flags);
+        unsafe void NT_SetEntryFlags(Entry entry, uint flags);
 
 
 
 
-        unsafe uint NT_GetEntryFlags(NT_Entry entry);
+        unsafe uint NT_GetEntryFlags(Entry entry);
 
 
 
 
-        unsafe void NT_DeleteEntry(NT_Entry entry);
+        unsafe void NT_DeleteEntry(Entry entry);
 
 
 
 
-        unsafe void NT_DeleteAllEntries(NT_Inst inst);
+        unsafe void NT_DeleteAllEntries(Instance inst);
 
 
 
 
-        unsafe NT_EntryInfo* NT_GetEntryInfo(NT_Inst inst, byte* prefix, UIntPtr prefix_len, uint types, UIntPtr* count);
+        unsafe NtEntryInfo* NT_GetEntryInfo(Instance inst, byte* prefix, UIntPtr prefix_len, uint types, UIntPtr* count);
 
 
 
 
-        unsafe NT_Bool NT_GetEntryInfoHandle(NT_Entry entry, NT_EntryInfo* info);
+        unsafe NtBool NT_GetEntryInfoHandle(Entry entry, NtEntryInfo* info);
 
 
 
 
-        unsafe NT_EntryListenerPoller NT_CreateEntryListenerPoller(NT_Inst inst);
+        unsafe EntryListenerPoller NT_CreateEntryListenerPoller(Instance inst);
 
 
 
 
-        unsafe void NT_DestroyEntryListenerPoller(NT_EntryListenerPoller poller);
+        unsafe void NT_DestroyEntryListenerPoller(EntryListenerPoller poller);
 
 
 
 
-        unsafe NT_EntryListener NT_AddPolledEntryListener(NT_EntryListenerPoller poller, byte* prefix, UIntPtr prefix_len, uint flags);
+        unsafe EntryListener NT_AddPolledEntryListener(EntryListenerPoller poller, byte* prefix, UIntPtr prefix_len, uint flags);
 
 
 
 
-        unsafe NT_EntryListener NT_AddPolledEntryListenerSingle(NT_EntryListenerPoller poller, NT_Entry entry, uint flags);
+        unsafe EntryListener NT_AddPolledEntryListenerSingle(EntryListenerPoller poller, Entry entry, uint flags);
 
 
 
 
-        unsafe NT_EntryNotification* NT_PollEntryListener(NT_EntryListenerPoller poller, UIntPtr* len);
+        unsafe NtEntryNotification* NT_PollEntryListener(EntryListenerPoller poller, UIntPtr* len);
 
 
 
 
-        unsafe NT_EntryNotification* NT_PollEntryListenerTimeout(NT_EntryListenerPoller poller, UIntPtr* len, double timeout, NT_Bool* timed_out);
+        unsafe NtEntryNotification* NT_PollEntryListenerTimeout(EntryListenerPoller poller, UIntPtr* len, double timeout, NtBool* timed_out);
 
 
 
 
-        unsafe void NT_CancelPollEntryListener(NT_EntryListenerPoller poller);
+        unsafe void NT_CancelPollEntryListener(EntryListenerPoller poller);
 
 
 
 
-        unsafe void NT_RemoveEntryListener(NT_EntryListener entry_listener);
+        unsafe void NT_RemoveEntryListener(EntryListener entry_listener);
 
 
 
 
-        unsafe NT_Bool NT_WaitForEntryListenerQueue(NT_Inst inst, double timeout);
+        unsafe NtBool NT_WaitForEntryListenerQueue(Instance inst, double timeout);
 
 
 
 
-        unsafe NT_ConnectionListenerPoller NT_CreateConnectionListenerPoller(NT_Inst inst);
+        unsafe ConnectionListenerPoller NT_CreateConnectionListenerPoller(Instance inst);
 
 
 
 
-        unsafe void NT_DestroyConnectionListenerPoller(NT_ConnectionListenerPoller poller);
+        unsafe void NT_DestroyConnectionListenerPoller(ConnectionListenerPoller poller);
 
 
 
 
-        unsafe NT_ConnectionListener NT_AddPolledConnectionListener(NT_ConnectionListenerPoller poller, NT_Bool immediate_notify);
+        unsafe ConnectionListener NT_AddPolledConnectionListener(ConnectionListenerPoller poller, NtBool immediate_notify);
 
 
 
 
-        unsafe NT_ConnectionNotification* NT_PollConnectionListener(NT_ConnectionListenerPoller poller, UIntPtr* len);
+        unsafe NtConnectionNotification* NT_PollConnectionListener(ConnectionListenerPoller poller, UIntPtr* len);
 
 
 
 
-        unsafe NT_ConnectionNotification* NT_PollConnectionListenerTimeout(NT_ConnectionListenerPoller poller, UIntPtr* len, double timeout, NT_Bool* timed_out);
+        unsafe NtConnectionNotification* NT_PollConnectionListenerTimeout(ConnectionListenerPoller poller, UIntPtr* len, double timeout, NtBool* timed_out);
 
 
 
 
-        unsafe void NT_CancelPollConnectionListener(NT_ConnectionListenerPoller poller);
+        unsafe void NT_CancelPollConnectionListener(ConnectionListenerPoller poller);
 
 
 
 
-        unsafe void NT_RemoveConnectionListener(NT_ConnectionListener conn_listener);
+        unsafe void NT_RemoveConnectionListener(ConnectionListener conn_listener);
 
 
 
 
-        unsafe NT_Bool NT_WaitForConnectionListenerQueue(NT_Inst inst, double timeout);
+        unsafe NtBool NT_WaitForConnectionListenerQueue(Instance inst, double timeout);
 
 
 
 
-        unsafe NT_RpcCallPoller NT_CreateRpcCallPoller(NT_Inst inst);
+        unsafe RpcCallPoller NT_CreateRpcCallPoller(Instance inst);
 
 
 
 
-        unsafe void NT_DestroyRpcCallPoller(NT_RpcCallPoller poller);
+        unsafe void NT_DestroyRpcCallPoller(RpcCallPoller poller);
 
 
 
 
-        unsafe void NT_CreatePolledRpc(NT_Entry entry, byte* def, UIntPtr def_len, NT_RpcCallPoller poller);
+        unsafe void NT_CreatePolledRpc(Entry entry, byte* def, UIntPtr def_len, RpcCallPoller poller);
 
 
 
 
-        unsafe NT_RpcAnswer* NT_PollRpc(NT_RpcCallPoller poller, UIntPtr* len);
+        unsafe NtRpcAnswer* NT_PollRpc(RpcCallPoller poller, UIntPtr* len);
 
 
 
 
-        unsafe NT_RpcAnswer* NT_PollRpcTimeout(NT_RpcCallPoller poller, UIntPtr* len, double timeout, NT_Bool* timed_out);
+        unsafe NtRpcAnswer* NT_PollRpcTimeout(RpcCallPoller poller, UIntPtr* len, double timeout, NtBool* timed_out);
 
 
 
 
-        unsafe void NT_CancelPollRpc(NT_RpcCallPoller poller);
+        unsafe void NT_CancelPollRpc(RpcCallPoller poller);
 
 
 
 
-        unsafe NT_Bool NT_WaitForRpcCallQueue(NT_Inst inst, double timeout);
+        unsafe NtBool NT_WaitForRpcCallQueue(Instance inst, double timeout);
 
 
 
 
-        unsafe void NT_PostRpcResponse(NT_Entry entry, NT_RpcCall call, byte* result, UIntPtr result_len);
+        unsafe void NT_PostRpcResponse(Entry entry, RpcCall call, byte* result, UIntPtr result_len);
 
 
 
 
-        unsafe NT_RpcCall NT_CallRpc(NT_Entry entry, byte* @params, UIntPtr params_len);
+        unsafe RpcCall NT_CallRpc(Entry entry, byte* @params, UIntPtr params_len);
 
 
 
 
-        unsafe byte* NT_GetRpcResult(NT_Entry entry, NT_RpcCall call, UIntPtr* result_len);
+        unsafe byte* NT_GetRpcResult(Entry entry, RpcCall call, UIntPtr* result_len);
 
 
 
 
-        unsafe byte* NT_GetRpcResultTimeout(NT_Entry entry, NT_RpcCall call, UIntPtr* result_len, double timeout, NT_Bool* timed_out);
+        unsafe byte* NT_GetRpcResultTimeout(Entry entry, RpcCall call, UIntPtr* result_len, double timeout, NtBool* timed_out);
 
 
 
 
-        unsafe void NT_CancelRpcResult(NT_Entry entry, NT_RpcCall call);
+        unsafe void NT_CancelRpcResult(Entry entry, RpcCall call);
 
 
 
 
-        unsafe byte* NT_PackRpcDefinition(NT_RpcDefinition def, UIntPtr* packed_len);
+        unsafe byte* NT_PackRpcDefinition(NtRpcDefinition def, UIntPtr* packed_len);
 
 
 
 
-        unsafe NT_Bool NT_UnpackRpcDefinition(byte* packed, UIntPtr packed_len, NT_RpcDefinition* def);
+        unsafe NtBool NT_UnpackRpcDefinition(byte* packed, UIntPtr packed_len, NtRpcDefinition* def);
 
 
 
 
-        unsafe byte* NT_PackRpcValues(NT_Value** values, UIntPtr values_len, UIntPtr* packed_len);
+        unsafe byte* NT_PackRpcValues(NtValue** values, UIntPtr values_len, UIntPtr* packed_len);
 
 
 
 
-        unsafe NT_Value** NT_UnpackRpcValues(byte* packed, UIntPtr packed_len, NtType* types, UIntPtr types_len);
+        unsafe NtValue** NT_UnpackRpcValues(byte* packed, UIntPtr packed_len, NtType* types, UIntPtr types_len);
 
 
 
 
-        unsafe void NT_SetNetworkIdentity(NT_Inst inst, byte* name, UIntPtr name_len);
+        unsafe void NT_SetNetworkIdentity(Instance inst, byte* name, UIntPtr name_len);
 
 
 
 
-        unsafe uint NT_GetNetworkMode(NT_Inst inst);
+        unsafe uint NT_GetNetworkMode(Instance inst);
 
 
 
 
-        unsafe void NT_StartServer(NT_Inst inst, byte* persist_filename, byte* listen_address, uint port);
+        unsafe void NT_StartServer(Instance inst, byte* persist_filename, byte* listen_address, uint port);
 
 
 
 
-        unsafe void NT_StopServer(NT_Inst inst);
+        unsafe void NT_StopServer(Instance inst);
 
 
 
 
-        unsafe void NT_StartClientNone(NT_Inst inst);
+        unsafe void NT_StartClientNone(Instance inst);
 
 
 
 
-        unsafe void NT_StartClient(NT_Inst inst, byte* server_name, uint port);
+        unsafe void NT_StartClient(Instance inst, byte* server_name, uint port);
 
 
 
 
-        unsafe void NT_StartClientMulti(NT_Inst inst, UIntPtr count, byte** server_names, uint* ports);
+        unsafe void NT_StartClientMulti(Instance inst, UIntPtr count, byte** server_names, uint* ports);
 
 
 
 
-        unsafe void NT_StartClientTeam(NT_Inst inst, uint team, uint port);
+        unsafe void NT_StartClientTeam(Instance inst, uint team, uint port);
 
 
 
 
-        unsafe void NT_StopClient(NT_Inst inst);
+        unsafe void NT_StopClient(Instance inst);
 
 
 
 
-        unsafe void NT_SetServer(NT_Inst inst, byte* server_name, uint port);
+        unsafe void NT_SetServer(Instance inst, byte* server_name, uint port);
 
 
 
 
-        unsafe void NT_SetServerMulti(NT_Inst inst, UIntPtr count, byte** server_names, uint* ports);
+        unsafe void NT_SetServerMulti(Instance inst, UIntPtr count, byte** server_names, uint* ports);
 
 
 
 
-        unsafe void NT_SetServerTeam(NT_Inst inst, uint team, uint port);
+        unsafe void NT_SetServerTeam(Instance inst, uint team, uint port);
 
 
 
 
-        unsafe void NT_StartDSClient(NT_Inst inst, uint port);
+        unsafe void NT_StartDSClient(Instance inst, uint port);
 
 
 
 
-        unsafe void NT_StopDSClient(NT_Inst inst);
+        unsafe void NT_StopDSClient(Instance inst);
 
 
 
 
-        unsafe void NT_SetUpdateRate(NT_Inst inst, double interval);
+        unsafe void NT_SetUpdateRate(Instance inst, double interval);
 
 
 
 
-        unsafe void NT_Flush(NT_Inst inst);
+        unsafe void NT_Flush(Instance inst);
 
 
 
 
-        unsafe NT_ConnectionInfo* NT_GetConnections(NT_Inst inst, UIntPtr* count);
+        unsafe NtConnectionInfo* NT_GetConnections(Instance inst, UIntPtr* count);
 
 
 
 
-        unsafe NT_Bool NT_IsConnected(NT_Inst inst);
+        unsafe NtBool NT_IsConnected(Instance inst);
 
 
 
 
-        unsafe byte* NT_SavePersistent(NT_Inst inst, byte* filename);
+        unsafe byte* NT_SavePersistent(Instance inst, byte* filename);
 
 
 
 
-        unsafe byte* NT_LoadPersistent(NT_Inst inst, byte* filename, IntPtr warnFunc);
+        unsafe byte* NT_LoadPersistent(Instance inst, byte* filename, IntPtr warnFunc);
 
 
 
 
-        unsafe byte* NT_SaveEntries(NT_Inst inst, byte* filename, byte* prefix, UIntPtr prefix_len);
+        unsafe byte* NT_SaveEntries(Instance inst, byte* filename, byte* prefix, UIntPtr prefix_len);
 
 
 
 
-        unsafe byte* NT_LoadEntries(NT_Inst inst, byte* filename, byte* prefix, UIntPtr prefix_len, IntPtr warnFunc);
+        unsafe byte* NT_LoadEntries(Instance inst, byte* filename, byte* prefix, UIntPtr prefix_len, IntPtr warnFunc);
 
 
 
 
-        unsafe void NT_DisposeValue(NT_Value* value);
+        unsafe void NT_DisposeValue(NtValue* value);
 
 
 
 
-        unsafe void NT_InitValue(NT_Value* value);
+        unsafe void NT_InitValue(NtValue* value);
 
 
 
 
-        unsafe void NT_DisposeString(NT_String* str);
+        unsafe void NT_DisposeString(NtString* str);
 
 
 
 
-        unsafe void NT_InitString(NT_String* str);
+        unsafe void NT_InitString(NtString* str);
 
 
 
 
-        unsafe void NT_DisposeEntryArray(NT_Entry* arr, UIntPtr count);
+        unsafe void NT_DisposeEntryArray(Entry* arr, UIntPtr count);
 
 
 
 
-        unsafe void NT_DisposeConnectionInfoArray(NT_ConnectionInfo* arr, UIntPtr count);
+        unsafe void NT_DisposeConnectionInfoArray(NtConnectionInfo* arr, UIntPtr count);
 
 
 
 
-        unsafe void NT_DisposeEntryInfoArray(NT_EntryInfo* arr, UIntPtr count);
+        unsafe void NT_DisposeEntryInfoArray(NtEntryInfo* arr, UIntPtr count);
 
 
 
 
-        unsafe void NT_DisposeEntryInfo(NT_EntryInfo* info);
+        unsafe void NT_DisposeEntryInfo(NtEntryInfo* info);
 
 
 
 
-        unsafe void NT_DisposeRpcDefinition(NT_RpcDefinition* def);
+        unsafe void NT_DisposeRpcDefinition(NtRpcDefinition* def);
 
 
 
 
-        unsafe void NT_DisposeRpcAnswerArray(NT_RpcAnswer* arr, UIntPtr count);
+        unsafe void NT_DisposeRpcAnswerArray(NtRpcAnswer* arr, UIntPtr count);
 
 
 
 
-        unsafe void NT_DisposeRpcAnswer(NT_RpcAnswer* answer);
+        unsafe void NT_DisposeRpcAnswer(NtRpcAnswer* answer);
 
 
 
 
-        unsafe void NT_DisposeEntryNotificationArray(NT_EntryNotification* arr, UIntPtr count);
+        unsafe void NT_DisposeEntryNotificationArray(NtEntryNotification* arr, UIntPtr count);
 
 
 
 
-        unsafe void NT_DisposeEntryNotification(NT_EntryNotification* info);
+        unsafe void NT_DisposeEntryNotification(NtEntryNotification* info);
 
 
 
 
-        unsafe void NT_DisposeConnectionNotificationArray(NT_ConnectionNotification* arr, UIntPtr count);
+        unsafe void NT_DisposeConnectionNotificationArray(NtConnectionNotification* arr, UIntPtr count);
 
 
 
 
-        unsafe void NT_DisposeConnectionNotification(NT_ConnectionNotification* info);
+        unsafe void NT_DisposeConnectionNotification(NtConnectionNotification* info);
 
 
 
 
-        unsafe void NT_DisposeLogMessageArray(NT_LogMessage* arr, UIntPtr count);
+        unsafe void NT_DisposeLogMessageArray(NtLogMessage* arr, UIntPtr count);
 
 
 
 
-        unsafe void NT_DisposeLogMessage(NT_LogMessage* info);
+        unsafe void NT_DisposeLogMessage(NtLogMessage* info);
 
 
 
@@ -453,42 +453,42 @@ namespace FRC.NetworkTables.Interop
 
 
 
-        unsafe NT_LoggerPoller NT_CreateLoggerPoller(NT_Inst inst);
+        unsafe LoggerPoller NT_CreateLoggerPoller(Instance inst);
 
 
 
 
-        unsafe void NT_DestroyLoggerPoller(NT_LoggerPoller poller);
+        unsafe void NT_DestroyLoggerPoller(LoggerPoller poller);
 
 
 
 
-        unsafe NT_Logger NT_AddPolledLogger(NT_LoggerPoller poller, uint min_level, uint max_level);
+        unsafe Logger NT_AddPolledLogger(LoggerPoller poller, uint min_level, uint max_level);
 
 
 
 
-        unsafe NT_LogMessage* NT_PollLogger(NT_LoggerPoller poller, UIntPtr* len);
+        unsafe NtLogMessage* NT_PollLogger(LoggerPoller poller, UIntPtr* len);
 
 
 
 
-        unsafe NT_LogMessage* NT_PollLoggerTimeout(NT_LoggerPoller poller, UIntPtr* len, double timeout, NT_Bool* timed_out);
+        unsafe NtLogMessage* NT_PollLoggerTimeout(LoggerPoller poller, UIntPtr* len, double timeout, NtBool* timed_out);
 
 
 
 
-        unsafe void NT_CancelPollLogger(NT_LoggerPoller poller);
+        unsafe void NT_CancelPollLogger(LoggerPoller poller);
 
 
 
 
-        unsafe void NT_RemoveLogger(NT_Logger logger);
+        unsafe void NT_RemoveLogger(Logger logger);
 
 
 
 
-        unsafe NT_Bool NT_WaitForLoggerQueue(NT_Inst inst, double timeout);
+        unsafe NtBool NT_WaitForLoggerQueue(Instance inst, double timeout);
 
 
 
@@ -498,7 +498,7 @@ namespace FRC.NetworkTables.Interop
 
 
 
-        unsafe NT_Bool* NT_AllocateBooleanArray(UIntPtr size);
+        unsafe NtBool* NT_AllocateBooleanArray(UIntPtr size);
 
 
 
@@ -508,7 +508,7 @@ namespace FRC.NetworkTables.Interop
 
 
 
-        unsafe NT_String* NT_AllocateStringArray(UIntPtr size);
+        unsafe NtString* NT_AllocateStringArray(UIntPtr size);
 
 
 
@@ -523,12 +523,12 @@ namespace FRC.NetworkTables.Interop
 
 
 
-        unsafe void NT_FreeBooleanArray(NT_Bool* v_boolean);
+        unsafe void NT_FreeBooleanArray(NtBool* v_boolean);
 
 
 
 
-        unsafe void NT_FreeStringArray(NT_String* v_string, UIntPtr arr_size);
+        unsafe void NT_FreeStringArray(NtString* v_string, UIntPtr arr_size);
 
 
     }

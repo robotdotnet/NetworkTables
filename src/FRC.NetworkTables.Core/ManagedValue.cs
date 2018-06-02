@@ -5,13 +5,13 @@ using FRC.NetworkTables.Strings;
 
 namespace FRC.NetworkTables
 {
-    public readonly struct NT_ManagedValue
+    public readonly struct ManagedValue
     {
         public readonly NtType Type;
         public readonly ulong LastChange;
-        public readonly NT_EntryUnion Data;
+        public readonly EntryUnion Data;
 
-        internal unsafe void CreateNativeFromManaged(NT_Value* value)
+        internal unsafe void CreateNativeFromManaged(NtValue* value)
         {
             value->last_change = LastChange;
             value->type = Type;
@@ -30,39 +30,43 @@ namespace FRC.NetworkTables
                 case NtType.Raw:
                     value->data.v_raw.str = (byte*)Marshal.AllocHGlobal(Data.VRaw.Length);
                     value->data.v_raw.len = (UIntPtr)Data.VRaw.Length;
-                    for (int i = 0; i < Data.VRaw.Length; i++)
+                    var rSpan = Data.VRaw.Span;
+                    for (int i = 0; i < rSpan.Length; i++)
                     {
-                        value->data.v_raw.str[i] = Data.VRaw[i];
+                        value->data.v_raw.str[i] = rSpan[i];
                     }
                     break;
                 case NtType.BooleanArray:
-                    value->data.arr_boolean.arr = (NT_Bool*)Marshal.AllocHGlobal(Data.VBooleanArray.Length * sizeof(NT_Bool));
+                    value->data.arr_boolean.arr = (NtBool*)Marshal.AllocHGlobal(Data.VBooleanArray.Length * sizeof(NtBool));
                     value->data.arr_boolean.len = (UIntPtr)Data.VBooleanArray.Length;
-                    for (int i = 0; i < Data.VBooleanArray.Length; i++)
+                    var bSpan = Data.VBooleanArray.Span;
+                    for (int i = 0; i < bSpan.Length; i++)
                     {
-                        value->data.arr_boolean.arr[i] = Data.VBooleanArray[i];
+                        value->data.arr_boolean.arr[i] = bSpan[i];
                     }
                     break;
                 case NtType.DoubleArray:
                     value->data.arr_double.arr = (double*)Marshal.AllocHGlobal(Data.VDoubleArray.Length * sizeof(double));
                     value->data.arr_double.len = (UIntPtr)Data.VDoubleArray.Length;
-                    for (int i = 0; i < Data.VDoubleArray.Length; i++)
+                    var dSpan = Data.VDoubleArray.Span;
+                    for (int i = 0; i < dSpan.Length; i++)
                     {
-                        value->data.arr_double.arr[i] = Data.VDoubleArray[i];
+                        value->data.arr_double.arr[i] = dSpan[i];
                     }
                     break;
                 case NtType.StringArray:
-                    value->data.arr_string.arr = (NT_String*)Marshal.AllocHGlobal(Data.VStringArray.Length * sizeof(NT_String));
+                    value->data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(Data.VStringArray.Length * sizeof(NtString));
                     value->data.arr_string.len = (UIntPtr)Data.VStringArray.Length;
-                    for (int i = 0; i < Data.VStringArray.Length; i++)
+                    var sSpan = Data.VStringArray.Span;
+                    for (int i = 0; i < sSpan.Length; i++)
                     {
-                        Utilities.CreateNtString(Data.VStringArray[i], &value->data.arr_string.arr[i]);
+                        Utilities.CreateNtString(sSpan[i], &value->data.arr_string.arr[i]);
                     }
                     break;
             }
         }
 
-        public unsafe static void DisposeCreatedNative(NT_Value* v)
+        public unsafe static void DisposeCreatedNative(NtValue* v)
         {
             switch (v->type)
             {
@@ -90,90 +94,90 @@ namespace FRC.NetworkTables
             }
         }
 
-        internal unsafe NT_ManagedValue(NT_Value* v)
+        internal unsafe ManagedValue(NtValue* v)
         {
             LastChange = v->last_change;
             Type = v->type;
-            Data = new NT_EntryUnion(v);
+            Data = new EntryUnion(v);
 
         }
 
-        internal unsafe NT_ManagedValue(bool v, ulong t)
+        internal unsafe ManagedValue(bool v, ulong t)
         {
             LastChange = t;
             Type = NtType.Boolean;
-            Data = new NT_EntryUnion(v);
+            Data = new EntryUnion(v);
         }
 
-        internal unsafe NT_ManagedValue(double v, ulong t)
+        internal unsafe ManagedValue(double v, ulong t)
         {
             LastChange = t;
             Type = NtType.Double;
-            Data = new NT_EntryUnion(v);
+            Data = new EntryUnion(v);
         }
 
-        internal unsafe NT_ManagedValue(string v, ulong t)
+        internal unsafe ManagedValue(ReadOnlySpan<char> v, ulong t)
         {
             LastChange = t;
             Type = NtType.String;
-            Data = new NT_EntryUnion(v);
+            Data = new EntryUnion(v);
         }
 
-        internal unsafe NT_ManagedValue(byte[] v, ulong t)
+        internal unsafe ManagedValue(ReadOnlySpan<byte> v, ulong t)
         {
             LastChange = t;
             Type = NtType.Raw;
-            Data = new NT_EntryUnion(v);
+            Data = new EntryUnion(v);
         }
 
-        internal unsafe NT_ManagedValue(byte[] v, ulong t, bool r)
+        internal unsafe ManagedValue(ReadOnlySpan<byte> v, ulong t, bool r)
         {
             LastChange = t;
             Type = r ? NtType.Rpc : NtType.Raw;
-            Data = new NT_EntryUnion(v);
+            Data = new EntryUnion(v);
         }
 
-        internal unsafe NT_ManagedValue(bool[] v, ulong t)
+        internal unsafe ManagedValue(ReadOnlySpan<bool> v, ulong t)
         {
             LastChange = t;
             Type = NtType.BooleanArray;
-            Data = new NT_EntryUnion(v);
+            Data = new EntryUnion(v);
         }
 
-        internal unsafe NT_ManagedValue(double[] v, ulong t)
+        internal unsafe ManagedValue(ReadOnlySpan<double> v, ulong t)
         {
             LastChange = t;
             Type = NtType.DoubleArray;
-            Data = new NT_EntryUnion(v);
+            Data = new EntryUnion(v);
         }
 
-        internal unsafe NT_ManagedValue(string[] v, ulong t)
+        internal unsafe ManagedValue(ReadOnlySpan<string> v, ulong t)
         {
             LastChange = t;
             Type = NtType.StringArray;
-            Data = new NT_EntryUnion(v);
+            Data = new EntryUnion(v);
         }
     }
 
     [StructLayout(LayoutKind.Explicit)]
-    public readonly struct NT_EntryUnion
+    public readonly struct EntryUnion
     {
         [FieldOffset(0)]
         public readonly bool VBoolean;
         [FieldOffset(0)]
         public readonly double VDouble;
-        [FieldOffset(8)]
-        public readonly string VString;
-        [FieldOffset(8)]
-        public readonly byte[] VRaw;
-        [FieldOffset(8)]
-        public readonly bool[] VBooleanArray;
-        [FieldOffset(8)]
-        public readonly double[] VDoubleArray;
-        [FieldOffset(8)]
-        public readonly string[] VStringArray;
+        [FieldOffset(0)]
+        public readonly ReadOnlyMemory<char> VString;
+        [FieldOffset(0)]
+        public readonly ReadOnlyMemory<byte> VRaw;
+        [FieldOffset(0)]
+        public readonly ReadOnlyMemory<bool> VBooleanArray;
+        [FieldOffset(0)]
+        public readonly ReadOnlyMemory<double> VDoubleArray;
+        [FieldOffset(0)]
+        public readonly ReadOnlyMemory<string> VStringArray;
 
-        internal NT_EntryUnion(bool v)
+        internal EntryUnion(bool v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -186,7 +190,7 @@ namespace FRC.NetworkTables
             VBoolean = v;
         }
 
-        internal NT_EntryUnion(double v)
+        internal EntryUnion(double v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -199,7 +203,7 @@ namespace FRC.NetworkTables
             VDouble = v;
         }
 
-        internal NT_EntryUnion(string v)
+        internal EntryUnion(ReadOnlySpan<char> v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -209,10 +213,10 @@ namespace FRC.NetworkTables
             VDoubleArray = null;
             VStringArray = null;
 
-            VString = v;
+            VString = v.ToArray();
         }
 
-        internal NT_EntryUnion(byte[] v)
+        internal EntryUnion(ReadOnlySpan<byte> v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -222,10 +226,10 @@ namespace FRC.NetworkTables
             VDoubleArray = null;
             VStringArray = null;
 
-            VRaw = v;
+            VRaw = v.ToArray();
         }
 
-        internal NT_EntryUnion(bool[] v)
+        internal EntryUnion(ReadOnlySpan<bool> v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -235,10 +239,10 @@ namespace FRC.NetworkTables
             VDoubleArray = null;
             VStringArray = null;
 
-            VBooleanArray = v;
+            VBooleanArray = v.ToArray();
         }
 
-        internal NT_EntryUnion(double[] v)
+        internal EntryUnion(ReadOnlySpan<double> v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -248,10 +252,10 @@ namespace FRC.NetworkTables
             VDoubleArray = null;
             VStringArray = null;
 
-            VDoubleArray = v;
+            VDoubleArray = v.ToArray();
         }
 
-        internal NT_EntryUnion(string[] v)
+        internal EntryUnion(ReadOnlySpan<string> v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -261,10 +265,10 @@ namespace FRC.NetworkTables
             VDoubleArray = null;
             VStringArray = null;
 
-            VStringArray = v;
+            VStringArray = v.ToArray();
         }
 
-        internal unsafe NT_EntryUnion(NT_Value* v)
+        internal unsafe EntryUnion(NtValue* v)
         {
             VBoolean = false;
             VDouble = 0;
@@ -285,36 +289,40 @@ namespace FRC.NetworkTables
                     VDouble = v->data.v_double;
                     break;
                 case NtType.String:
-                    VString = UTF8String.ReadUTF8String(v->data.v_string.str, v->data.v_string.len);
+                    VString = UTF8String.ReadUTF8String(v->data.v_string.str, v->data.v_string.len).AsMemory();
                     break;
                 case NtType.Rpc:
                 case NtType.Raw:
-                    VRaw = new byte[(int)v->data.v_raw.len];
-                    for (int i = 0; i < VRaw.Length; i++)
+                    var raw  = new byte[(int)v->data.v_raw.len];
+                    for (int i = 0; i < raw.Length; i++)
                     {
-                        VRaw[i] = v->data.v_raw.str[i];
+                        raw[i] = v->data.v_raw.str[i];
                     }
+                    VRaw = raw;
                     break;
                 case NtType.BooleanArray:
-                    VBooleanArray = new bool[(int)v->data.arr_boolean.len];
-                    for (int i = 0; i < VBooleanArray.Length; i++)
+                    var barr = new bool[(int)v->data.arr_boolean.len];
+                    for (int i = 0; i < barr.Length; i++)
                     {
-                        VBooleanArray[i] = v->data.arr_boolean.arr[i].Get();
+                        barr[i] = v->data.arr_boolean.arr[i].Get();
                     }
+                    VBooleanArray = barr;
                     break;
                 case NtType.DoubleArray:
-                    VDoubleArray = new double[(int)v->data.arr_double.len];
-                    for (int i = 0; i < VDoubleArray.Length; i++)
+                    var darr = new double[(int)v->data.arr_double.len];
+                    for (int i = 0; i < darr.Length; i++)
                     {
-                        VDoubleArray[i] = v->data.arr_double.arr[i];
+                        darr[i] = v->data.arr_double.arr[i];
                     }
+                    VDoubleArray = darr;
                     break;
                 case NtType.StringArray:
-                    VStringArray = new string[(int)v->data.arr_string.len];
-                    for (int i = 0; i < VStringArray.Length; i++)
+                    var sarr = new string[(int)v->data.arr_string.len];
+                    for (int i = 0; i < sarr.Length; i++)
                     {
-                        VStringArray[i] = UTF8String.ReadUTF8String(v->data.arr_string.arr[i].str, v->data.arr_string.arr[i].len);
+                        sarr[i] = UTF8String.ReadUTF8String(v->data.arr_string.arr[i].str, v->data.arr_string.arr[i].len);
                     }
+                    VStringArray = sarr;
                     break;
             }
         }

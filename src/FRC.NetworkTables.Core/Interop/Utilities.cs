@@ -7,19 +7,44 @@ namespace FRC.NetworkTables.Interop
 {
     internal static class Utilities
     {
-        internal static unsafe void CreateNtString(string vStr, NT_String* nStr)
+        internal static unsafe void CreateNtString(ReadOnlySpan<char> vStr, NtString* nStr)
         {
             fixed (char* str = vStr)
             {
                 var encoding = Encoding.UTF8;
-                int bytes = encoding.GetByteCount(vStr);
+                int bytes = encoding.GetByteCount(str, vStr.Length);
                 nStr->str = (byte*)Marshal.AllocHGlobal((bytes) * sizeof(byte));
                 nStr->len = (UIntPtr)bytes;
                 encoding.GetBytes(str, vStr.Length, nStr->str, bytes);
             }
         }
 
-        internal static unsafe void DisposeNtString(NT_String* str)
+        internal static unsafe void CreateNtString(ReadOnlyMemory<char> vStr, NtString* nStr)
+        {
+            fixed (char* str = vStr.Span)
+            {
+                var encoding = Encoding.UTF8;
+                int bytes = encoding.GetByteCount(str, vStr.Length);
+                nStr->str = (byte*)Marshal.AllocHGlobal((bytes) * sizeof(byte));
+                nStr->len = (UIntPtr)bytes;
+                encoding.GetBytes(str, vStr.Length, nStr->str, bytes);
+            }
+        }
+
+        internal static unsafe void CreateNtString(string vStr, NtString* nStr)
+        {
+            fixed (char* str = vStr)
+            {
+                var encoding = Encoding.UTF8;
+                int bytes = encoding.GetByteCount(str, vStr.Length);
+                nStr->str = (byte*)Marshal.AllocHGlobal((bytes) * sizeof(byte));
+                nStr->len = (UIntPtr)bytes;
+                encoding.GetBytes(str, vStr.Length, nStr->str, bytes);
+            }
+        }
+
+
+        internal static unsafe void DisposeNtString(NtString* str)
         {
             Marshal.FreeHGlobal((IntPtr)str->str);
         }

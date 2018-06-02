@@ -48,7 +48,7 @@ namespace FRC.NetworkTables
             return m_entries.GetOrAdd(key, m_entryFactory);
         }
 
-        public NT_EntryListener AddEntryListener(TableEntryListener listener, NotifyFlags flags)
+        public EntryListener AddEntryListener(TableEntryListener listener, NotifyFlags flags)
         {
             int prefixLen = Path.Length + 1;
             return Instance.AddEntryListener(m_pathWithSep, (in EntryNotification evnt) =>
@@ -62,7 +62,7 @@ namespace FRC.NetworkTables
             }, flags);
         }
 
-        public NT_EntryListener AddEntryListener(string key, TableEntryListener listener, NotifyFlags flags)
+        public EntryListener AddEntryListener(string key, TableEntryListener listener, NotifyFlags flags)
         {
             var entry = GetEntry(key);
             return Instance.AddEntryListener(entry, (in EntryNotification evnt) =>
@@ -71,17 +71,17 @@ namespace FRC.NetworkTables
             }, flags);
         }
 
-        public void RemoveEntryListener(NT_EntryListener listener)
+        public void RemoveEntryListener(EntryListener listener)
         {
             Instance.RemoveEntryListener(listener);
         }
 
-        public NT_EntryListener AddSubTableListener(TableListener listener, bool localNotify)
+        public EntryListener AddSubTableListener(TableListener listener, bool localNotify)
         {
-            NotifyFlags flags = NotifyFlags.NotifyNew | NotifyFlags.NotifyImmediate;
+            NotifyFlags flags = NotifyFlags.New | NotifyFlags.Immediate;
             if (localNotify)
             {
-                flags |= NotifyFlags.NotifyLocal;
+                flags |= NotifyFlags.Local;
             }
 
             int prefixLen = Path.Length + 1;
@@ -106,7 +106,7 @@ namespace FRC.NetworkTables
             }, flags);
         }
 
-        public void RemoveTableListener(NT_EntryListener listener)
+        public void RemoveTableListener(EntryListener listener)
         {
             Instance.RemoveEntryListener(listener);
         }

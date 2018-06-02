@@ -6,15 +6,15 @@ namespace FRC.NetworkTables
 {
     public readonly struct RpcAnswer
     {
-        public readonly NT_Entry EntryHandle;
-        public readonly NT_RpcCall Call;
+        public readonly Entry EntryHandle;
+        public readonly Interop.RpcCall Call;
         public readonly string Name;
         public readonly byte[] Params;
         public readonly ConnectionInfo Conn;
         public NetworkTableEntry Entry => new NetworkTableEntry(m_instance, EntryHandle);
         private readonly NetworkTableInstance m_instance;
 
-        internal unsafe RpcAnswer(NetworkTableInstance inst, NT_RpcAnswer* answer)
+        internal unsafe RpcAnswer(NetworkTableInstance inst, NtRpcAnswer* answer)
         {
             EntryHandle = answer->entry;
             Call = answer->call;

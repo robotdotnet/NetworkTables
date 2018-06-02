@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using AdvancedDLSupport;
-using FRC.NetworkTables;
 using FRC.NetworkTables.Strings;
+
+[assembly: InternalsVisibleTo("FRC.NetworkTables.Core.Test")]
 
 namespace FRC.NetworkTables.Interop
 {
@@ -69,33 +71,33 @@ namespace FRC.NetworkTables.Interop
             return m_ntcore.NT_Now();
         }
 
-        public static NT_Inst GetDefaultInstance()
+        public static Instance GetDefaultInstance()
         {
             return m_ntcore.NT_GetDefaultInstance();
         }
 
-        public static NT_Inst CreateInstance()
+        public static Instance CreateInstance()
         {
             return m_ntcore.NT_CreateInstance();
         }
 
-        public static void DestroyInstance(NT_Inst inst)
+        public static void DestroyInstance(Instance inst)
         {
             m_ntcore.NT_DestroyInstance(inst);
         }
 
-        public static NT_Inst GetInstanceFromHandle(NT_Handle handle)
+        public static Instance GetInstanceFromHandle(Handle handle)
         {
             return m_ntcore.NT_GetInstanceFromHandle(handle);
         }
 
-        public static unsafe NT_Entry GetEntry(NT_Inst inst, string name)
+        public static unsafe Entry GetEntry(Instance inst, string name)
         {
             CachedNativeString ns = UTF8String.CreateCachedUTF8String(name);
             return m_ntcore.NT_GetEntry(inst, ns.Buffer, ns.Length);
         }
 
-        public static unsafe int GetEntryCount(NT_Inst inst, string prefix, NtType types)
+        public static unsafe int GetEntryCount(Instance inst, string prefix, NtType types)
         {
             var ns = UTF8String.CreateCachedUTF8String(prefix);
             UIntPtr count = UIntPtr.Zero;
@@ -105,14 +107,14 @@ namespace FRC.NetworkTables.Interop
             return len;
         }
 
-        public static unsafe Span<NT_Entry> GetEntries(NT_Inst inst, string prefix, NtType types, Span<NT_Entry> store)
+        public static unsafe Span<Entry> GetEntries(Instance inst, string prefix, NtType types, Span<Entry> store)
         {
             var ns = UTF8String.CreateCachedUTF8String(prefix);
             UIntPtr count = UIntPtr.Zero;
             var data = m_ntcore.NT_GetEntries(inst, ns.Buffer, ns.Length, (uint)types, &count);
             int len = (int)count;
-            Span<NT_Entry> entries = GetSpanOrBuffer(store, len);
-            new Span<NT_Entry>(data, len).CopyTo(entries);
+            Span<Entry> entries = GetSpanOrBuffer(store, len);
+            new Span<Entry>(data, len).CopyTo(entries);
             m_ntcore.NT_DisposeEntryArray(data, count);
             return entries;
         }
@@ -132,7 +134,7 @@ namespace FRC.NetworkTables.Interop
             return entries;
         }
 
-        public static unsafe string GetEntryName(NT_Entry entry)
+        public static unsafe string GetEntryName(Entry entry)
         {
             UIntPtr len = UIntPtr.Zero;
             var data = m_ntcore.NT_GetEntryName(entry, &len);
@@ -141,75 +143,102 @@ namespace FRC.NetworkTables.Interop
             return ret;
         }
 
-        public static NtType GetEntryType(NT_Entry entry)
+        public static NtType GetEntryType(Entry entry)
         {
             return m_ntcore.NT_GetEntryType(entry);
         }
 
-        public static ulong GetEntryLastChange(NT_Entry entry)
+        public static ulong GetEntryLastChange(Entry entry)
         {
             return m_ntcore.NT_GetEntryLastChange(entry);
         }
 
-        public static unsafe NT_ManagedValue GetEntryValue(NT_Entry entry)
+        public static unsafe ManagedValue GetEntryValue(Entry entry)
         {
-            NT_Value value = new NT_Value();
+            NtValue value = new NtValue();
             m_ntcore.NT_GetEntryValue(entry, &value);
-            var ret = new NT_ManagedValue(&value);
+            var ret = new ManagedValue(&value);
             m_ntcore.NT_DisposeValue(&value);
             return ret;
         }
 
-        public static unsafe bool SetDefaultEntryValue(NT_Entry entry, in NT_ManagedValue value)
+        internal static unsafe RefManagedValue GetEntryRefValue(Entry entry)
         {
-            NT_Value v = new NT_Value();
+            NtValue value = new NtValue();
+            m_ntcore.NT_GetEntryValue(entry, &value);
+            var ret = new RefManagedValue(&value);
+            m_ntcore.NT_DisposeValue(&value);
+            return ret;
+        }
+
+        public static unsafe bool SetDefaultEntryValue(Entry entry, in ManagedValue value)
+        {
+            NtValue v = new NtValue();
             value.CreateNativeFromManaged(&v);
             var ret = m_ntcore.NT_SetDefaultEntryValue(entry, &v);
-            NT_ManagedValue.DisposeCreatedNative(&v);
+            ManagedValue.DisposeCreatedNative(&v);
             return ret.Get();
         }
 
-        public static unsafe bool SetEntryValue(NT_Entry entry, in NT_ManagedValue value)
+        public static unsafe bool SetEntryValue(Entry entry, in ManagedValue value)
         {
-            NT_Value v = new NT_Value();
+            NtValue v = new NtValue();
             value.CreateNativeFromManaged(&v);
             var ret = m_ntcore.NT_SetEntryValue(entry, &v);
-            NT_ManagedValue.DisposeCreatedNative(&v);
+            ManagedValue.DisposeCreatedNative(&v);
             return ret.Get();
         }
 
-        public static unsafe void ForceSetEntryValue(NT_Entry entry, in NT_ManagedValue value)
+        public static unsafe void SetEntryTypeValue(Entry entry, in ManagedValue value)
         {
-            NT_Value v = new NT_Value();
+            NtValue v = new NtValue();
             value.CreateNativeFromManaged(&v);
             m_ntcore.NT_SetEntryTypeValue(entry, &v);
-            NT_ManagedValue.DisposeCreatedNative(&v);
+            ManagedValue.DisposeCreatedNative(&v);
         }
 
-        public static unsafe void SetEntryTypeValue(NT_Entry entry, in NT_ManagedValue value)
+        internal static unsafe bool SetDefaultEntryValue(Entry entry, in RefManagedValue value)
         {
-            NT_Value v = new NT_Value();
+            NtValue v = new NtValue();
+            value.CreateNativeFromManaged(&v);
+            var ret = m_ntcore.NT_SetDefaultEntryValue(entry, &v);
+            ManagedValue.DisposeCreatedNative(&v);
+            return ret.Get();
+        }
+
+        internal static unsafe bool SetEntryValue(Entry entry, in RefManagedValue value)
+        {
+            NtValue v = new NtValue();
+            value.CreateNativeFromManaged(&v);
+            var ret = m_ntcore.NT_SetEntryValue(entry, &v);
+            ManagedValue.DisposeCreatedNative(&v);
+            return ret.Get();
+        }
+
+        internal static unsafe void SetEntryTypeValue(Entry entry, in RefManagedValue value)
+        {
+            NtValue v = new NtValue();
             value.CreateNativeFromManaged(&v);
             m_ntcore.NT_SetEntryTypeValue(entry, &v);
-            NT_ManagedValue.DisposeCreatedNative(&v);
+            ManagedValue.DisposeCreatedNative(&v);
         }
 
-        public static void SetEntryFlags(NT_Entry entry, EntryFlags flags)
+        public static void SetEntryFlags(Entry entry, EntryFlags flags)
         {
             m_ntcore.NT_SetEntryFlags(entry, (uint)flags);
         }
 
-        public static EntryFlags GetEntryFlags(NT_Entry entry)
+        public static EntryFlags GetEntryFlags(Entry entry)
         {
             return (EntryFlags)m_ntcore.NT_GetEntryFlags(entry);
         }
 
-        public static void DeleteEntry(NT_Entry entry)
+        public static void DeleteEntry(Entry entry)
         {
             m_ntcore.NT_DeleteEntry(entry);
         }
 
-        public static void DeleteAllEntries(NT_Inst inst)
+        public static void DeleteAllEntries(Instance inst)
         {
             m_ntcore.NT_DeleteAllEntries(inst);
         }
@@ -229,9 +258,9 @@ namespace FRC.NetworkTables.Interop
             return entries;
         }
 
-        public static unsafe EntryInfo? GetEntryInfoHandle(NetworkTableInstance inst, NT_Entry entry)
+        public static unsafe EntryInfo? GetEntryInfoHandle(NetworkTableInstance inst, Entry entry)
         {
-            NT_EntryInfo info = new NT_EntryInfo();
+            NtEntryInfo info = new NtEntryInfo();
             var ret = m_ntcore.NT_GetEntryInfoHandle(entry, &info);
             if (!ret.Get())
             {
@@ -243,15 +272,15 @@ namespace FRC.NetworkTables.Interop
             return infoM;
         }
 
-        public static NT_EntryListenerPoller CreateEntryListenerPoller(NT_Inst inst)
+        public static EntryListenerPoller CreateEntryListenerPoller(Instance inst)
         {
             return m_ntcore.NT_CreateEntryListenerPoller(inst);
         }
 
-        public static unsafe Span<EntryNotification> PollEntryListener(NetworkTableInstance inst, NT_EntryListenerPoller poller, Span<EntryNotification> store)
+        public static unsafe Span<EntryNotification> PollEntryListener(NetworkTableInstance inst, EntryListenerPoller poller, Span<EntryNotification> store)
         {
             UIntPtr length = UIntPtr.Zero;
-            NT_EntryNotification* notifications = m_ntcore.NT_PollEntryListener(poller, &length);
+            NtEntryNotification* notifications = m_ntcore.NT_PollEntryListener(poller, &length);
             int len = (int)length;
             Span<EntryNotification> entries = GetSpanOrBuffer(store, len);
             for (int i = 0; i < entries.Length; i++)
@@ -262,11 +291,11 @@ namespace FRC.NetworkTables.Interop
             return entries;
         }
 
-        public static unsafe Span<EntryNotification> PollEntryListener(NetworkTableInstance inst, NT_EntryListenerPoller poller, double timeout, out bool timedOut, Span<EntryNotification> store)
+        public static unsafe Span<EntryNotification> PollEntryListenerTimeout(NetworkTableInstance inst, EntryListenerPoller poller, double timeout, out bool timedOut, Span<EntryNotification> store)
         {
             UIntPtr length = UIntPtr.Zero;
-            NT_Bool timedOutNt = false;
-            NT_EntryNotification* notifications = m_ntcore.NT_PollEntryListenerTimeout(poller, &length, timeout, &timedOutNt);
+            NtBool timedOutNt = false;
+            NtEntryNotification* notifications = m_ntcore.NT_PollEntryListenerTimeout(poller, &length, timeout, &timedOutNt);
             timedOut = timedOutNt.Get();
             int len = (int)length;
             Span<EntryNotification> entries = GetSpanOrBuffer(store, len);
@@ -275,52 +304,51 @@ namespace FRC.NetworkTables.Interop
                 entries[i] = new EntryNotification(inst, &notifications[i]);
             }
             m_ntcore.NT_DisposeEntryNotificationArray(notifications, length);
-            if (len == 0 && !timedOut) return null;
             return entries;
         }
 
-        public static unsafe NT_EntryListener AddPolledEntryListener(NT_EntryListenerPoller poller, string prefix, NotifyFlags flags)
+        public static unsafe EntryListener AddPolledEntryListener(EntryListenerPoller poller, string prefix, NotifyFlags flags)
         {
             var ns = UTF8String.CreateCachedUTF8String(prefix);
             return m_ntcore.NT_AddPolledEntryListener(poller, ns.Buffer, ns.Length, (uint)flags);
         }
 
-        public static unsafe NT_EntryListener AddPolledEntryListener(NT_EntryListenerPoller poller, NetworkTableEntry entry, NotifyFlags flags)
+        public static unsafe EntryListener AddPolledEntryListener(EntryListenerPoller poller, NetworkTableEntry entry, NotifyFlags flags)
         {
             return m_ntcore.NT_AddPolledEntryListenerSingle(poller, entry.Handle, (uint)flags);
         }
 
-        public static unsafe void RemoveEntryListener(NT_EntryListener listener)
+        public static unsafe void RemoveEntryListener(EntryListener listener)
         {
             m_ntcore.NT_RemoveEntryListener(listener);
         }
 
-        public static unsafe bool WaitForEntryListenerQueue(NT_Inst inst, double timeout)
+        public static unsafe bool WaitForEntryListenerQueue(Instance inst, double timeout)
         {
             return m_ntcore.NT_WaitForEntryListenerQueue(inst, timeout).Get();
         }
 
-        public static unsafe void CancelPollEntryListener(NT_EntryListenerPoller poller)
+        public static unsafe void CancelPollEntryListener(EntryListenerPoller poller)
         {
             m_ntcore.NT_CancelPollEntryListener(poller);
         }
 
-        public static void DestroyEntryListenerPoller(NT_EntryListenerPoller poller)
+        public static void DestroyEntryListenerPoller(EntryListenerPoller poller)
         {
             m_ntcore.NT_DestroyEntryListenerPoller(poller);
         }
 
 
 
-        public static NT_ConnectionListenerPoller CreateConnectionListenerPoller(NT_Inst inst)
+        public static ConnectionListenerPoller CreateConnectionListenerPoller(Instance inst)
         {
             return m_ntcore.NT_CreateConnectionListenerPoller(inst);
         }
 
-        public static unsafe Span<ConnectionNotification> PollConnectionListener(NetworkTableInstance inst, NT_ConnectionListenerPoller poller, Span<ConnectionNotification> store)
+        public static unsafe Span<ConnectionNotification> PollConnectionListener(NetworkTableInstance inst, ConnectionListenerPoller poller, Span<ConnectionNotification> store)
         {
             UIntPtr length = UIntPtr.Zero;
-            NT_ConnectionNotification* notifications = m_ntcore.NT_PollConnectionListener(poller, &length);
+            NtConnectionNotification* notifications = m_ntcore.NT_PollConnectionListener(poller, &length);
             int len = (int)length;
             Span<ConnectionNotification> entries = GetSpanOrBuffer(store, len);
             for (int i = 0; i < entries.Length; i++)
@@ -331,11 +359,11 @@ namespace FRC.NetworkTables.Interop
             return entries;
         }
 
-        public static unsafe Span<ConnectionNotification> PollConnectionListener(NetworkTableInstance inst, NT_ConnectionListenerPoller poller, double timeout, out bool timedOut, Span<ConnectionNotification> store)
+        public static unsafe Span<ConnectionNotification> PollConnectionListenerTimeout(NetworkTableInstance inst, ConnectionListenerPoller poller, double timeout, out bool timedOut, Span<ConnectionNotification> store)
         {
             UIntPtr length = UIntPtr.Zero;
-            NT_Bool timedOutNt = false;
-            NT_ConnectionNotification* notifications = m_ntcore.NT_PollConnectionListenerTimeout(poller, &length, timeout, &timedOutNt);
+            NtBool timedOutNt = false;
+            NtConnectionNotification* notifications = m_ntcore.NT_PollConnectionListenerTimeout(poller, &length, timeout, &timedOutNt);
             timedOut = timedOutNt.Get();
             int len = (int)length;
             Span<ConnectionNotification> entries = GetSpanOrBuffer(store, len);
@@ -344,31 +372,30 @@ namespace FRC.NetworkTables.Interop
                 entries[i] = new ConnectionNotification(inst, &notifications[i]);
             }
             m_ntcore.NT_DisposeConnectionNotificationArray(notifications, length);
-            if (len == 0 && !timedOut) return null;
             return entries;
         }
 
-        public static unsafe NT_ConnectionListener AddPolledConnectionListener(NT_ConnectionListenerPoller poller, bool immediateNotify)
+        public static unsafe ConnectionListener AddPolledConnectionListener(ConnectionListenerPoller poller, bool immediateNotify)
         {
             return m_ntcore.NT_AddPolledConnectionListener(poller, immediateNotify);
         }
 
-        public static unsafe void RemoveConnectionListener(NT_ConnectionListener listener)
+        public static unsafe void RemoveConnectionListener(ConnectionListener listener)
         {
             m_ntcore.NT_RemoveConnectionListener(listener);
         }
 
-        public static unsafe bool WaitForConnectionListenerQueue(NT_Inst inst, double timeout)
+        public static unsafe bool WaitForConnectionListenerQueue(Instance inst, double timeout)
         {
             return m_ntcore.NT_WaitForConnectionListenerQueue(inst, timeout).Get();
         }
 
-        public static unsafe void CancelPollConnectionListener(NT_ConnectionListenerPoller poller)
+        public static unsafe void CancelPollConnectionListener(ConnectionListenerPoller poller)
         {
             m_ntcore.NT_CancelPollConnectionListener(poller);
         }
 
-        public static void DestroyConnectionListenerPoller(NT_ConnectionListenerPoller poller)
+        public static void DestroyConnectionListenerPoller(ConnectionListenerPoller poller)
         {
             m_ntcore.NT_DestroyConnectionListenerPoller(poller);
         }
@@ -376,15 +403,15 @@ namespace FRC.NetworkTables.Interop
 
 
 
-        public static NT_RpcCallPoller CreateRpcCallPoller(NT_Inst inst)
+        public static RpcCallPoller CreateRpcCallPoller(Instance inst)
         {
             return m_ntcore.NT_CreateRpcCallPoller(inst);
         }
 
-        public static unsafe Span<RpcAnswer> PollRpc(NetworkTableInstance inst, NT_RpcCallPoller poller, Span<RpcAnswer> store)
+        public static unsafe Span<RpcAnswer> PollRpc(NetworkTableInstance inst, RpcCallPoller poller, Span<RpcAnswer> store)
         {
             UIntPtr length = UIntPtr.Zero;
-            NT_RpcAnswer* notifications = m_ntcore.NT_PollRpc(poller, &length);
+            NtRpcAnswer* notifications = m_ntcore.NT_PollRpc(poller, &length);
             int len = (int)length;
             Span<RpcAnswer> entries = GetSpanOrBuffer(store, len);
             for (int i = 0; i < entries.Length; i++)
@@ -395,11 +422,11 @@ namespace FRC.NetworkTables.Interop
             return entries;
         }
 
-        public static unsafe Span<RpcAnswer> PollRpc(NetworkTableInstance inst, NT_RpcCallPoller poller, double timeout, out bool timedOut, Span<RpcAnswer> store)
+        public static unsafe Span<RpcAnswer> PollRpcTimeout(NetworkTableInstance inst, RpcCallPoller poller, double timeout, out bool timedOut, Span<RpcAnswer> store)
         {
             UIntPtr length = UIntPtr.Zero;
-            NT_Bool timedOutNt = false;
-            NT_RpcAnswer* notifications = m_ntcore.NT_PollRpcTimeout(poller, &length, timeout, &timedOutNt);
+            NtBool timedOutNt = false;
+            NtRpcAnswer* notifications = m_ntcore.NT_PollRpcTimeout(poller, &length, timeout, &timedOutNt);
             timedOut = timedOutNt.Get();
             int len = (int)length;
             Span<RpcAnswer> entries = GetSpanOrBuffer(store, len);
@@ -408,11 +435,10 @@ namespace FRC.NetworkTables.Interop
                 entries[i] = new RpcAnswer(inst, &notifications[i]);
             }
             m_ntcore.NT_DisposeRpcAnswerArray(notifications, length);
-            if (len == 0 && !timedOut) return null;
             return entries;
         }
 
-        public static unsafe void CreatePolledRpc(NT_Entry entry, ReadOnlySpan<byte> def, NT_RpcCallPoller poller)
+        public static unsafe void CreatePolledRpc(Entry entry, ReadOnlySpan<byte> def, RpcCallPoller poller)
         {
             fixed (byte* p = def)
             {
@@ -420,31 +446,31 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        public static unsafe bool WaitForRpcCallQueue(NT_Inst inst, double timeout)
+        public static unsafe bool WaitForRpcCallQueue(Instance inst, double timeout)
         {
             return m_ntcore.NT_WaitForRpcCallQueue(inst, timeout).Get();
         }
 
-        public static unsafe void CancelPollRpc(NT_RpcCallPoller poller)
+        public static unsafe void CancelPollRpc(RpcCallPoller poller)
         {
             m_ntcore.NT_CancelPollRpc(poller);
         }
 
-        public static void DestroyRpcCallPoller(NT_RpcCallPoller poller)
+        public static void DestroyRpcCallPoller(RpcCallPoller poller)
         {
             m_ntcore.NT_DestroyRpcCallPoller(poller);
         }
 
 
-        public static NT_LoggerPoller CreateLoggerPoller(NT_Inst inst)
+        public static LoggerPoller CreateLoggerPoller(Instance inst)
         {
             return m_ntcore.NT_CreateLoggerPoller(inst);
         }
 
-        public static unsafe Span<LogMessage> PollLogger(NetworkTableInstance inst, NT_LoggerPoller poller, Span<LogMessage> store)
+        public static unsafe Span<LogMessage> PollLogger(NetworkTableInstance inst, LoggerPoller poller, Span<LogMessage> store)
         {
             UIntPtr length = UIntPtr.Zero;
-            NT_LogMessage* notifications = m_ntcore.NT_PollLogger(poller, &length);
+            NtLogMessage* notifications = m_ntcore.NT_PollLogger(poller, &length);
             int len = (int)length;
             Span<LogMessage> entries = GetSpanOrBuffer(store, len);
             for (int i = 0; i < entries.Length; i++)
@@ -455,11 +481,11 @@ namespace FRC.NetworkTables.Interop
             return entries;
         }
 
-        public static unsafe Span<LogMessage> PollLogger(NetworkTableInstance inst, NT_LoggerPoller poller, double timeout, out bool timedOut, Span<LogMessage> store)
+        public static unsafe Span<LogMessage> PollLoggerTimeout(NetworkTableInstance inst, LoggerPoller poller, double timeout, out bool timedOut, Span<LogMessage> store)
         {
             UIntPtr length = UIntPtr.Zero;
-            NT_Bool timedOutNt = false;
-            NT_LogMessage* notifications = m_ntcore.NT_PollLoggerTimeout(poller, &length, timeout, &timedOutNt);
+            NtBool timedOutNt = false;
+            NtLogMessage* notifications = m_ntcore.NT_PollLoggerTimeout(poller, &length, timeout, &timedOutNt);
             timedOut = timedOutNt.Get();
             int len = (int)length;
             Span<LogMessage> entries = GetSpanOrBuffer(store, len);
@@ -468,37 +494,36 @@ namespace FRC.NetworkTables.Interop
                 entries[i] = new LogMessage(inst, &notifications[i]);
             }
             m_ntcore.NT_DisposeLogMessageArray(notifications, length);
-            if (len == 0 && !timedOut) return null;
             return entries;
         }
 
-        public static unsafe NT_Logger AddPolledLogger(NT_LoggerPoller poller, int minLevel, int maxLevel)
+        public static unsafe Logger AddPolledLogger(LoggerPoller poller, int minLevel, int maxLevel)
         {
             return m_ntcore.NT_AddPolledLogger(poller, (uint)minLevel, (uint)maxLevel);
         }
 
-        public static unsafe void RemoveLogger(NT_Logger logger)
+        public static unsafe void RemoveLogger(Logger logger)
         {
             m_ntcore.NT_RemoveLogger(logger);
         }
 
-        public static unsafe bool WaitForLoggerQueue(NT_Inst inst, double timeout)
+        public static unsafe bool WaitForLoggerQueue(Instance inst, double timeout)
         {
             return m_ntcore.NT_WaitForLoggerQueue(inst, timeout).Get();
         }
 
-        public static unsafe void CancelPollLogger(NT_LoggerPoller poller)
+        public static unsafe void CancelPollLogger(LoggerPoller poller)
         {
             m_ntcore.NT_CancelPollLogger(poller);
         }
 
-        public static void DestroyLoggerPoller(NT_LoggerPoller poller)
+        public static void DestroyLoggerPoller(LoggerPoller poller)
         {
             m_ntcore.NT_DestroyLoggerPoller(poller);
         }
 
 
-        public static unsafe void PostRpcResponse(NT_Entry entry, NT_RpcCall call, ReadOnlySpan<byte> result)
+        public static unsafe void PostRpcResponse(Entry entry, RpcCall call, ReadOnlySpan<byte> result)
         {
             fixed (byte* p = result)
             {
@@ -507,7 +532,7 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        public static unsafe Span<byte> GetRpcResult(NT_Entry entry, NT_RpcCall call, Span<byte> store)
+        public static unsafe Span<byte> GetRpcResult(Entry entry, RpcCall call, Span<byte> store)
         {
             UIntPtr length = UIntPtr.Zero;
             byte* res = m_ntcore.NT_GetRpcResult(entry, call, &length);
@@ -518,10 +543,10 @@ namespace FRC.NetworkTables.Interop
             return retVal;
         }
 
-        public static unsafe Span<byte> GetRpcResult(NT_Entry entry, NT_RpcCall call, double timeout, Span<byte> store)
+        public static unsafe Span<byte> GetRpcResult(Entry entry, RpcCall call, double timeout, Span<byte> store)
         {
             UIntPtr length = UIntPtr.Zero;
-            NT_Bool timedOut = false;
+            NtBool timedOut = false;
             byte* res = m_ntcore.NT_GetRpcResultTimeout(entry, call, &length, timeout, &timedOut);
             if (timedOut.Get())
             {
@@ -534,12 +559,12 @@ namespace FRC.NetworkTables.Interop
             return retVal;
         }
 
-        public static unsafe void CancelRpcResult(NT_Entry entry, NT_RpcCall call)
+        public static unsafe void CancelRpcResult(Entry entry, RpcCall call)
         {
             m_ntcore.NT_CancelRpcResult(entry, call);
         }
 
-        public static unsafe NT_RpcCall CallRpc(NT_Entry entry, Span<byte> @params)
+        public static unsafe RpcCall CallRpc(Entry entry, Span<byte> @params)
         {
             fixed (byte* b = @params )
             {
@@ -547,7 +572,7 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        public static unsafe void SetNetworkIdentity(NT_Inst inst, String name)
+        public static unsafe void SetNetworkIdentity(Instance inst, String name)
         {
             using (var str = UTF8String.CreateUTF8DisposableString(name))
             {
@@ -555,12 +580,12 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        public static unsafe NetworkMode GetNetworkMode(NT_Inst inst)
+        public static unsafe NetworkMode GetNetworkMode(Instance inst)
         {
             return (NetworkMode)m_ntcore.NT_GetNetworkMode(inst);
         }
 
-        public static unsafe void StartServer(NT_Inst inst, string persistFilename, string listenAddress, int port)
+        public static unsafe void StartServer(Instance inst, string persistFilename, string listenAddress, int port)
         {
             using (var pStr = UTF8String.CreateUTF8DisposableString(persistFilename))
             using (var lStr = UTF8String.CreateUTF8DisposableString(listenAddress))
@@ -569,17 +594,17 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        public static unsafe void StopServer(NT_Inst inst)
+        public static unsafe void StopServer(Instance inst)
         {
             m_ntcore.NT_StopServer(inst);
         }
 
-        public static unsafe void StartClient(NT_Inst inst)
+        public static unsafe void StartClient(Instance inst)
         {
             m_ntcore.NT_StartClientNone(inst);
         }
 
-        public static unsafe void StartClient(NT_Inst inst, string serverName, int port)
+        public static unsafe void StartClient(Instance inst, string serverName, int port)
         {
             using (var str = UTF8String.CreateUTF8DisposableString(serverName))
             {
@@ -587,7 +612,7 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        public static unsafe void StartClient(NT_Inst inst, ReadOnlySpan<ServerPortPair> servers)
+        public static unsafe void StartClient(Instance inst, ReadOnlySpan<ServerPortPair> servers)
         {
             var serverStrs = stackalloc byte*[servers.Length];
             var serverPorts = stackalloc uint[servers.Length];
@@ -612,17 +637,17 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        public static unsafe void StartClientTeam(NT_Inst inst, int team, int port)
+        public static unsafe void StartClientTeam(Instance inst, int team, int port)
         {
             m_ntcore.NT_StartClientTeam(inst, (uint)team, (uint)port);
         }
 
-        public static unsafe void StopClient(NT_Inst inst)
+        public static unsafe void StopClient(Instance inst)
         {
             m_ntcore.NT_StopClient(inst);
         }
 
-        public static unsafe void SetServer(NT_Inst inst, string serverName, int port)
+        public static unsafe void SetServer(Instance inst, string serverName, int port)
         {
             using (var str = UTF8String.CreateUTF8DisposableString(serverName))
             {
@@ -630,7 +655,7 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        public static unsafe void SetServer(NT_Inst inst, ReadOnlySpan<ServerPortPair> servers)
+        public static unsafe void SetServer(Instance inst, ReadOnlySpan<ServerPortPair> servers)
         {
             var serverStrs = stackalloc byte*[servers.Length];
             var serverPorts = stackalloc uint[servers.Length];
@@ -655,32 +680,32 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        public static unsafe void SetServerTeam(NT_Inst inst, int team, int port)
+        public static unsafe void SetServerTeam(Instance inst, int team, int port)
         {
             m_ntcore.NT_SetServerTeam(inst, (uint)team, (uint)port);
         }
 
-        public static unsafe void StartDSClient(NT_Inst inst, int port)
+        public static unsafe void StartDSClient(Instance inst, int port)
         {
             m_ntcore.NT_StartDSClient(inst, (uint)port);
         }
 
-        public static void StopDSClient(NT_Inst inst)
+        public static void StopDSClient(Instance inst)
         {
             m_ntcore.NT_StopDSClient(inst);
         }
 
-        public static unsafe void SetUpdateRate(NT_Inst inst, double interval)
+        public static unsafe void SetUpdateRate(Instance inst, double interval)
         {
             m_ntcore.NT_SetUpdateRate(inst, interval);
         }
 
-        public static unsafe void Flush(NT_Inst inst)
+        public static unsafe void Flush(Instance inst)
         {
             m_ntcore.NT_Flush(inst);
         }
 
-        public static unsafe Span<ConnectionInfo> GetConnections(NT_Inst inst, Span<ConnectionInfo> store)
+        public static unsafe Span<ConnectionInfo> GetConnections(Instance inst, Span<ConnectionInfo> store)
         {
             UIntPtr count = UIntPtr.Zero;
             var conns = m_ntcore.NT_GetConnections(inst, &count);
@@ -694,12 +719,12 @@ namespace FRC.NetworkTables.Interop
             return retConns;
         }
 
-        public static unsafe bool IsConnected(NT_Inst inst)
+        public static unsafe bool IsConnected(Instance inst)
         {
             return m_ntcore.NT_IsConnected(inst).Get();
         }
 
-        public static unsafe void SavePersistent(NT_Inst inst, string filename)
+        public static unsafe void SavePersistent(Instance inst, string filename)
         {
             using (var f = UTF8String.CreateUTF8DisposableString(filename))
             {
@@ -714,7 +739,7 @@ namespace FRC.NetworkTables.Interop
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private unsafe delegate void WarnFunc(UIntPtr line, byte* messsage);
 
-        public static unsafe List<string> LoadPersistent(NT_Inst inst, string filename)
+        public static unsafe List<string> LoadPersistent(Instance inst, string filename)
         {
             using (var f = UTF8String.CreateUTF8DisposableString(filename))
             {
@@ -732,7 +757,7 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        public static unsafe void SaveEntries(NT_Inst inst, string filename, string prefix)
+        public static unsafe void SaveEntries(Instance inst, string filename, string prefix)
         {
             using (var f = UTF8String.CreateUTF8DisposableString(filename))
             using (var p = UTF8String.CreateUTF8DisposableString(prefix))
@@ -745,7 +770,7 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        public static unsafe List<string> LoadEntries(NT_Inst inst, string filename, string prefix)
+        public static unsafe List<string> LoadEntries(Instance inst, string filename, string prefix)
         {
             using (var f = UTF8String.CreateUTF8DisposableString(filename))
             using (var p = UTF8String.CreateUTF8DisposableString(prefix))
