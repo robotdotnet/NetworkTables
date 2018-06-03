@@ -82,6 +82,30 @@ namespace FRC.NetworkTables
             }
         }
 
+        public object GetValue()
+        {
+            switch (Type)
+            {
+                case NtType.Boolean:
+                    return Data.VBoolean;
+                case NtType.Double:
+                    return Data.VDouble;
+                case NtType.String:
+                    return Data.VString.ToString();
+                case NtType.Rpc:
+                case NtType.Raw:
+                    return Data.VRaw.ToArray();
+                case NtType.BooleanArray:
+                    return Data.VBooleanArray.ToArray();
+                case NtType.DoubleArray:
+                    return Data.VDoubleArray.ToArray();
+                case NtType.StringArray:
+                    return Data.VStringArray.ToArray();
+                default:
+                    return null;
+            }
+        }
+
         internal unsafe ManagedValue(NtValue* v)
         {
             LastChange = v->last_change;

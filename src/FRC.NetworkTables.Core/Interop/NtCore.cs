@@ -18,9 +18,16 @@ namespace FRC.NetworkTables.Interop
     {
         private static INtCore m_ntcore;
 
+        private unsafe readonly static char* NullTerminator;
+
         static NtCore()
         {
             var activator = new NativeLibraryBuilder(ImplementationOptions.UseIndirectCalls);
+            unsafe
+            {
+                NullTerminator = (char*)Marshal.AllocHGlobal(sizeof(char));
+                *NullTerminator = '\0';
+            }
 
             string[] commandArgs = Environment.GetCommandLineArgs();
             foreach (var commandArg in commandArgs)
@@ -96,10 +103,10 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe NtEntry GetEntry(NtInst inst, ReadOnlySpan<char> name)
         {
-            fixed (char* p = name)
+            fixed (char* p = name.IsEmpty ? new ReadOnlySpan<char>(NullTerminator, 1) : name)
             {
                 var dLen = Encoding.UTF8.GetByteCount(p, name.Length);
-                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                 fixed (byte* d = dSpan)
                 {
                     Encoding.UTF8.GetBytes(p, name.Length, d, dLen);
@@ -113,7 +120,7 @@ namespace FRC.NetworkTables.Interop
             fixed (char* p = name)
             {
                 var dLen = Encoding.UTF8.GetByteCount(p, name.Length);
-                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                 fixed (byte* d = dSpan)
                 {
                     Encoding.UTF8.GetBytes(p, name.Length, d, dLen);
@@ -124,10 +131,10 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe int GetEntryCount(NtInst inst, ReadOnlySpan<char> prefix, NtType types)
         {
-            fixed (char* p = prefix)
+            fixed (char* p = prefix.IsEmpty ? new ReadOnlySpan<char>(NullTerminator, 1) : prefix)
             {
                 var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
-                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                 fixed (byte* d = dSpan)
                 {
                     Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
@@ -145,7 +152,7 @@ namespace FRC.NetworkTables.Interop
             fixed (char* p = prefix)
             {
                 var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
-                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                 fixed (byte* d = dSpan)
                 {
                     Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
@@ -160,10 +167,10 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe ReadOnlySpan<NtEntry> GetEntries(NtInst inst, ReadOnlySpan<char> prefix, NtType types, Span<NtEntry> store)
         {
-            fixed (char* p = prefix)
+            fixed (char* p = prefix.IsEmpty ? new ReadOnlySpan<char>(NullTerminator, 1) : prefix)
             {
                 var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
-                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                 fixed (byte* d = dSpan)
                 {
                     Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
@@ -183,7 +190,7 @@ namespace FRC.NetworkTables.Interop
             fixed (char* p = prefix)
             {
                 var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
-                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                 fixed (byte* d = dSpan)
                 {
                     Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
@@ -200,10 +207,10 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe ReadOnlySpan<NetworkTableEntry> GetEntriesManaged(NetworkTableInstance inst, ReadOnlySpan<char> prefix, NtType types, Span<NetworkTableEntry> store)
         {
-            fixed (char* p = prefix)
+            fixed (char* p = prefix.IsEmpty ? new ReadOnlySpan<char>(NullTerminator, 1) : prefix)
             {
                 var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
-                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                 fixed (byte* d = dSpan)
                 {
                     Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
@@ -226,7 +233,7 @@ namespace FRC.NetworkTables.Interop
             fixed (char* p = prefix)
             {
                 var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
-                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                 fixed (byte* d = dSpan)
                 {
                     Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
@@ -289,7 +296,7 @@ namespace FRC.NetworkTables.Interop
                     fixed (char* p = value.Data.VString.Span)
                     {
                         var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
-                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                         fixed (byte* d = dSpan)
                         {
                             Encoding.UTF8.GetBytes(p, value.Data.VString.Length, d, dLen);
@@ -310,7 +317,7 @@ namespace FRC.NetworkTables.Interop
                     fixed (bool* p = value.Data.VBooleanArray.Span)
                     {
                         var len = value.Data.VBooleanArray.Length;
-                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len] : new NtBool[len];
+                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len == 0 ? 1 : 0] : new NtBool[len];
                         fixed (NtBool* d = dSpan)
                         {
                             v.data.arr_boolean.arr = d;
@@ -363,7 +370,7 @@ namespace FRC.NetworkTables.Interop
                     fixed (char* p = value.Data.VString.Span)
                     {
                         var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
-                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                         fixed (byte* d = dSpan)
                         {
                             Encoding.UTF8.GetBytes(p, value.Data.VString.Length, d, dLen);
@@ -384,7 +391,7 @@ namespace FRC.NetworkTables.Interop
                     fixed (bool* p = value.Data.VBooleanArray.Span)
                     {
                         var len = value.Data.VBooleanArray.Length;
-                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len] : new NtBool[len];
+                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len == 0 ? 1 : 0] : new NtBool[len];
                         fixed (NtBool* d = dSpan)
                         {
                             v.data.arr_boolean.arr = d;
@@ -439,7 +446,7 @@ namespace FRC.NetworkTables.Interop
                     fixed (char* p = value.Data.VString.Span)
                     {
                         var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
-                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                         fixed (byte* d = dSpan)
                         {
                             Encoding.UTF8.GetBytes(p, value.Data.VString.Length, d, dLen);
@@ -462,7 +469,7 @@ namespace FRC.NetworkTables.Interop
                     fixed (bool* p = value.Data.VBooleanArray.Span)
                     {
                         var len = value.Data.VBooleanArray.Length;
-                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len] : new NtBool[len];
+                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len == 0 ? 1 : 0] : new NtBool[len];
                         fixed (NtBool* d = dSpan)
                         {
                             v.data.arr_boolean.arr = d;
@@ -519,7 +526,7 @@ namespace FRC.NetworkTables.Interop
                     fixed (char* p = value.Data.VString)
                     {
                         var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
-                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                         fixed (byte* d = dSpan)
                         {
                             Encoding.UTF8.GetBytes(p, value.Data.VString.Length, d, dLen);
@@ -540,7 +547,7 @@ namespace FRC.NetworkTables.Interop
                     fixed (bool* p = value.Data.VBooleanArray)
                     {
                         var len = value.Data.VBooleanArray.Length;
-                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len] : new NtBool[len];
+                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len == 0 ? 1 : 0] : new NtBool[len];
                         fixed(NtBool* d = dSpan)
                         {
                             v.data.arr_boolean.arr = d;
@@ -593,7 +600,7 @@ namespace FRC.NetworkTables.Interop
                     fixed (char* p = value.Data.VString)
                     {
                         var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
-                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                         fixed (byte* d = dSpan)
                         {
                             Encoding.UTF8.GetBytes(p, value.Data.VString.Length, d, dLen);
@@ -614,7 +621,7 @@ namespace FRC.NetworkTables.Interop
                     fixed (bool* p = value.Data.VBooleanArray)
                     {
                         var len = value.Data.VBooleanArray.Length;
-                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len] : new NtBool[len];
+                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len == 0 ? 1 : 0] : new NtBool[len];
                         fixed (NtBool* d = dSpan)
                         {
                             v.data.arr_boolean.arr = d;
@@ -669,7 +676,7 @@ namespace FRC.NetworkTables.Interop
                     fixed (char* p = value.Data.VString)
                     {
                         var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
-                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                        Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                         fixed (byte* d = dSpan)
                         {
                             Encoding.UTF8.GetBytes(p, value.Data.VString.Length, d, dLen);
@@ -692,7 +699,7 @@ namespace FRC.NetworkTables.Interop
                     fixed (bool* p = value.Data.VBooleanArray)
                     {
                         var len = value.Data.VBooleanArray.Length;
-                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len] : new NtBool[len];
+                        Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len == 0 ? 1 : 0] : new NtBool[len];
                         fixed (NtBool* d = dSpan)
                         {
                             v.data.arr_boolean.arr = d;
@@ -753,10 +760,10 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe ReadOnlySpan<EntryInfo> GetEntryInfo(NetworkTableInstance inst, ReadOnlySpan<char> prefix, NtType types, Span<EntryInfo> store)
         {
-            fixed (char* p = prefix)
+            fixed (char* p = prefix.IsEmpty ? new ReadOnlySpan<char>(NullTerminator, 1) : prefix)
             {
                 var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
-                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                 fixed (byte* d = dSpan)
                 {
                     Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
@@ -779,7 +786,7 @@ namespace FRC.NetworkTables.Interop
             fixed (char* p = prefix)
             {
                 var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
-                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : 0] : new byte[dLen];
                 fixed (byte* d = dSpan)
                 {
                     Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
@@ -846,7 +853,22 @@ namespace FRC.NetworkTables.Interop
             fixed (char* p = prefix)
             {
                 var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
-                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen] : new byte[dLen];
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
+                fixed (byte* d = dSpan)
+                {
+                    Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);
+                    return m_ntcore.NT_AddPolledEntryListener(poller, d, (UIntPtr)dLen, (uint)flags);
+                }
+            }
+
+        }
+
+        public static unsafe NtEntryListener AddPolledEntryListener(NtEntryListenerPoller poller, ReadOnlySpan<char> prefix, NotifyFlags flags)
+        {
+            fixed (char* p = prefix.IsEmpty ? new ReadOnlySpan<char>(NullTerminator, 1) : prefix)
+            {
+                var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                 fixed (byte* d = dSpan)
                 {
                     Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);

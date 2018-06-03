@@ -50,7 +50,7 @@ namespace FRC.NetworkTables
     /// The flags avalible for TableListeners
     /// </summary>
     [Flags]
-    public enum NotifyFlags
+    public enum NotifyFlags : uint
     {
         /// <summary>
         ///  Notify nobody
@@ -86,7 +86,7 @@ namespace FRC.NetworkTables
     /// The flags avalible for Entries
     /// </summary>
     [Flags]
-    public enum EntryFlags
+    public enum EntryFlags : uint
     {
         /// <summary>
         /// No flags
@@ -101,7 +101,7 @@ namespace FRC.NetworkTables
     /// <summary>
     /// The log level to use for the NT logger
     /// </summary>
-    public enum LogLevel
+    public enum LogLevel : uint
     {
         ///
         Critical = 50,
@@ -123,7 +123,7 @@ namespace FRC.NetworkTables
         Debug4 = 6
     }
 
-    public enum NetworkMode
+    public enum NetworkMode : uint
     {
         None = 0x00,        /* not running */
         Server = 0x01,      /* running in server mode */
