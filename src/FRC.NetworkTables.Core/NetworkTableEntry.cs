@@ -41,6 +41,12 @@ namespace FRC.NetworkTables
             return new NetworkTableValue(NtCore.GetEntryValue(Handle));
         }
 
+        public object GetObjectValue()
+        {
+            var v = NtCore.GetEntryValue(Handle);
+            return v.GetValue();
+        }
+
         public bool GetBoolean(bool defaultValue)
         {
             var entry = NtCore.GetEntryValue(Handle);

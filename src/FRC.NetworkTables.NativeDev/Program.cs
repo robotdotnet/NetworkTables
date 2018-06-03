@@ -1,4 +1,5 @@
 ﻿using FRC.NetworkTables.Interop;
+using Microsoft.AspNetCore.SignalR.Client;
 using System;
 using System.Threading;
 
@@ -6,8 +7,39 @@ namespace FRC.NetworkTables.NativeDev
 {
     class Program
     {
-        static void Main(string[] args)
+        static string DoT<T>(T value)
         {
+            switch (value)
+            {
+                case bool v:
+                    return v.ToString();
+                default:
+                    return "Not";
+            }
+        }
+
+        static unsafe void Main(string[] args)
+        {
+            var s = DoT(false);
+            var w = DoT((object)false);
+            ;
+
+            string empty = "";
+            ReadOnlySpan<char> eSpan = empty.AsSpan();
+
+            fixed (char* p = empty)
+            {
+                Console.WriteLine(p == null);
+            }
+
+            fixed (char* p = eSpan)
+            {
+                Console.WriteLine(p == null);
+            }
+
+            HubConnection connection = null;
+
+
             var inst = NetworkTableInstance.Default;
             inst.AddConnectionListener((in ConnectionNotification notify) =>
             {
