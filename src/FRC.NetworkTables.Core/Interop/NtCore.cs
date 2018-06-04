@@ -823,29 +823,25 @@ namespace FRC.NetworkTables.Interop
             return m_ntcore.NT_CreateEntryListenerPoller(inst);
         }
 
-        internal static unsafe ReadOnlySpan<NtEntryNotification> PollEntryListener(NtEntryListenerPoller poller)
+        internal static unsafe PointerSpan<NtEntryNotification> PollEntryListener(NtEntryListenerPoller poller)
         {
             UIntPtr length = UIntPtr.Zero;
             NtEntryNotification* notifications = m_ntcore.NT_PollEntryListener(poller, &length);
-            return new ReadOnlySpan<NtEntryNotification>(notifications, (int)length);
+            return new PointerSpan<NtEntryNotification>(notifications, (int)length);
         }
 
-        internal static unsafe ReadOnlySpan<NtEntryNotification> PollEntryListenerTimeout(NtEntryListenerPoller poller, double timeout, out bool timedOut)
+        internal static unsafe PointerSpan<NtEntryNotification> PollEntryListenerTimeout(NtEntryListenerPoller poller, double timeout, out bool timedOut)
         {
             UIntPtr length = UIntPtr.Zero;
             NtBool timedOutNt = false;
             NtEntryNotification* notifications = m_ntcore.NT_PollEntryListenerTimeout(poller, &length, timeout, &timedOutNt);
             timedOut = timedOutNt.Get();
-            return new ReadOnlySpan<NtEntryNotification>(notifications, (int)length);
+            return new PointerSpan<NtEntryNotification>(notifications, (int)length);
         }
 
-        internal static unsafe void DisposeEntryListenerSpan(ReadOnlySpan<NtEntryNotification> listeners)
+        internal static unsafe void DisposeEntryListenerSpan(PointerSpan<NtEntryNotification> listeners)
         {
-            fixed (NtEntryNotification* p = listeners)
-            {
-                m_ntcore.NT_DisposeEntryNotificationArray(p, (UIntPtr)listeners.Length);
-            }
-
+            m_ntcore.NT_DisposeEntryNotificationArray(listeners.Pointer, (UIntPtr)listeners.Length);
         }
 
         public static unsafe NtEntryListener AddPolledEntryListener(NtEntryListenerPoller poller, string prefix, NotifyFlags flags)
@@ -908,28 +904,25 @@ namespace FRC.NetworkTables.Interop
             return m_ntcore.NT_CreateConnectionListenerPoller(inst);
         }
 
-        internal static unsafe ReadOnlySpan<NtConnectionNotification> PollConnectionListener(NtConnectionListenerPoller poller)
+        internal static unsafe PointerSpan<NtConnectionNotification> PollConnectionListener(NtConnectionListenerPoller poller)
         {
             UIntPtr length = UIntPtr.Zero;
             NtConnectionNotification* notifications = m_ntcore.NT_PollConnectionListener(poller, &length);
-            return new ReadOnlySpan<NtConnectionNotification>(notifications, (int)length);
+            return new PointerSpan<NtConnectionNotification>(notifications, (int)length);
         }
 
-        internal static unsafe ReadOnlySpan<NtConnectionNotification> PollConnectionListenerTimeout(NtConnectionListenerPoller poller, double timeout, out bool timedOut)
+        internal static unsafe PointerSpan<NtConnectionNotification> PollConnectionListenerTimeout(NtConnectionListenerPoller poller, double timeout, out bool timedOut)
         {
             UIntPtr length = UIntPtr.Zero;
             NtBool timedOutNt = false;
             NtConnectionNotification* notifications = m_ntcore.NT_PollConnectionListenerTimeout(poller, &length, timeout, &timedOutNt);
             timedOut = timedOutNt.Get();
-            return new ReadOnlySpan<NtConnectionNotification>(notifications, (int)length);
+            return new PointerSpan<NtConnectionNotification>(notifications, (int)length);
         }
 
-        internal static unsafe void DisposeConnectionListenerSpan(ReadOnlySpan<NtConnectionNotification> listeners)
+        internal static unsafe void DisposeConnectionListenerSpan(PointerSpan<NtConnectionNotification> listeners)
         {
-            fixed (NtConnectionNotification* p = listeners)
-            {
-                m_ntcore.NT_DisposeConnectionNotificationArray(p, (UIntPtr)listeners.Length);
-            }
+            m_ntcore.NT_DisposeConnectionNotificationArray(listeners.Pointer, (UIntPtr)listeners.Length);
         }
 
         public static unsafe NtConnectionListener AddPolledConnectionListener(NtConnectionListenerPoller poller, bool immediateNotify)
@@ -957,37 +950,30 @@ namespace FRC.NetworkTables.Interop
             m_ntcore.NT_DestroyConnectionListenerPoller(poller);
         }
 
-
-
-
         public static NtRpcCallPoller CreateRpcCallPoller(NtInst inst)
         {
             return m_ntcore.NT_CreateRpcCallPoller(inst);
         }
 
-        internal static unsafe ReadOnlySpan<NtRpcAnswer> PollRpc(NtRpcCallPoller poller)
+        internal static unsafe PointerSpan<NtRpcAnswer> PollRpc(NtRpcCallPoller poller)
         {
             UIntPtr length = UIntPtr.Zero;
             NtRpcAnswer* notifications = m_ntcore.NT_PollRpc(poller, &length);
-            return new ReadOnlySpan<NtRpcAnswer>(notifications, (int)length);
+            return new PointerSpan<NtRpcAnswer>(notifications, (int)length);
         }
 
-        internal static unsafe void DisposeRpcAnswerSpan(ReadOnlySpan<NtRpcAnswer> answers)
+        internal static unsafe void DisposeRpcAnswerSpan(PointerSpan<NtRpcAnswer> answers)
         {
-            fixed(NtRpcAnswer* p = answers)
-            {
-                m_ntcore.NT_DisposeRpcAnswerArray(p, (UIntPtr)answers.Length);
-            }
-
+            m_ntcore.NT_DisposeRpcAnswerArray(answers.Pointer, (UIntPtr)answers.Length);
         }
 
-        internal static unsafe ReadOnlySpan<NtRpcAnswer> PollRpcTimeout(NtRpcCallPoller poller, double timeout, out bool timedOut)
+        internal static unsafe PointerSpan<NtRpcAnswer> PollRpcTimeout(NtRpcCallPoller poller, double timeout, out bool timedOut)
         {
             UIntPtr length = UIntPtr.Zero;
             NtBool timedOutNt = false;
             NtRpcAnswer* notifications = m_ntcore.NT_PollRpcTimeout(poller, &length, timeout, &timedOutNt);
             timedOut = timedOutNt.Get();
-            return new ReadOnlySpan<NtRpcAnswer>(notifications, (int)length);
+            return new PointerSpan<NtRpcAnswer>(notifications, (int)length);
         }
 
         public static unsafe void CreatePolledRpc(NtEntry entry, ReadOnlySpan<byte> def, NtRpcCallPoller poller)
@@ -1019,28 +1005,25 @@ namespace FRC.NetworkTables.Interop
             return m_ntcore.NT_CreateLoggerPoller(inst);
         }
 
-        internal static unsafe ReadOnlySpan<NtLogMessage> PollLogger(NtLoggerPoller poller)
+        internal static unsafe PointerSpan<NtLogMessage> PollLogger(NtLoggerPoller poller)
         {
             UIntPtr length = UIntPtr.Zero;
             NtLogMessage* notifications = m_ntcore.NT_PollLogger(poller, &length);
-            return new ReadOnlySpan<NtLogMessage>(notifications, (int)length);
+            return new PointerSpan<NtLogMessage>(notifications, (int)length);
         }
 
-        internal static unsafe ReadOnlySpan<NtLogMessage> PollLoggerTimeout(NtLoggerPoller poller, double timeout, out bool timedOut)
+        internal static unsafe PointerSpan<NtLogMessage> PollLoggerTimeout(NtLoggerPoller poller, double timeout, out bool timedOut)
         {
             UIntPtr length = UIntPtr.Zero;
             NtBool timedOutNt = false;
             NtLogMessage* notifications = m_ntcore.NT_PollLoggerTimeout(poller, &length, timeout, &timedOutNt);
             timedOut = timedOutNt.Get();
-            return new ReadOnlySpan<NtLogMessage>(notifications, (int)length);
+            return new PointerSpan<NtLogMessage>(notifications, (int)length);
         }
 
-        internal static unsafe void DisposeLoggerSpan(ReadOnlySpan<NtLogMessage> listeners)
+        internal static unsafe void DisposeLoggerSpan(PointerSpan<NtLogMessage> listeners)
         {
-            fixed (NtLogMessage* p = listeners)
-            {
-                m_ntcore.NT_DisposeLogMessageArray(p, (UIntPtr)listeners.Length);
-            }
+            m_ntcore.NT_DisposeLogMessageArray(listeners.Pointer, (UIntPtr)listeners.Length);
         }
 
         public static unsafe NtLogger AddPolledLogger(NtLoggerPoller poller, int minLevel, int maxLevel)

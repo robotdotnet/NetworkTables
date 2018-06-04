@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace FRC.NetworkTables
 {
-    public partial class NetworkTableInstance
+    public unsafe partial class NetworkTableInstance
     {
         private readonly ConcurrentDictionary<NtEntryListener, EntryNotificationDelegate> m_entryListeners = new ConcurrentDictionary<NtEntryListener, EntryNotificationDelegate>();
         private readonly Lazy<CancellationTokenSource> m_entryListenerToken;
@@ -49,11 +49,12 @@ namespace FRC.NetworkTables
                         wasInterrupted = true;
                         break;
                     }
-                    foreach (ref readonly var evnt in events)
+                    for (int i = 0; i < events.Length; i++)
                     {
-                        if (m_entryListeners.TryGetValue(evnt.listener, out var listener))
+
+                        if (m_entryListeners.TryGetValue(events.Pointer[i].listener, out var listener))
                         {
-                            listener(new RefEntryNotification(this, evnt));
+                            listener(new RefEntryNotification(this, events.Pointer[i]));
                             if (token.IsCancellationRequested)
                             {
                                 break;
@@ -157,7 +158,7 @@ namespace FRC.NetworkTables
                         NtCore.DisposeConnectionListenerSpan(events);
                         break;
                     }
-                    if (events == null)
+                    if (events.Length == 0)
                     {
                         NtCore.DisposeConnectionListenerSpan(events);
                         lock (m_connectionListenerWaitQueueLock)
@@ -172,11 +173,11 @@ namespace FRC.NetworkTables
                         wasInterrupted = true;
                         break;
                     }
-                    foreach (ref readonly var evnt in events)
+                    for (int i = 0; i < events.Length; i++)
                     {
-                        if (m_connectionListeners.TryGetValue(evnt.listener, out var listener))
+                        if (m_connectionListeners.TryGetValue(events.Pointer[i].listener, out var listener))
                         {
-                            listener(new ConnectionNotification(this, evnt));
+                            listener(new ConnectionNotification(this, events.Pointer[i]));
                             if (token.IsCancellationRequested)
                             {
                                 break;
@@ -286,18 +287,18 @@ namespace FRC.NetworkTables
                         wasInterrupted = true;
                         break;
                     }
-                    foreach (ref readonly var nativeEvent in events)
+                    for (int i = 0; i < events.Length; i++)
                     {
-                        if (m_rpcCalls.TryGetValue(nativeEvent.entry, out var listener))
+                        if (m_rpcCalls.TryGetValue(events.Pointer[i].entry, out var listener))
                         {
                             respondedStore[0] = false;
-                            var evnt = new RpcAnswer(this, nativeEvent, respondedStore);
+                            var evnt = new RpcAnswer(this, events.Pointer[i], respondedStore);
                             listener(evnt);
                             if (!respondedStore[0])
                             {
                                 evnt.PostResponse(Span<byte>.Empty);
                             }
-                             
+
                             if (token.IsCancellationRequested)
                             {
                                 break;
@@ -391,7 +392,7 @@ namespace FRC.NetworkTables
                         NtCore.DisposeLoggerSpan(events);
                         break;
                     }
-                    if (events == null)
+                    if (events.Length == 0)
                     {
                         NtCore.DisposeLoggerSpan(events);
                         lock (m_loggerListenerWaitQueueLock)
@@ -406,11 +407,11 @@ namespace FRC.NetworkTables
                         wasInterrupted = true;
                         break;
                     }
-                    foreach (ref readonly var evnt in events)
+                    for (int i = 0; i < events.Length; i++)
                     {
-                        if (m_loggerListeners.TryGetValue(evnt.logger, out var listener))
+                        if (m_loggerListeners.TryGetValue(events.Pointer[i].logger, out var listener))
                         {
-                            listener(new LogMessage(this, evnt));
+                            listener(new LogMessage(this, events.Pointer[i]));
                             if (token.IsCancellationRequested)
                             {
                                 break;

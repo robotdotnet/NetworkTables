@@ -14,32 +14,6 @@ namespace FRC.NetworkTables.Core.Web
         public NTHub(NetworkTableInstance instance)
         {
             m_instance = instance;
-
-            instance.AddConnectionListener((in ConnectionNotification notification) =>
-            {
-                var n = (
-                    notification.Conn,
-                    notification.Connected
-                );
-                Task.Run(async () =>
-                {
-                    await Clients.All.SendAsync("ConnectionNotification", (object)n.Conn, n.Connected);
-                });
-            }, false);
-
-            instance.AddEntryListener("", (in RefEntryNotification notification) =>
-            {
-                var n =
-                (
-                    Name: notification.Name.ToString(),
-                    Value: notification.Value.Value.GetValue(),
-                    notification.Flags
-                );
-                Task.Run(async () =>
-                {
-                    await Clients.All.SendAsync("EntryNotification", n.Name, n.Value, n.Flags);
-                });
-            }, (NotifyFlags)0xFFFFFFFFu);
         }
 
         public EntryFlags GetFlags(string key)

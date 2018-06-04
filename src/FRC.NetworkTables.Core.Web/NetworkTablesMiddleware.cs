@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
@@ -38,12 +39,34 @@ namespace FRC.NetworkTables.Core.Web
             app.UseSignalR(routes =>
             {
                 routes.MapHub<NTHub>("/nthub");
+
             });
+
+            var nt = app.ApplicationServices.GetService<NetworkTableInstance>();
+            nt.AddConnectionListener((in ConnectionNotification n) =>
+            {
+                var hub = app.ApplicationServices.GetService<IHubContext<NTHub>>();
+                hub.Clients.All.SendAsync("ConnectionNotification", n.Conn, n.Connected).Wait();
+            }, false);
+
+            nt.AddEntryListener("", (in RefEntryNotification notification) =>
+            {
+                var n =
+                (
+                    Name: notification.Name.ToString(),
+                    Value: notification.Value.Value.GetValue(),
+                    notification.Flags
+                );
+                var hub = app.ApplicationServices.GetService<IHubContext<NTHub>>();
+                hub.Clients.All.SendAsync("EntryNotification", n.Name, n.Value, n.Flags).Wait();
+            }, (NotifyFlags)0xFFFFFFFFu);
+
+
 
             app.Use(async (context, next) =>
             {
                 var requestPath = context.Request.Path.ToString();
-                if (requestPath.StartsWith("/nt", StringComparison.InvariantCultureIgnoreCase))
+                if (requestPath.StartsWith("/nttable", StringComparison.InvariantCultureIgnoreCase))
                 {
                     var remaining = requestPath.AsMemory().Slice(3);
                     if (context.Request.Method == "GET")
@@ -59,8 +82,6 @@ namespace FRC.NetworkTables.Core.Web
                 }
                 await next.Invoke();
             });
-
-            app.ApplicationServices.GetService<NetworkTableInstance>();
         }
     }
 }
