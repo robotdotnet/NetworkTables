@@ -69,7 +69,7 @@ Task("Restore")
     .IsDependentOn("Restore")
     .Does(() =>
     {
-        var projects = GetFiles("./src/**/*.csproj");
+        var projects = GetFiles("./src/**/*.csproj").Concat(GetFiles("./test/**/*.csproj"));
         foreach(var project in projects)
         {
             Console.WriteLine(project.FullPath);
