@@ -1,5 +1,4 @@
 ﻿using FRC.NetworkTables.Interop;
-using FRC.NetworkTables.Strings;
 using System;
 
 namespace FRC.NetworkTables
@@ -19,7 +18,7 @@ namespace FRC.NetworkTables
         {
             EntryHandle = answer.entry;
             Call = answer.call;
-            Name = UTF8String.ReadUTF8String(answer.name);
+            Name = UTF8String.ReadUTF8String(answer.name.str, answer.name.len);
             Params = new Span<byte>(answer.@params.str, (int)answer.@params.len);
             Conn = new ConnectionInfo(answer.conn);
             m_wasRespondedTo = respondedTo;

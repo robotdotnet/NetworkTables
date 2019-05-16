@@ -1,5 +1,4 @@
 ﻿using FRC.NetworkTables.Interop;
-using FRC.NetworkTables.Strings;
 
 namespace FRC.NetworkTables
 {

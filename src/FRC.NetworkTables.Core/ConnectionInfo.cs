@@ -1,5 +1,4 @@
 ﻿using FRC.NetworkTables.Interop;
-using FRC.NetworkTables.Strings;
 
 namespace FRC.NetworkTables
 {
@@ -21,8 +20,8 @@ namespace FRC.NetworkTables
 
         internal unsafe ConnectionInfo(NtConnectionInfo* info)
         {
-            RemoteId = UTF8String.ReadUTF8String(info->remote_id);
-            RemoteIp = UTF8String.ReadUTF8String(info->remote_ip);
+            RemoteId = UTF8String.ReadUTF8String(info->remote_id.str, info->remote_id.len);
+            RemoteIp = UTF8String.ReadUTF8String(info->remote_ip.str, info->remote_ip.len);
             RemotePort = (int)info->remote_port;
             LastUpdate = (long)info->last_update;
             ProtocolVersion = (int)info->protocol_version;
@@ -30,8 +29,8 @@ namespace FRC.NetworkTables
 
         internal unsafe ConnectionInfo(in NtConnectionInfo info)
         {
-            RemoteId = UTF8String.ReadUTF8String(info.remote_id);
-            RemoteIp = UTF8String.ReadUTF8String(info.remote_ip);
+            RemoteId = UTF8String.ReadUTF8String(info.remote_id.str, info.remote_id.len);
+            RemoteIp = UTF8String.ReadUTF8String(info.remote_ip.str, info.remote_ip.len);
             RemotePort = (int)info.remote_port;
             LastUpdate = (long)info.last_update;
             ProtocolVersion = (int)info.protocol_version;

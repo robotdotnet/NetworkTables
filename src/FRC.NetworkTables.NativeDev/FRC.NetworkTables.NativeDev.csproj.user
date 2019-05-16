@@ -4,5 +4,6 @@
     <StartWorkingDirectory>
     </StartWorkingDirectory>
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
+    <StartArguments>-ntcore:C:\Users\thadh\Documents\GitHub\thadhouse\allwpilib\ntcore\build\libs\ntcoreJNI\shared\x86-64\debug\ntcorejni.dll</StartArguments>
   </PropertyGroup>
 </Project>
