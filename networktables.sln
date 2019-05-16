@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FCA2625C-F670-47C8-A57C-0CDDA75191D5}"
 EndProject
@@ -9,17 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRC.NetworkTables.Core", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRC.NetworkTables.Dev", "src\FRC.NetworkTables.Dev\FRC.NetworkTables.Dev.csproj", "{3CE96B29-8A19-44E8-A90D-E104A2811C38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRC.NetworkTables.NativeDev", "src\FRC.NetworkTables.NativeDev\FRC.NetworkTables.NativeDev.csproj", "{E05F34D3-6475-477C-B569-B241B077EEFA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRC.NetworkTables.Core.DesktopLibraries", "src\FRC.NetworkTables.Core.DesktopLibraries\FRC.NetworkTables.Core.DesktopLibraries.csproj", "{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRC.NetworkTables.Core.DesktopLibraries", "src\FRC.NetworkTables.Core.DesktopLibraries\FRC.NetworkTables.Core.DesktopLibraries.csproj", "{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{540AC47D-3009-4CE1-8052-31639DF3E962}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRC.NetworkTables.Core.Test", "test\FRC.NetworkTables.Core.Test\FRC.NetworkTables.Core.Test.csproj", "{59184BE7-93CE-4416-94B8-F0CA32C1949B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRC.NetworkTables.Core.Test", "test\FRC.NetworkTables.Core.Test\FRC.NetworkTables.Core.Test.csproj", "{59184BE7-93CE-4416-94B8-F0CA32C1949B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkTablesAPI", "src\NetworkTablesAPI\NetworkTablesAPI.csproj", "{DF4366DB-B3C3-4780-9E0C-AB7DEB6B20C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkTablesAPI", "src\NetworkTablesAPI\NetworkTablesAPI.csproj", "{DF4366DB-B3C3-4780-9E0C-AB7DEB6B20C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRC.NetworkTables.Core.Web", "src\FRC.NetworkTables.Core.Web\FRC.NetworkTables.Core.Web.csproj", "{623E102A-8460-4237-B936-2C50177C527C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRC.NetworkTables.Core.Web", "src\FRC.NetworkTables.Core.Web\FRC.NetworkTables.Core.Web.csproj", "{623E102A-8460-4237-B936-2C50177C527C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,18 +53,6 @@ Global
 		{3CE96B29-8A19-44E8-A90D-E104A2811C38}.Release|x64.Build.0 = Release|Any CPU
 		{3CE96B29-8A19-44E8-A90D-E104A2811C38}.Release|x86.ActiveCfg = Release|Any CPU
 		{3CE96B29-8A19-44E8-A90D-E104A2811C38}.Release|x86.Build.0 = Release|Any CPU
-		{E05F34D3-6475-477C-B569-B241B077EEFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E05F34D3-6475-477C-B569-B241B077EEFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E05F34D3-6475-477C-B569-B241B077EEFA}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{E05F34D3-6475-477C-B569-B241B077EEFA}.Debug|x64.Build.0 = Debug|Any CPU
-		{E05F34D3-6475-477C-B569-B241B077EEFA}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{E05F34D3-6475-477C-B569-B241B077EEFA}.Debug|x86.Build.0 = Debug|Any CPU
-		{E05F34D3-6475-477C-B569-B241B077EEFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E05F34D3-6475-477C-B569-B241B077EEFA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E05F34D3-6475-477C-B569-B241B077EEFA}.Release|x64.ActiveCfg = Release|Any CPU
-		{E05F34D3-6475-477C-B569-B241B077EEFA}.Release|x64.Build.0 = Release|Any CPU
-		{E05F34D3-6475-477C-B569-B241B077EEFA}.Release|x86.ActiveCfg = Release|Any CPU
-		{E05F34D3-6475-477C-B569-B241B077EEFA}.Release|x86.Build.0 = Release|Any CPU
 		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -122,7 +108,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{967E5110-A79D-4BBF-A039-29646474B141} = {FCA2625C-F670-47C8-A57C-0CDDA75191D5}
 		{3CE96B29-8A19-44E8-A90D-E104A2811C38} = {FCA2625C-F670-47C8-A57C-0CDDA75191D5}
-		{E05F34D3-6475-477C-B569-B241B077EEFA} = {FCA2625C-F670-47C8-A57C-0CDDA75191D5}
 		{D46FFFD8-BF31-48E4-830B-DC3AB705E8ED} = {FCA2625C-F670-47C8-A57C-0CDDA75191D5}
 		{59184BE7-93CE-4416-94B8-F0CA32C1949B} = {540AC47D-3009-4CE1-8052-31639DF3E962}
 		{DF4366DB-B3C3-4780-9E0C-AB7DEB6B20C0} = {FCA2625C-F670-47C8-A57C-0CDDA75191D5}
