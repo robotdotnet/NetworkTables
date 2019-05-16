@@ -11,24 +11,54 @@ trigger:
     include:
     - master
 
-pool:
-  vmImage: 'ubuntu-latest'
+jobs:
+ - job: Linux
+   pool:
+     vmImage: 'ubuntu-latest'
 
-steps:
-- script: ./build.sh
-  displayName: 'Build Artifacts'
+   steps:
+    - script: ./build.sh
+      displayName: 'Build Artifacts'
 
-- task: CopyFiles@2
-  inputs:
-    Contents: 'Artifacts/**/*.nupkg'
-    targetFolder: $(Build.ArtifactStagingDirectory)
-  displayName: "Copy Artifacts"
+    - task: CopyFiles@2
+      inputs:
+        Contents: 'Artifacts/**/*.nupkg'
+        targetFolder: $(Build.ArtifactStagingDirectory)
+      displayName: "Copy Artifacts"
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    artifactName: 'NuGet'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        artifactName: 'NuGet'
 
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'VSTest'
-    testResultsFiles: '**/*.trx'
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'VSTest'
+        testResultsFiles: '**/*.trx'
+
+ - job: Windows
+   pool:
+     vmImage: 'vs2017-win2016'
+
+   steps:
+    - script: ./build.ps1
+      displayName: 'Build Artifacts'
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'VSTest'
+        testResultsFiles: '**/*.trx'
+
+
+ - job: Mac
+   pool:
+     vmImage: 'macOS-10.14'
+
+   steps:
+    - script: ./build.sh
+      displayName: 'Build Artifacts'
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'VSTest'
+        testResultsFiles: '**/*.trx'
+
