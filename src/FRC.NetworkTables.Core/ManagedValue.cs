@@ -1,7 +1,6 @@
 ﻿using FRC.NetworkTables.Interop;
 using System;
 using System.Runtime.InteropServices;
-using FRC.NetworkTables.Strings;
 
 namespace FRC.NetworkTables
 {

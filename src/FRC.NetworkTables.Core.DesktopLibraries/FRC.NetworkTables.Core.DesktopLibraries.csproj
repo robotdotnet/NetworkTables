@@ -5,7 +5,7 @@
     <Copyright>Copyright 2018 RobotDotNet</Copyright>
     <AssemblyTitle>FRC NetworkTables.Core.DesktopLibraries</AssemblyTitle>
     <Title>FRC NetworkTables.Core.DesktopLibraries</Title>
-    <VersionPrefix>3.0.0-local</VersionPrefix>
+    <VersionPrefix>4.0.0</VersionPrefix>
     <Authors>RobotDotNet</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>FRC.NetworkTables.Core.DesktopLibraries</AssemblyName>
@@ -19,13 +19,19 @@
   </PropertyGroup>
 
   <ItemGroup><!--<EmbeddedResource Include="Libraries\osx\x86_64\libntcore.dylib;Libraries\Linux\amd64\libntcore.so;Libraries\Windows\amd64\ntcore.dll;Libraries\Mac OS X\x86\libntcore.dylib;Libraries\Linux\i386\libntcore.so;Libraries\Windows\x86\ntcore.dll;Libraries\Linux\arm\libntcore.so" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />-->
-  
-    <None Remove="libraries\windows\x86\ntcore.dll" />
-    <None Remove="libraries\windows\x86_64\ntcore.dll" />
+
+    <None Remove="libraries\windows\x86\ntcorejni.dll" />
+    <None Remove="libraries\windows\x86-64\ntcorejni.dll" />
+    <None Remove="libraries\linux\raspbian\libntcorejni.so" />
+    <None Remove="libraries\linux\x86-64\libntcorejni.so" />
+    <None Remove="libraries\osx\x86-64\libntcorejni.dylib" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="libraries\windows\x86\ntcore.dll" />
-    <EmbeddedResource Include="libraries\windows\x86_64\ntcore.dll" />
+    <EmbeddedResource Include="libraries\windows\x86\ntcorejni.dll" />
+    <EmbeddedResource Include="libraries\windows\x86-64\ntcorejni.dll" />
+    <EmbeddedResource Include="libraries\linux\raspbian\libntcorejni.so" />
+    <EmbeddedResource Include="libraries\linux\x86-64\libntcorejni.so" />
+    <EmbeddedResource Include="libraries\osx\x86-64\libntcorejni.dylib" />
   </ItemGroup>
 </Project>

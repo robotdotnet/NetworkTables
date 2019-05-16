@@ -411,12 +411,12 @@ namespace FRC.NetworkTables
             NtCore.DeleteEntry(Handle);
         }
 
-        internal void CreateRpc(RpcAnswerDelegate callback)
+        public void CreateRpc(RpcAnswerDelegate callback)
         {
             Instance.CreateRpc(this, callback);
         }
 
-        internal RpcCall CallRpc(Span<byte> @params)
+        public RpcCall CallRpc(Span<byte> @params)
         {
             return new RpcCall(this, NtCore.CallRpc(Handle, @params));
         }

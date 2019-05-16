@@ -20,6 +20,21 @@ namespace FRC.NetworkTables.NativeDev
 
         static unsafe void Main(string[] args)
         {
+            var inst = NetworkTableInstance.Default;
+
+            var ey = inst.GetEntry("rpc");
+
+            ey.CreateRpc((in RpcAnswer answer) =>
+            {
+            });
+
+   
+
+            var res = ey.CallRpc(new byte[] { 1, 2, 3, 4 });
+
+            return;
+
+
             var s = DoT(false);
             var w = DoT((object)false);
             ;
@@ -40,7 +55,7 @@ namespace FRC.NetworkTables.NativeDev
             HubConnection connection = null;
 
 
-            var inst = NetworkTableInstance.Default;
+            
             inst.AddConnectionListener((in ConnectionNotification notify) =>
             {
                 Console.WriteLine(notify.Conn.RemoteIp);

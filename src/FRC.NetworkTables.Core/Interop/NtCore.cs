@@ -4,8 +4,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using AdvancedDLSupport;
-using FRC.NetworkTables.Strings;
+using FRC.NativeLibraryUtilities;
 
 [assembly: InternalsVisibleTo("FRC.NetworkTables.Core.Test")]
 
@@ -22,12 +21,13 @@ namespace FRC.NetworkTables.Interop
 
         static NtCore()
         {
-            var activator = new NativeLibraryBuilder(ImplementationOptions.UseIndirectCalls);
             unsafe
             {
                 NullTerminator = (char*)Marshal.AllocHGlobal(sizeof(char));
                 *NullTerminator = '\0';
             }
+
+            var nativeLoader = new NativeLibraryLoader();
 
             string[] commandArgs = Environment.GetCommandLineArgs();
             foreach (var commandArg in commandArgs)
@@ -42,8 +42,8 @@ namespace FRC.NetworkTables.Interop
                     //If the file exists, just return it so dlopen can load it.
                     if (File.Exists(file))
                     {
-                        var library = activator.ActivateInterface<INtCore>(file);
-                        m_ntcore = library;
+                        nativeLoader.LoadNativeLibrary<INtCore>(file, true);
+                        m_ntcore = nativeLoader.LoadNativeInterface<INtCore>();
                         return;
                     }
                 }
@@ -51,23 +51,18 @@ namespace FRC.NetworkTables.Interop
 
             const string resourceRoot = "FRC.NetworkTables.Core.DesktopLibraries.libraries.";
 
-            var nativeLoader = new LibraryLoader(activator);
-
             nativeLoader.AddLibraryLocation(OsType.Windows32,
-                resourceRoot + "windows.x86.ntcore.dll");
+                resourceRoot + "windows.x86.ntcorejni.dll");
             nativeLoader.AddLibraryLocation(OsType.Windows64,
-                resourceRoot + "windows.x86_64.ntcore.dll");
-            nativeLoader.AddLibraryLocation(OsType.Linux32,
-                resourceRoot + "Linux.x86.libntcore.so");
+                resourceRoot + "windows.x86_64.ntcorejni.dll");
             nativeLoader.AddLibraryLocation(OsType.Linux64,
-                resourceRoot + "Linux.amd64.libntcore.so");
-            nativeLoader.AddLibraryLocation(OsType.MacOs32,
-                resourceRoot + "Mac_OS_X.x86.libntcore.dylib");
+                resourceRoot + "linux.x86_64.libntcorejni.so");
             nativeLoader.AddLibraryLocation(OsType.MacOs64,
-                resourceRoot + "Mac_OS_X.x86_64.libntcore.dylib");
+                resourceRoot + "osx.x86_64.libntcorejni.dylib");
             nativeLoader.AddLibraryLocation(OsType.roboRIO, "ntcore");
 
-            m_ntcore = nativeLoader.LoadNativeLibraryFromReflectedAssembly<INtCore>("FRC.NetworkTables.Core.DesktopLibraries");
+            nativeLoader.LoadNativeLibraryFromReflectedAssembly("FRC.NetworkTables.Core.DesktopLibraries");
+            m_ntcore = nativeLoader.LoadNativeInterface<INtCore>();
         }
 
 

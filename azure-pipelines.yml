@@ -1,0 +1,34 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  tags:
+    include:
+    - v*
+  branches:
+    include:
+    - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: ./build.sh
+  displayName: 'Build Artifacts'
+
+- task: CopyFiles@2
+  inputs:
+    Contents: 'Artifacts/**/*.nupkg'
+    targetFolder: $(Build.ArtifactStagingDirectory)
+  displayName: "Copy Artifacts"
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    artifactName: 'NuGet'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'VSTest'
+    testResultsFiles: '**/*.trx'
