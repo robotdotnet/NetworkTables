@@ -26,7 +26,7 @@ namespace FRC.NetworkTables.Core.Web
             m_instance.GetEntry(key).SetFlags(flags);
         }
 
-        public object GetValue(string key)
+        public object? GetValue(string key)
         {
             return m_instance.GetEntry(key).GetObjectValue();
         }
