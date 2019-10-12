@@ -13,13 +13,13 @@ namespace FRC.NetworkTables
 
         private NetworkTableInstance(NtInst handle)
         {
-            m_owned = false;
-            Handle = handle;
-
             m_entryListenerToken = new Lazy<CancellationTokenSource>(CreateEntryListenerThread);
             m_connectionListenerToken = new Lazy<CancellationTokenSource>(CreateConnectionListenerThread);
             m_rpcListenerToken = new Lazy<CancellationTokenSource>(CreateRpcListenerThread);
             m_loggerListenerToken = new Lazy<CancellationTokenSource>(CreateLoggerThread);
+
+            m_owned = false;
+            Handle = handle;
         }
 
         public void Dispose()
