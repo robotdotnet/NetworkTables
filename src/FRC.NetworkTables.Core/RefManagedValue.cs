@@ -77,7 +77,7 @@ namespace FRC.NetworkTables
             }
         }
 
-        public object GetValue()
+        public object? GetValue()
         {
             switch (Type)
             {

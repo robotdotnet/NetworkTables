@@ -43,7 +43,12 @@ namespace FRC.NetworkTables.Interop
                     if (File.Exists(file))
                     {
                         nativeLoader.LoadNativeLibrary<INtCore>(file, true);
-                        m_ntcore = nativeLoader.LoadNativeInterface<INtCore>();
+                        var ntcore2 = nativeLoader.LoadNativeInterface<INtCore>();
+                        if (ntcore2 == null)
+                        {
+                            throw new Exception("Failed to load native interface?");
+                        }
+                        m_ntcore = ntcore2;
                         return;
                     }
                 }
@@ -62,7 +67,12 @@ namespace FRC.NetworkTables.Interop
             nativeLoader.AddLibraryLocation(OsType.roboRIO, "ntcore");
 
             nativeLoader.LoadNativeLibraryFromReflectedAssembly("FRC.NetworkTables.Core.DesktopLibraries");
-            m_ntcore = nativeLoader.LoadNativeInterface<INtCore>();
+            var ntcore = nativeLoader.LoadNativeInterface<INtCore>();
+            if (ntcore == null)
+            {
+                throw new Exception("Failed to load native interface?");
+            }
+            m_ntcore = ntcore;
         }
 
 

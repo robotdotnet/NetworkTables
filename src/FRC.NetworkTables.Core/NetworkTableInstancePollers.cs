@@ -9,7 +9,7 @@ namespace FRC.NetworkTables
     {
         private readonly ConcurrentDictionary<NtEntryListener, EntryNotificationDelegate> m_entryListeners = new ConcurrentDictionary<NtEntryListener, EntryNotificationDelegate>();
         private readonly Lazy<CancellationTokenSource> m_entryListenerToken;
-        private Thread m_entryListenerThread;
+        private Thread? m_entryListenerThread;
         private NtEntryListenerPoller m_entryListenerPoller;
         private readonly object m_entryListenerWaitQueueLock = new object();
         private bool m_entryListenerWaitQueue = false;
@@ -133,7 +133,7 @@ namespace FRC.NetworkTables
 
         private readonly ConcurrentDictionary<NtConnectionListener, ConnectionNotificationDelegate> m_connectionListeners = new ConcurrentDictionary<NtConnectionListener, ConnectionNotificationDelegate>();
         private readonly Lazy<CancellationTokenSource> m_connectionListenerToken;
-        private Thread m_connectionListenerThread;
+        private Thread? m_connectionListenerThread;
         private NtConnectionListenerPoller m_connectionListenerPoller;
         private readonly object m_connectionListenerWaitQueueLock = new object();
         private bool m_connectionListenerWaitQueue = false;
@@ -246,7 +246,7 @@ namespace FRC.NetworkTables
 
         private readonly ConcurrentDictionary<NtEntry, RpcAnswerDelegate> m_rpcCalls = new ConcurrentDictionary<NtEntry, RpcAnswerDelegate>();
         private readonly Lazy<CancellationTokenSource> m_rpcListenerToken;
-        private Thread m_rpcListenerThread;
+        private Thread? m_rpcListenerThread;
         private NtRpcCallPoller m_rpcListenerPoller;
         private readonly object m_rpcListenerWaitQueueLock = new object();
         private bool m_rpcListenerWaitQueue = false;
@@ -367,7 +367,7 @@ namespace FRC.NetworkTables
 
         private readonly ConcurrentDictionary<NtLogger, LogMessageDelegate> m_loggerListeners = new ConcurrentDictionary<NtLogger, LogMessageDelegate>();
         private readonly Lazy<CancellationTokenSource> m_loggerListenerToken;
-        private Thread m_loggerListenerThread;
+        private Thread? m_loggerListenerThread;
         private NtLoggerPoller m_loggerListenerPoller;
         private readonly object m_loggerListenerWaitQueueLock = new object();
         private bool m_loggerListenerWaitQueue = false;

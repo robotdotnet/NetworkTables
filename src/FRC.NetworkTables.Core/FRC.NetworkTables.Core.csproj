@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -9,7 +9,7 @@
     <Copyright>Copyright 2016 RobotDotNet</Copyright>
     <AssemblyTitle>FRC NetworkTables.Core</AssemblyTitle>
     <Title>FRC NetworkTables.Core</Title>
-    <VersionPrefix>4.0.2</VersionPrefix>
+    <VersionPrefix>4.0.3</VersionPrefix>
     <Authors>RobotDotNet</Authors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>FRC.NetworkTables.Core</AssemblyName>
@@ -27,16 +27,21 @@
 
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8.0</LangVersion>
     <RootNamespace>FRC.NetworkTables</RootNamespace>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Memory" Version="4.5.0" />
+    <PackageReference Include="System.Memory" Version="4.5.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FRC.Utilities" Version="[0.0.3-beta]" />
+    <PackageReference Include="FRC.Utilities" Version="3.0.0" />
   </ItemGroup>
 
 </Project>
