@@ -31,7 +31,7 @@ namespace FRC.NetworkTables.Interop
                 }
             }
 
-            if (nativeLoader.TryLoadNativeLibraryPath("ntcore"))
+            if (nativeLoader.TryLoadNativeLibraryPath("ntcorejni"))
             {
                 return nativeLoader.LoadNativeInterface<INtCore>();
             }
