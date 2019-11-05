@@ -232,7 +232,7 @@ namespace FRC.NetworkTables
 
         public bool SetValue(in NetworkTableValue value)
         {
-            return NtCore.SetDefaultEntryValue(Handle, value.Value);
+            return NtCore.SetEntryValue(Handle, value.Value);
         }
 
         public bool SetValue<T>(T value)

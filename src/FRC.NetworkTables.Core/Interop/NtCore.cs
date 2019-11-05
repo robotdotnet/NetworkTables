@@ -353,7 +353,7 @@ namespace FRC.NetworkTables.Interop
             }
         }
 
-        internal static unsafe bool SetEntryValue(NtEntry entry, in ManagedValue value)
+        public static unsafe bool SetEntryValue(NtEntry entry, in ManagedValue value)
         {
             NtValue v = new NtValue();
             v.type = value.Type;
@@ -599,6 +599,12 @@ namespace FRC.NetworkTables.Interop
                 case NtType.String:
                     fixed (char* p = value.Data.VString)
                     {
+                        if (p == null)
+                        {
+                            v.data.v_string.str = null;
+                            v.data.v_string.len = (UIntPtr)0;
+                            return m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                        }
                         var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
                         Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                         fixed (byte* d = dSpan)
@@ -675,6 +681,13 @@ namespace FRC.NetworkTables.Interop
                 case NtType.String:
                     fixed (char* p = value.Data.VString)
                     {
+                        if (p == null)
+                        {
+                            v.data.v_string.str = null;
+                            v.data.v_string.len = (UIntPtr)0;
+                            m_ntcore.NT_SetEntryValue(entry, &v).Get();
+                            return;
+                        }
                         var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
                         Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                         fixed (byte* d = dSpan)
