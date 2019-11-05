@@ -9,7 +9,7 @@ namespace FRC.NetworkTables
     {
         public readonly NtEntryListener Listener;
         public readonly NtEntry EntryHandle;
-        public readonly ReadOnlySpan<char> Name;
+        public readonly string Name;
         public readonly RefNetworkTableValue Value;
         public readonly NotifyFlags Flags;
         public NetworkTableEntry Entry => new NetworkTableEntry(m_instance, EntryHandle);
@@ -21,7 +21,7 @@ namespace FRC.NetworkTables
         {
             Listener = entry.listener;
             EntryHandle = entry.entry;
-            Name = UTF8String.ReadUTF8String(entry.name.str, entry.name.len).AsSpan();
+            Name = UTF8String.ReadUTF8String(entry.name.str, entry.name.len);
             Value = new RefNetworkTableValue(new RefManagedValue(entry.value));
             Flags = (NotifyFlags)entry.flags;
             m_instance = inst;

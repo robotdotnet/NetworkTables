@@ -49,7 +49,7 @@ namespace FRC.NetworkTables
             int prefixLen = Path.Length + 1;
             return Instance.AddEntryListener(m_pathWithSep, (in RefEntryNotification evnt) =>
             {
-                ReadOnlySpan<char> relativeKey = evnt.Name.Slice(prefixLen);
+                ReadOnlySpan<char> relativeKey = evnt.Name.AsSpan().Slice(prefixLen);
                 if (relativeKey.IndexOf(PathSeparator) != -1)
                 {
                     return;
@@ -64,7 +64,7 @@ namespace FRC.NetworkTables
             int prefixLen = Path.Length + 1;
             return Instance.AddEntryListener(entry, (in RefEntryNotification evnt) =>
             {
-                ReadOnlySpan<char> relativeKey = evnt.Name.Slice(prefixLen);
+                ReadOnlySpan<char> relativeKey = evnt.Name.AsSpan().Slice(prefixLen);
                 listener(this, relativeKey, evnt.Entry, evnt.Value, evnt.Flags);
             }, flags);
         }
@@ -96,7 +96,7 @@ namespace FRC.NetworkTables
 
             return Instance.AddEntryListener(m_pathWithSep, (in RefEntryNotification evnt) =>
             {
-                ReadOnlySpan<char> relativeKey = evnt.Name.Slice(prefixLen);
+                ReadOnlySpan<char> relativeKey = evnt.Name.AsSpan().Slice(prefixLen);
                 int endSubTable = relativeKey.IndexOf(PathSeparator);
                 if (endSubTable == -1)
                 {

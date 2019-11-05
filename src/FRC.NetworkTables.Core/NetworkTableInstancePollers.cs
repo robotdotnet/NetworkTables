@@ -1,13 +1,15 @@
 ﻿using FRC.NetworkTables.Interop;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace FRC.NetworkTables
 {
     public unsafe partial class NetworkTableInstance
     {
-        private readonly ConcurrentDictionary<NtEntryListener, EntryNotificationDelegate> m_entryListeners = new ConcurrentDictionary<NtEntryListener, EntryNotificationDelegate>();
+        private readonly object m_entryListenerLock = new object();
+        private readonly Dictionary<NtEntryListener, EntryNotificationDelegate> m_entryListeners = new Dictionary<NtEntryListener, EntryNotificationDelegate>();
         private readonly Lazy<CancellationTokenSource> m_entryListenerToken;
         private Thread? m_entryListenerThread;
         private NtEntryListenerPoller m_entryListenerPoller;
@@ -51,8 +53,11 @@ namespace FRC.NetworkTables
                     }
                     for (int i = 0; i < events.Length; i++)
                     {
-
-                        if (m_entryListeners.TryGetValue(events.Pointer[i].listener, out var listener))
+                        EntryNotificationDelegate? listener;
+                        lock (m_entryListenerLock) {
+                            m_entryListeners.TryGetValue(events.Pointer[i].listener, out listener);
+                        }
+                        if (listener != null)
                         {
                             listener(new RefEntryNotification(this, events.Pointer[i]));
                             if (token.IsCancellationRequested)
@@ -84,17 +89,21 @@ namespace FRC.NetworkTables
         public NtEntryListener AddEntryListener(string prefix, EntryNotificationDelegate listener, NotifyFlags flags)
         {
             var token = m_entryListenerToken.Value;
-            var handle = NtCore.AddPolledEntryListener(m_entryListenerPoller, prefix, flags);
-            m_entryListeners.GetOrAdd(handle, listener);
-            return handle;
+            lock (m_entryListenerLock) {
+                var handle = NtCore.AddPolledEntryListener(m_entryListenerPoller, prefix, flags);
+                m_entryListeners.Add(handle, listener);
+                return handle;
+            }
         }
 
         public NtEntryListener AddEntryListener(in NetworkTableEntry entry, EntryNotificationDelegate listener, NotifyFlags flags)
         {
             var token = m_entryListenerToken.Value;
-            var handle = NtCore.AddPolledEntryListener(m_entryListenerPoller, entry, flags);
-            m_entryListeners.GetOrAdd(handle, listener);
-            return handle;
+            lock (m_entryListenerLock) {
+                var handle = NtCore.AddPolledEntryListener(m_entryListenerPoller, entry, flags);
+                m_entryListeners.Add(handle, listener);
+                return handle;
+            }
         }
 
         public void RemoveEntryListener(NtEntryListener listener)

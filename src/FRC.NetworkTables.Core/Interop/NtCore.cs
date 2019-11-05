@@ -19,7 +19,9 @@ namespace FRC.NetworkTables.Interop
 
         private unsafe readonly static char* NullTerminator;
 
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         static NtCore()
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             unsafe
             {
@@ -27,50 +29,43 @@ namespace FRC.NetworkTables.Interop
                 *NullTerminator = '\0';
             }
 
-            var nativeLoader = new NativeLibraryLoader();
-
-            string[] commandArgs = Environment.GetCommandLineArgs();
-            foreach (var commandArg in commandArgs)
+            if (NtCoreHelper.LoadOnStaticInit)
             {
-                //search for a line with the prefix "-ntcore:"
-                if (commandArg.ToLower().Contains("-ntcore:"))
+                var ntcore = NtCoreHelper.Load();
+                if (ntcore == null)
                 {
-                    //Split line to get the library.
-                    int splitLoc = commandArg.IndexOf(':');
-                    string file = commandArg.Substring(splitLoc + 1);
-
-                    //If the file exists, just return it so dlopen can load it.
-                    if (File.Exists(file))
-                    {
-                        nativeLoader.LoadNativeLibrary<INtCore>(file, true);
-                        var ntcore2 = nativeLoader.LoadNativeInterface<INtCore>();
-                        if (ntcore2 == null)
-                        {
-                            throw new Exception("Failed to load native interface?");
-                        }
-                        m_ntcore = ntcore2;
-                        return;
-                    }
+                    throw new InvalidOperationException("Faield to load ntcore");
                 }
+                m_ntcore = ntcore;
+            }
+        }
+
+        public static void ForceLoad()
+        {
+            if (m_ntcore == null)
+            {
+                var ntcore = NtCoreHelper.Load();
+                if (ntcore == null)
+                {
+                    throw new InvalidOperationException("Faield to load ntcore");
+                }
+                m_ntcore = ntcore;
+            }
+        }
+
+        public static void ForceLoadDirect(string directPath)
+        {
+            if (m_ntcore != null)
+            {
+                throw new InvalidOperationException("Direct load not supported after implict load");
             }
 
-            const string resourceRoot = "FRC.NetworkTables.Core.DesktopLibraries.libraries.";
-
-            nativeLoader.AddLibraryLocation(OsType.Windows32,
-                resourceRoot + "windows.x86.ntcorejni.dll");
-            nativeLoader.AddLibraryLocation(OsType.Windows64,
-                resourceRoot + "windows.x86_64.ntcorejni.dll");
-            nativeLoader.AddLibraryLocation(OsType.Linux64,
-                resourceRoot + "linux.x86_64.libntcorejni.so");
-            nativeLoader.AddLibraryLocation(OsType.MacOs64,
-                resourceRoot + "osx.x86_64.libntcorejni.dylib");
-            nativeLoader.AddLibraryLocation(OsType.roboRIO, "ntcore");
-
-            nativeLoader.LoadNativeLibraryFromReflectedAssembly("FRC.NetworkTables.Core.DesktopLibraries");
+            var nativeLoader = new NativeLibraryLoader();
+            nativeLoader.LoadNativeLibrary<INtCore>(directPath, true);
             var ntcore = nativeLoader.LoadNativeInterface<INtCore>();
             if (ntcore == null)
             {
-                throw new Exception("Failed to load native interface?");
+                throw new InvalidOperationException("Faield to load ntcore");
             }
             m_ntcore = ntcore;
         }
@@ -298,7 +293,7 @@ namespace FRC.NetworkTables.Interop
                     v.data.v_double = value.Data.VDouble;
                     return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
                 case NtType.String:
-                    fixed (char* p = value.Data.VString.Span)
+                    fixed (char* p = value.Data.VString.AsSpan())
                     {
                         var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
                         Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
@@ -312,14 +307,14 @@ namespace FRC.NetworkTables.Interop
                     }
                 case NtType.Raw:
                 case NtType.Rpc:
-                    fixed (byte* p = value.Data.VRaw.Span)
+                    fixed (byte* p = value.Data.VRaw.AsSpan())
                     {
                         v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
                         v.data.v_raw.str = p;
                         return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
                     }
                 case NtType.BooleanArray:
-                    fixed (bool* p = value.Data.VBooleanArray.Span)
+                    fixed (bool* p = value.Data.VBooleanArray.AsSpan())
                     {
                         var len = value.Data.VBooleanArray.Length;
                         Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len == 0 ? 1 : 0] : new NtBool[len];
@@ -331,7 +326,7 @@ namespace FRC.NetworkTables.Interop
                         }
                     }
                 case NtType.DoubleArray:
-                    fixed (byte* p = value.Data.VRaw.Span)
+                    fixed (byte* p = value.Data.VRaw.AsSpan())
                     {
                         v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
                         v.data.v_raw.str = p;
@@ -340,7 +335,7 @@ namespace FRC.NetworkTables.Interop
                 case NtType.StringArray:
                     v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray.Length * sizeof(NtString));
                     v.data.arr_string.len = (UIntPtr)value.Data.VStringArray.Length;
-                    var sSpan = value.Data.VStringArray.Span;
+                    var sSpan = value.Data.VStringArray.AsSpan();
                     for (int i = 0; i < sSpan.Length; i++)
                     {
                         Utilities.CreateNtString(sSpan[i], &v.data.arr_string.arr[i]);
@@ -372,7 +367,7 @@ namespace FRC.NetworkTables.Interop
                     v.data.v_double = value.Data.VDouble;
                     return m_ntcore.NT_SetEntryValue(entry, &v).Get();
                 case NtType.String:
-                    fixed (char* p = value.Data.VString.Span)
+                    fixed (char* p = value.Data.VString.AsSpan())
                     {
                         var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
                         Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
@@ -386,14 +381,14 @@ namespace FRC.NetworkTables.Interop
                     }
                 case NtType.Raw:
                 case NtType.Rpc:
-                    fixed (byte* p = value.Data.VRaw.Span)
+                    fixed (byte* p = value.Data.VRaw.AsSpan())
                     {
                         v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
                         v.data.v_raw.str = p;
                         return m_ntcore.NT_SetEntryValue(entry, &v).Get();
                     }
                 case NtType.BooleanArray:
-                    fixed (bool* p = value.Data.VBooleanArray.Span)
+                    fixed (bool* p = value.Data.VBooleanArray.AsSpan())
                     {
                         var len = value.Data.VBooleanArray.Length;
                         Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len == 0 ? 1 : 0] : new NtBool[len];
@@ -405,7 +400,7 @@ namespace FRC.NetworkTables.Interop
                         }
                     }
                 case NtType.DoubleArray:
-                    fixed (byte* p = value.Data.VRaw.Span)
+                    fixed (byte* p = value.Data.VRaw.AsSpan())
                     {
                         v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
                         v.data.v_raw.str = p;
@@ -414,7 +409,7 @@ namespace FRC.NetworkTables.Interop
                 case NtType.StringArray:
                     v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray.Length * sizeof(NtString));
                     v.data.arr_string.len = (UIntPtr)value.Data.VStringArray.Length;
-                    var sSpan = value.Data.VStringArray.Span;
+                    var sSpan = value.Data.VStringArray.AsSpan();
                     for (int i = 0; i < sSpan.Length; i++)
                     {
                         Utilities.CreateNtString(sSpan[i], &v.data.arr_string.arr[i]);
@@ -448,7 +443,7 @@ namespace FRC.NetworkTables.Interop
                     m_ntcore.NT_SetEntryTypeValue(entry, &v);
                     break;
                 case NtType.String:
-                    fixed (char* p = value.Data.VString.Span)
+                    fixed (char* p = value.Data.VString.AsSpan())
                     {
                         var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
                         Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
@@ -463,7 +458,7 @@ namespace FRC.NetworkTables.Interop
                     }
                 case NtType.Raw:
                 case NtType.Rpc:
-                    fixed (byte* p = value.Data.VRaw.Span)
+                    fixed (byte* p = value.Data.VRaw.AsSpan())
                     {
                         v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
                         v.data.v_raw.str = p;
@@ -471,7 +466,7 @@ namespace FRC.NetworkTables.Interop
                         break;
                     }
                 case NtType.BooleanArray:
-                    fixed (bool* p = value.Data.VBooleanArray.Span)
+                    fixed (bool* p = value.Data.VBooleanArray.AsSpan())
                     {
                         var len = value.Data.VBooleanArray.Length;
                         Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len == 0 ? 1 : 0] : new NtBool[len];
@@ -484,7 +479,7 @@ namespace FRC.NetworkTables.Interop
                         }
                     }
                 case NtType.DoubleArray:
-                    fixed (byte* p = value.Data.VRaw.Span)
+                    fixed (byte* p = value.Data.VRaw.AsSpan())
                     {
                         v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
                         v.data.v_raw.str = p;
@@ -494,7 +489,7 @@ namespace FRC.NetworkTables.Interop
                 case NtType.StringArray:
                     v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray.Length * sizeof(NtString));
                     v.data.arr_string.len = (UIntPtr)value.Data.VStringArray.Length;
-                    var sSpan = value.Data.VStringArray.Span;
+                    var sSpan = value.Data.VStringArray.AsSpan();
                     for (int i = 0; i < sSpan.Length; i++)
                     {
                         Utilities.CreateNtString(sSpan[i], &v.data.arr_string.arr[i]);

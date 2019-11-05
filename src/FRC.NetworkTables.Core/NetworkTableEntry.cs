@@ -67,14 +67,14 @@ namespace FRC.NetworkTables
             return defaultValue;
         }
 
-        public ReadOnlySpan<char> GetString(string defaultValue)
+        public string GetString(string defaultValue)
         {
             var entry = NtCore.GetEntryValue(Handle);
             if (entry.Type == NtType.String)
             {
-                return entry.Data.VString.Span;
+                return entry.Data.VString;
             }
-            return defaultValue.AsSpan();
+            return defaultValue;
         }
 
         public ReadOnlySpan<char> GetString(ReadOnlySpan<char> defaultValue)
@@ -82,7 +82,7 @@ namespace FRC.NetworkTables
             var entry = NtCore.GetEntryValue(Handle);
             if (entry.Type == NtType.String)
             {
-                return entry.Data.VString.Span;
+                return entry.Data.VString.AsSpan();
             }
             return defaultValue;
         }
@@ -92,7 +92,7 @@ namespace FRC.NetworkTables
             var entry = NtCore.GetEntryValue(Handle);
             if (entry.Type == NtType.Raw)
             {
-                return entry.Data.VRaw.Span;
+                return entry.Data.VRaw.AsSpan();
             }
             return defaultValue;
         }
@@ -102,7 +102,7 @@ namespace FRC.NetworkTables
             var entry = NtCore.GetEntryValue(Handle);
             if (entry.Type == NtType.BooleanArray)
             {
-                return entry.Data.VBooleanArray.Span;
+                return entry.Data.VBooleanArray.AsSpan();
             }
             return defaultValue;
         }
@@ -112,7 +112,7 @@ namespace FRC.NetworkTables
             var entry = NtCore.GetEntryValue(Handle);
             if (entry.Type == NtType.DoubleArray)
             {
-                return entry.Data.VDoubleArray.Span;
+                return entry.Data.VDoubleArray.AsSpan();
             }
             return defaultValue;
         }
@@ -122,7 +122,7 @@ namespace FRC.NetworkTables
             var entry = NtCore.GetEntryValue(Handle);
             if (entry.Type == NtType.StringArray)
             {
-                return entry.Data.VStringArray.Span;
+                return entry.Data.VStringArray.AsSpan();
             }
             return defaultValue;
         }
