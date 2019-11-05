@@ -70,6 +70,15 @@ namespace FRC.NetworkTables.Interop
             m_ntcore = ntcore;
         }
 
+        public static void LoadExisting(INtCore ntcore)
+        {
+            if (m_ntcore != null)
+            {
+                throw new InvalidOperationException("Direct load not supported after implict load");
+            }
+            m_ntcore = ntcore;
+        }
+
 
         private static Span<T> GetSpanOrBuffer<T>(Span<T> store, int length)
         {
