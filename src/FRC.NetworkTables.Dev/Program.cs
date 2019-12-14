@@ -7,7 +7,13 @@ namespace FRC.NetworkTables.Dev
     {
         static void Main(string[] args)
         {
-            var inst = NtCore.GetDefaultInstance();
+
+            NetworkTableInstance inst = NetworkTableInstance.Default;
+            foreach (var s in inst.GetTable("SmartDashboard").GetSubTables())
+            {
+                ;
+            }
+
             Console.WriteLine("Hello World!");
         }
     }

@@ -808,7 +808,7 @@ namespace FRC.NetworkTables.Interop
             fixed (char* p = prefix)
             {
                 var dLen = Encoding.UTF8.GetByteCount(p, prefix.Length);
-                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : 0] : new byte[dLen];
+                Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                 fixed (byte* d = dSpan)
                 {
                     Encoding.UTF8.GetBytes(p, prefix.Length, d, dLen);

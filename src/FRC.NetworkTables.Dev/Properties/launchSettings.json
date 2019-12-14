@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "FRC.NetworkTables.Dev": {
-      "commandName": "Project",
-      "workingDirectory": "C:\Users\\thadh\\Documents\\GitHub\\thadhouse\\allwpilib\\ntcore\\build\\install\\ntcoreDev\\x86-64\\lib",
-      "nativeDebugging": true
-    }
-  }
-}

@@ -110,7 +110,7 @@ namespace FRC.NetworkTables
                     return;
                 }
                 notifiedTable.Add(subTableKeyStr);
-                listener(this, subTableKeySpan, this.GetSubTable(subTableKeySpan));
+                listener(this, subTableKeySpan, evnt.Flags);
             }, flags);
         }
 
