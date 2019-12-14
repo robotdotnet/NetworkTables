@@ -66,16 +66,16 @@ namespace FRC.NetworkTables
                 case NtType.Double:
                     return Data.VDouble == other.Data.VDouble;
                 case NtType.String:
-                    return Data.VString.Span.SequenceEqual(other.Data.VString.Span);
+                    return Data.VString.AsSpan().SequenceEqual(other.Data.VString.AsSpan());
                 case NtType.Raw:
                 case NtType.Rpc:
-                    return Data.VRaw.Span.SequenceEqual(other.Data.VRaw.Span);
+                    return Data.VRaw.AsSpan().SequenceEqual(other.Data.VRaw.AsSpan());
                 case NtType.BooleanArray:
-                    return Data.VBooleanArray.Span.SequenceEqual(other.Data.VBooleanArray.Span);
+                    return Data.VBooleanArray.AsSpan().SequenceEqual(other.Data.VBooleanArray.AsSpan());
                 case NtType.DoubleArray:
-                    return Data.VDoubleArray.Span.SequenceEqual(other.Data.VDoubleArray.Span);
+                    return Data.VDoubleArray.AsSpan().SequenceEqual(other.Data.VDoubleArray.AsSpan());
                 case NtType.StringArray:
-                    return Data.VStringArray.Span.SequenceEqual(other.Data.VStringArray.Span);
+                    return Data.VStringArray.AsSpan().SequenceEqual(other.Data.VStringArray.AsSpan());
                 default:
                     return false;
             }
@@ -93,13 +93,13 @@ namespace FRC.NetworkTables
                     return Data.VString.ToString();
                 case NtType.Rpc:
                 case NtType.Raw:
-                    return Data.VRaw.ToArray();
+                    return Data.VRaw.AsSpan().ToArray();
                 case NtType.BooleanArray:
-                    return Data.VBooleanArray.ToArray();
+                    return Data.VBooleanArray.AsSpan().ToArray();
                 case NtType.DoubleArray:
-                    return Data.VDoubleArray.ToArray();
+                    return Data.VDoubleArray.AsSpan().ToArray();
                 case NtType.StringArray:
-                    return Data.VStringArray.ToArray();
+                    return Data.VStringArray.AsSpan().ToArray();
                 default:
                     return null;
             }
@@ -184,15 +184,15 @@ namespace FRC.NetworkTables
         [FieldOffset(0)]
         public readonly double VDouble;
         [FieldOffset(8)]
-        public readonly ReadOnlyMemory<char> VString;
+        public readonly string? VString;
         [FieldOffset(8)]
-        public readonly ReadOnlyMemory<byte> VRaw;
+        public readonly byte[]? VRaw;
         [FieldOffset(8)]
-        public readonly ReadOnlyMemory<bool> VBooleanArray;
+        public readonly bool[]? VBooleanArray;
         [FieldOffset(8)]
-        public readonly ReadOnlyMemory<double> VDoubleArray;
+        public readonly double[]? VDoubleArray;
         [FieldOffset(8)]
-        public readonly ReadOnlyMemory<string> VStringArray;
+        public readonly string[]? VStringArray;
 
         internal EntryUnion(bool v)
         {
@@ -230,7 +230,20 @@ namespace FRC.NetworkTables
             VDoubleArray = null;
             VStringArray = null;
 
-            VString = v.ToArray();
+            VString = v.ToString();
+        }
+
+        internal EntryUnion(string v)
+        {
+            VBoolean = false;
+            VDouble = 0;
+            VString = null;
+            VRaw = null;
+            VBooleanArray = null;
+            VDoubleArray = null;
+            VStringArray = null;
+
+            VString = v;
         }
 
         internal EntryUnion(ReadOnlySpan<byte> v)
@@ -246,6 +259,19 @@ namespace FRC.NetworkTables
             VRaw = v.ToArray();
         }
 
+        internal EntryUnion(byte[] v)
+        {
+            VBoolean = false;
+            VDouble = 0;
+            VString = null;
+            VRaw = null;
+            VBooleanArray = null;
+            VDoubleArray = null;
+            VStringArray = null;
+
+            VRaw = v;
+        }
+
         internal EntryUnion(ReadOnlySpan<bool> v)
         {
             VBoolean = false;
@@ -257,6 +283,19 @@ namespace FRC.NetworkTables
             VStringArray = null;
 
             VBooleanArray = v.ToArray();
+        }
+
+        internal EntryUnion(bool[] v)
+        {
+            VBoolean = false;
+            VDouble = 0;
+            VString = null;
+            VRaw = null;
+            VBooleanArray = null;
+            VDoubleArray = null;
+            VStringArray = null;
+
+            VBooleanArray = v;
         }
 
         internal EntryUnion(ReadOnlySpan<double> v)
@@ -272,6 +311,19 @@ namespace FRC.NetworkTables
             VDoubleArray = v.ToArray();
         }
 
+        internal EntryUnion(double[] v)
+        {
+            VBoolean = false;
+            VDouble = 0;
+            VString = null;
+            VRaw = null;
+            VBooleanArray = null;
+            VDoubleArray = null;
+            VStringArray = null;
+
+            VDoubleArray = v;
+        }
+
         internal EntryUnion(ReadOnlySpan<string> v)
         {
             VBoolean = false;
@@ -283,6 +335,19 @@ namespace FRC.NetworkTables
             VStringArray = null;
 
             VStringArray = v.ToArray();
+        }
+
+        internal EntryUnion(string[] v)
+        {
+            VBoolean = false;
+            VDouble = 0;
+            VString = null;
+            VRaw = null;
+            VBooleanArray = null;
+            VDoubleArray = null;
+            VStringArray = null;
+
+            VStringArray = v;
         }
 
         internal unsafe EntryUnion(NtValue* v)
@@ -306,7 +371,7 @@ namespace FRC.NetworkTables
                     VDouble = v->data.v_double;
                     break;
                 case NtType.String:
-                    VString = UTF8String.ReadUTF8String(v->data.v_string.str, v->data.v_string.len).AsMemory();
+                    VString = UTF8String.ReadUTF8String(v->data.v_string.str, v->data.v_string.len);
                     break;
                 case NtType.Rpc:
                 case NtType.Raw:
@@ -365,7 +430,7 @@ namespace FRC.NetworkTables
                     VDouble = v.Data.VDouble;
                     break;
                 case NtType.String:
-                    VString = v.Data.VString.ToArray();
+                    VString = v.Data.VString.ToString();
                     break;
                 case NtType.Rpc:
                 case NtType.Raw:

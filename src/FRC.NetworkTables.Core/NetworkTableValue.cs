@@ -103,13 +103,13 @@ namespace FRC.NetworkTables
         /// <returns>string contained in type</returns>
         /// <exception cref="InvalidCastException">Thrown if
         /// type is not string.</exception>
-        public ReadOnlySpan<char> GetString()
+        public string GetString()
         {
             if (Type != NtType.String)
             {
                 throw new InvalidCastException($"cannot convert {Type} to string");
             }
-            return Value.Data.VString.Span;
+            return Value.Data.VString;
         }
 
         //For reference types (other then strings) return copies;
@@ -120,13 +120,13 @@ namespace FRC.NetworkTables
         /// <returns>raw byte array contained in type</returns>
         /// <exception cref="InvalidCastException">Thrown if
         /// type is not raw.</exception>
-        public ReadOnlySpan<byte> GetRaw()
+        public byte[] GetRaw()
         {
             if (Type != NtType.Raw)
             {
                 throw new InvalidCastException($"cannot convert {Type} to raw");
             }
-            return Value.Data.VRaw.Span;
+            return Value.Data.VRaw;
         }
 
         /// <summary>
@@ -135,13 +135,13 @@ namespace FRC.NetworkTables
         /// <returns>rpc byte array contained in type</returns>
         /// <exception cref="InvalidCastException">Thrown if
         /// type is not rpc.</exception>
-        public ReadOnlySpan<byte> GetRpc()
+        public byte[] GetRpc()
         {
             if (Type != NtType.Rpc)
             {
                 throw new InvalidCastException($"cannot convert {Type} to Rpc");
             }
-            return Value.Data.VRaw.Span;
+            return Value.Data.VRaw;
         }
 
         /// <summary>
@@ -150,13 +150,13 @@ namespace FRC.NetworkTables
         /// <returns>boolean array contained in type</returns>
         /// <exception cref="InvalidCastException">Thrown if
         /// type is not boolean array.</exception>
-        public ReadOnlySpan<bool> GetBooleanArray()
+        public bool[] GetBooleanArray()
         {
             if (Type != NtType.BooleanArray)
             {
                 throw new InvalidCastException($"cannot convert {Type} to boolean array");
             }
-            return Value.Data.VBooleanArray.Span;
+            return Value.Data.VBooleanArray;
         }
 
         /// <summary>
@@ -165,13 +165,13 @@ namespace FRC.NetworkTables
         /// <returns>double array contained in type</returns>
         /// <exception cref="InvalidCastException">Thrown if
         /// type is not double array.</exception>
-        public ReadOnlySpan<double> GetDoubleArray()
+        public double[] GetDoubleArray()
         {
             if (Type != NtType.DoubleArray)
             {
                 throw new InvalidCastException($"cannot convert {Type} to double array");
             }
-            return Value.Data.VDoubleArray.Span;
+            return Value.Data.VDoubleArray;
         }
 
         /// <summary>
@@ -180,13 +180,13 @@ namespace FRC.NetworkTables
         /// <returns>string array contained in type</returns>
         /// <exception cref="InvalidCastException">Thrown if
         /// type is not string arrya.</exception>
-        public ReadOnlySpan<string> GetStringArray()
+        public string[] GetStringArray()
         {
             if (Type != NtType.StringArray)
             {
                 throw new InvalidCastException($"cannot convert {Type} to string array");
             }
-            return Value.Data.VStringArray.Span;
+            return Value.Data.VStringArray;
         }
 
         public static NetworkTableValue MakeBoolean(bool value)
