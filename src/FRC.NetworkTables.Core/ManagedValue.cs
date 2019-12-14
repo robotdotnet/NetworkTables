@@ -25,20 +25,20 @@ namespace FRC.NetworkTables
                         hash = (hash * 7) + Data.VDouble.GetHashCode();
                         break;
                     case NtType.String:
-                        hash = (hash * 7) + Data.VString.GetHashCode();
+                        hash = (hash * 7) + Data.VString!.GetHashCode();
                         break;
                     case NtType.Rpc:
                     case NtType.Raw:
-                        hash = (hash * 7) + Data.VRaw.GetHashCode();
+                        hash = (hash * 7) + Data.VRaw!.GetHashCode();
                         break;
                     case NtType.BooleanArray:
-                        hash = (hash * 7) + Data.VBooleanArray.GetHashCode();
+                        hash = (hash * 7) + Data.VBooleanArray!.GetHashCode();
                         break;
                     case NtType.DoubleArray:
-                        hash = (hash * 7) + Data.VDoubleArray.GetHashCode();
+                        hash = (hash * 7) + Data.VDoubleArray!.GetHashCode();
                         break;
                     case NtType.StringArray:
-                        hash = (hash * 7) + Data.VStringArray.GetHashCode();
+                        hash = (hash * 7) + Data.VStringArray!.GetHashCode();
                         break;
                 }
                 return hash;
@@ -90,7 +90,7 @@ namespace FRC.NetworkTables
                 case NtType.Double:
                     return Data.VDouble;
                 case NtType.String:
-                    return Data.VString.ToString();
+                    return Data.VString!.ToString();
                 case NtType.Rpc:
                 case NtType.Raw:
                     return Data.VRaw.AsSpan().ToArray();

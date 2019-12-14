@@ -32,11 +32,7 @@ namespace FRC.NetworkTables.Interop
             if (NtCoreHelper.LoadOnStaticInit)
             {
                 var ntcore = NtCoreHelper.Load();
-                if (ntcore == null)
-                {
-                    throw new InvalidOperationException("Faield to load ntcore");
-                }
-                m_ntcore = ntcore;
+                m_ntcore = ntcore ?? throw new InvalidOperationException("Failed to load ntcore");
             }
         }
 
@@ -45,11 +41,7 @@ namespace FRC.NetworkTables.Interop
             if (m_ntcore == null)
             {
                 var ntcore = NtCoreHelper.Load();
-                if (ntcore == null)
-                {
-                    throw new InvalidOperationException("Faield to load ntcore");
-                }
-                m_ntcore = ntcore;
+                m_ntcore = ntcore ?? throw new InvalidOperationException("Failed to load ntcore");
             }
         }
 
@@ -63,11 +55,7 @@ namespace FRC.NetworkTables.Interop
             var nativeLoader = new NativeLibraryLoader();
             nativeLoader.LoadNativeLibrary<INtCore>(directPath, true);
             var ntcore = nativeLoader.LoadNativeInterface<INtCore>();
-            if (ntcore == null)
-            {
-                throw new InvalidOperationException("Faield to load ntcore");
-            }
-            m_ntcore = ntcore;
+            m_ntcore = ntcore ?? throw new Exception("Failed to load native interface?");
         }
 
         public static void LoadExisting(INtCore ntcore)
@@ -290,8 +278,10 @@ namespace FRC.NetworkTables.Interop
 
         internal static unsafe bool SetDefaultEntryValue(NtEntry entry, in ManagedValue value)
         {
-            NtValue v = new NtValue();
-            v.type = value.Type;
+            NtValue v = new NtValue
+            {
+                type = value.Type
+            };
 
             switch (value.Type)
             {
@@ -304,7 +294,7 @@ namespace FRC.NetworkTables.Interop
                 case NtType.String:
                     fixed (char* p = value.Data.VString.AsSpan())
                     {
-                        var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
+                        var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString!.Length);
                         Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                         fixed (byte* d = dSpan)
                         {
@@ -318,14 +308,14 @@ namespace FRC.NetworkTables.Interop
                 case NtType.Rpc:
                     fixed (byte* p = value.Data.VRaw.AsSpan())
                     {
-                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw!.Length;
                         v.data.v_raw.str = p;
                         return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
                     }
                 case NtType.BooleanArray:
                     fixed (bool* p = value.Data.VBooleanArray.AsSpan())
                     {
-                        var len = value.Data.VBooleanArray.Length;
+                        var len = value.Data.VBooleanArray!.Length;
                         Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len == 0 ? 1 : 0] : new NtBool[len];
                         fixed (NtBool* d = dSpan)
                         {
@@ -337,12 +327,12 @@ namespace FRC.NetworkTables.Interop
                 case NtType.DoubleArray:
                     fixed (byte* p = value.Data.VRaw.AsSpan())
                     {
-                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw!.Length;
                         v.data.v_raw.str = p;
                         return m_ntcore.NT_SetDefaultEntryValue(entry, &v).Get();
                     }
                 case NtType.StringArray:
-                    v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray.Length * sizeof(NtString));
+                    v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray!.Length * sizeof(NtString));
                     v.data.arr_string.len = (UIntPtr)value.Data.VStringArray.Length;
                     var sSpan = value.Data.VStringArray.AsSpan();
                     for (int i = 0; i < sSpan.Length; i++)
@@ -364,8 +354,10 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe bool SetEntryValue(NtEntry entry, in ManagedValue value)
         {
-            NtValue v = new NtValue();
-            v.type = value.Type;
+            NtValue v = new NtValue
+            {
+                type = value.Type
+            };
 
             switch (value.Type)
             {
@@ -378,7 +370,7 @@ namespace FRC.NetworkTables.Interop
                 case NtType.String:
                     fixed (char* p = value.Data.VString.AsSpan())
                     {
-                        var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
+                        var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString!.Length);
                         Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                         fixed (byte* d = dSpan)
                         {
@@ -392,14 +384,14 @@ namespace FRC.NetworkTables.Interop
                 case NtType.Rpc:
                     fixed (byte* p = value.Data.VRaw.AsSpan())
                     {
-                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw!.Length;
                         v.data.v_raw.str = p;
                         return m_ntcore.NT_SetEntryValue(entry, &v).Get();
                     }
                 case NtType.BooleanArray:
                     fixed (bool* p = value.Data.VBooleanArray.AsSpan())
                     {
-                        var len = value.Data.VBooleanArray.Length;
+                        var len = value.Data.VBooleanArray!.Length;
                         Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len == 0 ? 1 : 0] : new NtBool[len];
                         fixed (NtBool* d = dSpan)
                         {
@@ -411,12 +403,12 @@ namespace FRC.NetworkTables.Interop
                 case NtType.DoubleArray:
                     fixed (byte* p = value.Data.VRaw.AsSpan())
                     {
-                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw!.Length;
                         v.data.v_raw.str = p;
                         return m_ntcore.NT_SetEntryValue(entry, &v).Get();
                     }
                 case NtType.StringArray:
-                    v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray.Length * sizeof(NtString));
+                    v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray!.Length * sizeof(NtString));
                     v.data.arr_string.len = (UIntPtr)value.Data.VStringArray.Length;
                     var sSpan = value.Data.VStringArray.AsSpan();
                     for (int i = 0; i < sSpan.Length; i++)
@@ -438,8 +430,10 @@ namespace FRC.NetworkTables.Interop
 
         internal static unsafe void SetEntryTypeValue(NtEntry entry, in ManagedValue value)
         {
-            NtValue v = new NtValue();
-            v.type = value.Type;
+            NtValue v = new NtValue
+            {
+                type = value.Type
+            };
 
             switch (value.Type)
             {
@@ -454,7 +448,7 @@ namespace FRC.NetworkTables.Interop
                 case NtType.String:
                     fixed (char* p = value.Data.VString.AsSpan())
                     {
-                        var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString.Length);
+                        var dLen = Encoding.UTF8.GetByteCount(p, value.Data.VString!.Length);
                         Span<byte> dSpan = dLen <= 256 ? stackalloc byte[dLen == 0 ? 1 : dLen] : new byte[dLen];
                         fixed (byte* d = dSpan)
                         {
@@ -469,7 +463,7 @@ namespace FRC.NetworkTables.Interop
                 case NtType.Rpc:
                     fixed (byte* p = value.Data.VRaw.AsSpan())
                     {
-                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw!.Length;
                         v.data.v_raw.str = p;
                         m_ntcore.NT_SetEntryTypeValue(entry, &v);
                         break;
@@ -477,7 +471,7 @@ namespace FRC.NetworkTables.Interop
                 case NtType.BooleanArray:
                     fixed (bool* p = value.Data.VBooleanArray.AsSpan())
                     {
-                        var len = value.Data.VBooleanArray.Length;
+                        var len = value.Data.VBooleanArray!.Length;
                         Span<NtBool> dSpan = len <= 256 ? stackalloc NtBool[len == 0 ? 1 : 0] : new NtBool[len];
                         fixed (NtBool* d = dSpan)
                         {
@@ -490,13 +484,13 @@ namespace FRC.NetworkTables.Interop
                 case NtType.DoubleArray:
                     fixed (byte* p = value.Data.VRaw.AsSpan())
                     {
-                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw.Length;
+                        v.data.v_raw.len = (UIntPtr)value.Data.VRaw!.Length;
                         v.data.v_raw.str = p;
                         m_ntcore.NT_SetEntryTypeValue(entry, &v);
                         break;
                     }
                 case NtType.StringArray:
-                    v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray.Length * sizeof(NtString));
+                    v.data.arr_string.arr = (NtString*)Marshal.AllocHGlobal(value.Data.VStringArray!.Length * sizeof(NtString));
                     v.data.arr_string.len = (UIntPtr)value.Data.VStringArray.Length;
                     var sSpan = value.Data.VStringArray.AsSpan();
                     for (int i = 0; i < sSpan.Length; i++)
@@ -520,8 +514,10 @@ namespace FRC.NetworkTables.Interop
 
         internal static unsafe bool SetDefaultEntryValue(NtEntry entry, in RefManagedValue value)
         {
-            NtValue v = new NtValue();
-            v.type = value.Type;
+            NtValue v = new NtValue
+            {
+                type = value.Type
+            };
 
             switch (value.Type)
             {
@@ -594,8 +590,10 @@ namespace FRC.NetworkTables.Interop
 
         internal static unsafe bool SetEntryValue(NtEntry entry, in RefManagedValue value)
         {
-            NtValue v = new NtValue();
-            v.type = value.Type;
+            NtValue v = new NtValue
+            {
+                type = value.Type
+            };
 
             switch (value.Type)
             {
@@ -674,8 +672,10 @@ namespace FRC.NetworkTables.Interop
 
         internal static unsafe void SetEntryTypeValue(NtEntry entry, in RefManagedValue value)
         {
-            NtValue v = new NtValue();
-            v.type = value.Type;
+            NtValue v = new NtValue
+            {
+                type = value.Type
+            };
 
             switch (value.Type)
             {
@@ -1125,10 +1125,8 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe void SetNetworkIdentity(NtInst inst, String name)
         {
-            using (var str = UTF8String.CreateUTF8DisposableString(name))
-            {
-                m_ntcore.NT_SetNetworkIdentity(inst, str.Buffer, str.Length);
-            }
+            using var str = UTF8String.CreateUTF8DisposableString(name);
+            m_ntcore.NT_SetNetworkIdentity(inst, str.Buffer, str.Length);
         }
 
         public static unsafe NetworkMode GetNetworkMode(NtInst inst)
@@ -1138,11 +1136,9 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe void StartServer(NtInst inst, string persistFilename, string listenAddress, int port)
         {
-            using (var pStr = UTF8String.CreateUTF8DisposableString(persistFilename))
-            using (var lStr = UTF8String.CreateUTF8DisposableString(listenAddress))
-            {
-                m_ntcore.NT_StartServer(inst, pStr.Buffer, lStr.Buffer, (uint)port);
-            }
+            using var pStr = UTF8String.CreateUTF8DisposableString(persistFilename);
+            using var lStr = UTF8String.CreateUTF8DisposableString(listenAddress);
+            m_ntcore.NT_StartServer(inst, pStr.Buffer, lStr.Buffer, (uint)port);
         }
 
         public static unsafe void StopServer(NtInst inst)
@@ -1157,10 +1153,8 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe void StartClient(NtInst inst, string serverName, int port)
         {
-            using (var str = UTF8String.CreateUTF8DisposableString(serverName))
-            {
-                m_ntcore.NT_StartClient(inst, str.Buffer, (uint)port);
-            }
+            using var str = UTF8String.CreateUTF8DisposableString(serverName);
+            m_ntcore.NT_StartClient(inst, str.Buffer, (uint)port);
         }
 
         public static unsafe void StartClient(NtInst inst, ReadOnlySpan<ServerPortPair> servers)
@@ -1200,10 +1194,8 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe void SetServer(NtInst inst, string serverName, int port)
         {
-            using (var str = UTF8String.CreateUTF8DisposableString(serverName))
-            {
-                m_ntcore.NT_SetServer(inst, str.Buffer, (uint)port);
-            }
+            using var str = UTF8String.CreateUTF8DisposableString(serverName);
+            m_ntcore.NT_SetServer(inst, str.Buffer, (uint)port);
         }
 
         public static unsafe void SetServer(NtInst inst, ReadOnlySpan<ServerPortPair> servers)
@@ -1277,13 +1269,11 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe void SavePersistent(NtInst inst, string filename)
         {
-            using (var f = UTF8String.CreateUTF8DisposableString(filename))
+            using var f = UTF8String.CreateUTF8DisposableString(filename);
+            var error = m_ntcore.NT_SavePersistent(inst, f.Buffer);
+            if (error != null)
             {
-                var error = m_ntcore.NT_SavePersistent(inst, f.Buffer);
-                if (error != null)
-                {
-                    throw new PersistentException(UTF8String.ReadUTF8String(error));
-                }
+                throw new PersistentException(UTF8String.ReadUTF8String(error));
             }
         }
 
@@ -1292,52 +1282,46 @@ namespace FRC.NetworkTables.Interop
 
         public static unsafe List<string> LoadPersistent(NtInst inst, string filename)
         {
-            using (var f = UTF8String.CreateUTF8DisposableString(filename))
+            using var f = UTF8String.CreateUTF8DisposableString(filename);
+            List<string> warns = new List<string>(4);
+            var fp = Marshal.GetFunctionPointerForDelegate<WarnFunc>((UIntPtr line, byte* message) =>
             {
-                List<string> warns = new List<string>(4);
-                var fp = Marshal.GetFunctionPointerForDelegate<WarnFunc>((UIntPtr line, byte* message) =>
-                {
-                    warns.Add($"{(int)line} : {UTF8String.ReadUTF8String(message)}");
-                });
-                var error = m_ntcore.NT_LoadPersistent(inst, f.Buffer, fp);
-                if (error != null)
-                {
-                    throw new PersistentException(UTF8String.ReadUTF8String(error));
-                }
-                return warns;
+                warns.Add($"{(int)line} : {UTF8String.ReadUTF8String(message)}");
+            });
+            var error = m_ntcore.NT_LoadPersistent(inst, f.Buffer, fp);
+            if (error != null)
+            {
+                throw new PersistentException(UTF8String.ReadUTF8String(error));
             }
+            return warns;
         }
 
         public static unsafe void SaveEntries(NtInst inst, string filename, string prefix)
         {
-            using (var f = UTF8String.CreateUTF8DisposableString(filename))
-            using (var p = UTF8String.CreateUTF8DisposableString(prefix))
+            using var f = UTF8String.CreateUTF8DisposableString(filename);
+            using var p = UTF8String.CreateUTF8DisposableString(prefix);
+            var error = m_ntcore.NT_SaveEntries(inst, f.Buffer, p.Buffer, p.Length);
+            if (error != null)
             {
-                var error = m_ntcore.NT_SaveEntries(inst, f.Buffer, p.Buffer, p.Length);
-                if (error != null)
-                {
-                    throw new PersistentException(UTF8String.ReadUTF8String(error));
-                }
+                throw new PersistentException(UTF8String.ReadUTF8String(error));
             }
         }
 
         public static unsafe List<string> LoadEntries(NtInst inst, string filename, string prefix)
         {
-            using (var f = UTF8String.CreateUTF8DisposableString(filename))
-            using (var p = UTF8String.CreateUTF8DisposableString(prefix))
+            using var f = UTF8String.CreateUTF8DisposableString(filename);
+            using var p = UTF8String.CreateUTF8DisposableString(prefix);
+            List<string> warns = new List<string>(4);
+            var fp = Marshal.GetFunctionPointerForDelegate<WarnFunc>((UIntPtr line, byte* message) =>
             {
-                List<string> warns = new List<string>(4);
-                var fp = Marshal.GetFunctionPointerForDelegate<WarnFunc>((UIntPtr line, byte* message) =>
-                {
-                    warns.Add($"{(int)line} : {UTF8String.ReadUTF8String(message)}");
-                });
-                var error = m_ntcore.NT_LoadEntries(inst, f.Buffer, p.Buffer, p.Length, fp);
-                if (error != null)
-                {
-                    throw new PersistentException(UTF8String.ReadUTF8String(error));
-                }
-                return warns;
+                warns.Add($"{(int)line} : {UTF8String.ReadUTF8String(message)}");
+            });
+            var error = m_ntcore.NT_LoadEntries(inst, f.Buffer, p.Buffer, p.Length, fp);
+            if (error != null)
+            {
+                throw new PersistentException(UTF8String.ReadUTF8String(error));
             }
+            return warns;
         }
 
 

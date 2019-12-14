@@ -109,7 +109,7 @@ namespace FRC.NetworkTables
             {
                 throw new InvalidCastException($"cannot convert {Type} to string");
             }
-            return Value.Data.VString;
+            return Value.Data.VString!;
         }
 
         //For reference types (other then strings) return copies;
@@ -126,7 +126,7 @@ namespace FRC.NetworkTables
             {
                 throw new InvalidCastException($"cannot convert {Type} to raw");
             }
-            return Value.Data.VRaw;
+            return Value.Data.VRaw!;
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace FRC.NetworkTables
             {
                 throw new InvalidCastException($"cannot convert {Type} to Rpc");
             }
-            return Value.Data.VRaw;
+            return Value.Data.VRaw!;
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace FRC.NetworkTables
             {
                 throw new InvalidCastException($"cannot convert {Type} to boolean array");
             }
-            return Value.Data.VBooleanArray;
+            return Value.Data.VBooleanArray!;
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace FRC.NetworkTables
             {
                 throw new InvalidCastException($"cannot convert {Type} to double array");
             }
-            return Value.Data.VDoubleArray;
+            return Value.Data.VDoubleArray!;
         }
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace FRC.NetworkTables
             {
                 throw new InvalidCastException($"cannot convert {Type} to string array");
             }
-            return Value.Data.VStringArray;
+            return Value.Data.VStringArray!;
         }
 
         public static NetworkTableValue MakeBoolean(bool value)

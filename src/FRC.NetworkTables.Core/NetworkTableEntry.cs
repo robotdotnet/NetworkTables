@@ -72,7 +72,7 @@ namespace FRC.NetworkTables
             var entry = NtCore.GetEntryValue(Handle);
             if (entry.Type == NtType.String)
             {
-                return entry.Data.VString;
+                return entry.Data.VString!;
             }
             return defaultValue;
         }
@@ -129,33 +129,21 @@ namespace FRC.NetworkTables
 
         private double? GetAsDouble<T>(T value)
         {
-            switch (value)
+            return value switch
             {
-                case double v:
-                    return v;
-                case int v:
-                    return v;
-                case short v:
-                    return v;
-                case byte v:
-                    return v;
-                case long v:
-                    return v;
-                case float v:
-                    return v;
-                case ushort v:
-                    return v;
-                case uint v:
-                    return v;
-                case ulong v:
-                    return v;
-                case sbyte v:
-                    return v;
-                case decimal v:
-                    return (double)v;
-                default:
-                    return null;
-            }
+                double v => v,
+                int v => v,
+                short v => v,
+                byte v => v,
+                long v => v,
+                float v => v,
+                ushort v => v,
+                uint v => v,
+                ulong v => v,
+                sbyte v => v,
+                decimal v => (double)v,
+                _ => default(double?),
+            };
         }
 
         public bool SetDefaultValue(in NetworkTableValue value)

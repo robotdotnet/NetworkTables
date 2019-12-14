@@ -14,7 +14,7 @@ trigger:
 jobs:
  - job: Linux
    pool:
-     vmImage: 'ubuntu-latest'
+     vmImage: 'ubuntu-18.04'
 
    steps:
     - script: ./build.sh
@@ -37,7 +37,7 @@ jobs:
 
  - job: Windows
    pool:
-     vmImage: 'vs2017-win2016'
+     vmImage: 'windows-2019'
 
    steps:
     - powershell: ./build.ps1
@@ -54,6 +54,12 @@ jobs:
      vmImage: 'macOS-10.14'
 
    steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core sdk'
+      inputs:
+        packageType: sdk
+        version: 3.1.100
+        installationPath: $(Agent.ToolsDirectory)/dotnet
     - script: ./build.sh
       displayName: 'Build Artifacts'
 

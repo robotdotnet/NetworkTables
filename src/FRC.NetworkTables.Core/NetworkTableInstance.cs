@@ -32,7 +32,7 @@ namespace FRC.NetworkTables
 
         public bool IsValid() => Handle.Get() != 0;
 
-        private static Lazy<NetworkTableInstance> s_defaultInstance = new Lazy<NetworkTableInstance>(() =>
+        private static readonly Lazy<NetworkTableInstance> s_defaultInstance = new Lazy<NetworkTableInstance>(() =>
         {
             return new NetworkTableInstance(NtCore.GetDefaultInstance());
         });
