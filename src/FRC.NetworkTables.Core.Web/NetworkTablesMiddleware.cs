@@ -49,17 +49,17 @@ namespace FRC.NetworkTables.Core.Web
                 hub.Clients.All.SendAsync("ConnectionNotification", n.Conn, n.Connected).Wait();
             }, false);
 
-            nt.AddEntryListener("", (in RefEntryNotification notification) =>
-            {
-                var n =
-                (
-                    Name: notification.Name.ToString(),
-                    Value: notification.Value.Value.GetValue(),
-                    notification.Flags
-                );
-                var hub = app.ApplicationServices.GetService<IHubContext<NTHub>>();
-                hub.Clients.All.SendAsync("EntryNotification", n.Name, n.Value, n.Flags).Wait();
-            }, (NotifyFlags)0xFFFFFFFFu);
+            _ = nt.AddEntryListener("", (in RefEntryNotification notification) =>
+              {
+                  var (Name, Value, Flags) =
+                  (
+                      notification.Name.ToString(),
+                      notification.Value.Value.GetValue(),
+                      notification.Flags
+                  );
+                  var hub = app.ApplicationServices.GetService<IHubContext<NTHub>>();
+                  hub.Clients.All.SendAsync("EntryNotification", Name, Value, Flags).Wait();
+              }, (NotifyFlags)0xFFFFFFFFu);
 
 
 

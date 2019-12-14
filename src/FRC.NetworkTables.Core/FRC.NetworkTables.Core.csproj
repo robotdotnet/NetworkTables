@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FRC.Utilities" Version="3.0.2" />
+    <PackageReference Include="FRC.Utilities" Version="3.0.4" />
   </ItemGroup>
 
 </Project>

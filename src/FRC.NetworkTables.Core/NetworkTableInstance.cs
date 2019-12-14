@@ -41,8 +41,10 @@ namespace FRC.NetworkTables
 
         public static NetworkTableInstance Create()
         {
-            var inst = new NetworkTableInstance(NtCore.CreateInstance());
-            inst.m_owned = true;
+            var inst = new NetworkTableInstance(NtCore.CreateInstance())
+            {
+                m_owned = true
+            };
             return inst;
         }
 
